@@ -204,9 +204,77 @@ export const defaultLargeTheme: DashboardTheme = {
   },
 };
 
+/**
+ * Claude AI — Official Anthropic Claude branding.
+ *
+ * Palette sourced from claude.ai:
+ *   - Background : #1C1917  (warm dark brown — "Claude dark canvas")
+ *   - Midground  : #F5EEE6  (warm cream / ivory — readable text)
+ *   - Accent     : #D97757  (coral / terracotta — the Claude signature hue)
+ *   - Warm glow  : coral at 30 % opacity
+ *   - Font       : Inter — close to claude.ai's body text
+ */
+export const claudeTheme: DashboardTheme = {
+  name: "claude",
+  label: "Claude AI",
+  description: "Anthropic Claude — warm coral & cream on deep brown",
+  palette: {
+    background: { hex: "#1C1917", alpha: 1 },
+    midground:  { hex: "#F5EEE6", alpha: 1 },
+    foreground: { hex: "#ffffff", alpha: 0 },
+    warmGlow:   "rgba(217, 119, 87, 0.30)",
+    noiseOpacity: 0.7,
+  },
+  typography: {
+    fontSans:
+      '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontMono:
+      '"JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace',
+    fontDisplay:
+      '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    fontUrl:
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap",
+    baseSize: "15px",
+    lineHeight: "1.6",
+    letterSpacing: "-0.01em",
+  },
+  layout: {
+    radius: "0.625rem",
+    density: "comfortable",
+  },
+  colorOverrides: {
+    /* Claude's coral as the interactive / primary brand colour. */
+    primary:            "#D97757",
+    primaryForeground:  "#ffffff",
+    /* Cards & popovers: slightly lighter than background. */
+    card:               "#2A2522",
+    cardForeground:     "#F5EEE6",
+    popover:            "#2A2522",
+    popoverForeground:  "#F5EEE6",
+    /* Muted sections. */
+    secondary:          "#2E2925",
+    secondaryForeground:"#C9BFB6",
+    muted:              "#252220",
+    mutedForeground:    "#A09890",
+    /* Accent echoes the coral. */
+    accent:             "#3A2E28",
+    accentForeground:   "#D97757",
+    /* Borders & inputs. */
+    border:             "#3D3530",
+    input:              "#3D3530",
+    ring:               "#D97757",
+    /* Status. */
+    destructive:        "#E05C3A",
+    destructiveForeground: "#ffffff",
+    success:            "#4BB871",
+    warning:            "#E6A135",
+  },
+};
+
 export const BUILTIN_THEMES: Record<string, DashboardTheme> = {
   default: defaultTheme,
   "default-large": defaultLargeTheme,
+  claude: claudeTheme,
   midnight: midnightTheme,
   ember: emberTheme,
   mono: monoTheme,

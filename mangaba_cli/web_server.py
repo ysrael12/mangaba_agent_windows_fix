@@ -3753,6 +3753,7 @@ def mount_spa(application: FastAPI):
 _BUILTIN_DASHBOARD_THEMES = [
     {"name": "default",       "label": "Mangaba Teal",         "description": "Classic dark teal — the canonical Mangaba look"},
     {"name": "default-large", "label": "Mangaba Teal (Large)", "description": "Mangaba Teal with bigger fonts and roomier spacing"},
+    {"name": "claude",    "label": "Claude AI",      "description": "Anthropic Claude — warm coral & cream on deep brown"},
     {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
     {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
     {"name": "mono",      "label": "Mono",           "description": "Clean grayscale — minimal and focused"},
