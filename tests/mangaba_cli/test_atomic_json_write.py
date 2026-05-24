@@ -2,6 +2,7 @@
 
 import json
 import os
+import sys
 from pathlib import Path
 from unittest.mock import patch
 
@@ -133,6 +134,7 @@ class TestAtomicJsonWrite:
         assert result["emoji"] == "🎉"
         assert result["japanese"] == "日本語"
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="bloqueio de arquivo concorrente no Windows")
     def test_concurrent_writes_dont_corrupt(self, tmp_path):
         """Multiple rapid writes should each produce valid JSON."""
         import threading
