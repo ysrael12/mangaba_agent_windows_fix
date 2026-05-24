@@ -3,10 +3,13 @@
 import logging
 import os
 import stat
+import sys
 import threading
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 import pytest
 
@@ -694,6 +697,7 @@ class TestAddRotatingHandler:
                 logger.removeHandler(h)
                 h.close()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="permissões Unix não existem no Windows")
     def test_managed_mode_initial_open_sets_group_writable(self, tmp_path):
         log_path = tmp_path / "managed-open.log"
         logger = logging.getLogger("_test_rotating_managed_open")
@@ -718,6 +722,7 @@ class TestAddRotatingHandler:
                 logger.removeHandler(h)
                 h.close()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="permissões Unix não existem no Windows")
     def test_managed_mode_rollover_sets_group_writable(self, tmp_path):
         log_path = tmp_path / "managed-rollover.log"
         logger = logging.getLogger("_test_rotating_managed_rollover")
