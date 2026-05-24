@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://dheiver2.github.io/mangaba-agent"><img src="https://img.shields.io/badge/Docs-dheiver2.github.io/mangaba--agent-8B5CF6?style=for-the-badge" alt="Documentação"></a>
   <a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/Licença-MIT-green?style=for-the-badge" alt="Licença MIT"></a>
-  <a href="https://github.com/dheiver2/mangaba-agent/issues"><img src="https://img.shields.io/badge/Issues-GitHub-EC4899?style=for-the-badge&logo=github" alt="Issues"></a>
+  <a href="https://github.com/dheiver2/mangaba-agent/issues"><img src="https://img.shields.io/badge/Issues-GitHub-E07830?style=for-the-badge&logo=github" alt="Issues"></a>
   <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/200%2B_Modelos-OpenRouter-F59E0B?style=for-the-badge" alt="200+ Modelos"></a>
 </p>
 
