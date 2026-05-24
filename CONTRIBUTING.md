@@ -20,4 +20,4 @@ Obrigado pelo interesse em contribuir! 🥭
 
 **Dheiver Santos** — [github.com/dheiver2](https://github.com/dheiver2)
 
-Baseado no [Hermes Agent](https://github.com/nousresearch/hermes-agent) (NousResearch) — MIT License.
+MIT License.

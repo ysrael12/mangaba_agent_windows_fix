@@ -296,5 +296,5 @@ MIT License — veja [LICENSE](LICENSE) para detalhes.
 ---
 
 <p align="center">
-  🥭 Feito no Brasil · Baseado no <a href="https://github.com/nousresearch/hermes-agent">Hermes Agent</a> (NousResearch) · MIT License
+  🥭 Feito no Brasil · MIT License
 </p>
