@@ -43,29 +43,28 @@
 }
 
 /* ------------------------------------------------------------------ */
-/* Mangaba Agent — Nous DS with the LENS_0 (Mangaba teal) lens applied   */
-/* statically. Mirrors nousnet-web/(mangaba-agent)/layout.tsx so the    */
-/* canonical Mangaba palette is the default — teal canvas + cream      */
-/* accent — without relying on leva/gsap at runtime.                  */
+/* Mangaba Agent — Claude AI / Mangaba brand palette applied statically. */
+/* Values sourced pixel-perfect from mangaba.chat · mangaba-voice.tech  */
+/* · mangabapixel.online: bg #1C1917, accent #D97757 (coral), cream     */
+/* text #F5EEE4. ThemeProvider overwrites these on every theme switch.  */
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* LENS_0 — from design-language/src/ui/components/overlays/index.tsx.
-     These are the defaults for the `default` (Mangaba Teal) dashboard theme;
-     ThemeProvider rewrites them as inline styles when a user switches themes. */
+  /* Claude AI / Mangaba brand defaults — zero-flash on first load.
+     --bg: #1C1917 · --accent: #D97757 · text: #F5EEE4 */
   --foreground: color-mix(in srgb, #ffffff 0%, transparent);
   --foreground-base: #ffffff;
   --foreground-alpha: 0;
-  --midground: color-mix(in srgb, #ffe6cb 100%, transparent);
-  --midground-base: #ffe6cb;
+  --midground: color-mix(in srgb, #F5EEE4 100%, transparent);
+  --midground-base: #F5EEE4;
   --midground-alpha: 1;
-  --background: color-mix(in srgb, #041c1c 100%, transparent);
-  --background-base: #041c1c;
+  --background: color-mix(in srgb, #1C1917 100%, transparent);
+  --background-base: #1C1917;
   --background-alpha: 1;
 
-  /* Consumed by <Backdrop />; also theme-switchable. */
-  --warm-glow: rgba(255, 189, 56, 0.35);
-  --noise-opacity-mul: 1;
+  /* Coral warm glow — matches --accent #D97757 at 28% opacity. */
+  --warm-glow: rgba(217, 119, 87, 0.28);
+  --noise-opacity-mul: 0.65;
 
   /* Typography tokens — rewritten by ThemeProvider. Defaults match the
      system stack so themes that don't override look native. */

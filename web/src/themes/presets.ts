@@ -205,27 +205,36 @@ export const defaultLargeTheme: DashboardTheme = {
 };
 
 /**
- * Claude AI — Official Anthropic Claude branding.
+ * Claude AI / Mangaba — Official brand palette.
  *
- * Palette sourced from claude.ai:
- *   - Background : #1C1917  (warm dark brown — "Claude dark canvas")
- *   - Midground  : #F5EEE6  (warm cream / ivory — readable text)
- *   - Accent     : #D97757  (coral / terracotta — the Claude signature hue)
- *   - Warm glow  : coral at 30 % opacity
- *   - Font       : Inter — close to claude.ai's body text
+ * Values sourced pixel-perfect from:
+ *   mangaba.chat · mangaba-voice.tech · mangabapixel.online
+ *
+ *   --bg          #1C1917  warm near-black canvas
+ *   --accent      #D97757  coral / terracotta — the brand signature hue
+ *   --surface     #2D2A28  elevated surfaces (cards)
+ *   --sidebar     #252220  sidebar / secondary surface
+ *   --border      #3A3430  subtle warm border
+ *   --leaf        #6B9540  Mangaba green — secondary accent
+ *   Font: Inter (same as mangaba.chat / claude.ai)
  */
 export const claudeTheme: DashboardTheme = {
   name: "claude",
   label: "Claude AI",
-  description: "Anthropic Claude — warm coral & cream on deep brown",
+  description: "Paleta oficial Mangaba/Claude — coral & cream em fundo escuro quente",
   palette: {
+    /* Exact --bg value used across all three Mangaba sites. */
     background: { hex: "#1C1917", alpha: 1 },
-    midground:  { hex: "#F5EEE6", alpha: 1 },
+    /* Warm cream — hsl(48 23% 95%) from mangaba.chat --foreground dark mode. */
+    midground:  { hex: "#F5EEE4", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow:   "rgba(217, 119, 87, 0.30)",
-    noiseOpacity: 0.7,
+    /* Coral glow matching --accent #D97757. */
+    warmGlow:   "rgba(217, 119, 87, 0.28)",
+    noiseOpacity: 0.65,
   },
   typography: {
+    /* Inter — exact font used on mangaba.chat & mangaba-voice.tech.
+       Weight range matches their Google Fonts import (300–700). */
     fontSans:
       '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     fontMono:
@@ -233,40 +242,52 @@ export const claudeTheme: DashboardTheme = {
     fontDisplay:
       '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap",
     baseSize: "15px",
     lineHeight: "1.6",
     letterSpacing: "-0.01em",
   },
   layout: {
-    radius: "0.625rem",
+    /* --radius:0.5rem from mangaba.chat globals. */
+    radius: "0.5rem",
     density: "comfortable",
   },
   colorOverrides: {
-    /* Claude's coral as the interactive / primary brand colour. */
+    /* ── Primary ─────────────────────────────────────────────────────── */
+    /* --accent: #D97757 (mangabapixel & mangaba.chat --primary dark). */
     primary:            "#D97757",
     primaryForeground:  "#ffffff",
-    /* Cards & popovers: slightly lighter than background. */
-    card:               "#2A2522",
-    cardForeground:     "#F5EEE6",
-    popover:            "#2A2522",
-    popoverForeground:  "#F5EEE6",
-    /* Muted sections. */
-    secondary:          "#2E2925",
-    secondaryForeground:"#C9BFB6",
+
+    /* ── Surfaces ────────────────────────────────────────────────────── */
+    /* --surface: #2D2A28 · --sidebar: #252220 */
+    card:               "#2D2A28",
+    cardForeground:     "#F5EEE4",
+    popover:            "#252220",
+    popoverForeground:  "#F5EEE4",
+
+    /* ── Secondary / muted ───────────────────────────────────────────── */
+    secondary:          "#252220",
+    secondaryForeground:"#C4B9B0",
     muted:              "#252220",
-    mutedForeground:    "#A09890",
-    /* Accent echoes the coral. */
-    accent:             "#3A2E28",
+    /* hsl(30 6% 64%) from mangaba.chat --muted-foreground dark. */
+    mutedForeground:    "#A49890",
+
+    /* ── Accent tints ────────────────────────────────────────────────── */
+    /* --accent-soft: #2E1F18 (mangabapixel soft coral bg). */
+    accent:             "#2E1F18",
     accentForeground:   "#D97757",
-    /* Borders & inputs. */
-    border:             "#3D3530",
-    input:              "#3D3530",
+
+    /* ── Borders & ring ──────────────────────────────────────────────── */
+    /* --border: #3A3430 · --hover: #302C28 */
+    border:             "#3A3430",
+    input:              "#3A3430",
     ring:               "#D97757",
-    /* Status. */
-    destructive:        "#E05C3A",
-    destructiveForeground: "#ffffff",
-    success:            "#4BB871",
+
+    /* ── Status ──────────────────────────────────────────────────────── */
+    destructive:            "#E05C3A",
+    destructiveForeground:  "#ffffff",
+    /* --leaf: #6B9540 — Mangaba green for success states. */
+    success:            "#6B9540",
     warning:            "#E6A135",
   },
 };
