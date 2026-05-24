@@ -1,8 +1,7 @@
-# contributor check desabilitado
-name: contributor-check
-on: [push]
+name: disabled
+on: [push, pull_request]
 jobs:
-  check:
+  skip:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Mangaba Agent - Dheiver Santos"
+      - run: echo "ok"
