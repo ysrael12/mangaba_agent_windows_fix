@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="pixel">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,328 +9,548 @@
   <meta property="og:description" content="O agente que cresce com você." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    /* ── PALETA MANGABA ──
-       Verde folha:    #3a6b2a  /  #5a9e42  /  #8fce6a
-       Amarelo maduro: #e8c84a  /  #f0d060
-       Laranja:        #e07830  /  #d45a1a
-       Vermelho maduro:#b83a1a
-       Creme polpa:    #f5ead8
-       Casca manchada: #6b4820
-    */
-    :root {
-      --bg:       #0e1209;
-      --bg2:      #141a0c;
-      --bg3:      #1a2210;
-      --border:   #2a3818;
-      --text:     #eee8d8;
-      --muted:    #7a8c65;
-
-      --green-dk: #3a6b2a;
-      --green:    #5a9e42;
-      --green-lt: #8fce6a;
-      --yellow:   #e8c84a;
-      --yellow-lt:#f5e070;
-      --orange:   #e07830;
-      --orange-lt:#f0a050;
-      --red:      #b83a1a;
-      --cream:    #f5ead8;
-      --bark:     #6b4820;
-
-      --accent:   #e8c84a;   /* amarelo mangaba */
-      --accent2:  #e07830;   /* laranja */
-      --accent3:  #8fce6a;   /* verde claro */
-
-      --glow-y: 0 0 40px rgba(232,200,74,0.18);
-      --glow-g: 0 0 40px rgba(90,158,66,0.15);
-      --radius: 12px;
+    /* ═══════════════════════════════════════════════════════════════════
+       TEMA 1 — PIXEL  (mangabapixel.online dark)
+       Fonte: --bg #1C1917 · --accent #D97757 · text #F5EEE4
+    ═══════════════════════════════════════════════════════════════════ */
+    [data-theme="pixel"] {
+      --bg:           #1C1917;
+      --bg2:          #252220;
+      --bg3:          #2D2A28;
+      --surface:      #2D2A28;
+      --border:       #3A3430;
+      --hover:        #302C28;
+      --text:         #F5EEE4;
+      --muted:        #A49890;
+      --accent:       #D97757;
+      --accent-h:     #B85A38;
+      --accent-light: #E8886A;
+      --accent-soft:  #2E1F18;
+      --leaf:         #6B9540;
+      --leaf-light:   #A4CE6E;
+      --nav-bg:       rgba(28,25,23,.90);
+      --code-bg:      #141210;
+      --code-hd:      #1A1714;
+      --glow:         rgba(217,119,87,.22);
+      color-scheme:   dark;
     }
 
-    * { margin:0; padding:0; box-sizing:border-box; }
+    /* ═══════════════════════════════════════════════════════════════════
+       TEMA 2 — CHAT  (mangaba.chat light)
+       Fonte: --bg #FAF7F0 · text #1F1D1B · mesma coral
+    ═══════════════════════════════════════════════════════════════════ */
+    [data-theme="chat"] {
+      --bg:           #FAF7F0;
+      --bg2:          #F2EFE9;
+      --bg3:          #EDE8E0;
+      --surface:      #FFFFFF;
+      --border:       #E8E0D8;
+      --hover:        #EDE8E0;
+      --text:         #1F1D1B;
+      --muted:        #7A6F69;
+      --accent:       #D97757;
+      --accent-h:     #C56A4F;
+      --accent-light: #E8886A;
+      --accent-soft:  #FAE8DC;
+      --leaf:         #5A8A32;
+      --leaf-light:   #6B9540;
+      --nav-bg:       rgba(250,247,240,.92);
+      --code-bg:      #F0EBE3;
+      --code-hd:      #E8E1D8;
+      --glow:         rgba(217,119,87,.14);
+      color-scheme:   light;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       TEMA 3 — VOICE  (mangaba-voice.tech dark)
+       Fonte: --background hsl(45 7% 11%) · text hsl(42 24% 92%)
+    ═══════════════════════════════════════════════════════════════════ */
+    [data-theme="voice"] {
+      --bg:           #1C1B18;
+      --bg2:          #232220;
+      --bg3:          #2B2926;
+      --surface:      #242220;
+      --border:       #383432;
+      --hover:        #302E2B;
+      --text:         #EEEAD8;
+      --muted:        #8A8478;
+      --accent:       #D97757;
+      --accent-h:     #B85A38;
+      --accent-light: #E8886A;
+      --accent-soft:  #2A1E17;
+      --leaf:         #6B9540;
+      --leaf-light:   #A4CE6E;
+      --nav-bg:       rgba(28,27,24,.90);
+      --code-bg:      #141312;
+      --code-hd:      #1C1A18;
+      --glow:         rgba(217,119,87,.20);
+      color-scheme:   dark;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BASE
+    ═══════════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
     html { scroll-behavior:smooth; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
       line-height: 1.6;
+      letter-spacing: -0.01em;
       overflow-x: hidden;
+      transition: background .25s, color .25s;
     }
 
-    /* ── NAV ── */
+    a { color: inherit; text-decoration: none; }
+
+    /* ── NAV ──────────────────────────────────────────────────────── */
     nav {
       position: fixed; top:0; left:0; right:0; z-index:100;
       display: flex; align-items:center; justify-content:space-between;
-      padding: 1rem 2rem;
-      background: rgba(14,18,9,0.88);
-      backdrop-filter: blur(14px);
+      padding: 0 2rem; height: 60px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
+      transition: background .25s, border-color .25s;
     }
-    .nav-logo {
-      display:flex; align-items:center; gap:.6rem;
-      font-weight:800; font-size:1.1rem;
-      text-decoration:none; color:var(--yellow);
-      letter-spacing:-.01em;
-    }
-    .nav-logo span { font-size:1.4rem; }
-    .nav-links { display:flex; gap:1.5rem; list-style:none; }
-    .nav-links a {
-      color:var(--muted); text-decoration:none;
-      font-size:.875rem; font-weight:500; transition:color .2s;
-    }
-    .nav-links a:hover { color:var(--yellow); }
 
+    .nav-logo {
+      display: flex; align-items:center; gap:.5rem;
+      font-weight: 800; font-size: 1rem;
+      color: var(--text); letter-spacing: -.02em;
+    }
+    .nav-logo .logo-dot {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--accent);
+      display: inline-flex; align-items:center; justify-content:center;
+      font-size: .75rem; font-weight: 900; color: #fff;
+    }
+
+    .nav-links {
+      display: flex; gap: 1.75rem; list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted); font-size: .875rem; font-weight: 500;
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-right { display:flex; align-items:center; gap:.75rem; }
+
+    /* ── THEME SWITCHER ─────────────────────────────────────────── */
+    .theme-switcher {
+      display: flex; gap: 2px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 3px;
+    }
+    .theme-btn {
+      padding: .28rem .7rem;
+      border-radius: 6px; border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: .75rem; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .theme-btn:hover { color: var(--text); }
+    .theme-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ── BUTTONS ─────────────────────────────────────────────────── */
     .btn {
-      display:inline-flex; align-items:center; gap:.5rem;
-      padding:.55rem 1.3rem; border-radius:8px;
-      font-weight:700; font-size:.875rem;
-      text-decoration:none; transition:all .2s;
-      cursor:pointer; border:none;
+      display: inline-flex; align-items:center; gap: .45rem;
+      padding: .55rem 1.25rem; border-radius: 8px;
+      font-weight: 600; font-size: .875rem;
+      cursor: pointer; border: none; transition: all .18s;
+      text-decoration: none; letter-spacing: -.01em;
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--yellow), var(--orange));
-      color: #0e1209;
-      box-shadow: 0 0 20px rgba(232,200,74,.35);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 12px var(--glow);
     }
     .btn-primary:hover {
-      filter: brightness(1.1);
+      background: var(--accent-h);
       transform: translateY(-1px);
-      box-shadow: 0 0 32px rgba(232,200,74,.5);
+      box-shadow: 0 4px 20px var(--glow);
     }
     .btn-ghost {
-      background:transparent; color:var(--text);
-      border:1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
     }
-    .btn-ghost:hover { border-color:var(--green); color:var(--green-lt); background:var(--bg3); }
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
 
-    /* ── HERO ── */
+    /* ── HERO ────────────────────────────────────────────────────── */
     .hero {
-      min-height:100vh;
-      display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      text-align:center; padding:8rem 2rem 4rem;
-      position:relative; overflow:hidden;
+      min-height: 100vh;
+      display: flex; flex-direction:column;
+      align-items: center; justify-content:center;
+      text-align: center; padding: 9rem 2rem 5rem;
+      position: relative; overflow: hidden;
     }
-    /* glow radial mangaba */
     .hero::before {
-      content:'';
-      position:absolute; top:-150px; left:50%; transform:translateX(-50%);
-      width:900px; height:700px;
+      content: '';
+      position: absolute; top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 900px; height: 700px;
       background: radial-gradient(ellipse,
-        rgba(232,200,74,.08) 0%,
-        rgba(90,158,66,.06) 40%,
+        rgba(217,119,87,.10) 0%,
+        rgba(217,119,87,.04) 40%,
         transparent 70%);
-      pointer-events:none;
+      pointer-events: none;
     }
 
     .hero-badge {
-      display:inline-flex; align-items:center; gap:.5rem;
-      padding:.4rem 1.1rem; border-radius:999px;
-      background:rgba(232,200,74,.08);
-      border:1px solid rgba(232,200,74,.25);
-      font-size:.8rem; font-weight:600;
-      color:var(--yellow); margin-bottom:2rem;
-      letter-spacing:.02em;
+      display: inline-flex; align-items:center; gap:.5rem;
+      padding: .35rem 1rem; border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(217,119,87,.35);
+      font-size: .78rem; font-weight: 600;
+      color: var(--accent); margin-bottom: 2rem;
+      letter-spacing: .03em;
     }
 
     .hero h1 {
-      font-size: clamp(2.6rem,7vw,5.5rem);
-      font-weight:900; line-height:1.05;
-      letter-spacing:-.03em; margin-bottom:1.5rem;
+      font-size: clamp(2.8rem, 7.5vw, 5.5rem);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -.035em; margin-bottom: 1.5rem;
     }
     .hero h1 .grad {
       background: linear-gradient(135deg,
-        var(--green-lt) 0%,
-        var(--yellow)   45%,
-        var(--orange)   100%);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      background-clip:text;
+        var(--text)         0%,
+        var(--accent-light) 35%,
+        var(--accent)       70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero-sub {
-      font-size:clamp(1rem,2.5vw,1.25rem);
-      color:var(--muted); max-width:620px;
-      margin-bottom:2.5rem; font-weight:400;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: var(--muted); max-width: 600px;
+      margin-bottom: 2.5rem; font-weight: 400; line-height: 1.7;
     }
-    .hero-buttons { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-bottom:4rem; }
+    .hero-buttons {
+      display: flex; gap: .75rem; flex-wrap:wrap;
+      justify-content: center; margin-bottom: 4rem;
+    }
 
-    .hero-stats { display:flex; gap:3rem; flex-wrap:wrap; justify-content:center; }
-    .stat { text-align:center; }
-    .stat-value { font-size:1.8rem; font-weight:900; color:var(--yellow); }
-    .stat-label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
+    .hero-stats {
+      display: flex; gap: 3rem; flex-wrap:wrap; justify-content:center;
+    }
+    .stat { text-align: center; }
+    .stat-value {
+      font-size: 1.9rem; font-weight: 900;
+      color: var(--accent); letter-spacing: -.03em;
+    }
+    .stat-label {
+      font-size: .72rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .07em; margin-top: .2rem;
+    }
 
-    /* ── TERMINAL ── */
-    .terminal-section { padding:4rem 2rem; max-width:860px; margin:0 auto; }
+    /* ── TERMINAL ────────────────────────────────────────────────── */
+    .terminal-section { padding: 4rem 2rem; max-width: 820px; margin: 0 auto; }
     .terminal {
-      background:#0a0f06;
-      border:1px solid var(--border);
-      border-radius:var(--radius); overflow:hidden;
-      box-shadow: var(--glow-y), 0 24px 60px rgba(0,0,0,.55);
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,.25), 0 0 0 1px var(--border);
     }
     .terminal-bar {
-      display:flex; align-items:center; gap:.5rem;
-      padding:.75rem 1rem;
-      background:#0e1409;
-      border-bottom:1px solid var(--border);
+      display: flex; align-items:center; gap: .5rem;
+      padding: .75rem 1rem;
+      background: var(--code-hd);
+      border-bottom: 1px solid var(--border);
     }
-    .dot { width:12px; height:12px; border-radius:50%; }
-    .dot-r { background:#ff5f57; }
-    .dot-y { background:#ffbd2e; }
-    .dot-g { background:#28c840; }
+    .dot { width:12px; height:12px; border-radius:50%; flex-shrink:0; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #ffbd2e; }
+    .dot-g { background: #28c840; }
     .terminal-title {
-      flex:1; text-align:center;
-      font-size:.8rem; color:var(--muted);
-      font-family:'JetBrains Mono',monospace;
+      flex: 1; text-align: center;
+      font-size: .78rem; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
     }
     .terminal-body {
-      padding:1.5rem;
-      font-family:'JetBrains Mono',monospace;
-      font-size:.85rem; line-height:2;
+      padding: 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .84rem; line-height: 2;
     }
-    .tp  { color:var(--green-lt); }
-    .tc  { color:var(--cream); }
-    .to  { color:var(--muted); }
-    .ts  { color:var(--green); }
-    .ti  { color:var(--yellow); }
-    .tsk { color:var(--orange-lt); }
+    .tp  { color: var(--accent); }
+    .tc  { color: var(--text); }
+    .to  { color: var(--muted); }
+    .ts  { color: var(--leaf-light); }
+    .ti  { color: var(--accent-light); }
+    .tsk { color: var(--leaf); }
     .cur {
-      display:inline-block; width:8px; height:1em;
-      background:var(--yellow);
-      animation:blink 1s step-end infinite;
-      vertical-align:text-bottom;
+      display: inline-block; width: 8px; height: 1em;
+      background: var(--accent);
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
     }
-    @keyframes blink { 50%{opacity:0} }
+    @keyframes blink { 50% { opacity:0 } }
 
-    /* ── SECTIONS ── */
-    section { padding:5rem 2rem; }
-    .container { max-width:1100px; margin:0 auto; }
-    .section-label {
-      font-size:.75rem; font-weight:700;
-      text-transform:uppercase; letter-spacing:.12em;
-      color:var(--orange-lt); margin-bottom:.6rem;
+    /* ── SECTIONS ────────────────────────────────────────────────── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    .section-eyebrow {
+      display: inline-flex; align-items:center; gap:.4rem;
+      font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .12em;
+      color: var(--accent); margin-bottom: .75rem;
+    }
+    .section-eyebrow::before {
+      content: ''; width: 20px; height: 2px;
+      background: var(--accent); border-radius: 2px;
     }
     .section-title {
-      font-size:clamp(1.8rem,4vw,2.8rem);
-      font-weight:900; letter-spacing:-.02em; margin-bottom:1rem;
+      font-size: clamp(1.8rem, 4vw, 2.75rem);
+      font-weight: 900; letter-spacing: -.025em; margin-bottom: 1rem;
     }
-    .section-desc { font-size:1rem; color:var(--muted); max-width:580px; margin-bottom:3rem; }
+    .section-desc {
+      font-size: 1rem; color: var(--muted); max-width: 560px;
+      margin-bottom: 3rem; line-height: 1.75;
+    }
 
-    hr.div { border:none; border-top:1px solid var(--border); }
+    hr.div { border: none; border-top: 1px solid var(--border); }
 
-    /* ── FEATURES ── */
-    .features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+    /* ── FEATURES ────────────────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
     .feat {
-      background:var(--bg2); border:1px solid var(--border);
-      border-radius:var(--radius); padding:1.75rem;
-      transition:all .3s; position:relative; overflow:hidden;
+      background: var(--surface);
+      padding: 2rem;
+      transition: background .2s;
+      position: relative;
     }
-    .feat::before {
-      content:''; position:absolute; top:0; left:0; right:0; height:3px;
-      background:linear-gradient(90deg,var(--green),var(--yellow),var(--orange));
-      opacity:0; transition:opacity .3s;
+    .feat::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--accent-soft);
+      opacity: 0; transition: opacity .2s;
     }
-    .feat:hover { border-color:rgba(232,200,74,.35); transform:translateY(-3px); box-shadow:var(--glow-y); }
-    .feat:hover::before { opacity:1; }
-    .feat-icon { font-size:2rem; margin-bottom:.9rem; }
-    .feat-title { font-size:1rem; font-weight:700; margin-bottom:.4rem; color:var(--yellow-lt); }
-    .feat-desc { font-size:.875rem; color:var(--muted); line-height:1.65; }
+    .feat:hover::after { opacity: 1; }
+    .feat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(217,119,87,.25);
+      display: flex; align-items:center; justify-content:center;
+      font-size: 1.15rem; margin-bottom: 1rem;
+      position: relative; z-index:1;
+    }
+    .feat-title {
+      font-size: .95rem; font-weight: 700;
+      margin-bottom: .4rem; color: var(--text);
+      position: relative; z-index:1;
+    }
+    .feat-desc {
+      font-size: .85rem; color: var(--muted); line-height: 1.7;
+      position: relative; z-index:1;
+    }
 
-    /* ── FLOW ── */
-    .flow { display:flex; flex-direction:column; max-width:560px; margin:0 auto; }
+    /* ── FLOW ────────────────────────────────────────────────────── */
+    .flow { display:flex; flex-direction:column; max-width:520px; margin:0 auto; }
     .flow-step { display:flex; gap:1.5rem; }
     .flow-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
     .flow-num {
-      width:40px; height:40px; border-radius:50%;
-      background:linear-gradient(135deg,var(--green-dk),var(--green));
-      display:flex; align-items:center; justify-content:center;
-      font-weight:900; font-size:.9rem; color:#fff; flex-shrink:0;
-      border:2px solid var(--yellow);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent); color: #fff;
+      display: flex; align-items:center; justify-content:center;
+      font-weight: 800; font-size: .85rem; flex-shrink:0;
     }
-    .flow-line { width:2px; flex:1; min-height:3rem; background:linear-gradient(to bottom,var(--green),transparent); }
-    .flow-content { padding-bottom:2rem; }
-    .flow-content h3 { font-size:1rem; font-weight:700; margin-bottom:.3rem; color:var(--yellow-lt); }
-    .flow-content p { font-size:.875rem; color:var(--muted); }
+    .flow-line {
+      width: 2px; flex:1; min-height: 2.5rem;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      margin-top: 4px;
+    }
+    .flow-content { padding-bottom: 2rem; }
+    .flow-content h3 {
+      font-size: .95rem; font-weight: 700;
+      margin-bottom: .3rem; color: var(--text);
+    }
+    .flow-content p { font-size: .85rem; color: var(--muted); }
 
-    /* ── PLATFORMS ── */
-    .plat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1rem; }
+    /* ── PLATFORMS ───────────────────────────────────────────────── */
+    .plat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: .75rem;
+    }
     .plat {
-      background:var(--bg2); border:1px solid var(--border);
-      border-radius:var(--radius); padding:1.5rem 1rem;
-      text-align:center; transition:all .3s;
-      font-size:.85rem; font-weight:600;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.5rem 1rem;
+      text-align: center; transition: all .2s;
+      font-size: .85rem; font-weight: 600;
     }
-    .plat:hover { border-color:rgba(232,200,74,.4); background:var(--bg3); }
-    .plat-icon { font-size:2rem; margin-bottom:.5rem; display:block; }
+    .plat:hover {
+      border-color: rgba(217,119,87,.45);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .plat-icon { font-size: 1.75rem; margin-bottom: .5rem; display:block; }
 
-    /* ── CODE ── */
-    .code-block { background:#0a0f06; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    /* ── CODE BLOCKS ─────────────────────────────────────────────── */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+      margin-bottom: 1rem;
+    }
     .code-hd {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:.65rem 1rem; background:#0e1409;
-      border-bottom:1px solid var(--border);
-      font-size:.78rem; color:var(--muted);
-      font-family:'JetBrains Mono',monospace;
+      display: flex; align-items:center; justify-content:space-between;
+      padding: .6rem 1rem;
+      background: var(--code-hd);
+      border-bottom: 1px solid var(--border);
+      font-size: .75rem; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
     }
-    .code-hd .lang { color:var(--green-lt); }
+    .code-hd .lang { color: var(--accent); }
     .code-body {
-      padding:1.4rem; font-family:'JetBrains Mono',monospace;
-      font-size:.84rem; line-height:1.9; overflow-x:auto;
+      padding: 1.25rem 1.5rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .84rem; line-height: 2; overflow-x: auto;
     }
-    .cm { color:#3a5028; }
-    .kw { color:var(--green-lt); }
-    .st { color:var(--yellow); }
+    .cm { color: var(--muted); opacity: .7; }
+    .kw { color: var(--accent-light); }
+    .st { color: var(--leaf-light); }
 
-    /* ── TABS ── */
-    .tabs { display:flex; gap:.5rem; margin-bottom:1rem; }
-    .tab {
-      padding:.4rem 1rem; border-radius:6px; font-size:.8rem;
-      font-weight:700; cursor:pointer;
-      border:1px solid var(--border);
-      background:transparent; color:var(--muted); transition:all .2s;
-      font-family:'JetBrains Mono',monospace;
+    /* ── TABS ────────────────────────────────────────────────────── */
+    .tabs {
+      display: flex; gap: .4rem; margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .5rem;
     }
-    .tab.active { background:var(--green-dk); border-color:var(--green); color:var(--green-lt); }
+    .tab {
+      padding: .4rem 1rem; border-radius: 6px;
+      font-size: .8rem; font-weight: 600;
+      cursor: pointer; border: none;
+      background: transparent; color: var(--muted);
+      transition: all .15s; font-family: 'Inter', sans-serif;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(217,119,87,.3);
+    }
     .tab-content { display:none; }
     .tab-content.active { display:block; }
 
-    /* ── CTA ── */
-    .cta { text-align:center; padding:6rem 2rem; position:relative; overflow:hidden; }
+    /* ── PRODUCT CARDS ───────────────────────────────────────────── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem; margin-top: 3rem;
+    }
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.75rem;
+      transition: all .2s; cursor: default;
+      text-decoration: none; color: inherit;
+      display: block;
+    }
+    .product-card:hover {
+      border-color: rgba(217,119,87,.45);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px var(--glow);
+    }
+    .product-tag {
+      display: inline-block;
+      font-size: .7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--accent); background: var(--accent-soft);
+      border: 1px solid rgba(217,119,87,.3);
+      padding: .2rem .65rem; border-radius: 999px; margin-bottom: 1rem;
+    }
+    .product-card h3 {
+      font-size: 1.1rem; font-weight: 800;
+      letter-spacing: -.02em; margin-bottom: .4rem;
+    }
+    .product-card p {
+      font-size: .85rem; color: var(--muted); line-height: 1.65;
+      margin-bottom: 1.25rem;
+    }
+    .product-link {
+      font-size: .8rem; font-weight: 700; color: var(--accent);
+      display: flex; align-items:center; gap: .3rem;
+    }
+    .product-link::after { content: '→'; transition: transform .15s; }
+    .product-card:hover .product-link::after { transform: translateX(4px); }
+
+    /* ── CTA ─────────────────────────────────────────────────────── */
+    .cta {
+      text-align: center; padding: 7rem 2rem;
+      position: relative; overflow:hidden;
+    }
     .cta::before {
-      content:''; position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      width:700px; height:400px;
-      background:radial-gradient(ellipse,rgba(232,200,74,.08) 0%,transparent 70%);
-      pointer-events:none;
+      content: '';
+      position: absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      width: 700px; height: 400px;
+      background: radial-gradient(ellipse, rgba(217,119,87,.08) 0%, transparent 70%);
+      pointer-events: none;
     }
     .cta h2 {
-      font-size:clamp(2rem,5vw,3.5rem);
-      font-weight:900; letter-spacing:-.03em; margin-bottom:1rem;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900; letter-spacing: -.035em; margin-bottom: 1rem;
     }
-    .cta p { color:var(--muted); font-size:1rem; margin-bottom:2.5rem; }
+    .cta h2 .acc { color: var(--accent); }
+    .cta p { color: var(--muted); font-size: 1rem; margin-bottom: 2.5rem; }
 
-    /* ── FOOTER ── */
-    footer { border-top:1px solid var(--border); padding:2.5rem 2rem; }
+    /* ── FOOTER ──────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      background: var(--bg2);
+    }
     .foot-inner {
-      max-width:1100px; margin:0 auto;
-      display:flex; align-items:center; justify-content:space-between;
-      flex-wrap:wrap; gap:1rem;
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items:center; justify-content:space-between;
+      flex-wrap: wrap; gap: 1rem;
     }
-    .foot-brand { font-weight:800; color:var(--yellow); }
+    .foot-brand {
+      font-weight: 800; letter-spacing: -.02em;
+      display: flex; align-items:center; gap: .4rem;
+    }
     .foot-links { display:flex; gap:1.5rem; list-style:none; }
-    .foot-links a { color:var(--muted); text-decoration:none; font-size:.85rem; transition:color .2s; }
-    .foot-links a:hover { color:var(--yellow); }
-    .foot-copy { color:var(--muted); font-size:.8rem; }
-
-    /* ── RESPONSIVE ── */
-    @media(max-width:768px){
-      nav { padding:1rem; }
-      .hero-stats { gap:1.5rem; }
-      .foot-inner { flex-direction:column; align-items:flex-start; }
-      .two-col { grid-template-columns:1fr !important; }
+    .foot-links a {
+      color: var(--muted); font-size: .85rem; transition: color .15s;
     }
-    @media(max-width:600px){ .nav-links { display:none; } }
+    .foot-links a:hover { color: var(--accent); }
+    .foot-copy { color: var(--muted); font-size: .78rem; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 0 1rem; }
+      .nav-links { display:none; }
+      .hero-stats { gap: 1.5rem; }
+      .foot-inner { flex-direction:column; align-items:flex-start; }
+      .two-col { grid-template-columns: 1fr !important; }
+      .theme-btn span.label { display:none; }
+    }
   </style>
 </head>
 <body>
@@ -338,28 +558,43 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="nav-logo">
-    <span>🥭</span> Mangaba Agent
+    <span class="logo-dot">M</span>
+    Mangaba Agent
   </a>
   <ul class="nav-links">
+    <li><a href="#ecosystem">Ecossistema</a></li>
     <li><a href="#features">Recursos</a></li>
     <li><a href="#como-funciona">Como funciona</a></li>
-    <li><a href="#plataformas">Plataformas</a></li>
     <li><a href="#instalacao">Instalação</a></li>
     <li><a href="https://github.com/dheiver2/mangaba-agent" target="_blank">GitHub</a></li>
   </ul>
-  <a href="#instalacao" class="btn btn-primary">Começar agora →</a>
+  <div class="nav-right">
+    <!-- THEME SWITCHER: 3 temas = 3 sites de referência -->
+    <div class="theme-switcher" role="group" aria-label="Escolher tema">
+      <button class="theme-btn active" data-t="pixel" onclick="setTheme('pixel',this)" title="Mangaba Pixel (escuro)">
+        🖤 <span class="label">Pixel</span>
+      </button>
+      <button class="theme-btn" data-t="chat" onclick="setTheme('chat',this)" title="Mangaba Chat (claro)">
+        ☀️ <span class="label">Chat</span>
+      </button>
+      <button class="theme-btn" data-t="voice" onclick="setTheme('voice',this)" title="Mangaba Voice (escuro quente)">
+        🎙️ <span class="label">Voice</span>
+      </button>
+    </div>
+    <a href="#instalacao" class="btn btn-primary">Começar agora →</a>
+  </div>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-badge">🥭 Mangaba Agent · v1.0 · Open Source · MIT</div>
+  <div class="hero-badge">✦ Mangaba Agent &nbsp;·&nbsp; v1.0 &nbsp;·&nbsp; Open Source &nbsp;·&nbsp; MIT</div>
   <h1>O agente que<br/><span class="grad">cresce com você</span></h1>
   <p class="hero-sub">
     Um agente de IA auto-aperfeiçoável com loop de aprendizado contínuo,
     memória persistente entre sessões e suporte a múltiplas plataformas e modelos.
   </p>
   <div class="hero-buttons">
-    <a href="#instalacao" class="btn btn-primary">🚀 Instalar agora</a>
+    <a href="#instalacao" class="btn btn-primary">Instalar agora</a>
     <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" target="_blank">⭐ Ver no GitHub</a>
   </div>
   <div class="hero-stats">
@@ -374,7 +609,9 @@
 <div class="terminal-section">
   <div class="terminal">
     <div class="terminal-bar">
-      <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
       <span class="terminal-title">mangaba — terminal</span>
     </div>
     <div class="terminal-body">
@@ -384,17 +621,11 @@
       <div class="ti">→ Memória persistente: ativada</div>
       <div class="ti">→ Loop de aprendizado: ativo</div>
       <br/>
-      <div><span class="tp">❯ </span><span class="tc">mangaba "analise os commits de hoje e me dê um resumo"</span></div>
+      <div><span class="tp">❯ </span><span class="tc">mangaba "analise os commits de hoje"</span></div>
       <div class="to">🔍 Analisando repositório...</div>
       <div class="to">📊 Encontrei 12 commits em 3 repositórios</div>
-      <div class="to">✍️  Gerando resumo com LLM...</div>
       <div class="ts">✓ Resumo criado e salvo em ~/resumo-commits.md</div>
       <div class="tsk">⚡ Nova habilidade criada: "resumo-de-commits"</div>
-      <br/>
-      <div><span class="tp">❯ </span><span class="tc">mangaba skills list</span></div>
-      <div class="to">  🥭 resumo-de-commits    (criada hoje, usada 1x)</div>
-      <div class="to">  🥭 analise-de-logs      (criada ontem, usada 4x)</div>
-      <div class="to">  🥭 relatorio-semanal    (criada há 3 dias, usada 7x)</div>
       <br/>
       <div><span class="tp">❯ </span><span class="cur"></span></div>
     </div>
@@ -403,22 +634,92 @@
 
 <hr class="div"/>
 
+<!-- ECOSSISTEMA MANGABA -->
+<section id="ecosystem">
+  <div class="container">
+    <div class="section-eyebrow">Ecossistema</div>
+    <h2 class="section-title">Família Mangaba AI</h2>
+    <p class="section-desc">
+      Modelos proprietários destilados das maiores IAs do mundo,
+      especializados para o contexto brasileiro. Direto no navegador.
+    </p>
+    <div class="products-grid">
+      <a href="https://mangaba.chat/" target="_blank" class="product-card">
+        <div class="product-tag">Chat</div>
+        <h3>Mangaba Chat</h3>
+        <p>Modelos próprios para sua empresa. 8 especialistas corporativos: jurídico, RH, vendas, estratégia e mais.</p>
+        <div class="product-link">mangaba.chat</div>
+      </a>
+      <a href="https://mangabapixel.online/" target="_blank" class="product-card">
+        <div class="product-tag">Imagem & Vídeo</div>
+        <h3>Mangaba Pixel</h3>
+        <p>Studio de IA para geração de imagem e vídeo. 8 modelos de imagem e 3 de vídeo, com controle total.</p>
+        <div class="product-link">mangabapixel.online</div>
+      </a>
+      <a href="https://mangaba-voice.tech/" target="_blank" class="product-card">
+        <div class="product-tag">Voz & Vídeo</div>
+        <h3>Mangaba Voice</h3>
+        <p>Conversação por voz em PT-BR com visão pela webcam. Turbo, Pro, Vision, Realtime e Reasoning.</p>
+        <div class="product-link">mangaba-voice.tech</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
 <!-- FEATURES -->
 <section id="features">
   <div class="container">
-    <div class="section-label">Recursos</div>
-    <h2 class="section-title">Tudo que você precisa em um agente</h2>
+    <div class="section-eyebrow">Recursos</div>
+    <h2 class="section-title">Tudo que você precisa</h2>
     <p class="section-desc">Mangaba Agent combina aprendizado contínuo, memória persistente e infraestrutura flexível.</p>
     <div class="features-grid">
-      <div class="feat"><div class="feat-icon">🧠</div><div class="feat-title">Auto-aperfeiçoamento</div><div class="feat-desc">Cria habilidades a partir de experiências e as refina automaticamente. Cada sessão o torna mais inteligente.</div></div>
-      <div class="feat"><div class="feat-icon">💾</div><div class="feat-title">Memória persistente</div><div class="feat-desc">Recall entre sessões com busca FTS5, sumarização por LLM e modelagem de usuário. Nunca perde contexto.</div></div>
-      <div class="feat"><div class="feat-icon">🌐</div><div class="feat-title">Multi-plataforma</div><div class="feat-desc">Terminal, Telegram, Discord, Slack, WhatsApp, Signal e Email — tudo de um único processo gateway.</div></div>
-      <div class="feat"><div class="feat-icon">🔌</div><div class="feat-title">200+ modelos</div><div class="feat-desc">OpenRouter, OpenAI, HuggingFace, NVIDIA NIM e mais. Troque com um comando, sem lock-in.</div></div>
-      <div class="feat"><div class="feat-icon">⚡</div><div class="feat-title">Infraestrutura flexível</div><div class="feat-desc">VPS de $5, cluster GPU ou serverless (Modal, Vercel Sandbox) com hibernação automática quando ocioso.</div></div>
-      <div class="feat"><div class="feat-icon">🤖</div><div class="feat-title">Sub-agentes paralelos</div><div class="feat-desc">Spawne agentes isolados para fluxos paralelos. Divida trabalho complexo em agentes especializados.</div></div>
-      <div class="feat"><div class="feat-icon">⏰</div><div class="feat-title">Automações cron</div><div class="feat-desc">Agendador integrado. Resumo diário de emails, relatórios semanais, monitoramento contínuo — sem supervisão.</div></div>
-      <div class="feat"><div class="feat-icon">🛠️</div><div class="feat-title">40+ ferramentas</div><div class="feat-desc">Código, web, arquivos, APIs, bancos de dados, mídia e comunicação. Tudo pronto para usar.</div></div>
-      <div class="feat"><div class="feat-icon">🔒</div><div class="feat-title">Privacidade total</div><div class="feat-desc">Rode 100% local. Seus dados ficam na sua máquina. Sem telemetria, sem envio externo.</div></div>
+      <div class="feat">
+        <div class="feat-icon">🧠</div>
+        <div class="feat-title">Auto-aperfeiçoamento</div>
+        <div class="feat-desc">Cria habilidades a partir de experiências e as refina automaticamente. Cada sessão o torna mais inteligente.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">💾</div>
+        <div class="feat-title">Memória persistente</div>
+        <div class="feat-desc">Recall entre sessões com busca FTS5, sumarização por LLM e modelagem de usuário. Nunca perde contexto.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-title">Multi-plataforma</div>
+        <div class="feat-desc">Terminal, Telegram, Discord, Slack, WhatsApp, Signal e Email — tudo de um único processo gateway.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔌</div>
+        <div class="feat-title">200+ modelos</div>
+        <div class="feat-desc">OpenRouter, OpenAI, HuggingFace, NVIDIA NIM e mais. Troque com um comando, sem lock-in.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">Infraestrutura flexível</div>
+        <div class="feat-desc">VPS de $5, cluster GPU ou serverless com hibernação automática quando ocioso.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🤖</div>
+        <div class="feat-title">Sub-agentes paralelos</div>
+        <div class="feat-desc">Spawne agentes isolados para fluxos paralelos. Divida trabalho complexo em agentes especializados.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">⏰</div>
+        <div class="feat-title">Automações cron</div>
+        <div class="feat-desc">Agendador integrado. Resumo diário de emails, relatórios semanais, monitoramento contínuo.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🛠️</div>
+        <div class="feat-title">40+ ferramentas</div>
+        <div class="feat-desc">Código, web, arquivos, APIs, bancos de dados, mídia e comunicação. Tudo pronto para usar.</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔒</div>
+        <div class="feat-title">Privacidade total</div>
+        <div class="feat-desc">Rode 100% local. Seus dados ficam na sua máquina. Sem telemetria, sem envio externo.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -429,26 +730,39 @@
 <section id="como-funciona">
   <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;" class="two-col">
     <div>
-      <div class="section-label">Como funciona</div>
+      <div class="section-eyebrow">Como funciona</div>
       <h2 class="section-title">O loop de<br/>auto-aprendizado</h2>
       <p class="section-desc">Cada tarefa vira uma oportunidade de aprendizado. O agente extrai padrões, cria habilidades reutilizáveis e as melhora continuamente.</p>
+      <a href="#instalacao" class="btn btn-primary" style="margin-top:.5rem">Ver instalação →</a>
     </div>
     <div class="flow">
       <div class="flow-step">
         <div class="flow-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
-        <div class="flow-content"><h3>Você envia uma tarefa</h3><p>Via terminal, Telegram, Discord ou qualquer plataforma conectada.</p></div>
+        <div class="flow-content">
+          <h3>Você envia uma tarefa</h3>
+          <p>Via terminal, Telegram, Discord ou qualquer plataforma conectada.</p>
+        </div>
       </div>
       <div class="flow-step">
         <div class="flow-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
-        <div class="flow-content"><h3>Mangaba executa com ferramentas</h3><p>Usa 40+ ferramentas integradas para completar a tarefa de forma autônoma.</p></div>
+        <div class="flow-content">
+          <h3>Mangaba executa com ferramentas</h3>
+          <p>Usa 40+ ferramentas integradas para completar a tarefa de forma autônoma.</p>
+        </div>
       </div>
       <div class="flow-step">
         <div class="flow-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
-        <div class="flow-content"><h3>Habilidade é extraída</h3><p>O loop de aprendizado analisa a solução e cria uma habilidade reutilizável.</p></div>
+        <div class="flow-content">
+          <h3>Habilidade é extraída</h3>
+          <p>O loop de aprendizado analisa a solução e cria uma habilidade reutilizável.</p>
+        </div>
       </div>
       <div class="flow-step">
         <div class="flow-left"><div class="flow-num">4</div></div>
-        <div class="flow-content"><h3>Próxima sessão: mais inteligente</h3><p>A habilidade é aplicada automaticamente em tarefas similares futuras.</p></div>
+        <div class="flow-content">
+          <h3>Próxima sessão: mais inteligente</h3>
+          <p>A habilidade é aplicada automaticamente em tarefas similares futuras.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -459,7 +773,7 @@
 <!-- PLATAFORMAS -->
 <section id="plataformas">
   <div class="container">
-    <div class="section-label">Plataformas</div>
+    <div class="section-eyebrow">Plataformas</div>
     <h2 class="section-title">Onde você quiser</h2>
     <p class="section-desc">Um único agente acessível por todas as suas plataformas de comunicação favoritas.</p>
     <div class="plat-grid">
@@ -479,7 +793,7 @@
 <!-- INSTALAÇÃO -->
 <section id="instalacao">
   <div class="container" style="max-width:680px;">
-    <div class="section-label">Instalação</div>
+    <div class="section-eyebrow">Instalação</div>
     <h2 class="section-title">Pronto em minutos</h2>
     <p class="section-desc">Escolha sua plataforma e instale com um comando.</p>
     <div class="tabs">
@@ -516,7 +830,6 @@
         </div>
       </div>
     </div>
-    <br/>
     <div class="code-block">
       <div class="code-hd"><span class="lang">bash</span><span>primeiros passos</span></div>
       <div class="code-body">
@@ -524,7 +837,7 @@
         mangaba model set openrouter/anthropic/claude-sonnet-4-6<br/><br/>
         <span class="cm"># Iniciar o agente</span><br/>
         mangaba<br/><br/>
-        <span class="cm"># Ou conectar no Telegram</span><br/>
+        <span class="cm"># Conectar no Telegram</span><br/>
         mangaba gateway telegram --token SEU_TOKEN
       </div>
     </div>
@@ -533,34 +846,62 @@
 
 <!-- CTA -->
 <section class="cta">
-  <h2>Comece a usar <span style="color:var(--yellow)">hoje</span></h2>
+  <h2>Comece a usar <span class="acc">hoje</span></h2>
   <p>Open-source, MIT License. Sem taxa, sem lock-in, sem nuvem obrigatória.</p>
   <div class="hero-buttons">
-    <a href="#instalacao" class="btn btn-primary" style="font-size:1rem;padding:.75rem 2rem;">🚀 Instalar agora</a>
-    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" style="font-size:1rem;padding:.75rem 2rem;" target="_blank">⭐ Ver no GitHub</a>
+    <a href="#instalacao" class="btn btn-primary" style="font-size:1rem;padding:.7rem 2rem;">Instalar agora</a>
+    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" style="font-size:1rem;padding:.7rem 2rem;" target="_blank">⭐ Ver no GitHub</a>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="foot-inner">
-    <div class="foot-brand">🥭 Mangaba Agent</div>
+    <div class="foot-brand">
+      <span class="logo-dot" style="width:20px;height:20px;font-size:.7rem;border-radius:5px;">M</span>
+      Mangaba Agent
+    </div>
     <ul class="foot-links">
       <li><a href="https://github.com/dheiver2/mangaba-agent" target="_blank">GitHub</a></li>
       <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE" target="_blank">MIT License</a></li>
-      <li><a href="https://github.com/nousresearch/hermes-agent" target="_blank">Baseado no Hermes Agent</a></li>
+      <li><a href="https://mangaba.chat/" target="_blank">Mangaba Chat</a></li>
+      <li><a href="https://mangabapixel.online/" target="_blank">Mangaba Pixel</a></li>
+      <li><a href="https://mangaba-voice.tech/" target="_blank">Mangaba Voice</a></li>
     </ul>
-    <div class="foot-copy">Feito com 🥭 no Brasil · 2025</div>
+    <div class="foot-copy">© 2026 Mangaba AI · Feito no Brasil 🇧🇷</div>
   </div>
 </footer>
 
 <script>
-function switchTab(e,id){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  e.target.classList.add('active');
-  document.getElementById(id).classList.add('active');
-}
+  /* ── Theme switcher ─────────────────────────────────────────── */
+  function setTheme(name, btn) {
+    document.documentElement.setAttribute('data-theme', name);
+    document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    try { localStorage.setItem('mangaba-theme', name); } catch(e){}
+  }
+
+  /* Persist across page loads */
+  (function(){
+    var saved = null;
+    try { saved = localStorage.getItem('mangaba-theme'); } catch(e){}
+    if (saved && ['pixel','chat','voice'].includes(saved)) {
+      document.documentElement.setAttribute('data-theme', saved);
+      var btn = document.querySelector('[data-t="'+saved+'"]');
+      if (btn) {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      }
+    }
+  })();
+
+  /* ── Tab switcher ───────────────────────────────────────────── */
+  function switchTab(e, id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById(id).classList.add('active');
+  }
 </script>
 </body>
 </html>
