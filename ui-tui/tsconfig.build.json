@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@mangaba/ink": ["src/types/mangaba-ink.d.ts"]
+    }
+  }
+}

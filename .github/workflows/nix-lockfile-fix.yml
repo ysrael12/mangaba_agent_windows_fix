@@ -1,0 +1,7 @@
+name: nix-disabled
+on: [push, pull_request]
+jobs:
+  skip:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Nix workflow desabilitado no Mangaba Agent"

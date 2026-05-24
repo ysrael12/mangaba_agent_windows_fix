@@ -1,0 +1,7 @@
+name: disabled
+on: [push]
+jobs:
+  skip:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "ok"

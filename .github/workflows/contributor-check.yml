@@ -1,0 +1,8 @@
+# contributor check desabilitado
+name: contributor-check
+on: [push]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Mangaba Agent - Dheiver Santos"

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mangaba Agent — O agente que cresce com você</title>
+  <meta name="description" content="Um agente de IA auto-aperfeiçoável com loop de aprendizado contínuo, memória persistente e suporte a múltiplas plataformas." />
+  <meta property="og:title" content="Mangaba Agent" />
+  <meta property="og:description" content="O agente que cresce com você." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── PALETA MANGABA ──
+       Verde folha:    #3a6b2a  /  #5a9e42  /  #8fce6a
+       Amarelo maduro: #e8c84a  /  #f0d060
+       Laranja:        #e07830  /  #d45a1a
+       Vermelho maduro:#b83a1a
+       Creme polpa:    #f5ead8
+       Casca manchada: #6b4820
+    */
+    :root {
+      --bg:       #0e1209;
+      --bg2:      #141a0c;
+      --bg3:      #1a2210;
+      --border:   #2a3818;
+      --text:     #eee8d8;
+      --muted:    #7a8c65;
+
+      --green-dk: #3a6b2a;
+      --green:    #5a9e42;
+      --green-lt: #8fce6a;
+      --yellow:   #e8c84a;
+      --yellow-lt:#f5e070;
+      --orange:   #e07830;
+      --orange-lt:#f0a050;
+      --red:      #b83a1a;
+      --cream:    #f5ead8;
+      --bark:     #6b4820;
+
+      --accent:   #e8c84a;   /* amarelo mangaba */
+      --accent2:  #e07830;   /* laranja */
+      --accent3:  #8fce6a;   /* verde claro */
+
+      --glow-y: 0 0 40px rgba(232,200,74,0.18);
+      --glow-g: 0 0 40px rgba(90,158,66,0.15);
+      --radius: 12px;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:100;
+      display: flex; align-items:center; justify-content:space-between;
+      padding: 1rem 2rem;
+      background: rgba(14,18,9,0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display:flex; align-items:center; gap:.6rem;
+      font-weight:800; font-size:1.1rem;
+      text-decoration:none; color:var(--yellow);
+      letter-spacing:-.01em;
+    }
+    .nav-logo span { font-size:1.4rem; }
+    .nav-links { display:flex; gap:1.5rem; list-style:none; }
+    .nav-links a {
+      color:var(--muted); text-decoration:none;
+      font-size:.875rem; font-weight:500; transition:color .2s;
+    }
+    .nav-links a:hover { color:var(--yellow); }
+
+    .btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.55rem 1.3rem; border-radius:8px;
+      font-weight:700; font-size:.875rem;
+      text-decoration:none; transition:all .2s;
+      cursor:pointer; border:none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--yellow), var(--orange));
+      color: #0e1209;
+      box-shadow: 0 0 20px rgba(232,200,74,.35);
+    }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+      box-shadow: 0 0 32px rgba(232,200,74,.5);
+    }
+    .btn-ghost {
+      background:transparent; color:var(--text);
+      border:1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color:var(--green); color:var(--green-lt); background:var(--bg3); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:8rem 2rem 4rem;
+      position:relative; overflow:hidden;
+    }
+    /* glow radial mangaba */
+    .hero::before {
+      content:'';
+      position:absolute; top:-150px; left:50%; transform:translateX(-50%);
+      width:900px; height:700px;
+      background: radial-gradient(ellipse,
+        rgba(232,200,74,.08) 0%,
+        rgba(90,158,66,.06) 40%,
+        transparent 70%);
+      pointer-events:none;
+    }
+
+    .hero-badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.4rem 1.1rem; border-radius:999px;
+      background:rgba(232,200,74,.08);
+      border:1px solid rgba(232,200,74,.25);
+      font-size:.8rem; font-weight:600;
+      color:var(--yellow); margin-bottom:2rem;
+      letter-spacing:.02em;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.6rem,7vw,5.5rem);
+      font-weight:900; line-height:1.05;
+      letter-spacing:-.03em; margin-bottom:1.5rem;
+    }
+    .hero h1 .grad {
+      background: linear-gradient(135deg,
+        var(--green-lt) 0%,
+        var(--yellow)   45%,
+        var(--orange)   100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .hero-sub {
+      font-size:clamp(1rem,2.5vw,1.25rem);
+      color:var(--muted); max-width:620px;
+      margin-bottom:2.5rem; font-weight:400;
+    }
+    .hero-buttons { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-bottom:4rem; }
+
+    .hero-stats { display:flex; gap:3rem; flex-wrap:wrap; justify-content:center; }
+    .stat { text-align:center; }
+    .stat-value { font-size:1.8rem; font-weight:900; color:var(--yellow); }
+    .stat-label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-top:.2rem; }
+
+    /* ── TERMINAL ── */
+    .terminal-section { padding:4rem 2rem; max-width:860px; margin:0 auto; }
+    .terminal {
+      background:#0a0f06;
+      border:1px solid var(--border);
+      border-radius:var(--radius); overflow:hidden;
+      box-shadow: var(--glow-y), 0 24px 60px rgba(0,0,0,.55);
+    }
+    .terminal-bar {
+      display:flex; align-items:center; gap:.5rem;
+      padding:.75rem 1rem;
+      background:#0e1409;
+      border-bottom:1px solid var(--border);
+    }
+    .dot { width:12px; height:12px; border-radius:50%; }
+    .dot-r { background:#ff5f57; }
+    .dot-y { background:#ffbd2e; }
+    .dot-g { background:#28c840; }
+    .terminal-title {
+      flex:1; text-align:center;
+      font-size:.8rem; color:var(--muted);
+      font-family:'JetBrains Mono',monospace;
+    }
+    .terminal-body {
+      padding:1.5rem;
+      font-family:'JetBrains Mono',monospace;
+      font-size:.85rem; line-height:2;
+    }
+    .tp  { color:var(--green-lt); }
+    .tc  { color:var(--cream); }
+    .to  { color:var(--muted); }
+    .ts  { color:var(--green); }
+    .ti  { color:var(--yellow); }
+    .tsk { color:var(--orange-lt); }
+    .cur {
+      display:inline-block; width:8px; height:1em;
+      background:var(--yellow);
+      animation:blink 1s step-end infinite;
+      vertical-align:text-bottom;
+    }
+    @keyframes blink { 50%{opacity:0} }
+
+    /* ── SECTIONS ── */
+    section { padding:5rem 2rem; }
+    .container { max-width:1100px; margin:0 auto; }
+    .section-label {
+      font-size:.75rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.12em;
+      color:var(--orange-lt); margin-bottom:.6rem;
+    }
+    .section-title {
+      font-size:clamp(1.8rem,4vw,2.8rem);
+      font-weight:900; letter-spacing:-.02em; margin-bottom:1rem;
+    }
+    .section-desc { font-size:1rem; color:var(--muted); max-width:580px; margin-bottom:3rem; }
+
+    hr.div { border:none; border-top:1px solid var(--border); }
+
+    /* ── FEATURES ── */
+    .features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem; }
+    .feat {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:1.75rem;
+      transition:all .3s; position:relative; overflow:hidden;
+    }
+    .feat::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg,var(--green),var(--yellow),var(--orange));
+      opacity:0; transition:opacity .3s;
+    }
+    .feat:hover { border-color:rgba(232,200,74,.35); transform:translateY(-3px); box-shadow:var(--glow-y); }
+    .feat:hover::before { opacity:1; }
+    .feat-icon { font-size:2rem; margin-bottom:.9rem; }
+    .feat-title { font-size:1rem; font-weight:700; margin-bottom:.4rem; color:var(--yellow-lt); }
+    .feat-desc { font-size:.875rem; color:var(--muted); line-height:1.65; }
+
+    /* ── FLOW ── */
+    .flow { display:flex; flex-direction:column; max-width:560px; margin:0 auto; }
+    .flow-step { display:flex; gap:1.5rem; }
+    .flow-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+    .flow-num {
+      width:40px; height:40px; border-radius:50%;
+      background:linear-gradient(135deg,var(--green-dk),var(--green));
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900; font-size:.9rem; color:#fff; flex-shrink:0;
+      border:2px solid var(--yellow);
+    }
+    .flow-line { width:2px; flex:1; min-height:3rem; background:linear-gradient(to bottom,var(--green),transparent); }
+    .flow-content { padding-bottom:2rem; }
+    .flow-content h3 { font-size:1rem; font-weight:700; margin-bottom:.3rem; color:var(--yellow-lt); }
+    .flow-content p { font-size:.875rem; color:var(--muted); }
+
+    /* ── PLATFORMS ── */
+    .plat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:1rem; }
+    .plat {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:1.5rem 1rem;
+      text-align:center; transition:all .3s;
+      font-size:.85rem; font-weight:600;
+    }
+    .plat:hover { border-color:rgba(232,200,74,.4); background:var(--bg3); }
+    .plat-icon { font-size:2rem; margin-bottom:.5rem; display:block; }
+
+    /* ── CODE ── */
+    .code-block { background:#0a0f06; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .code-hd {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:.65rem 1rem; background:#0e1409;
+      border-bottom:1px solid var(--border);
+      font-size:.78rem; color:var(--muted);
+      font-family:'JetBrains Mono',monospace;
+    }
+    .code-hd .lang { color:var(--green-lt); }
+    .code-body {
+      padding:1.4rem; font-family:'JetBrains Mono',monospace;
+      font-size:.84rem; line-height:1.9; overflow-x:auto;
+    }
+    .cm { color:#3a5028; }
+    .kw { color:var(--green-lt); }
+    .st { color:var(--yellow); }
+
+    /* ── TABS ── */
+    .tabs { display:flex; gap:.5rem; margin-bottom:1rem; }
+    .tab {
+      padding:.4rem 1rem; border-radius:6px; font-size:.8rem;
+      font-weight:700; cursor:pointer;
+      border:1px solid var(--border);
+      background:transparent; color:var(--muted); transition:all .2s;
+      font-family:'JetBrains Mono',monospace;
+    }
+    .tab.active { background:var(--green-dk); border-color:var(--green); color:var(--green-lt); }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+
+    /* ── CTA ── */
+    .cta { text-align:center; padding:6rem 2rem; position:relative; overflow:hidden; }
+    .cta::before {
+      content:''; position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      width:700px; height:400px;
+      background:radial-gradient(ellipse,rgba(232,200,74,.08) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .cta h2 {
+      font-size:clamp(2rem,5vw,3.5rem);
+      font-weight:900; letter-spacing:-.03em; margin-bottom:1rem;
+    }
+    .cta p { color:var(--muted); font-size:1rem; margin-bottom:2.5rem; }
+
+    /* ── FOOTER ── */
+    footer { border-top:1px solid var(--border); padding:2.5rem 2rem; }
+    .foot-inner {
+      max-width:1100px; margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:1rem;
+    }
+    .foot-brand { font-weight:800; color:var(--yellow); }
+    .foot-links { display:flex; gap:1.5rem; list-style:none; }
+    .foot-links a { color:var(--muted); text-decoration:none; font-size:.85rem; transition:color .2s; }
+    .foot-links a:hover { color:var(--yellow); }
+    .foot-copy { color:var(--muted); font-size:.8rem; }
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:768px){
+      nav { padding:1rem; }
+      .hero-stats { gap:1.5rem; }
+      .foot-inner { flex-direction:column; align-items:flex-start; }
+      .two-col { grid-template-columns:1fr !important; }
+    }
+    @media(max-width:600px){ .nav-links { display:none; } }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span>🥭</span> Mangaba Agent
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Recursos</a></li>
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#plataformas">Plataformas</a></li>
+    <li><a href="#instalacao">Instalação</a></li>
+    <li><a href="https://github.com/dheiver2/mangaba-agent" target="_blank">GitHub</a></li>
+  </ul>
+  <a href="#instalacao" class="btn btn-primary">Começar agora →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">🥭 Mangaba Agent · v1.0 · Open Source · MIT</div>
+  <h1>O agente que<br/><span class="grad">cresce com você</span></h1>
+  <p class="hero-sub">
+    Um agente de IA auto-aperfeiçoável com loop de aprendizado contínuo,
+    memória persistente entre sessões e suporte a múltiplas plataformas e modelos.
+  </p>
+  <div class="hero-buttons">
+    <a href="#instalacao" class="btn btn-primary">🚀 Instalar agora</a>
+    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" target="_blank">⭐ Ver no GitHub</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-value">200+</div><div class="stat-label">Modelos suportados</div></div>
+    <div class="stat"><div class="stat-value">40+</div><div class="stat-label">Ferramentas integradas</div></div>
+    <div class="stat"><div class="stat-value">7</div><div class="stat-label">Plataformas de mensagem</div></div>
+    <div class="stat"><div class="stat-value">MIT</div><div class="stat-label">Open Source</div></div>
+  </div>
+</section>
+
+<!-- TERMINAL -->
+<div class="terminal-section">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+      <span class="terminal-title">mangaba — terminal</span>
+    </div>
+    <div class="terminal-body">
+      <div><span class="tp">❯ </span><span class="tc">mangaba setup</span></div>
+      <div class="ts">✓ Mangaba Agent configurado com sucesso</div>
+      <div class="ti">→ Provedor: OpenRouter (claude-sonnet-4-6)</div>
+      <div class="ti">→ Memória persistente: ativada</div>
+      <div class="ti">→ Loop de aprendizado: ativo</div>
+      <br/>
+      <div><span class="tp">❯ </span><span class="tc">mangaba "analise os commits de hoje e me dê um resumo"</span></div>
+      <div class="to">🔍 Analisando repositório...</div>
+      <div class="to">📊 Encontrei 12 commits em 3 repositórios</div>
+      <div class="to">✍️  Gerando resumo com LLM...</div>
+      <div class="ts">✓ Resumo criado e salvo em ~/resumo-commits.md</div>
+      <div class="tsk">⚡ Nova habilidade criada: "resumo-de-commits"</div>
+      <br/>
+      <div><span class="tp">❯ </span><span class="tc">mangaba skills list</span></div>
+      <div class="to">  🥭 resumo-de-commits    (criada hoje, usada 1x)</div>
+      <div class="to">  🥭 analise-de-logs      (criada ontem, usada 4x)</div>
+      <div class="to">  🥭 relatorio-semanal    (criada há 3 dias, usada 7x)</div>
+      <br/>
+      <div><span class="tp">❯ </span><span class="cur"></span></div>
+    </div>
+  </div>
+</div>
+
+<hr class="div"/>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="section-label">Recursos</div>
+    <h2 class="section-title">Tudo que você precisa em um agente</h2>
+    <p class="section-desc">Mangaba Agent combina aprendizado contínuo, memória persistente e infraestrutura flexível.</p>
+    <div class="features-grid">
+      <div class="feat"><div class="feat-icon">🧠</div><div class="feat-title">Auto-aperfeiçoamento</div><div class="feat-desc">Cria habilidades a partir de experiências e as refina automaticamente. Cada sessão o torna mais inteligente.</div></div>
+      <div class="feat"><div class="feat-icon">💾</div><div class="feat-title">Memória persistente</div><div class="feat-desc">Recall entre sessões com busca FTS5, sumarização por LLM e modelagem de usuário. Nunca perde contexto.</div></div>
+      <div class="feat"><div class="feat-icon">🌐</div><div class="feat-title">Multi-plataforma</div><div class="feat-desc">Terminal, Telegram, Discord, Slack, WhatsApp, Signal e Email — tudo de um único processo gateway.</div></div>
+      <div class="feat"><div class="feat-icon">🔌</div><div class="feat-title">200+ modelos</div><div class="feat-desc">OpenRouter, OpenAI, HuggingFace, NVIDIA NIM e mais. Troque com um comando, sem lock-in.</div></div>
+      <div class="feat"><div class="feat-icon">⚡</div><div class="feat-title">Infraestrutura flexível</div><div class="feat-desc">VPS de $5, cluster GPU ou serverless (Modal, Vercel Sandbox) com hibernação automática quando ocioso.</div></div>
+      <div class="feat"><div class="feat-icon">🤖</div><div class="feat-title">Sub-agentes paralelos</div><div class="feat-desc">Spawne agentes isolados para fluxos paralelos. Divida trabalho complexo em agentes especializados.</div></div>
+      <div class="feat"><div class="feat-icon">⏰</div><div class="feat-title">Automações cron</div><div class="feat-desc">Agendador integrado. Resumo diário de emails, relatórios semanais, monitoramento contínuo — sem supervisão.</div></div>
+      <div class="feat"><div class="feat-icon">🛠️</div><div class="feat-title">40+ ferramentas</div><div class="feat-desc">Código, web, arquivos, APIs, bancos de dados, mídia e comunicação. Tudo pronto para usar.</div></div>
+      <div class="feat"><div class="feat-icon">🔒</div><div class="feat-title">Privacidade total</div><div class="feat-desc">Rode 100% local. Seus dados ficam na sua máquina. Sem telemetria, sem envio externo.</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- COMO FUNCIONA -->
+<section id="como-funciona">
+  <div class="container" style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;" class="two-col">
+    <div>
+      <div class="section-label">Como funciona</div>
+      <h2 class="section-title">O loop de<br/>auto-aprendizado</h2>
+      <p class="section-desc">Cada tarefa vira uma oportunidade de aprendizado. O agente extrai padrões, cria habilidades reutilizáveis e as melhora continuamente.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">1</div><div class="flow-line"></div></div>
+        <div class="flow-content"><h3>Você envia uma tarefa</h3><p>Via terminal, Telegram, Discord ou qualquer plataforma conectada.</p></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">2</div><div class="flow-line"></div></div>
+        <div class="flow-content"><h3>Mangaba executa com ferramentas</h3><p>Usa 40+ ferramentas integradas para completar a tarefa de forma autônoma.</p></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">3</div><div class="flow-line"></div></div>
+        <div class="flow-content"><h3>Habilidade é extraída</h3><p>O loop de aprendizado analisa a solução e cria uma habilidade reutilizável.</p></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-num">4</div></div>
+        <div class="flow-content"><h3>Próxima sessão: mais inteligente</h3><p>A habilidade é aplicada automaticamente em tarefas similares futuras.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- PLATAFORMAS -->
+<section id="plataformas">
+  <div class="container">
+    <div class="section-label">Plataformas</div>
+    <h2 class="section-title">Onde você quiser</h2>
+    <p class="section-desc">Um único agente acessível por todas as suas plataformas de comunicação favoritas.</p>
+    <div class="plat-grid">
+      <div class="plat"><span class="plat-icon">💻</span>Terminal UI</div>
+      <div class="plat"><span class="plat-icon">✈️</span>Telegram</div>
+      <div class="plat"><span class="plat-icon">🎮</span>Discord</div>
+      <div class="plat"><span class="plat-icon">💼</span>Slack</div>
+      <div class="plat"><span class="plat-icon">📱</span>WhatsApp</div>
+      <div class="plat"><span class="plat-icon">🔒</span>Signal</div>
+      <div class="plat"><span class="plat-icon">📧</span>Email</div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- INSTALAÇÃO -->
+<section id="instalacao">
+  <div class="container" style="max-width:680px;">
+    <div class="section-label">Instalação</div>
+    <h2 class="section-title">Pronto em minutos</h2>
+    <p class="section-desc">Escolha sua plataforma e instale com um comando.</p>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(event,'linux')">Linux / macOS</button>
+      <button class="tab" onclick="switchTab(event,'windows')">Windows</button>
+      <button class="tab" onclick="switchTab(event,'manual')">Manual</button>
+    </div>
+    <div id="linux" class="tab-content active">
+      <div class="code-block">
+        <div class="code-hd"><span class="lang">bash</span><span>instala e configura automaticamente</span></div>
+        <div class="code-body">
+          <span class="cm"># Linux, macOS ou WSL2</span><br/>
+          curl -fsSL https://raw.githubusercontent.com/dheiver2/mangaba-agent/main/scripts/install.sh | bash
+        </div>
+      </div>
+    </div>
+    <div id="windows" class="tab-content">
+      <div class="code-block">
+        <div class="code-hd"><span class="lang">powershell</span><span>inclui Python, Node.js e Git Bash</span></div>
+        <div class="code-body">
+          <span class="cm"># PowerShell (executar como administrador)</span><br/>
+          iex (irm https://raw.githubusercontent.com/dheiver2/mangaba-agent/main/scripts/install.ps1)
+        </div>
+      </div>
+    </div>
+    <div id="manual" class="tab-content">
+      <div class="code-block">
+        <div class="code-hd"><span class="lang">bash</span><span>instalação manual</span></div>
+        <div class="code-body">
+          git clone https://github.com/dheiver2/mangaba-agent.git<br/>
+          cd mangaba-agent<br/>
+          pip install -e .<br/>
+          mangaba setup
+        </div>
+      </div>
+    </div>
+    <br/>
+    <div class="code-block">
+      <div class="code-hd"><span class="lang">bash</span><span>primeiros passos</span></div>
+      <div class="code-body">
+        <span class="cm"># Configurar modelo</span><br/>
+        mangaba model set openrouter/anthropic/claude-sonnet-4-6<br/><br/>
+        <span class="cm"># Iniciar o agente</span><br/>
+        mangaba<br/><br/>
+        <span class="cm"># Ou conectar no Telegram</span><br/>
+        mangaba gateway telegram --token SEU_TOKEN
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta">
+  <h2>Comece a usar <span style="color:var(--yellow)">hoje</span></h2>
+  <p>Open-source, MIT License. Sem taxa, sem lock-in, sem nuvem obrigatória.</p>
+  <div class="hero-buttons">
+    <a href="#instalacao" class="btn btn-primary" style="font-size:1rem;padding:.75rem 2rem;">🚀 Instalar agora</a>
+    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" style="font-size:1rem;padding:.75rem 2rem;" target="_blank">⭐ Ver no GitHub</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand">🥭 Mangaba Agent</div>
+    <ul class="foot-links">
+      <li><a href="https://github.com/dheiver2/mangaba-agent" target="_blank">GitHub</a></li>
+      <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE" target="_blank">MIT License</a></li>
+      <li><a href="https://github.com/nousresearch/hermes-agent" target="_blank">Baseado no Hermes Agent</a></li>
+    </ul>
+    <div class="foot-copy">Feito com 🥭 no Brasil · 2025</div>
+  </div>
+</footer>
+
+<script>
+function switchTab(e,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  e.target.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
