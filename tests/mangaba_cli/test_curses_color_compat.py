@@ -1,3 +1,5 @@
+import sys
+import pytest
 """Tests for curses color compatibility on low-color terminals (Docker).
 
 Regression test for #13688: ``mangaba plugins`` crashes with
@@ -9,6 +11,8 @@ black" / dim gray) which does not exist on 8-color terminals.  The fix
 clamps with ``min(8, curses.COLORS - 1)``.
 """
 
+if sys.platform == "win32":
+    pytest.skip("curses não disponível no Windows", allow_module_level=True)
 import curses
 import re
 from pathlib import Path
