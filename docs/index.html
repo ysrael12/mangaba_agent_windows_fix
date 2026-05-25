@@ -6,565 +6,787 @@
   <title>mangaba.ai — Transforme ideias em fluxos inteligentes</title>
   <meta name="description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
   <meta property="og:title" content="mangaba.ai — Transforme ideias em fluxos inteligentes"/>
-  <meta property="og:description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
   <meta property="og:type" content="website"/>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='40%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23F5C842'/%3E%3Cstop offset='50%25' stop-color='%23E8843E'/%3E%3Cstop offset='100%25' stop-color='%23C96030'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2378C03B'/%3E%3Cstop offset='100%25' stop-color='%234A8226'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='32' cy='38' rx='22' ry='20' fill='url(%23fg)'/%3E%3Cellipse cx='24' cy='30' rx='6' ry='8' fill='white' fill-opacity='.22' transform='rotate(-20 24 30)'/%3E%3Cpath d='M32 18 Q 24 8 16 12 Q 22 18 32 16 Z' fill='url(%23lg)'/%3E%3Cline x1='32' y1='16' x2='32' y2='22' stroke='%236B4423' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='40%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23F5C842'/%3E%3Cstop offset='50%25' stop-color='%23E8843E'/%3E%3Cstop offset='100%25' stop-color='%23C96030'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2378C03B'/%3E%3Cstop offset='100%25' stop-color='%234A8226'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='33' cy='39' rx='22' ry='20' fill='url(%23fg)'/%3E%3Cellipse cx='25' cy='31' rx='6' ry='8' fill='white' fill-opacity='.22' transform='rotate(-20 25 31)'/%3E%3Cpath d='M33 18 Q 24 8 15 12 Q 22 18 33 16 Z' fill='url(%23lg)'/%3E%3Cline x1='33' y1='16' x2='33' y2='22' stroke='%236B4423' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
-
-  <script>
-    (function(){
-      try{
-        var t=localStorage.getItem('mg-theme');
-        if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))
-          document.documentElement.classList.add('dark');
-      }catch(e){}
-    })();
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+  <script>(function(){try{var t=localStorage.getItem('mg-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()</script>
 
   <style>
-    /* ══════════════════════════════════════════
-       TOKENS — Light
-    ══════════════════════════════════════════ */
-    :root {
-      --bg:           #FAF5EC;
-      --bg-2:         #F3EBD8;
-      --bg-card:      #FFFFFF;
-      --fg:           #2D2520;
-      --fg-2:         #6B5E55;
-      --border:       rgba(45,37,32,.10);
-      --border-soft:  rgba(45,37,32,.06);
+  /* ─────────────────────────────────────────
+     DESIGN TOKENS
+  ───────────────────────────────────────── */
+  :root {
+    /* Palette */
+    --cream:       #FAF6EE;
+    --cream-2:     #F2EAD8;
+    --cream-3:     #E8DDCA;
+    --card:        #FFFFFF;
+    --text-1:      #1C1510;
+    --text-2:      #7A6A5F;
+    --text-3:      #A89880;
 
-      --orange:       #E8843E;
-      --orange-dk:    #D4722C;
-      --orange-lt:    rgba(232,132,62,.12);
-      --orange-ring:  rgba(232,132,62,.25);
+    --orange-1:    #F5C25A;
+    --orange-2:    #E8843E;
+    --orange-3:    #C96030;
+    --green-1:     #A8D96B;
+    --green-2:     #5C9E31;
+    --green-3:     #3E7020;
+    --emerald:     #22c55e;
 
-      --green:        #5C9E31;
-      --green-dk:     #4A8226;
-      --green-lt:     rgba(92,158,49,.12);
+    /* Gradients */
+    --grad-orange: linear-gradient(135deg, #F5C25A 0%, #E8843E 50%, #C96030 100%);
+    --grad-warm:   linear-gradient(160deg, #FAF6EE 0%, #F2EAD8 60%, #EBD9BE 100%);
+    --grad-card:   linear-gradient(145deg, rgba(255,255,255,.9) 0%, rgba(250,246,238,.6) 100%);
 
-      --emerald:      #22c55e;
-      --radius:       10px;
-      --radius-lg:    16px;
-      --radius-xl:    24px;
-    }
+    /* Shadows — multi-layer premium */
+    --shadow-sm:   0 1px 3px rgba(28,21,16,.06), 0 1px 2px rgba(28,21,16,.04);
+    --shadow-md:   0 4px 12px rgba(28,21,16,.07), 0 2px 4px rgba(28,21,16,.04);
+    --shadow-lg:   0 12px 40px rgba(28,21,16,.10), 0 4px 12px rgba(28,21,16,.05);
+    --shadow-xl:   0 24px 64px rgba(28,21,16,.12), 0 8px 24px rgba(28,21,16,.06);
+    --shadow-orange: 0 8px 32px rgba(232,132,62,.25);
 
-    /* ══════════════════════════════════════════
-       TOKENS — Dark
-    ══════════════════════════════════════════ */
-    .dark {
-      --bg:       #1C1917;
-      --bg-2:     #252220;
-      --bg-card:  #2D2A27;
-      --fg:       #F5F0E8;
-      --fg-2:     #A89D95;
-      --border:   rgba(245,240,232,.10);
-      --border-soft: rgba(245,240,232,.06);
-    }
+    /* Borders */
+    --bd:          rgba(28,21,16,.09);
+    --bd-2:        rgba(28,21,16,.05);
 
-    /* ══════════════════════════════════════════
-       RESET
-    ══════════════════════════════════════════ */
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior:smooth; }
-    ::selection { background:rgba(232,132,62,.18); }
-    ::-webkit-scrollbar { width:5px; }
-    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
+    /* Radii */
+    --r-sm:  8px;
+    --r-md:  12px;
+    --r-lg:  20px;
+    --r-xl:  28px;
+    --r-2xl: 40px;
+  }
 
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: 'Open Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
-      font-size: 15px;
-      line-height: 1.55;
-      overflow-x: hidden;
-      transition: background .25s, color .25s;
-    }
-    a { color:inherit; text-decoration:none; }
-    img { max-width:100%; display:block; }
+  .dark {
+    --cream:       #1A1612;
+    --cream-2:     #221E18;
+    --cream-3:     #2C2620;
+    --card:        #2A2420;
+    --text-1:      #F5F0E8;
+    --text-2:      #A89880;
+    --text-3:      #7A6A5F;
+    --bd:          rgba(245,240,232,.08);
+    --bd-2:        rgba(245,240,232,.04);
+    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
+    --shadow-md:   0 4px 12px rgba(0,0,0,.3);
+    --shadow-lg:   0 12px 40px rgba(0,0,0,.35);
+    --shadow-xl:   0 24px 64px rgba(0,0,0,.4);
+    --grad-warm:   linear-gradient(160deg, #1A1612 0%, #221E18 60%, #2C2620 100%);
+    --grad-card:   linear-gradient(145deg, rgba(42,36,32,.95) 0%, rgba(34,30,24,.7) 100%);
+  }
 
-    /* ══════════════════════════════════════════
-       ANIMATIONS
-    ══════════════════════════════════════════ */
-    @keyframes fade-up   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes pulse-dot { 0%,100%{opacity:.35;transform:scale(.7)} 50%{opacity:1;transform:scale(1)} }
-    @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
-    @keyframes msg-in    { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes marquee   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  /* ─────────────────────────────────────────
+     RESET
+  ───────────────────────────────────────── */
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  ::selection { background:rgba(232,132,62,.18); }
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-thumb { background:var(--bd); border-radius:999px; }
 
-    .fade-up   { animation: fade-up .4s cubic-bezier(.22,1,.36,1) both; }
-    .delay-1   { animation-delay:.06s; }
-    .delay-2   { animation-delay:.13s; }
-    .delay-3   { animation-delay:.21s; }
+  body {
+    background: var(--cream);
+    color: var(--text-1);
+    font-family: 'Open Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px; line-height: 1.6;
+    overflow-x: hidden;
+    transition: background .3s, color .3s;
+  }
+  a { color:inherit; text-decoration:none; }
+  img { max-width:100%; display:block; }
 
-    /* ══════════════════════════════════════════
-       LOGO SVG — fruta mangaba estilo emoji
-    ══════════════════════════════════════════ */
-    .logo-svg { flex-shrink:0; }
+  /* ─────────────────────────────────────────
+     DOT PATTERN UTILITY
+  ───────────────────────────────────────── */
+  .dots {
+    background-image: radial-gradient(circle, rgba(28,21,16,.12) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .dark .dots {
+    background-image: radial-gradient(circle, rgba(245,240,232,.06) 1px, transparent 1px);
+  }
 
-    /* ══════════════════════════════════════════
-       NAV
-    ══════════════════════════════════════════ */
-    nav {
-      position:fixed; top:0; left:0; right:0; z-index:100;
-      height:62px;
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 0 max(1.5rem, calc(50% - 600px));
-      transition: background .2s, border-color .2s, backdrop-filter .2s;
-      border-bottom: 1px solid transparent;
-    }
-    nav.scrolled {
-      background: color-mix(in srgb, var(--bg) 88%, transparent);
-      backdrop-filter: blur(18px);
-      border-color: var(--border);
-    }
+  /* ─────────────────────────────────────────
+     ANIMATIONS
+  ───────────────────────────────────────── */
+  @keyframes rise   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes pulse  { 0%,100%{opacity:.3;transform:scale(.65)} 50%{opacity:1;transform:scale(1)} }
+  @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:0} }
+  @keyframes scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes spin   { to{transform:rotate(360deg)} }
+  @keyframes msg    { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-    .nav-logo {
-      display:flex; align-items:center; gap:.5rem;
-      font-size: 1.125rem; font-weight: 700; letter-spacing: -.01em;
-    }
-    .nav-logo .wordmark { color: var(--fg); }
-    .nav-logo .dot-ai   { color: var(--orange); }
+  .rise   { animation: rise .5s cubic-bezier(.22,1,.36,1) both; }
+  .d1{ animation-delay:.07s } .d2{ animation-delay:.14s } .d3{ animation-delay:.22s } .d4{ animation-delay:.30s }
 
-    .nav-links { display:flex; gap:2rem; list-style:none; }
-    .nav-links a {
-      font-size:.875rem; font-weight:600;
-      color: var(--fg-2);
-      transition: color .15s;
-    }
-    .nav-links a:hover { color: var(--fg); }
+  /* ─────────────────────────────────────────
+     GRADIENT TEXT
+  ───────────────────────────────────────── */
+  .grad-text {
+    background: var(--grad-orange);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-    .nav-right { display:flex; align-items:center; gap:.75rem; }
+  /* ─────────────────────────────────────────
+     NAV
+  ───────────────────────────────────────── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:200;
+    height: 64px;
+    display: flex; align-items:center; justify-content:space-between;
+    padding: 0 max(1.5rem, calc(50% - 620px));
+    transition: all .25s;
+  }
+  nav.scrolled {
+    background: color-mix(in srgb, var(--cream) 85%, transparent);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid var(--bd);
+    box-shadow: var(--shadow-sm);
+  }
 
-    .theme-toggle {
-      width:36px; height:36px; border-radius:8px;
-      background:transparent; border:1px solid var(--border);
-      cursor:pointer; transition:all .15s;
-      display:flex; align-items:center; justify-content:center;
-      color:var(--fg-2);
-    }
-    .theme-toggle:hover { border-color:var(--orange); color:var(--orange); }
+  .nav-logo { display:flex; align-items:center; gap:.5rem; }
+  .nav-logo .name { font-size:1.125rem; font-weight:800; letter-spacing:-.015em; }
+  .nav-logo .name b { color:var(--text-1); font-weight:800; }
+  .nav-logo .name span { color:var(--orange-2); }
 
-    /* ══════════════════════════════════════════
-       BUTTONS
-    ══════════════════════════════════════════ */
-    .btn {
-      display:inline-flex; align-items:center; gap:.5rem;
-      padding:.6875rem 1.5rem; border-radius:var(--radius);
-      font-family: inherit; font-size:.875rem; font-weight:600;
-      cursor:pointer; border:none;
-      transition: all .18s cubic-bezier(.22,1,.36,1);
-      white-space:nowrap; min-height:42px; text-decoration:none;
-    }
-    .btn-primary {
-      background: var(--orange); color:#fff;
-    }
-    .btn-primary:hover { background: var(--orange-dk); }
+  .nav-links { display:flex; gap:2rem; list-style:none; }
+  .nav-links a { font-size:.875rem; font-weight:600; color:var(--text-2); transition:color .15s; }
+  .nav-links a:hover { color:var(--text-1); }
 
-    .btn-outline {
-      background: transparent; color: var(--fg);
-      border: 1.5px solid var(--border);
-    }
-    .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+  .nav-actions { display:flex; align-items:center; gap:.75rem; }
 
-    .btn-dark {
-      background: var(--fg); color: var(--bg);
-    }
-    .btn-dark:hover { opacity:.88; }
+  .btn-icon {
+    width:38px; height:38px; border-radius:10px;
+    background:transparent; border:1.5px solid var(--bd);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    color:var(--text-2); transition:all .15s;
+  }
+  .btn-icon:hover { border-color:var(--orange-2); color:var(--orange-2); }
 
-    .link-arrow {
-      font-size:.9375rem; font-weight:600; color:var(--fg-2);
-      transition:color .15s;
-    }
-    .link-arrow:hover { color:var(--fg); }
+  /* ─────────────────────────────────────────
+     BUTTONS
+  ───────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items:center; gap:.5rem;
+    font-family: inherit; font-weight:700; font-size:.875rem;
+    border:none; cursor:pointer; white-space:nowrap;
+    transition: all .2s cubic-bezier(.22,1,.36,1);
+    text-decoration:none; border-radius:var(--r-md);
+    padding: .75rem 1.625rem; min-height:44px;
+  }
+  .btn-orange {
+    background: var(--grad-orange);
+    color: #fff;
+    box-shadow: var(--shadow-orange);
+  }
+  .btn-orange:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(232,132,62,.35); }
+  .btn-orange:active{ transform:translateY(0); }
 
-    /* ══════════════════════════════════════════
-       LAYOUT
-    ══════════════════════════════════════════ */
-    .container { max-width:1160px; margin:0 auto; padding:0 2rem; }
-    section { padding:6rem 0; }
+  .btn-ghost {
+    background: transparent; color:var(--text-1);
+    border: 1.5px solid var(--bd);
+  }
+  .btn-ghost:hover { border-color:var(--orange-2); color:var(--orange-2); }
 
-    .eyebrow {
-      display:inline-flex; align-items:center; gap:.4rem;
-      font-size:.72rem; font-weight:700;
-      text-transform:uppercase; letter-spacing:.12em;
-      color: var(--orange);
-      margin-bottom:.875rem;
-    }
-    .section-title {
-      font-size: clamp(1.75rem, 3.5vw, 2.625rem);
-      font-weight: 700; letter-spacing: -.025em; line-height: 1.12;
-      margin-bottom: .875rem;
-    }
-    .section-sub {
-      font-size: 1.0625rem; color: var(--fg-2);
-      max-width: 560px; line-height: 1.7;
-    }
-    .accent { color: var(--orange); }
-    hr.divider { border:none; border-top:1px solid var(--border); }
+  .btn-dark {
+    background: var(--text-1); color:var(--cream);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-dark:hover { transform:translateY(-1px); box-shadow:var(--shadow-lg); }
 
-    /* Pill badge */
-    .pill {
-      display:inline-flex; align-items:center; gap:.375rem;
-      padding:.3rem .875rem; border-radius:999px;
-      background: var(--bg-card); border:1px solid var(--border);
-      font-size:.75rem; font-weight:600; color:var(--fg-2);
-    }
-    .pulse { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse-dot 1.4s ease-in-out infinite; }
+  .btn-lg { padding:.9375rem 2.25rem; font-size:1rem; border-radius:var(--r-lg); }
 
-    /* Agent type badge */
-    .agent-badge {
-      display:inline-flex; align-items:center; gap:.4rem;
-      padding:.3rem .75rem; border-radius:8px;
-      background: var(--bg-card); border:1px solid var(--border);
-      font-size:.78rem; font-weight:600; color:var(--fg);
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
-    }
-    .agent-badge .badge-dot {
-      width:8px; height:8px; border-radius:50%; background:var(--orange);
-    }
+  .arrow-link {
+    font-size:.9375rem; font-weight:700; color:var(--text-2);
+    display:inline-flex; align-items:center; gap:.35rem;
+    transition:all .15s;
+  }
+  .arrow-link:hover { color:var(--text-1); gap:.6rem; }
 
-    /* ══════════════════════════════════════════
-       HERO
-    ══════════════════════════════════════════ */
-    .hero {
-      min-height:100vh; display:flex; align-items:center;
-      padding:8rem 0 5rem; position:relative; overflow:hidden;
-    }
-    /* Warm radial background — matches cream palette */
-    .hero::before {
-      content:''; position:absolute; inset:0; pointer-events:none;
-      background: radial-gradient(ellipse 80% 60% at 65% 40%,
-        rgba(232,132,62,.10) 0%,
-        rgba(245,200,66,.06) 40%,
-        transparent 70%);
-    }
-    .hero-inner {
-      display:grid; grid-template-columns:1fr 1fr;
-      gap:4rem; align-items:center;
-    }
-    .hero h1 {
-      font-size: clamp(2.25rem, 5vw, 4.5rem);
-      font-weight: 800; letter-spacing: -.03em; line-height: 1.07;
-      margin-bottom: 1.25rem;
-    }
-    .hero-sub {
-      font-size:1.0625rem; color:var(--fg-2); line-height:1.7;
-      max-width:460px; margin-bottom:2rem;
-    }
-    .hero-actions { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .hero-micro { font-size:.8125rem; color:var(--fg-2); }
+  /* ─────────────────────────────────────────
+     LAYOUT
+  ───────────────────────────────────────── */
+  .container { max-width:1180px; margin:0 auto; padding:0 2rem; }
+  section { padding:6rem 0; }
 
-    /* Social proof strip */
-    .hero-proof {
-      display:flex; align-items:center; gap:.875rem;
-      margin-top:2rem; padding-top:1.5rem;
-      border-top:1px solid var(--border);
-    }
-    .proof-faces { display:flex; }
-    .proof-faces img {
-      width:30px; height:30px; border-radius:50%;
-      border:2px solid var(--bg); margin-left:-7px;
-      object-fit:cover;
-    }
-    .proof-faces img:first-child { margin-left:0; }
-    .proof-copy { font-size:.8125rem; color:var(--fg-2); }
-    .proof-copy strong { color:var(--fg); }
+  .eyebrow {
+    display:inline-flex; align-items:center; gap:.375rem;
+    font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--orange-2);
+    margin-bottom:1rem;
+  }
+  .eyebrow::before { content:''; width:16px; height:2px; background:var(--orange-2); border-radius:1px; }
 
-    /* ─── Hero right: tablet mockup + agent badges ─── */
-    .hero-visual { position:relative; display:flex; align-items:center; justify-content:center; }
-    .tablet-wrap {
-      position:relative; width:100%; max-width:420px; margin:0 auto;
-    }
-    .tablet-img {
-      width:100%; border-radius:var(--radius-xl);
-      border:1px solid var(--border);
-      box-shadow: 0 32px 80px rgba(45,37,32,.14);
-      display:block;
-    }
-    /* Floating agent-type badges */
-    .float-badge {
-      position:absolute;
-      background: var(--bg-card); border:1px solid var(--border);
-      border-radius:10px; padding:.375rem .75rem;
-      font-size:.78rem; font-weight:600; color:var(--fg);
-      box-shadow: 0 4px 16px rgba(0,0,0,.08);
-      display:flex; align-items:center; gap:.4rem;
-      white-space:nowrap;
-    }
-    .float-badge .fb-dot { width:8px; height:8px; border-radius:50%; }
-    .fb-consensual  { top:12%; right:-8%; }
-    .fb-parallel    { top:40%; left:-6%; }
-    .fb-sequential  { bottom:28%; right:-10%; }
-    .fb-hierarchical{ bottom:12%; right:2%; }
+  .section-title {
+    font-size: clamp(1.875rem, 3.8vw, 2.875rem);
+    font-weight:800; letter-spacing:-.03em; line-height:1.1;
+    margin-bottom:1rem;
+  }
+  .section-sub {
+    font-size:1.0625rem; color:var(--text-2);
+    max-width:560px; line-height:1.75;
+  }
 
-    /* ══════════════════════════════════════════
-       LOGOS MARQUEE
-    ══════════════════════════════════════════ */
-    .logos-section {
-      background: var(--bg-2);
-      border-top:1px solid var(--border);
-      border-bottom:1px solid var(--border);
-      padding:2rem 0; overflow:hidden;
-    }
-    .logos-label { text-align:center; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--fg-2); margin-bottom:1.5rem; }
-    .logos-track-wrap { overflow:hidden; mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent); }
-    .logos-track { display:flex; gap:3.5rem; align-items:center; width:max-content; animation:marquee 24s linear infinite; }
-    .logos-track:hover { animation-play-state:paused; }
-    .logo-item { font-size:.9375rem; font-weight:700; letter-spacing:-.01em; color:var(--fg-2); opacity:.55; white-space:nowrap; transition:opacity .2s; }
-    .logo-item:hover { opacity:1; color:var(--orange); }
+  /* Premium card */
+  .card {
+    background: var(--grad-card);
+    border: 1px solid var(--bd);
+    border-radius: var(--r-xl);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-md);
+    transition: transform .25s, box-shadow .25s;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
 
-    /* ══════════════════════════════════════════
-       FEATURES
-    ══════════════════════════════════════════ */
-    .features-header { text-align:center; margin-bottom:3.5rem; }
-    .features-header .section-sub { margin:0 auto; }
-    .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .feat-card {
-      background: var(--bg-card); border:1px solid var(--border);
-      border-radius:var(--radius-lg); padding:1.875rem;
-      transition: box-shadow .2s, border-color .2s, transform .2s;
-    }
-    .feat-card:hover {
-      border-color: var(--orange-ring);
-      box-shadow: 0 6px 28px rgba(232,132,62,.08);
-      transform: translateY(-2px);
-    }
-    .feat-icon {
-      width:44px; height:44px; border-radius:12px;
-      background: var(--orange-lt);
-      display:flex; align-items:center; justify-content:center;
-      margin-bottom:1.125rem; font-size:1.25rem;
-    }
-    .feat-title { font-size:.9375rem; font-weight:700; margin-bottom:.375rem; }
-    .feat-desc  { font-size:.875rem; color:var(--fg-2); line-height:1.65; }
+  /* Tag badge */
+  .tag {
+    display:inline-flex; align-items:center; gap:.35rem;
+    padding:.275rem .75rem; border-radius:999px;
+    font-size:.72rem; font-weight:700; letter-spacing:.04em;
+    border: 1.5px solid var(--bd);
+    background: var(--card); color:var(--text-2);
+  }
+  .tag .dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse 1.5s ease-in-out infinite; }
 
-    /* ══════════════════════════════════════════
-       MODELS BAR
-    ══════════════════════════════════════════ */
-    .models-bar { background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:2rem 0; }
-    .models-bar-label { text-align:center; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--fg-2); margin-bottom:1.25rem; }
-    .models-list { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem 1rem; }
-    .model-chip { font-size:.8125rem; font-weight:600; color:var(--fg-2); padding:.3rem .875rem; border-radius:999px; border:1.5px solid var(--border); background:var(--bg-card); transition:border-color .15s, color .15s; }
-    .model-chip:hover { border-color:var(--orange); color:var(--orange); }
+  hr.sep { border:none; border-top:1px solid var(--bd); }
 
-    /* ══════════════════════════════════════════
-       HOW IT WORKS
-    ══════════════════════════════════════════ */
-    .hiw-inner { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:start; }
-    .hiw-steps { display:flex; flex-direction:column; }
-    .hiw-step  { display:flex; gap:1.25rem; padding-bottom:2.25rem; position:relative; }
-    .hiw-step:not(:last-child) .step-left::after { content:''; position:absolute; left:18px; top:38px; bottom:0; width:1px; background:linear-gradient(to bottom,var(--border),transparent); }
-    .step-left { position:relative; flex-shrink:0; }
-    .step-num  { width:38px; height:38px; border-radius:50%; background:var(--orange); color:#fff; font-size:.875rem; font-weight:700; display:flex; align-items:center; justify-content:center; }
-    .step-content h3 { font-size:.9375rem; font-weight:700; margin-bottom:.3rem; }
-    .step-content p  { font-size:.875rem; color:var(--fg-2); line-height:1.65; }
+  /* ─────────────────────────────────────────
+     HERO
+  ───────────────────────────────────────── */
+  .hero {
+    min-height:100vh;
+    display:flex; align-items:center;
+    padding:9rem 0 6rem;
+    position:relative; overflow:hidden;
+  }
 
-    /* ══════════════════════════════════════════
-       PRODUCT SCREENSHOTS
-    ══════════════════════════════════════════ */
-    .product-section {
-      background: var(--bg-2);
-      border-top:1px solid var(--border);
-      border-bottom:1px solid var(--border);
-      padding:5.5rem 0;
-    }
-    .product-header { text-align:center; margin-bottom:3.5rem; }
-    .product-header .section-sub { margin:0 auto; }
+  /* Organic background blobs */
+  .hero-blob {
+    position:absolute; border-radius:50%; pointer-events:none;
+    filter: blur(80px);
+  }
+  .blob-1 { width:600px; height:600px; top:-100px; right:-80px; background:radial-gradient(circle, rgba(245,194,90,.18) 0%, transparent 70%); }
+  .blob-2 { width:400px; height:400px; bottom:-80px; left:-60px; background:radial-gradient(circle, rgba(168,217,107,.12) 0%, transparent 70%); }
+  .blob-3 { width:300px; height:300px; top:30%; left:40%; background:radial-gradient(circle, rgba(232,132,62,.08) 0%, transparent 70%); }
 
-    .screenshot-main {
-      border-radius:var(--radius-lg); overflow:hidden;
-      border:1px solid var(--border);
-      box-shadow:0 24px 80px rgba(45,37,32,.12);
-      margin-bottom:1.5rem; background:var(--bg-card);
-    }
-    .screenshot-bar {
-      display:flex; align-items:center; gap:.4rem;
-      padding:.625rem 1rem;
-      background:var(--bg-card);
-      border-bottom:1px solid var(--border);
-    }
-    .dot { width:11px; height:11px; border-radius:50%; }
-    .dot-r{background:#FF5F56;} .dot-y{background:#FFBD2E;} .dot-g{background:#27C93F;}
-    .url-bar { flex:1; background:var(--bg-2); border-radius:6px; padding:.25rem .75rem; font-size:.75rem; color:var(--fg-2); margin:0 .5rem; }
-    .screenshot-main img { width:100%; display:block; max-height:420px; object-fit:cover; object-position:top; }
+  /* Dot texture overlay */
+  .hero-dots {
+    position:absolute; inset:0; pointer-events:none;
+    background-image: radial-gradient(circle, rgba(28,21,16,.07) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: radial-gradient(ellipse 70% 60% at 70% 50%, black 30%, transparent 80%);
+  }
+  .dark .hero-dots {
+    background-image: radial-gradient(circle, rgba(245,240,232,.04) 1px, transparent 1px);
+  }
 
-    .screenshots-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .sc-card {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:var(--radius-lg); overflow:hidden;
-      transition:transform .2s, box-shadow .2s;
-    }
-    .sc-card:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(45,37,32,.10); }
-    .sc-card img { width:100%; aspect-ratio:4/3; object-fit:cover; }
-    .sc-label { padding:.875rem 1rem; }
-    .sc-label strong { font-size:.875rem; font-weight:700; display:block; margin-bottom:.2rem; }
-    .sc-label span   { font-size:.78rem; color:var(--fg-2); }
+  .hero-inner {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:5rem; align-items:center; position:relative; z-index:1;
+  }
 
-    /* ══════════════════════════════════════════
-       PERSONAS
-    ══════════════════════════════════════════ */
-    .personas-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
-    .persona-card {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:var(--radius-lg); padding:1.5rem;
-      transition:all .2s;
-    }
-    .persona-card:hover { border-color:var(--orange-ring); box-shadow:0 4px 20px rgba(232,132,62,.08); }
-    .p-avatar { width:46px; height:46px; border-radius:50%; background:var(--orange-lt); color:var(--orange); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-bottom:1rem; }
-    .persona-card h3 { font-size:.9375rem; font-weight:700; margin-bottom:.2rem; }
-    .p-role { font-size:.78rem; font-weight:600; color:var(--orange); margin-bottom:.5rem; }
-    .persona-card p { font-size:.8125rem; color:var(--fg-2); line-height:1.6; }
+  .hero h1 {
+    font-size: clamp(2.5rem, 5.5vw, 5rem);
+    font-weight:800; letter-spacing:-.035em; line-height:1.06;
+    margin-bottom:1.5rem;
+  }
+  .hero-sub {
+    font-size:1.125rem; color:var(--text-2); line-height:1.75;
+    max-width:460px; margin-bottom:2.25rem;
+  }
+  .hero-cta { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; margin-bottom:1rem; }
+  .hero-micro { font-size:.8125rem; color:var(--text-3); }
 
-    /* ══════════════════════════════════════════
-       CASES
-    ══════════════════════════════════════════ */
-    .cases-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
-    .case-card {
-      background:var(--bg-card); border:1px solid var(--border);
-      border-radius:var(--radius-xl); overflow:hidden;
-      transition:transform .2s, box-shadow .2s;
-    }
-    .case-card:hover { transform:translateY(-4px); box-shadow:0 16px 48px rgba(45,37,32,.10); }
-    .case-card img { width:100%; aspect-ratio:16/9; object-fit:cover; }
-    .case-body { padding:1.5rem; }
-    .case-sector { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); margin-bottom:.4rem; }
-    .case-company{ font-size:.8125rem; font-weight:600; color:var(--fg-2); margin-bottom:.875rem; }
-    .case-metric { font-size:2.5rem; font-weight:800; letter-spacing:-.04em; color:var(--fg); margin-bottom:.2rem; line-height:1; }
-    .case-mlabel { font-size:.8125rem; color:var(--fg-2); margin-bottom:1rem; }
-    .case-quote  { font-size:.875rem; color:var(--fg-2); line-height:1.65; font-style:italic; border-left:3px solid var(--orange-ring); padding-left:.875rem; }
+  /* Social proof */
+  .social-proof {
+    display:flex; align-items:center; gap:1rem;
+    margin-top:2.25rem; padding-top:1.75rem;
+    border-top:1px solid var(--bd);
+  }
+  .face-stack { display:flex; }
+  .face-stack img {
+    width:32px; height:32px; border-radius:50%;
+    border:2.5px solid var(--cream);
+    margin-left:-9px; object-fit:cover;
+  }
+  .face-stack img:first-child { margin-left:0; }
+  .proof-text { font-size:.8125rem; color:var(--text-2); line-height:1.45; }
+  .proof-text strong { color:var(--text-1); font-weight:700; display:block; }
 
-    /* ══════════════════════════════════════════
-       BENEFITS
-    ══════════════════════════════════════════ */
-    .benefits-inner { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
-    .benefits-list { display:flex; flex-direction:column; gap:1.25rem; }
-    .benefit-item { display:flex; gap:.875rem; align-items:flex-start; }
-    .b-check { width:22px; height:22px; border-radius:50%; background:rgba(92,158,49,.15); color:var(--green); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-    .b-check svg { width:12px; height:12px; }
-    .benefit-item h4 { font-size:.9375rem; font-weight:700; margin-bottom:.2rem; }
-    .benefit-item p  { font-size:.875rem; color:var(--fg-2); line-height:1.6; }
-    .metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
-    .metric-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.375rem; }
-    .metric-value{ font-size:2.125rem; font-weight:800; letter-spacing:-.04em; color:var(--orange); }
-    .metric-label{ font-size:.78rem; color:var(--fg-2); margin-top:.15rem; }
+  /* ─── Hero visual ─── */
+  .hero-visual { position:relative; }
 
-    /* ══════════════════════════════════════════
-       TECH GRID
-    ══════════════════════════════════════════ */
-    .tech-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
-    .tech-cell { background:var(--bg-card); padding:2rem 1.75rem; }
-    .tech-cell h3 { font-size:.9375rem; font-weight:700; margin-bottom:.5rem; }
-    .tech-cell p  { font-size:.875rem; color:var(--fg-2); line-height:1.65; }
-    .tech-tag { display:inline-block; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; padding:.2rem .625rem; border-radius:999px; background:var(--orange-lt); color:var(--orange); margin-bottom:.75rem; }
+  .hero-img-wrap {
+    position:relative; border-radius:var(--r-2xl);
+    overflow:hidden;
+    border:1px solid var(--bd);
+    box-shadow:var(--shadow-xl);
+  }
+  .hero-img-wrap img { width:100%; display:block; aspect-ratio:4/5; object-fit:cover; }
 
-    /* ══════════════════════════════════════════
-       TESTIMONIALS
-    ══════════════════════════════════════════ */
-    .testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .test-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.875rem; }
-    .test-stars { color:#F59E0B; font-size:1rem; letter-spacing:.1em; margin-bottom:1rem; }
-    .test-quote { font-size:.9375rem; line-height:1.7; color:var(--fg); margin-bottom:1.25rem; }
-    .test-author{ display:flex; align-items:center; gap:.625rem; }
-    .test-photo { width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; }
-    .test-name  { font-size:.875rem; font-weight:700; }
-    .test-role  { font-size:.78rem; color:var(--fg-2); }
+  /* Gradient overlay on photo bottom */
+  .hero-img-wrap::after {
+    content:'';
+    position:absolute; bottom:0; left:0; right:0; height:45%;
+    background:linear-gradient(to top, rgba(28,21,16,.55) 0%, transparent 100%);
+    pointer-events:none;
+  }
 
-    /* ══════════════════════════════════════════
-       FAQ
-    ══════════════════════════════════════════ */
-    .faq-list { display:flex; flex-direction:column; max-width:720px; margin:0 auto; }
-    .faq-item { border-bottom:1px solid var(--border); }
-    .faq-q { display:flex; justify-content:space-between; align-items:center; padding:1.125rem 0; font-size:.9375rem; font-weight:600; cursor:pointer; background:none; border:none; color:var(--fg); width:100%; text-align:left; gap:1rem; font-family:inherit; }
-    .faq-q svg { flex-shrink:0; transition:transform .2s; color:var(--fg-2); }
-    .faq-item.open .faq-q svg { transform:rotate(180deg); }
-    .faq-a { font-size:.875rem; color:var(--fg-2); line-height:1.7; max-height:0; overflow:hidden; transition:max-height .3s cubic-bezier(.22,1,.36,1), padding .3s; }
-    .faq-item.open .faq-a { max-height:300px; padding-bottom:1.125rem; }
+  /* Floating agent badges */
+  .float-card {
+    position:absolute;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(16px) saturate(1.4);
+    border:1px solid var(--bd);
+    border-radius:var(--r-lg);
+    padding:.75rem 1rem;
+    box-shadow:var(--shadow-lg);
+    display:flex; align-items:center; gap:.625rem;
+    font-size:.8125rem; font-weight:700; color:var(--text-1);
+    white-space:nowrap;
+    animation: float 4s ease-in-out infinite;
+  }
+  .float-card .fc-icon {
+    width:28px; height:28px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; flex-shrink:0;
+  }
+  .fc-orange { background:rgba(232,132,62,.15); }
+  .fc-green  { background:rgba(92,158,49,.15); }
+  .fc-purple { background:rgba(139,92,246,.12); }
+  .fc-blue   { background:rgba(59,130,246,.12); }
 
-    /* ══════════════════════════════════════════
-       CTA
-    ══════════════════════════════════════════ */
-    .cta-section {
-      background: var(--fg); color: var(--bg);
-      text-align:center; padding:5.5rem 2rem;
-    }
-    .cta-section .eyebrow { color:rgba(232,132,62,.9); }
-    .cta-section .section-title { color:var(--bg); margin:0 auto .875rem; }
-    .cta-section .section-sub   { color:color-mix(in srgb, var(--bg) 65%, transparent); margin:0 auto 2.5rem; }
-    .cta-section .btn-primary   { font-size:1rem; padding:.9375rem 2.25rem; }
-    .cta-micro { font-size:.8125rem; color:color-mix(in srgb, var(--bg) 50%, transparent); margin-top:1.25rem; }
-    .cta-micro a { color:color-mix(in srgb, var(--bg) 70%, transparent); text-decoration:underline; }
+  .fc-1 { top:8%; right:-9%; animation-delay:0s; }
+  .fc-2 { top:38%; left:-11%; animation-delay:.8s; }
+  .fc-3 { bottom:24%; right:-12%; animation-delay:1.6s; }
+  .fc-4 { bottom:9%;  right:8%; animation-delay:2.4s; }
 
-    /* ══════════════════════════════════════════
-       FOOTER
-    ══════════════════════════════════════════ */
-    footer { background:var(--bg); border-top:1px solid var(--border); padding:3rem 0 2rem; }
-    .footer-inner { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
-    .footer-brand p { font-size:.875rem; color:var(--fg-2); line-height:1.7; max-width:240px; margin-top:.625rem; }
-    .footer-col h4 { font-size:.8125rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--fg-2); margin-bottom:.875rem; }
-    .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
-    .footer-col a { font-size:.875rem; color:var(--fg-2); transition:color .15s; }
-    .footer-col a:hover { color:var(--orange); }
-    .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); font-size:.8125rem; color:var(--fg-2); }
+  /* Caption inside photo */
+  .photo-caption {
+    position:absolute; bottom:1.25rem; left:1.25rem; right:1.25rem;
+    color:#fff; z-index:2;
+  }
+  .photo-caption h3 { font-size:1.125rem; font-weight:700; margin-bottom:.2rem; }
+  .photo-caption p  { font-size:.8125rem; opacity:.8; }
 
-    /* ══════════════════════════════════════════
-       RESPONSIVE
-    ══════════════════════════════════════════ */
-    @media(max-width:900px){
-      .hero-inner        { grid-template-columns:1fr; }
-      .hero-visual       { display:none; }
-      .features-grid     { grid-template-columns:1fr 1fr; }
-      .hiw-inner         { grid-template-columns:1fr; gap:3rem; }
-      .screenshots-grid  { grid-template-columns:1fr 1fr; }
-      .cases-grid        { grid-template-columns:1fr 1fr; }
-      .benefits-inner    { grid-template-columns:1fr; }
-      .tech-grid         { grid-template-columns:1fr; }
-      .testimonials-grid { grid-template-columns:1fr; }
-      .footer-inner      { grid-template-columns:1fr 1fr; }
-    }
-    @media(max-width:600px){
-      .nav-links         { display:none; }
-      .features-grid     { grid-template-columns:1fr; }
-      .screenshots-grid  { grid-template-columns:1fr; }
-      .cases-grid        { grid-template-columns:1fr; }
-      .footer-inner      { grid-template-columns:1fr; }
-      .metric-grid       { grid-template-columns:1fr; }
-    }
+  /* ─────────────────────────────────────────
+     LOGOS MARQUEE
+  ───────────────────────────────────────── */
+  .logos-band {
+    background:var(--cream-2);
+    border-top:1px solid var(--bd);
+    border-bottom:1px solid var(--bd);
+    padding:2.25rem 0; overflow:hidden;
+  }
+  .logos-label {
+    text-align:center; font-size:.68rem; font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--text-3); margin-bottom:1.5rem;
+  }
+  .marquee-wrap {
+    overflow:hidden;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  .marquee-track {
+    display:flex; gap:3.5rem; align-items:center;
+    width:max-content;
+    animation:scroll 26s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state:paused; }
+  .m-item {
+    font-size:.9375rem; font-weight:800; letter-spacing:-.015em;
+    color:var(--text-3); opacity:.5; white-space:nowrap;
+    transition:opacity .2s, color .2s;
+  }
+  .m-item:hover { opacity:1; color:var(--orange-2); }
+
+  /* ─────────────────────────────────────────
+     FEATURES
+  ───────────────────────────────────────── */
+  .features-header { text-align:center; margin-bottom:4rem; }
+  .features-header .section-sub { margin:0 auto; }
+
+  .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .feat-card {
+    padding:2rem;
+    background:var(--grad-card);
+    border:1px solid var(--bd);
+    border-radius:var(--r-xl);
+    box-shadow:var(--shadow-sm);
+    transition:all .25s cubic-bezier(.22,1,.36,1);
+    position:relative; overflow:hidden;
+  }
+  .feat-card::before {
+    content:'';
+    position:absolute; top:-40px; right:-40px;
+    width:120px; height:120px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,132,62,.08) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .feat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:rgba(232,132,62,.2); }
+
+  .feat-icon-wrap {
+    width:48px; height:48px; border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; margin-bottom:1.25rem;
+    position:relative; z-index:1;
+  }
+  .fi-orange { background:linear-gradient(135deg, rgba(245,194,90,.2), rgba(232,132,62,.15)); border:1px solid rgba(232,132,62,.2); }
+  .fi-green  { background:linear-gradient(135deg, rgba(168,217,107,.2), rgba(92,158,49,.12)); border:1px solid rgba(92,158,49,.2); }
+  .fi-cream  { background:var(--cream-2); border:1px solid var(--bd); }
+
+  .feat-title { font-size:1rem; font-weight:700; margin-bottom:.4rem; }
+  .feat-desc  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
+
+  /* ─────────────────────────────────────────
+     MODELS
+  ───────────────────────────────────────── */
+  .models-wrap { background:var(--cream-2); border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:2rem 0; }
+  .models-label { text-align:center; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-3); margin-bottom:1.25rem; }
+  .models-list { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem 1.125rem; }
+  .model-pill {
+    font-size:.8125rem; font-weight:600; color:var(--text-2);
+    padding:.35rem .9375rem; border-radius:999px;
+    border:1.5px solid var(--bd); background:var(--card);
+    box-shadow:var(--shadow-sm);
+    transition:all .15s;
+  }
+  .model-pill:hover { border-color:var(--orange-2); color:var(--orange-2); box-shadow:0 0 0 3px rgba(232,132,62,.08); }
+
+  /* ─────────────────────────────────────────
+     HOW IT WORKS
+  ───────────────────────────────────────── */
+  .hiw-wrap { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:start; }
+  .hiw-text { position:sticky; top:8rem; }
+  .steps { display:flex; flex-direction:column; }
+  .step {
+    display:flex; gap:1.375rem; padding-bottom:2.5rem;
+    position:relative;
+  }
+  .step:not(:last-child)::after {
+    content:''; position:absolute; left:19px; top:42px; bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom, var(--bd), transparent);
+  }
+  .step-num {
+    width:40px; height:40px; flex-shrink:0; border-radius:50%;
+    background:var(--grad-orange); color:#fff;
+    font-size:.875rem; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(232,132,62,.3);
+  }
+  .step-body h3 { font-size:1rem; font-weight:700; margin-bottom:.35rem; }
+  .step-body p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
+
+  /* ─────────────────────────────────────────
+     PRODUCT SCREENSHOTS
+  ───────────────────────────────────────── */
+  .product-band {
+    background: var(--cream-2);
+    border-top:1px solid var(--bd); border-bottom:1px solid var(--bd);
+    padding:6rem 0; position:relative; overflow:hidden;
+  }
+  .product-band .dots {
+    position:absolute; inset:0; pointer-events:none;
+    opacity:.5;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+  }
+  .product-header { text-align:center; margin-bottom:4rem; position:relative; z-index:1; }
+  .product-header .section-sub { margin:0 auto; }
+
+  /* Main screenshot — browser frame */
+  .browser-frame {
+    background:var(--card); border:1px solid var(--bd);
+    border-radius:var(--r-xl); overflow:hidden;
+    box-shadow:var(--shadow-xl);
+    margin-bottom:1.5rem;
+    position:relative; z-index:1;
+  }
+  .browser-chrome {
+    display:flex; align-items:center; gap:.5rem;
+    padding:.75rem 1.25rem;
+    background:var(--cream-2);
+    border-bottom:1px solid var(--bd);
+  }
+  .chrome-dot { width:11px; height:11px; border-radius:50%; }
+  .cd-r{background:#FF5F56} .cd-y{background:#FFBD2E} .cd-g{background:#27C93F}
+  .chrome-bar {
+    flex:1; background:var(--cream-3); border-radius:7px;
+    padding:.275rem 1rem; font-size:.75rem; color:var(--text-3);
+    margin:0 .75rem; display:flex; align-items:center; gap:.4rem;
+  }
+  .chrome-bar svg { opacity:.5; flex-shrink:0; }
+  .browser-frame > img {
+    width:100%; display:block;
+    max-height:440px; object-fit:cover; object-position:top center;
+  }
+
+  /* 3-col screenshots */
+  .sc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.375rem; position:relative; z-index:1; }
+  .sc-item {
+    background:var(--card); border:1px solid var(--bd);
+    border-radius:var(--r-xl); overflow:hidden;
+    box-shadow:var(--shadow-md);
+    transition:transform .25s, box-shadow .25s;
+  }
+  .sc-item:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+  .sc-item img { width:100%; aspect-ratio:4/3; object-fit:cover; }
+  .sc-caption { padding:1rem 1.25rem; }
+  .sc-caption strong { font-size:.9375rem; font-weight:700; display:block; margin-bottom:.25rem; }
+  .sc-caption span   { font-size:.8125rem; color:var(--text-2); line-height:1.5; }
+
+  /* ─────────────────────────────────────────
+     PERSONAS
+  ───────────────────────────────────────── */
+  .personas-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    gap:1.25rem;
+  }
+  .persona-card {
+    background:var(--grad-card); border:1px solid var(--bd);
+    border-radius:var(--r-xl); padding:1.625rem;
+    box-shadow:var(--shadow-sm);
+    transition:all .25s;
+    position:relative; overflow:hidden;
+  }
+  .persona-card::after {
+    content:''; position:absolute; bottom:-20px; right:-20px;
+    width:80px; height:80px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,132,62,.06) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .persona-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:rgba(232,132,62,.2); }
+
+  .p-av {
+    width:48px; height:48px; border-radius:50%;
+    background:linear-gradient(135deg, rgba(245,194,90,.3), rgba(232,132,62,.2));
+    border:1.5px solid rgba(232,132,62,.2);
+    color:var(--orange-2); font-size:14px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:1rem;
+  }
+  .persona-card h3 { font-size:1rem; font-weight:700; margin-bottom:.2rem; }
+  .p-role { font-size:.75rem; font-weight:700; color:var(--orange-2); margin-bottom:.5rem; letter-spacing:.02em; }
+  .persona-card p { font-size:.8125rem; color:var(--text-2); line-height:1.65; }
+
+  /* ─────────────────────────────────────────
+     CASES
+  ───────────────────────────────────────── */
+  .cases-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+  .case-card {
+    background:var(--card); border:1px solid var(--bd);
+    border-radius:var(--r-2xl); overflow:hidden;
+    box-shadow:var(--shadow-md);
+    transition:transform .25s, box-shadow .25s;
+  }
+  .case-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-xl); }
+  .case-img-wrap { position:relative; overflow:hidden; }
+  .case-img-wrap img {
+    width:100%; aspect-ratio:16/9; object-fit:cover;
+    transition:transform .4s;
+  }
+  .case-card:hover .case-img-wrap img { transform:scale(1.03); }
+  .case-sector-badge {
+    position:absolute; top:.875rem; left:.875rem;
+    background:color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--bd);
+    border-radius:999px;
+    padding:.25rem .75rem;
+    font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--orange-2);
+  }
+  .case-body { padding:1.625rem; }
+  .case-co { font-size:.8125rem; font-weight:600; color:var(--text-2); margin-bottom:1rem; }
+  .case-metric { font-size:3rem; font-weight:800; letter-spacing:-.05em; line-height:1; margin-bottom:.25rem; }
+  .case-mlabel { font-size:.8125rem; color:var(--text-2); margin-bottom:1.125rem; }
+  .case-q {
+    font-size:.875rem; color:var(--text-2); line-height:1.7; font-style:italic;
+    padding-left:.875rem;
+    border-left:3px solid rgba(232,132,62,.3);
+  }
+
+  /* ─────────────────────────────────────────
+     BENEFITS
+  ───────────────────────────────────────── */
+  .benefits-wrap { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
+  .b-list { display:flex; flex-direction:column; gap:1.5rem; }
+  .b-item { display:flex; gap:1rem; align-items:flex-start; }
+  .b-icon {
+    width:24px; height:24px; border-radius:8px; flex-shrink:0; margin-top:1px;
+    background:rgba(92,158,49,.15); color:var(--green-2);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .b-icon svg { width:13px; height:13px; }
+  .b-item h4 { font-size:1rem; font-weight:700; margin-bottom:.25rem; }
+  .b-item p  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
+
+  .metrics-quad { display:grid; grid-template-columns:1fr 1fr; gap:1.125rem; }
+  .m-card {
+    background:var(--grad-card); border:1px solid var(--bd);
+    border-radius:var(--r-xl); padding:1.5rem;
+    box-shadow:var(--shadow-sm);
+    position:relative; overflow:hidden;
+  }
+  .m-card::before {
+    content:''; position:absolute; bottom:-10px; right:-10px;
+    width:60px; height:60px; border-radius:50%;
+    background:radial-gradient(circle, rgba(232,132,62,.07) 0%, transparent 70%);
+  }
+  .m-value { font-size:2.25rem; font-weight:800; letter-spacing:-.04em; margin-bottom:.2rem; }
+  .m-label { font-size:.78rem; color:var(--text-2); font-weight:600; }
+
+  /* ─────────────────────────────────────────
+     TECH
+  ───────────────────────────────────────── */
+  .tech-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:1px; background:var(--bd);
+    border:1px solid var(--bd); border-radius:var(--r-xl); overflow:hidden;
+  }
+  .t-cell {
+    background:var(--card); padding:2.25rem 2rem;
+    transition:background .2s;
+  }
+  .t-cell:hover { background:var(--cream-2); }
+  .t-tag {
+    display:inline-block; font-size:.68rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.09em;
+    padding:.2rem .65rem; border-radius:999px;
+    background:rgba(232,132,62,.12); color:var(--orange-2);
+    margin-bottom:.875rem;
+  }
+  .t-cell h3 { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
+  .t-cell p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
+
+  /* ─────────────────────────────────────────
+     TESTIMONIALS
+  ───────────────────────────────────────── */
+  .tests-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.375rem; }
+  .test-card {
+    background:var(--grad-card); border:1px solid var(--bd);
+    border-radius:var(--r-xl); padding:2rem;
+    box-shadow:var(--shadow-sm);
+    transition:transform .25s, box-shadow .25s;
+  }
+  .test-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+  .test-stars { color:#F59E0B; font-size:1rem; letter-spacing:.08em; margin-bottom:1.125rem; }
+  .test-q { font-size:.9375rem; line-height:1.75; color:var(--text-1); margin-bottom:1.375rem; }
+  .test-au { display:flex; align-items:center; gap:.75rem; }
+  .test-photo { width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--bd); }
+  .test-name  { font-size:.875rem; font-weight:700; }
+  .test-role  { font-size:.78rem; color:var(--text-2); }
+
+  /* ─────────────────────────────────────────
+     FAQ
+  ───────────────────────────────────────── */
+  .faq-inner { max-width:740px; margin:0 auto; }
+  .faq-item  { border-bottom:1px solid var(--bd); }
+  .faq-btn {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:1.25rem 0; width:100%; text-align:left;
+    background:none; border:none; cursor:pointer;
+    font-family:inherit; font-size:.9375rem; font-weight:700; color:var(--text-1);
+    gap:1rem;
+  }
+  .faq-btn svg { flex-shrink:0; color:var(--text-2); transition:transform .25s; }
+  .faq-item.open .faq-btn svg { transform:rotate(180deg); }
+  .faq-ans { font-size:.875rem; color:var(--text-2); line-height:1.75; max-height:0; overflow:hidden; transition:max-height .35s cubic-bezier(.22,1,.36,1), padding .3s; }
+  .faq-item.open .faq-ans { max-height:300px; padding-bottom:1.25rem; }
+
+  /* ─────────────────────────────────────────
+     CTA
+  ───────────────────────────────────────── */
+  .cta-band {
+    background:var(--text-1); color:var(--cream);
+    padding:6rem 2rem; text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .cta-band::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background-image: radial-gradient(circle, rgba(245,240,232,.04) 1px, transparent 1px);
+    background-size:22px 22px;
+  }
+  .cta-band .eyebrow { color:rgba(232,132,62,.85); }
+  .cta-band .section-title { color:var(--cream); margin:0 auto .875rem; }
+  .cta-band .section-sub { color:rgba(250,246,238,.55); margin:0 auto 2.75rem; }
+  .cta-band .btn-orange { font-size:1.0625rem; }
+  .cta-fine { font-size:.8125rem; color:rgba(250,246,238,.4); margin-top:1.25rem; }
+  .cta-fine a { color:rgba(250,246,238,.6); text-decoration:underline; }
+
+  /* ─────────────────────────────────────────
+     FOOTER
+  ───────────────────────────────────────── */
+  footer { background:var(--cream); border-top:1px solid var(--bd); padding:3.5rem 0 2.25rem; }
+  .foot-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
+  .foot-brand p { font-size:.875rem; color:var(--text-2); line-height:1.7; max-width:250px; margin-top:.75rem; }
+  .foot-col h4 { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); margin-bottom:1rem; }
+  .foot-col ul { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
+  .foot-col a  { font-size:.875rem; color:var(--text-2); transition:color .15s; }
+  .foot-col a:hover { color:var(--orange-2); }
+  .foot-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--bd); font-size:.8125rem; color:var(--text-3); }
+
+  /* ─────────────────────────────────────────
+     RESPONSIVE
+  ───────────────────────────────────────── */
+  @media(max-width:1000px){
+    .hero-inner  { grid-template-columns:1fr; }
+    .hero-visual { display:none; }
+    .feat-grid   { grid-template-columns:1fr 1fr; }
+    .hiw-wrap    { grid-template-columns:1fr; gap:3rem; }
+    .hiw-text    { position:static; }
+    .sc-grid     { grid-template-columns:1fr 1fr; }
+    .cases-grid  { grid-template-columns:1fr 1fr; }
+    .benefits-wrap { grid-template-columns:1fr; }
+    .tech-grid   { grid-template-columns:1fr; }
+    .tests-grid  { grid-template-columns:1fr; }
+    .foot-grid   { grid-template-columns:1fr 1fr; }
+  }
+  @media(max-width:640px){
+    .nav-links { display:none; }
+    .feat-grid { grid-template-columns:1fr; }
+    .sc-grid   { grid-template-columns:1fr; }
+    .cases-grid{ grid-template-columns:1fr; }
+    .metrics-quad { grid-template-columns:1fr; }
+    .foot-grid { grid-template-columns:1fr; }
+  }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════
+<!-- ════════════════════════════════
      NAV
-══════════════════════════════════ -->
-<nav id="main-nav">
+════════════════════════════════ -->
+<nav id="nav">
   <a href="#" class="nav-logo">
-    <!-- Mangaba fruit SVG — estilo emoji arredondado -->
-    <svg class="logo-svg" width="30" height="30" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg width="32" height="32" viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <defs>
-        <radialGradient id="fruit-n" cx="40%" cy="35%" r="60%">
+        <radialGradient id="fn" cx="40%" cy="35%" r="60%">
           <stop offset="0%"   stop-color="#F5C842"/>
           <stop offset="50%"  stop-color="#E8843E"/>
           <stop offset="100%" stop-color="#C96030"/>
         </radialGradient>
-        <linearGradient id="leaf-n" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="ln" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%"   stop-color="#78C03B"/>
           <stop offset="100%" stop-color="#4A8226"/>
         </linearGradient>
       </defs>
-      <!-- corpo da fruta -->
-      <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fruit-n)"/>
-      <!-- highlight -->
-      <ellipse cx="25" cy="31" rx="6" ry="8" fill="white" fill-opacity=".22" transform="rotate(-20 25 31)"/>
-      <!-- folha -->
-      <path d="M33 18 Q 24 8 15 12 Q 22 18 33 16 Z" fill="url(#leaf-n)"/>
-      <!-- haste -->
-      <line x1="33" y1="16" x2="33" y2="22" stroke="#6B4423" stroke-width="2.2" stroke-linecap="round"/>
+      <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fn)"/>
+      <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".24" transform="rotate(-22 25 31)"/>
+      <path d="M33 17 Q 23 7 14 11 Q 22 17 33 15 Z" fill="url(#ln)"/>
+      <line x1="33" y1="15" x2="33" y2="22" stroke="#6B4423" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
-    <span class="wordmark">mangaba</span><span class="dot-ai">.ai</span>
+    <div class="name"><b>mangaba</b><span>.ai</span></div>
   </a>
 
   <ul class="nav-links">
@@ -574,75 +796,102 @@
     <li><a href="#faq">FAQ</a></li>
   </ul>
 
-  <div class="nav-right">
-    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
-      <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-      <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  <div class="nav-actions">
+    <button class="btn-icon" onclick="toggleTheme()" aria-label="Tema">
+      <svg id="i-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg id="i-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar agora</a>
+    <a href="https://mangaba.chat/" class="btn btn-orange" target="_blank">Começar agora</a>
   </div>
 </nav>
 
-<!-- ══════════════════════════════════
+<!-- ════════════════════════════════
      HERO
-══════════════════════════════════ -->
+════════════════════════════════ -->
 <section class="hero">
+  <div class="hero-blob blob-1"></div>
+  <div class="hero-blob blob-2"></div>
+  <div class="hero-blob blob-3"></div>
+  <div class="hero-dots"></div>
+
   <div class="container">
     <div class="hero-inner">
 
-      <!-- Texto -->
+      <!-- Copy -->
       <div>
-        <div style="margin-bottom:1.5rem" class="fade-up">
-          <span class="pill"><span class="pulse"></span>Infraestrutura online · 99,9% uptime</span>
+        <div class="rise" style="margin-bottom:1.5rem">
+          <span class="tag"><span class="dot"></span>Infraestrutura online · 99,9% uptime</span>
         </div>
 
-        <h1 class="fade-up delay-1">
-          Transforme ideias em<br/><span class="accent">fluxos inteligentes</span>
+        <h1 class="rise d1">
+          Transforme ideias<br/>em <span class="grad-text">fluxos inteligentes</span>
         </h1>
 
-        <p class="hero-sub fade-up delay-2">
+        <p class="hero-sub rise d2">
           Um framework brasileiro para criar agentes inteligentes,
           automatizar fluxos e conectar IA a processos reais —
           sem instalação, sem lock-in.
         </p>
 
-        <div class="hero-actions fade-up delay-3">
-          <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar gratuitamente</a>
-          <a href="#cases" class="link-arrow">Ver cases reais →</a>
+        <div class="hero-cta rise d3">
+          <a href="https://mangaba.chat/" class="btn btn-orange btn-lg" target="_blank">Começar gratuitamente</a>
+          <a href="#cases" class="arrow-link">Ver cases reais <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
-        <p class="hero-micro fade-up delay-3">Sem cartão de crédito · Dados 100% no Brasil</p>
+        <p class="hero-micro rise d3">Sem cartão · Dados 100% no Brasil · Suporte em português</p>
 
-        <!-- Social proof -->
-        <div class="hero-proof fade-up delay-3">
-          <div class="proof-faces">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+        <div class="social-proof rise d4">
+          <div class="face-stack">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
           </div>
-          <div class="proof-copy"><strong>+1.200 profissionais</strong> usando mangaba.ai hoje</div>
+          <div class="proof-text">
+            <strong>+1.200 profissionais</strong>
+            usando mangaba.ai em empresas brasileiras
+          </div>
         </div>
       </div>
 
-      <!-- Visual direito: foto + badges de tipos de agente -->
-      <div class="hero-visual fade-up delay-2">
-        <div class="tablet-wrap">
-          <img class="tablet-img"
-            src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=700&h=800&q=85&fit=crop&crop=top"
-            alt="Profissional usando mangaba.ai no tablet"/>
+      <!-- Hero visual -->
+      <div class="hero-visual rise d2">
+        <div class="hero-img-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=720&h=900&q=85&fit=crop&crop=top"
+            alt="Profissional usando mangaba.ai"/>
+          <div class="photo-caption">
+            <h3>Agentes trabalhando para você</h3>
+            <p>Consensual · Parallel · Sequential · Hierarchical</p>
+          </div>
+        </div>
 
-          <!-- Floating agent-type badges — como no Brand Brief -->
-          <div class="float-badge fb-consensual">
-            <span class="fb-dot" style="background:#E8843E"></span>Consensual
+        <!-- Floating agent-type cards -->
+        <div class="float-card fc-1">
+          <div class="fc-icon fc-orange">🤝</div>
+          <div>
+            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
+            Consensual
           </div>
-          <div class="float-badge fb-parallel">
-            <span class="fb-dot" style="background:#5C9E31"></span>Parallel
+        </div>
+        <div class="float-card fc-2">
+          <div class="fc-icon fc-green">⚡</div>
+          <div>
+            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
+            Parallel
           </div>
-          <div class="float-badge fb-sequential">
-            <span class="fb-dot" style="background:#6366f1"></span>Sequential
+        </div>
+        <div class="float-card fc-3">
+          <div class="fc-icon fc-purple">🔗</div>
+          <div>
+            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
+            Sequential
           </div>
-          <div class="float-badge fb-hierarchical">
-            <span class="fb-dot" style="background:#E8843E;opacity:.6"></span>Hierarchical
+        </div>
+        <div class="float-card fc-4">
+          <div class="fc-icon fc-blue">🏛️</div>
+          <div>
+            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
+            Hierarchical
           </div>
         </div>
       </div>
@@ -651,33 +900,33 @@
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- LOGOS MARQUEE -->
-<div class="logos-section">
+<div class="logos-band">
   <div class="logos-label">Empresas que confiam na infraestrutura mangaba.ai</div>
-  <div class="logos-track-wrap">
-    <div class="logos-track">
-      <span class="logo-item">Construtora Brasil</span>
-      <span class="logo-item">GrupoAtacadista SP</span>
-      <span class="logo-item">Fintech Belém</span>
-      <span class="logo-item">Advocacia Cardoso</span>
-      <span class="logo-item">LogísticaNorte</span>
-      <span class="logo-item">IndústriaGoiás</span>
-      <span class="logo-item">BancoBahia</span>
-      <span class="logo-item">TechStartup RJ</span>
-      <span class="logo-item">ConsultoriaForte</span>
-      <span class="logo-item">FarmaRede</span>
-      <span class="logo-item">Construtora Brasil</span>
-      <span class="logo-item">GrupoAtacadista SP</span>
-      <span class="logo-item">Fintech Belém</span>
-      <span class="logo-item">Advocacia Cardoso</span>
-      <span class="logo-item">LogísticaNorte</span>
-      <span class="logo-item">IndústriaGoiás</span>
-      <span class="logo-item">BancoBahia</span>
-      <span class="logo-item">TechStartup RJ</span>
-      <span class="logo-item">ConsultoriaForte</span>
-      <span class="logo-item">FarmaRede</span>
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="m-item">Construtora Brasil</span>
+      <span class="m-item">GrupoAtacadista SP</span>
+      <span class="m-item">Fintech Belém</span>
+      <span class="m-item">Advocacia Cardoso</span>
+      <span class="m-item">LogísticaNorte</span>
+      <span class="m-item">IndústriaGoiás</span>
+      <span class="m-item">BancoBahia</span>
+      <span class="m-item">TechStartup RJ</span>
+      <span class="m-item">ConsultoriaForte</span>
+      <span class="m-item">FarmaRede</span>
+      <span class="m-item">Construtora Brasil</span>
+      <span class="m-item">GrupoAtacadista SP</span>
+      <span class="m-item">Fintech Belém</span>
+      <span class="m-item">Advocacia Cardoso</span>
+      <span class="m-item">LogísticaNorte</span>
+      <span class="m-item">IndústriaGoiás</span>
+      <span class="m-item">BancoBahia</span>
+      <span class="m-item">TechStartup RJ</span>
+      <span class="m-item">ConsultoriaForte</span>
+      <span class="m-item">FarmaRede</span>
     </div>
   </div>
 </div>
@@ -690,54 +939,54 @@
       <h2 class="section-title">Tudo que sua empresa precisa</h2>
       <p class="section-sub">Infraestrutura completa de agentes de IA — modelos proprietários, dados no Brasil, sem configuração.</p>
     </div>
-    <div class="features-grid">
+    <div class="feat-grid">
       <div class="feat-card">
-        <div class="feat-icon">🤖</div>
+        <div class="feat-icon-wrap fi-orange">🤖</div>
         <div class="feat-title">Agentes inteligentes prontos</div>
-        <div class="feat-desc">Consensual, Parallel, Sequential, Hierarchical — 4 tipos de orquestração de agentes para qualquer fluxo corporativo.</div>
+        <div class="feat-desc">Consensual, Parallel, Sequential, Hierarchical — 4 tipos de orquestração para qualquer fluxo corporativo.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">🇧🇷</div>
-        <div class="feat-title">Contexto corporativo brasileiro</div>
-        <div class="feat-desc">CLT, LGPD, Simples Nacional, NF-e, eSocial. Os agentes entendem o contexto local sem ajustes.</div>
+        <div class="feat-icon-wrap fi-green">🇧🇷</div>
+        <div class="feat-title">Contexto brasileiro nativo</div>
+        <div class="feat-desc">CLT, LGPD, Simples Nacional, NF-e, eSocial. Agentes que entendem o contexto local sem ajustes.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">🔒</div>
+        <div class="feat-icon-wrap fi-cream">🔒</div>
         <div class="feat-title">Dados 100% no Brasil</div>
-        <div class="feat-desc">Datacenters tier III em São Paulo. Conformidade LGPD, isolamento por tenant, criptografia AES-256.</div>
+        <div class="feat-desc">Datacenters tier III em São Paulo. Conformidade LGPD, isolamento por tenant, AES-256.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">⚡</div>
+        <div class="feat-icon-wrap fi-orange">⚡</div>
         <div class="feat-title">Sem instalação</div>
-        <div class="feat-desc">Acesso via navegador. Nenhuma configuração de servidor, nenhum SDK obrigatório. Pronto em minutos.</div>
+        <div class="feat-desc">Acesso via navegador. Nenhum servidor, nenhum SDK obrigatório. Pronto em minutos.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">🔗</div>
+        <div class="feat-icon-wrap fi-green">🔗</div>
         <div class="feat-title">API &amp; Integrações enterprise</div>
-        <div class="feat-desc">REST API compatível com OpenAI spec. Webhooks, SSO, integração com ERP, CRM e ferramentas de BI.</div>
+        <div class="feat-desc">REST API compatível com OpenAI spec. Webhooks, SSO, ERP, CRM e BI sem reescrita.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon">💰</div>
+        <div class="feat-icon-wrap fi-cream">💰</div>
         <div class="feat-title">Custo previsível em reais</div>
-        <div class="feat-desc">Planos fixos em BRL, sem variação cambial. SLA garantido por contrato. Suporte em horário comercial BR.</div>
+        <div class="feat-desc">Planos fixos em BRL sem variação cambial. SLA garantido. Suporte horário comercial BR.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- MODELS BAR -->
-<div class="models-bar">
+<!-- MODELS -->
+<div class="models-wrap">
   <div class="container">
-    <p class="models-bar-label">Também suporta via gateway — troca com um clique</p>
+    <p class="models-label">Suporta via gateway — troca com um clique, sem reconfiguração</p>
     <div class="models-list">
-      <span class="model-chip">Claude Sonnet</span>
-      <span class="model-chip">GPT-4o</span>
-      <span class="model-chip">Gemini 1.5 Pro</span>
-      <span class="model-chip">Llama 3.1 70B</span>
-      <span class="model-chip">Mistral Large</span>
-      <span class="model-chip">DeepSeek V3</span>
-      <span class="model-chip">Qwen 2.5</span>
-      <span class="model-chip">Command R+</span>
+      <span class="model-pill">Claude Sonnet</span>
+      <span class="model-pill">GPT-4o</span>
+      <span class="model-pill">Gemini 1.5 Pro</span>
+      <span class="model-pill">Llama 3.1 70B</span>
+      <span class="model-pill">Mistral Large</span>
+      <span class="model-pill">DeepSeek V3</span>
+      <span class="model-pill">Qwen 2.5</span>
+      <span class="model-pill">Command R+</span>
     </div>
   </div>
 </div>
@@ -745,74 +994,82 @@
 <!-- HOW IT WORKS -->
 <section id="como-funciona">
   <div class="container">
-    <div class="hiw-inner">
-      <div>
+    <div class="hiw-wrap">
+      <div class="hiw-text">
         <div class="eyebrow">Como funciona</div>
         <h2 class="section-title">Implementado em minutos,<br/>não em meses</h2>
-        <p class="section-sub" style="margin-bottom:0">Nenhuma integração complexa. Nenhum cientista de dados. Sua equipe começa no mesmo dia.</p>
+        <p class="section-sub">Nenhuma integração complexa. Nenhum cientista de dados. Sua equipe começa no mesmo dia.</p>
+        <div style="margin-top:2rem">
+          <a href="https://mangaba.chat/" class="btn btn-orange" target="_blank">Experimentar agora</a>
+        </div>
       </div>
-      <div class="hiw-steps">
-        <div class="hiw-step">
-          <div class="step-left"><div class="step-num">1</div></div>
-          <div class="step-content"><h3>Crie sua conta enterprise</h3><p>Cadastro com CNPJ, sem cartão. Acesso imediato ao painel e aos agentes prontos.</p></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><h3>Crie sua conta enterprise</h3><p>Cadastro com CNPJ, sem cartão. Acesso imediato ao painel e aos agentes prontos para uso.</p></div>
         </div>
-        <div class="hiw-step">
-          <div class="step-left"><div class="step-num">2</div></div>
-          <div class="step-content"><h3>Escolha o tipo de agente</h3><p>Consensual, Parallel, Sequential ou Hierarchical — configure o fluxo ideal para seu processo.</p></div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><h3>Escolha o tipo de agente</h3><p>Consensual, Parallel, Sequential ou Hierarchical — configure o fluxo ideal para o seu processo.</p></div>
         </div>
-        <div class="hiw-step">
-          <div class="step-left"><div class="step-num">3</div></div>
-          <div class="step-content"><h3>Conecte seus dados</h3><p>Upload de documentos, políticas e bases de conhecimento para personalizar os agentes ao seu contexto.</p></div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body"><h3>Conecte seus dados</h3><p>Upload de documentos, políticas e bases de conhecimento para personalizar os agentes ao seu contexto.</p></div>
         </div>
-        <div class="hiw-step">
-          <div class="step-left"><div class="step-num">4</div></div>
-          <div class="step-content"><h3>Sua equipe começa a usar</h3><p>Interface no navegador, sem treinamento técnico. Acompanhe ROI no dashboard em tempo real.</p></div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body"><h3>Sua equipe começa a usar</h3><p>Interface no navegador, sem treinamento técnico. Acompanhe ROI no dashboard em tempo real.</p></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- PRODUCT SCREENSHOTS -->
-<div class="product-section">
-  <div class="container">
+<div class="product-band">
+  <div class="dots"></div>
+  <div class="container" style="position:relative;z-index:1">
     <div class="product-header">
       <div class="eyebrow">Interface</div>
       <h2 class="section-title">Pensada para times corporativos</h2>
       <p class="section-sub">Do chat ao dashboard de analytics — tudo em português, no navegador, sem instalação.</p>
     </div>
 
-    <div class="screenshot-main">
-      <div class="screenshot-bar">
-        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
-        <span class="url-bar">mangaba.ai · Agente Jurídico — análise de contrato</span>
+    <div class="browser-frame">
+      <div class="browser-chrome">
+        <span class="chrome-dot cd-r"></span>
+        <span class="chrome-dot cd-y"></span>
+        <span class="chrome-dot cd-g"></span>
+        <div class="chrome-bar">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          mangaba.ai · Agente Jurídico — análise de contrato em andamento
+        </div>
       </div>
       <img
         src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=460&q=85&fit=crop&crop=top"
-        alt="Interface mangaba.ai — agente jurídico em ação"
-        loading="lazy"/>
+        alt="Interface mangaba.ai" loading="lazy"/>
     </div>
 
-    <div class="screenshots-grid">
-      <div class="sc-card">
-        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=480&q=80&fit=crop" alt="Dashboard analytics" loading="lazy"/>
-        <div class="sc-label">
+    <div class="sc-grid">
+      <div class="sc-item">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=480&q=80&fit=crop" alt="Dashboard" loading="lazy"/>
+        <div class="sc-caption">
           <strong>Dashboard de analytics</strong>
           <span>Uso por equipe, custo por departamento, qualidade em tempo real</span>
         </div>
       </div>
-      <div class="sc-card">
-        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&h=480&q=80&fit=crop" alt="Equipe usando IA" loading="lazy"/>
-        <div class="sc-label">
+      <div class="sc-item">
+        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&h=480&q=80&fit=crop" alt="Equipe" loading="lazy"/>
+        <div class="sc-caption">
           <strong>Colaboração em equipe</strong>
           <span>Múltiplos usuários, histórico compartilhado, permissões por cargo</span>
         </div>
       </div>
-      <div class="sc-card">
-        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&h=480&q=80&fit=crop" alt="Análise de documentos" loading="lazy"/>
-        <div class="sc-label">
+      <div class="sc-item">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&h=480&q=80&fit=crop" alt="Análise" loading="lazy"/>
+        <div class="sc-caption">
           <strong>Análise de documentos</strong>
           <span>Upload de contratos, relatórios e planilhas — resposta em segundos</span>
         </div>
@@ -824,157 +1081,163 @@
 <!-- PERSONAS -->
 <section id="agentes">
   <div class="container">
-    <div style="text-align:center;margin-bottom:3rem">
+    <div style="text-align:center;margin-bottom:3.5rem">
       <div class="eyebrow">Agentes-persona</div>
       <h2 class="section-title">Especialistas para cada área</h2>
       <p class="section-sub" style="margin:0 auto">Cada agente tem nome, personalidade e conhecimento profundo do domínio — em português brasileiro.</p>
     </div>
     <div class="personas-grid">
-      <div class="persona-card"><div class="p-avatar">MN</div><h3>Manoela</h3><div class="p-role">Especialista Jurídico</div><p>Análise de contratos, compliance trabalhista, LGPD. Revisa cláusulas e aponta riscos em segundos.</p></div>
-      <div class="persona-card"><div class="p-avatar">RC</div><h3>Ricardo</h3><div class="p-role">Especialista Financeiro</div><p>Relatórios, DRE, fluxo de caixa e indicadores. Contexto do mercado brasileiro nativo.</p></div>
-      <div class="persona-card"><div class="p-avatar">JP</div><h3>Juliana</h3><div class="p-role">Especialista RH</div><p>Recrutamento, avaliação de desempenho e folha conforme legislação trabalhista vigente.</p></div>
-      <div class="persona-card"><div class="p-avatar">TM</div><h3>Thiago</h3><div class="p-role">Especialista Comercial</div><p>Propostas, pipeline B2B, scripts de vendas e gestão de relacionamento corporativo.</p></div>
-      <div class="persona-card"><div class="p-avatar">BL</div><h3>Beatriz</h3><div class="p-role">Especialista Estratégia</div><p>Planejamento, análise competitiva e OKRs para PMEs e médias empresas.</p></div>
-      <div class="persona-card"><div class="p-avatar">AL</div><h3>Alexandre</h3><div class="p-role">Especialista TI</div><p>Arquitetura, segurança e documentação técnica. Tudo em pt-BR corporativo.</p></div>
+      <div class="persona-card"><div class="p-av">MN</div><h3>Manoela</h3><div class="p-role">Especialista Jurídico</div><p>Análise de contratos, LGPD e compliance. Revisa cláusulas e aponta riscos em segundos.</p></div>
+      <div class="persona-card"><div class="p-av">RC</div><h3>Ricardo</h3><div class="p-role">Especialista Financeiro</div><p>DRE, fluxo de caixa e indicadores. Contexto do mercado brasileiro nativo.</p></div>
+      <div class="persona-card"><div class="p-av">JP</div><h3>Juliana</h3><div class="p-role">Especialista RH</div><p>Recrutamento e folha conforme legislação trabalhista. eSocial nativo.</p></div>
+      <div class="persona-card"><div class="p-av">TM</div><h3>Thiago</h3><div class="p-role">Especialista Comercial</div><p>Pipeline B2B, propostas e gestão de relacionamento corporativo.</p></div>
+      <div class="persona-card"><div class="p-av">BL</div><h3>Beatriz</h3><div class="p-role">Especialista Estratégia</div><p>OKRs, análise competitiva e planejamento para médias empresas.</p></div>
+      <div class="persona-card"><div class="p-av">AL</div><h3>Alexandre</h3><div class="p-role">Especialista TI</div><p>Arquitetura, segurança e documentação técnica. Tudo em pt-BR.</p></div>
     </div>
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- CASES -->
 <section id="cases">
   <div class="container">
-    <div style="text-align:center;margin-bottom:3.5rem">
+    <div style="text-align:center;margin-bottom:4rem">
       <div class="eyebrow">Cases reais</div>
       <h2 class="section-title">Resultados que falam por si</h2>
       <p class="section-sub" style="margin:0 auto">Empresas brasileiras que transformaram operações com a infraestrutura mangaba.ai.</p>
     </div>
     <div class="cases-grid">
       <div class="case-card">
-        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&h=360&q=80&fit=crop" alt="Jurídico" loading="lazy"/>
+        <div class="case-img-wrap">
+          <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&h=360&q=80&fit=crop" alt="Jurídico" loading="lazy"/>
+          <span class="case-sector-badge">Jurídico</span>
+        </div>
         <div class="case-body">
-          <div class="case-sector">Jurídico &amp; Compliance</div>
-          <div class="case-company">Construtora Brasil · Belém, PA</div>
-          <div class="case-metric">87%</div>
+          <div class="case-co">Construtora Brasil · Belém, PA</div>
+          <div class="case-metric grad-text">87%</div>
           <div class="case-mlabel">redução no tempo de revisão de contratos</div>
-          <p class="case-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas ficou pronto antes do fechamento."</p>
+          <p class="case-q">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas ficou pronto antes do fechamento."</p>
         </div>
       </div>
       <div class="case-card">
-        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&h=360&q=80&fit=crop" alt="Financeiro" loading="lazy"/>
+        <div class="case-img-wrap">
+          <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&h=360&q=80&fit=crop" alt="Financeiro" loading="lazy"/>
+          <span class="case-sector-badge">Financeiro</span>
+        </div>
         <div class="case-body">
-          <div class="case-sector">Financeiro &amp; Controladoria</div>
-          <div class="case-company">Fintech Belém · Belém, PA</div>
-          <div class="case-metric">3×</div>
+          <div class="case-co">Fintech Belém · Belém, PA</div>
+          <div class="case-metric grad-text">3×</div>
           <div class="case-mlabel">mais relatórios produzidos por mês</div>
-          <p class="case-quote">"Custo previsível em reais foi decisivo. Com mangaba.ai crescemos 5× o uso sem susto no CFO."</p>
+          <p class="case-q">"Custo previsível em reais foi decisivo. Com mangaba.ai crescemos 5× o uso sem susto no CFO."</p>
         </div>
       </div>
       <div class="case-card">
-        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&h=360&q=80&fit=crop" alt="RH" loading="lazy"/>
+        <div class="case-img-wrap">
+          <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&h=360&q=80&fit=crop" alt="RH" loading="lazy"/>
+          <span class="case-sector-badge">Recursos Humanos</span>
+        </div>
         <div class="case-body">
-          <div class="case-sector">Recursos Humanos</div>
-          <div class="case-company">GrupoAtacadista SP · São Paulo, SP</div>
-          <div class="case-metric">60%</div>
+          <div class="case-co">GrupoAtacadista SP · São Paulo, SP</div>
+          <div class="case-metric grad-text">60%</div>
           <div class="case-mlabel">mais rápido no ciclo de contratação</div>
-          <p class="case-quote">"Finalmente uma IA que entende eSocial e legislação trabalhista brasileira. Sem explicar o básico."</p>
+          <p class="case-q">"Finalmente uma IA que entende eSocial. Sem precisar explicar o básico — especialista disponível 24h."</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- BENEFITS -->
 <section>
   <div class="container">
-    <div class="benefits-inner">
+    <div class="benefits-wrap">
       <div>
         <div class="eyebrow">Vantagens</div>
         <h2 class="section-title">Por que mangaba.ai</h2>
-        <p class="section-sub" style="margin-bottom:2rem">Desenvolvido para o ecossistema empresarial brasileiro — não apenas adaptado de soluções americanas.</p>
-        <div class="benefits-list">
-          <div class="benefit-item">
-            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <p class="section-sub" style="margin-bottom:2.25rem">Desenvolvido para o ecossistema empresarial brasileiro — não apenas adaptado de soluções americanas.</p>
+        <div class="b-list">
+          <div class="b-item">
+            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <div><h4>Contexto corporativo brasileiro nativo</h4><p>CLT, LGPD, Simples Nacional, NF-e, eSocial. Sem ajustes.</p></div>
           </div>
-          <div class="benefit-item">
-            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="b-item">
+            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <div><h4>Sem dependência de cloud estrangeira</h4><p>100% em solo brasileiro. Conformidade total com LGPD.</p></div>
           </div>
-          <div class="benefit-item">
-            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="b-item">
+            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <div><h4>Custo previsível em reais</h4><p>Planos fixos em BRL. Sem variação cambial, sem surpresas.</p></div>
           </div>
-          <div class="benefit-item">
-            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="b-item">
+            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <div><h4>Suporte em português, horário BR</h4><p>Time local, fuso correto. Sem ticket em inglês.</p></div>
           </div>
         </div>
       </div>
-      <div class="metric-grid">
-        <div class="metric-card"><div class="metric-value">200+</div><div class="metric-label">modelos disponíveis</div></div>
-        <div class="metric-card"><div class="metric-value">40+</div><div class="metric-label">ferramentas integradas</div></div>
-        <div class="metric-card"><div class="metric-value">4</div><div class="metric-label">tipos de orquestração</div></div>
-        <div class="metric-card"><div class="metric-value">100%</div><div class="metric-label">dados no Brasil</div></div>
+      <div class="metrics-quad">
+        <div class="m-card"><div class="m-value grad-text">200+</div><div class="m-label">modelos disponíveis</div></div>
+        <div class="m-card"><div class="m-value grad-text">40+</div><div class="m-label">ferramentas integradas</div></div>
+        <div class="m-card"><div class="m-value grad-text">4</div><div class="m-label">tipos de orquestração</div></div>
+        <div class="m-card"><div class="m-value grad-text">100%</div><div class="m-label">dados no Brasil</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- TECH -->
 <section>
   <div class="container">
-    <div style="text-align:center;margin-bottom:3rem">
+    <div style="text-align:center;margin-bottom:3.5rem">
       <div class="eyebrow">Tecnologia</div>
       <h2 class="section-title">Infraestrutura de nível enterprise</h2>
     </div>
     <div class="tech-grid">
-      <div class="tech-cell"><div class="tech-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation comprime os maiores modelos fundacionais em versões mangaba otimizadas por domínio.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado. Dados nunca usados para treinar outros clientes. AES-256 em repouso, TLS 1.3 em trânsito.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Escala</div><h3>Pipeline de alta throughput</h3><p>GPU dedicada, sem filas compartilhadas. Streaming em tempo real. Latência p99 abaixo de 800ms.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Integração</div><h3>REST API completa</h3><p>Compatível com OpenAI API spec. SDKs para Python, Node.js e Java. Migração sem reescrita.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs, métricas de qualidade, custo por departamento, alertas e exportação para BI.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Conformidade</div><h3>LGPD by design</h3><p>Direito ao esquecimento, portabilidade e RIPD automáticos. DPO disponível no plano Enterprise.</p></div>
+      <div class="t-cell"><div class="t-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation comprime os maiores modelos fundacionais em versões mangaba otimizadas por domínio.</p></div>
+      <div class="t-cell"><div class="t-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado. Dados nunca usados para outros clientes. AES-256 em repouso, TLS 1.3 em trânsito.</p></div>
+      <div class="t-cell"><div class="t-tag">Escala</div><h3>Pipeline de alta throughput</h3><p>GPU dedicada, sem filas compartilhadas. Streaming em tempo real. Latência p99 abaixo de 800ms.</p></div>
+      <div class="t-cell"><div class="t-tag">Integração</div><h3>REST API completa</h3><p>Compatível com OpenAI API spec. SDKs para Python, Node.js e Java. Migração sem reescrita.</p></div>
+      <div class="t-cell"><div class="t-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs, métricas de qualidade, custo por depto, alertas e exportação para BI e data lake.</p></div>
+      <div class="t-cell"><div class="t-tag">Conformidade</div><h3>LGPD by design</h3><p>Direito ao esquecimento, portabilidade e RIPD automáticos. DPO disponível no plano Enterprise.</p></div>
     </div>
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- TESTIMONIALS -->
 <section>
   <div class="container">
-    <div style="text-align:center;margin-bottom:3rem">
+    <div style="text-align:center;margin-bottom:3.5rem">
       <div class="eyebrow">Depoimentos</div>
       <h2 class="section-title">O que dizem nossos clientes</h2>
     </div>
-    <div class="testimonials-grid">
+    <div class="tests-grid">
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas para nosso jurídico ficou pronto antes do fechamento do expediente."</p>
-        <div class="test-author">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&q=80&fit=crop&crop=face" alt="Carla Lima" loading="lazy"/>
+        <p class="test-q">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas para nosso jurídico ficou pronto antes do fechamento do expediente."</p>
+        <div class="test-au">
+          <img class="test-photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=84&h=84&q=80&fit=crop&crop=face" alt="Carla Lima" loading="lazy"/>
           <div><div class="test-name">Carla Lima</div><div class="test-role">Diretora Jurídica · Construtora Brasil</div></div>
         </div>
       </div>
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"Finalmente uma IA que entende folha de pagamento com eSocial. Sem precisar explicar o básico toda hora — é como ter um especialista disponível 24h."</p>
-        <div class="test-author">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face" alt="Pedro Rocha" loading="lazy"/>
+        <p class="test-q">"Finalmente uma IA que entende eSocial e legislação trabalhista brasileira sem precisar explicar o básico toda hora. É como ter um especialista 24h."</p>
+        <div class="test-au">
+          <img class="test-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=84&h=84&q=80&fit=crop&crop=face" alt="Pedro Rocha" loading="lazy"/>
           <div><div class="test-name">Pedro Rocha</div><div class="test-role">Gerente de RH · GrupoAtacadista SP</div></div>
         </div>
       </div>
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"Custo em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava expansão. Com mangaba.ai crescemos 5× sem nenhum susto."</p>
-        <div class="test-author">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&q=80&fit=crop&crop=face" alt="Fernanda Neves" loading="lazy"/>
+        <p class="test-q">"Custo em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava expansão. Com mangaba.ai crescemos 5× sem nenhum susto."</p>
+        <div class="test-au">
+          <img class="test-photo" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=84&h=84&q=80&fit=crop&crop=face" alt="Fernanda Neves" loading="lazy"/>
           <div><div class="test-name">Fernanda Neves</div><div class="test-role">CTO · Fintech Belém</div></div>
         </div>
       </div>
@@ -982,58 +1245,58 @@
   </div>
 </section>
 
-<hr class="divider"/>
+<hr class="sep"/>
 
 <!-- FAQ -->
 <section id="faq">
   <div class="container">
-    <div style="text-align:center;margin-bottom:3rem">
+    <div style="text-align:center;margin-bottom:3.5rem">
       <div class="eyebrow">FAQ</div>
       <h2 class="section-title">Perguntas frequentes</h2>
     </div>
-    <div class="faq-list">
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Não. Seus dados, documentos e conversas são estritamente confidenciais e nunca utilizados para treinar modelos. Cada cliente opera em namespace isolado e pode solicitar exclusão completa a qualquer momento.</div></div>
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Onde ficam armazenados meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">100% em solo brasileiro, datacenters tier III em São Paulo. Nenhum dado trafega fora do Brasil. Conformidade total com LGPD (Lei 13.709/2018) e possibilidade de assinar DPA personalizado.</div></div>
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Preciso de equipe técnica para implementar?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Não. A interface web funciona direto no navegador, sem instalação. Para integração via API (ERP, CRM), oferecemos suporte técnico dedicado e documentação completa em português.</div></div>
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Quais os tipos de agente disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Consensual (decisão colaborativa entre agentes), Parallel (execução simultânea), Sequential (fluxo encadeado) e Hierarchical (orquestrador delega para sub-agentes). Cada tipo é ideal para um conjunto de casos de uso.</div></div>
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Planos mensais fixos em reais, sem variação cambial. Starter (até 5 usuários), Business (até 50) e Enterprise sob medida com SLA garantido. Todos incluem agentes-persona, dashboard e suporte em português.</div></div>
-      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">É possível criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Sim. No plano Business e Enterprise você cria agentes com base nos documentos e processos internos da sua empresa. Fine-tuning ou RAG sobre sua base de conhecimento com acompanhamento técnico.</div></div>
+    <div class="faq-inner">
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Seus dados, documentos e conversas nunca são utilizados para treinar modelos. Cada cliente opera em namespace isolado e pode solicitar exclusão completa a qualquer momento.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Onde ficam armazenados meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">100% em solo brasileiro, datacenters tier III em São Paulo. Nenhum dado sai do Brasil. Conformidade total com LGPD (Lei 13.709/2018) e possibilidade de assinar DPA personalizado.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Quais os tipos de agente disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Consensual (decisão colaborativa), Parallel (execução simultânea), Sequential (fluxo encadeado) e Hierarchical (orquestrador delega para sub-agentes). Cada tipo é ideal para um conjunto de casos de uso.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Preciso de equipe técnica para implementar?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Interface web direto no navegador, sem instalação. Para integração via API (ERP, CRM), oferecemos suporte técnico dedicado e documentação em português.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Planos mensais fixos em reais, sem variação cambial. Starter (até 5 usuários), Business (até 50) e Enterprise sob medida com SLA garantido. Todos incluem agentes, dashboard e suporte em pt-BR.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">É possível criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Sim. No plano Business e Enterprise você cria agentes com base nos documentos e processos internos. Fine-tuning ou RAG sobre sua base com acompanhamento técnico.</div></div>
     </div>
   </div>
 </section>
 
-<!-- CTA FINAL -->
-<section class="cta-section">
-  <div class="container">
+<!-- CTA -->
+<div class="cta-band">
+  <div class="container" style="position:relative;z-index:1">
     <div class="eyebrow">Comece hoje</div>
     <h2 class="section-title">Sua empresa pronta para a IA<br/>em menos de um dia</h2>
-    <p class="section-sub">Sem cartão de crédito. Sem instalação. Sem lock-in. Cancele quando quiser.</p>
-    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar gratuitamente →</a>
-    <p class="cta-micro">Ou fale com nosso time: <a href="mailto:contato@mangaba-agent.online">contato@mangaba-agent.online</a></p>
+    <p class="section-sub">Sem cartão. Sem instalação. Sem lock-in. Cancele quando quiser.</p>
+    <a href="https://mangaba.chat/" class="btn btn-orange btn-lg" target="_blank">Começar gratuitamente →</a>
+    <p class="cta-fine">Ou fale com nosso time: <a href="mailto:contato@mangaba-agent.online">contato@mangaba-agent.online</a></p>
   </div>
-</section>
+</div>
 
 <!-- FOOTER -->
 <footer>
   <div class="container">
-    <div class="footer-inner">
-      <div class="footer-brand">
+    <div class="foot-grid">
+      <div class="foot-brand">
         <div class="nav-logo">
-          <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 64 64" fill="none" aria-hidden="true">
             <defs>
-              <radialGradient id="fg2" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#F5C842"/><stop offset="50%" stop-color="#E8843E"/><stop offset="100%" stop-color="#C96030"/></radialGradient>
-              <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#78C03B"/><stop offset="100%" stop-color="#4A8226"/></linearGradient>
+              <radialGradient id="fn2" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#F5C842"/><stop offset="50%" stop-color="#E8843E"/><stop offset="100%" stop-color="#C96030"/></radialGradient>
+              <linearGradient id="ln2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#78C03B"/><stop offset="100%" stop-color="#4A8226"/></linearGradient>
             </defs>
-            <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fg2)"/>
-            <ellipse cx="25" cy="31" rx="6" ry="8" fill="white" fill-opacity=".22" transform="rotate(-20 25 31)"/>
-            <path d="M33 18 Q 24 8 15 12 Q 22 18 33 16 Z" fill="url(#lg2)"/>
-            <line x1="33" y1="16" x2="33" y2="22" stroke="#6B4423" stroke-width="2.2" stroke-linecap="round"/>
+            <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fn2)"/>
+            <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".24" transform="rotate(-22 25 31)"/>
+            <path d="M33 17 Q 23 7 14 11 Q 22 17 33 15 Z" fill="url(#ln2)"/>
+            <line x1="33" y1="15" x2="33" y2="22" stroke="#6B4423" stroke-width="2.5" stroke-linecap="round"/>
           </svg>
-          <span class="wordmark">mangaba</span><span class="dot-ai">.ai</span>
+          <div class="name"><b>mangaba</b><span>.ai</span></div>
         </div>
         <p>Infraestrutura de IA para empresas brasileiras. Agentes inteligentes, dados no Brasil, suporte em português.</p>
       </div>
-      <div class="footer-col">
+      <div class="foot-col">
         <h4>Produto</h4>
         <ul>
           <li><a href="https://mangaba.chat/">Mangaba Chat</a></li>
@@ -1042,7 +1305,7 @@
           <li><a href="#agentes">Agentes-persona</a></li>
         </ul>
       </div>
-      <div class="footer-col">
+      <div class="foot-col">
         <h4>Empresa</h4>
         <ul>
           <li><a href="#recursos">Recursos</a></li>
@@ -1051,7 +1314,7 @@
           <li><a href="mailto:contato@mangaba-agent.online">Enterprise</a></li>
         </ul>
       </div>
-      <div class="footer-col">
+      <div class="foot-col">
         <h4>Legal</h4>
         <ul>
           <li><a href="#">Privacidade</a></li>
@@ -1061,7 +1324,7 @@
         </ul>
       </div>
     </div>
-    <div class="footer-bottom">
+    <div class="foot-bottom">
       <span>© 2026 mangaba.ai · Todos os direitos reservados</span>
       <span>Feito no Brasil 🇧🇷 · Private Enterprise</span>
     </div>
@@ -1069,44 +1332,43 @@
 </footer>
 
 <script>
-  /* Navbar scroll */
-  const nav = document.getElementById('main-nav');
-  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10), { passive:true });
+  /* Nav scroll */
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10), {passive:true});
 
-  /* Theme toggle */
+  /* Theme */
   function toggleTheme() {
     const d = document.documentElement.classList.toggle('dark');
-    document.getElementById('icon-sun').style.display  = d ? 'block' : 'none';
-    document.getElementById('icon-moon').style.display = d ? 'none'  : 'block';
-    try{ localStorage.setItem('mg-theme', d ? 'dark' : 'light'); }catch(e){}
+    document.getElementById('i-sun').style.display  = d ? 'block' : 'none';
+    document.getElementById('i-moon').style.display = d ? 'none'  : 'block';
+    try{ localStorage.setItem('mg-theme', d ? 'dark' : 'light') }catch(e){}
   }
   (function(){
     const d = document.documentElement.classList.contains('dark');
-    document.getElementById('icon-sun').style.display  = d ? 'block' : 'none';
-    document.getElementById('icon-moon').style.display = d ? 'none'  : 'block';
+    document.getElementById('i-sun').style.display  = d ? 'block' : 'none';
+    document.getElementById('i-moon').style.display = d ? 'none'  : 'block';
   })();
 
   /* FAQ */
-  function toggleFaq(btn) {
+  function faq(btn) {
     const item = btn.closest('.faq-item');
     const open = item.classList.contains('open');
     document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
     if (!open) item.classList.add('open');
   }
 
-  /* Fade-in on scroll */
+  /* Scroll-triggered fade-up */
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.style.animation = 'fade-up .4s cubic-bezier(.22,1,.36,1) both';
+        e.target.style.animation = 'rise .5s cubic-bezier(.22,1,.36,1) both';
         obs.unobserve(e.target);
       }
     });
-  }, { threshold:.1 });
+  }, {threshold:.08});
   document.querySelectorAll(
-    '.feat-card,.persona-card,.test-card,.tech-cell,.hiw-step,.benefit-item,.metric-card,.case-card,.sc-card'
+    '.feat-card,.persona-card,.test-card,.t-cell,.step,.b-item,.m-card,.case-card,.sc-item'
   ).forEach(el => { el.style.opacity='0'; obs.observe(el); });
 </script>
-
 </body>
 </html>
