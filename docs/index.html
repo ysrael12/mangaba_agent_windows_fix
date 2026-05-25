@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Mangaba AI — Infraestrutura de IA para sua empresa</title>
-  <meta name="description" content="Modelos Mangaba destilados das maiores IAs do mundo, especializados para o contexto corporativo brasileiro. Agentes-persona prontos. Direto no navegador."/>
-  <meta property="og:title" content="Mangaba AI — Infraestrutura de IA para sua empresa"/>
-  <meta property="og:description" content="Modelos Mangaba destilados das maiores IAs do mundo, especializados para o contexto corporativo brasileiro."/>
+  <title>mangaba.ai — Transforme ideias em fluxos inteligentes</title>
+  <meta name="description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
+  <meta property="og:title" content="mangaba.ai — Transforme ideias em fluxos inteligentes"/>
+  <meta property="og:description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
   <meta property="og:type" content="website"/>
-  <meta property="og:image" content="https://mangaba-agent.online/og.png"/>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23A4CE6E'/%3E%3Cstop offset='100%25' stop-color='%236B9540'/%3E%3C/linearGradient%3E%3CradialGradient id='rg' cx='38%25' cy='32%25' r='62%25'%3E%3Cstop offset='0%25' stop-color='%23D87555'/%3E%3Cstop offset='55%25' stop-color='%23C96442'/%3E%3Cstop offset='100%25' stop-color='%23A24E30'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M28 14 Q 16 8 8 16 Q 16 22 28 18 Z' fill='url(%23lg)'/%3E%3Cline x1='28' y1='16' x2='30.5' y2='24' stroke='%237A4A2A' stroke-width='2.2' stroke-linecap='round'/%3E%3Cellipse cx='36' cy='42' rx='20' ry='18' fill='url(%23rg)'/%3E%3Cellipse cx='28' cy='35' rx='5' ry='7' fill='white' fill-opacity='.22' transform='rotate(-15 28 35)'/%3E%3C/svg%3E"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='40%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23F5C842'/%3E%3Cstop offset='50%25' stop-color='%23E8843E'/%3E%3Cstop offset='100%25' stop-color='%23C96030'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2378C03B'/%3E%3Cstop offset='100%25' stop-color='%234A8226'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='32' cy='38' rx='22' ry='20' fill='url(%23fg)'/%3E%3Cellipse cx='24' cy='30' rx='6' ry='8' fill='white' fill-opacity='.22' transform='rotate(-20 24 30)'/%3E%3Cpath d='M32 18 Q 24 8 16 12 Q 22 18 32 16 Z' fill='url(%23lg)'/%3E%3Cline x1='32' y1='16' x2='32' y2='22' stroke='%236B4423' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
 
   <script>
     (function(){
@@ -26,393 +25,555 @@
   </script>
 
   <style>
+    /* ══════════════════════════════════════════
+       TOKENS — Light
+    ══════════════════════════════════════════ */
     :root {
-      --background:  48 38% 97%;
-      --foreground:  30  6% 12%;
-      --card:         0  0% 100%;
-      --primary:     16 61% 60%;
-      --secondary:   48 22% 93%;
-      --muted:       48 22% 93%;
-      --muted-fg:    30  5% 43%;
-      --accent:      45 21% 89%;
-      --border:      45 21% 89%;
-      --radius:      0.5rem;
-      --orange:    #D97757;
-      --orange-dk: #C96442;
-      --orange-hv: #B5573A;
-      --leaf-1:    #A4CE6E;
-      --leaf-2:    #6B9540;
-      --stem:      #7A4A2A;
-      --emerald:   #10b981;
-      --bg:   hsl(var(--background));
-      --fg:   hsl(var(--foreground));
-      --bd:   hsl(var(--border));
-      --muted-color: hsl(var(--muted-fg));
-    }
-    .dark {
-      --background:  30  5% 15%;
-      --foreground:  48 23% 95%;
-      --card:        30  5% 18%;
-      --secondary:   30  5% 19%;
-      --muted:       30  5% 19%;
-      --muted-fg:    30  6% 64%;
-      --accent:      30  5% 19%;
-      --border:      30  6% 22%;
+      --bg:           #FAF5EC;
+      --bg-2:         #F3EBD8;
+      --bg-card:      #FFFFFF;
+      --fg:           #2D2520;
+      --fg-2:         #6B5E55;
+      --border:       rgba(45,37,32,.10);
+      --border-soft:  rgba(45,37,32,.06);
+
+      --orange:       #E8843E;
+      --orange-dk:    #D4722C;
+      --orange-lt:    rgba(232,132,62,.12);
+      --orange-ring:  rgba(232,132,62,.25);
+
+      --green:        #5C9E31;
+      --green-dk:     #4A8226;
+      --green-lt:     rgba(92,158,49,.12);
+
+      --emerald:      #22c55e;
+      --radius:       10px;
+      --radius-lg:    16px;
+      --radius-xl:    24px;
     }
 
+    /* ══════════════════════════════════════════
+       TOKENS — Dark
+    ══════════════════════════════════════════ */
+    .dark {
+      --bg:       #1C1917;
+      --bg-2:     #252220;
+      --bg-card:  #2D2A27;
+      --fg:       #F5F0E8;
+      --fg-2:     #A89D95;
+      --border:   rgba(245,240,232,.10);
+      --border-soft: rgba(245,240,232,.06);
+    }
+
+    /* ══════════════════════════════════════════
+       RESET
+    ══════════════════════════════════════════ */
     *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-    html { scroll-behavior: smooth; }
-    ::selection { background: rgba(217,119,87,.15); }
-    ::-webkit-scrollbar { width:5px; height:5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius:999px; }
+    html { scroll-behavior:smooth; }
+    ::selection { background:rgba(232,132,62,.18); }
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
 
     body {
       background: var(--bg);
       color: var(--fg);
-      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
-      font-size: 15px; line-height: 1.5; letter-spacing: -.01em;
+      font-family: 'Open Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
       overflow-x: hidden;
       transition: background .25s, color .25s;
     }
     a { color:inherit; text-decoration:none; }
     img { max-width:100%; display:block; }
 
-    /* Animations */
-    @keyframes fade-in  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes msg-in   { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes pulse-dot{ 0%,100%{transform:scale(.6);opacity:.3} 50%{transform:scale(1);opacity:1} }
-    @keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
-    @keyframes logo-scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    /* ══════════════════════════════════════════
+       ANIMATIONS
+    ══════════════════════════════════════════ */
+    @keyframes fade-up   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse-dot { 0%,100%{opacity:.35;transform:scale(.7)} 50%{opacity:1;transform:scale(1)} }
+    @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes msg-in    { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes marquee   { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
 
-    .fade-in   { animation: fade-in .35s cubic-bezier(.22,1,.36,1) both; }
-    .fade-in-1 { animation-delay:.05s; }
-    .fade-in-2 { animation-delay:.12s; }
-    .fade-in-3 { animation-delay:.20s; }
+    .fade-up   { animation: fade-up .4s cubic-bezier(.22,1,.36,1) both; }
+    .delay-1   { animation-delay:.06s; }
+    .delay-2   { animation-delay:.13s; }
+    .delay-3   { animation-delay:.21s; }
 
-    /* NAV */
+    /* ══════════════════════════════════════════
+       LOGO SVG — fruta mangaba estilo emoji
+    ══════════════════════════════════════════ */
+    .logo-svg { flex-shrink:0; }
+
+    /* ══════════════════════════════════════════
+       NAV
+    ══════════════════════════════════════════ */
     nav {
       position:fixed; top:0; left:0; right:0; z-index:100;
-      height:60px;
+      height:62px;
       display:flex; align-items:center; justify-content:space-between;
-      padding: 0 max(2rem, calc(50% - 580px));
+      padding: 0 max(1.5rem, calc(50% - 600px));
       transition: background .2s, border-color .2s, backdrop-filter .2s;
       border-bottom: 1px solid transparent;
     }
     nav.scrolled {
-      background: hsl(var(--background)/.9);
-      backdrop-filter: blur(16px);
-      border-color: var(--bd);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(18px);
+      border-color: var(--border);
     }
-    .nav-logo { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:.9375rem; letter-spacing:-.02em; }
+
+    .nav-logo {
+      display:flex; align-items:center; gap:.5rem;
+      font-size: 1.125rem; font-weight: 700; letter-spacing: -.01em;
+    }
+    .nav-logo .wordmark { color: var(--fg); }
+    .nav-logo .dot-ai   { color: var(--orange); }
+
     .nav-links { display:flex; gap:2rem; list-style:none; }
-    .nav-links a { font-size:.875rem; font-weight:500; color:var(--muted-color); transition:color .15s; }
-    .nav-links a:hover { color:var(--fg); }
+    .nav-links a {
+      font-size:.875rem; font-weight:600;
+      color: var(--fg-2);
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--fg); }
+
     .nav-right { display:flex; align-items:center; gap:.75rem; }
+
     .theme-toggle {
       width:36px; height:36px; border-radius:8px;
-      background:transparent; border:1px solid var(--bd);
+      background:transparent; border:1px solid var(--border);
       cursor:pointer; transition:all .15s;
-      display:flex; align-items:center; justify-content:center; color:var(--muted-color);
+      display:flex; align-items:center; justify-content:center;
+      color:var(--fg-2);
     }
     .theme-toggle:hover { border-color:var(--orange); color:var(--orange); }
 
-    /* BUTTONS */
+    /* ══════════════════════════════════════════
+       BUTTONS
+    ══════════════════════════════════════════ */
     .btn {
-      display:inline-flex; align-items:center; gap:.45rem;
+      display:inline-flex; align-items:center; gap:.5rem;
       padding:.6875rem 1.5rem; border-radius:var(--radius);
-      font-size:.875rem; font-weight:500;
+      font-family: inherit; font-size:.875rem; font-weight:600;
       cursor:pointer; border:none;
-      transition:all .18s cubic-bezier(.22,1,.36,1);
-      text-decoration:none; white-space:nowrap; min-height:40px;
+      transition: all .18s cubic-bezier(.22,1,.36,1);
+      white-space:nowrap; min-height:42px; text-decoration:none;
     }
-    .btn-primary  { background:hsl(var(--foreground)); color:hsl(var(--background)); letter-spacing:-.01em; }
-    .btn-primary:hover { background:hsl(var(--foreground)/.88); }
-    .btn-orange   { background:var(--orange); color:#fff; }
-    .btn-orange:hover { background:var(--orange-dk); }
-    .btn-ghost    { background:transparent; color:var(--fg); border:1px solid var(--bd); }
-    .btn-ghost:hover { border-color:var(--orange); color:var(--orange); }
-    .link-cta { font-size:.9375rem; font-weight:500; color:var(--muted-color); transition:color .15s; }
-    .link-cta:hover { color:var(--fg); }
+    .btn-primary {
+      background: var(--orange); color:#fff;
+    }
+    .btn-primary:hover { background: var(--orange-dk); }
 
-    /* LAYOUT */
+    .btn-outline {
+      background: transparent; color: var(--fg);
+      border: 1.5px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--orange); color: var(--orange); }
+
+    .btn-dark {
+      background: var(--fg); color: var(--bg);
+    }
+    .btn-dark:hover { opacity:.88; }
+
+    .link-arrow {
+      font-size:.9375rem; font-weight:600; color:var(--fg-2);
+      transition:color .15s;
+    }
+    .link-arrow:hover { color:var(--fg); }
+
+    /* ══════════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════════ */
     .container { max-width:1160px; margin:0 auto; padding:0 2rem; }
-    section { padding:5.5rem 0; }
-    .eyebrow { font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); margin-bottom:.75rem; }
-    .section-title { font-size:clamp(1.75rem,3.5vw,2.5rem); font-weight:700; letter-spacing:-.03em; line-height:1.12; margin-bottom:.875rem; }
-    .section-sub { font-size:1rem; color:var(--muted-color); max-width:540px; line-height:1.7; }
-    hr.divider { border:none; border-top:1px solid var(--bd); }
+    section { padding:6rem 0; }
 
-    /* STATUS PILL */
-    .status-pill { display:inline-flex; align-items:center; gap:.4rem; padding:.25rem .75rem; border-radius:999px; background:hsl(var(--card)); border:1px solid var(--bd); font-size:.75rem; font-weight:500; color:var(--muted-color); }
-    .status-dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse-dot 1.4s ease-in-out infinite; }
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:.4rem;
+      font-size:.72rem; font-weight:700;
+      text-transform:uppercase; letter-spacing:.12em;
+      color: var(--orange);
+      margin-bottom:.875rem;
+    }
+    .section-title {
+      font-size: clamp(1.75rem, 3.5vw, 2.625rem);
+      font-weight: 700; letter-spacing: -.025em; line-height: 1.12;
+      margin-bottom: .875rem;
+    }
+    .section-sub {
+      font-size: 1.0625rem; color: var(--fg-2);
+      max-width: 560px; line-height: 1.7;
+    }
+    .accent { color: var(--orange); }
+    hr.divider { border:none; border-top:1px solid var(--border); }
 
-    /* ─── HERO ──────────────────────────────────── */
+    /* Pill badge */
+    .pill {
+      display:inline-flex; align-items:center; gap:.375rem;
+      padding:.3rem .875rem; border-radius:999px;
+      background: var(--bg-card); border:1px solid var(--border);
+      font-size:.75rem; font-weight:600; color:var(--fg-2);
+    }
+    .pulse { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse-dot 1.4s ease-in-out infinite; }
+
+    /* Agent type badge */
+    .agent-badge {
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.3rem .75rem; border-radius:8px;
+      background: var(--bg-card); border:1px solid var(--border);
+      font-size:.78rem; font-weight:600; color:var(--fg);
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .agent-badge .badge-dot {
+      width:8px; height:8px; border-radius:50%; background:var(--orange);
+    }
+
+    /* ══════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════ */
     .hero {
-      min-height:100vh;
-      display:flex; align-items:center;
-      padding:8rem 0 5rem;
-      position:relative; overflow:hidden;
+      min-height:100vh; display:flex; align-items:center;
+      padding:8rem 0 5rem; position:relative; overflow:hidden;
     }
+    /* Warm radial background — matches cream palette */
     .hero::before {
-      content:''; position:absolute; top:-180px; right:-100px;
-      width:700px; height:700px; border-radius:50%;
-      background:radial-gradient(ellipse, rgba(217,119,87,.09) 0%, transparent 70%);
-      pointer-events:none;
+      content:''; position:absolute; inset:0; pointer-events:none;
+      background: radial-gradient(ellipse 80% 60% at 65% 40%,
+        rgba(232,132,62,.10) 0%,
+        rgba(245,200,66,.06) 40%,
+        transparent 70%);
     }
-    .hero-inner { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
-    .hero-eyebrow { display:flex; align-items:center; gap:.5rem; margin-bottom:1.5rem; }
-    .hero h1 { font-size:clamp(2.125rem,5vw,4.25rem); font-weight:700; letter-spacing:-.035em; line-height:1.08; margin-bottom:1.25rem; }
-    .hero h1 .accent { color:var(--orange); }
-    .hero-sub { font-size:1.0625rem; color:var(--muted-color); line-height:1.7; max-width:480px; margin-bottom:2rem; }
+    .hero-inner {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:4rem; align-items:center;
+    }
+    .hero h1 {
+      font-size: clamp(2.25rem, 5vw, 4.5rem);
+      font-weight: 800; letter-spacing: -.03em; line-height: 1.07;
+      margin-bottom: 1.25rem;
+    }
+    .hero-sub {
+      font-size:1.0625rem; color:var(--fg-2); line-height:1.7;
+      max-width:460px; margin-bottom:2rem;
+    }
     .hero-actions { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .hero-microcopy { font-size:.8125rem; color:var(--muted-color); }
+    .hero-micro { font-size:.8125rem; color:var(--fg-2); }
 
-    /* Hero social proof strip */
+    /* Social proof strip */
     .hero-proof {
-      display:flex; align-items:center; gap:1rem;
+      display:flex; align-items:center; gap:.875rem;
       margin-top:2rem; padding-top:1.5rem;
-      border-top:1px solid var(--bd);
+      border-top:1px solid var(--border);
     }
-    .proof-avatars { display:flex; }
-    .proof-avatars img {
-      width:32px; height:32px; border-radius:50%;
-      border:2px solid var(--bg);
-      margin-left:-8px;
+    .proof-faces { display:flex; }
+    .proof-faces img {
+      width:30px; height:30px; border-radius:50%;
+      border:2px solid var(--bg); margin-left:-7px;
       object-fit:cover;
     }
-    .proof-avatars img:first-child { margin-left:0; }
-    .proof-text { font-size:.8125rem; color:var(--muted-color); }
-    .proof-text strong { color:var(--fg); }
+    .proof-faces img:first-child { margin-left:0; }
+    .proof-copy { font-size:.8125rem; color:var(--fg-2); }
+    .proof-copy strong { color:var(--fg); }
 
-    /* Chat preview */
-    .chat-card { background:hsl(var(--card)); border:1px solid var(--bd); border-radius:16px; overflow:hidden; box-shadow:0 8px 40px hsl(var(--foreground)/.06), 0 1px 2px hsl(var(--foreground)/.04); }
-    .chat-header { display:flex; align-items:center; gap:.625rem; padding:.875rem 1.125rem; border-bottom:1px solid var(--bd); background:hsl(var(--background)); }
-    .avatar { width:28px; height:28px; border-radius:50%; background:rgba(217,119,87,.2); color:var(--orange); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .persona-name { font-size:.8125rem; font-weight:600; }
-    .persona-role { font-size:.75rem; color:var(--muted-color); }
-    .chat-body { padding:1rem 1.125rem; display:flex; flex-direction:column; gap:.625rem; }
-    .msg-user  { align-self:flex-end; background:hsl(var(--muted)); border-radius:16px 16px 4px 16px; padding:.5rem .875rem; font-size:.8125rem; max-width:80%; animation:msg-in .22s cubic-bezier(.22,1,.36,1) both; }
-    .msg-agent { align-self:flex-start; background:hsl(var(--background)); border:1px solid var(--bd); border-radius:16px 16px 16px 4px; padding:.5rem .875rem; font-size:.8125rem; max-width:90%; animation:msg-in .22s cubic-bezier(.22,1,.36,1) both; }
-    .typing { display:flex; gap:3px; align-items:center; padding:.5rem .875rem; align-self:flex-start; }
-    .typing span { width:6px; height:6px; border-radius:50%; background:var(--orange); animation:pulse-dot 1.2s ease-in-out infinite; }
-    .typing span:nth-child(2) { animation-delay:.15s; }
-    .typing span:nth-child(3) { animation-delay:.3s; }
-    .cursor { display:inline-block; width:6px; height:14px; border-radius:2px; background:var(--orange); animation:cursor-blink .9s step-end infinite; vertical-align:text-bottom; margin-left:1px; }
-
-    /* ─── LOGOS MARQUEE ──────────────────────────────────── */
-    .logos-section {
-      background:hsl(var(--secondary));
-      border-top:1px solid var(--bd);
-      border-bottom:1px solid var(--bd);
-      padding:2.25rem 0;
-      overflow:hidden;
+    /* ─── Hero right: tablet mockup + agent badges ─── */
+    .hero-visual { position:relative; display:flex; align-items:center; justify-content:center; }
+    .tablet-wrap {
+      position:relative; width:100%; max-width:420px; margin:0 auto;
     }
-    .logos-label { text-align:center; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--muted-color); margin-bottom:1.5rem; }
-    .logos-track-wrap { overflow:hidden; mask-image:linear-gradient(to right,transparent,black 10%,black 90%,transparent); }
-    .logos-track { display:flex; gap:3rem; align-items:center; width:max-content; animation:logo-scroll 22s linear infinite; }
+    .tablet-img {
+      width:100%; border-radius:var(--radius-xl);
+      border:1px solid var(--border);
+      box-shadow: 0 32px 80px rgba(45,37,32,.14);
+      display:block;
+    }
+    /* Floating agent-type badges */
+    .float-badge {
+      position:absolute;
+      background: var(--bg-card); border:1px solid var(--border);
+      border-radius:10px; padding:.375rem .75rem;
+      font-size:.78rem; font-weight:600; color:var(--fg);
+      box-shadow: 0 4px 16px rgba(0,0,0,.08);
+      display:flex; align-items:center; gap:.4rem;
+      white-space:nowrap;
+    }
+    .float-badge .fb-dot { width:8px; height:8px; border-radius:50%; }
+    .fb-consensual  { top:12%; right:-8%; }
+    .fb-parallel    { top:40%; left:-6%; }
+    .fb-sequential  { bottom:28%; right:-10%; }
+    .fb-hierarchical{ bottom:12%; right:2%; }
+
+    /* ══════════════════════════════════════════
+       LOGOS MARQUEE
+    ══════════════════════════════════════════ */
+    .logos-section {
+      background: var(--bg-2);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      padding:2rem 0; overflow:hidden;
+    }
+    .logos-label { text-align:center; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--fg-2); margin-bottom:1.5rem; }
+    .logos-track-wrap { overflow:hidden; mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent); }
+    .logos-track { display:flex; gap:3.5rem; align-items:center; width:max-content; animation:marquee 24s linear infinite; }
     .logos-track:hover { animation-play-state:paused; }
-    .logo-item { font-size:.9375rem; font-weight:700; letter-spacing:-.02em; color:hsl(var(--muted-fg)); white-space:nowrap; opacity:.7; transition:opacity .2s; }
+    .logo-item { font-size:.9375rem; font-weight:700; letter-spacing:-.01em; color:var(--fg-2); opacity:.55; white-space:nowrap; transition:opacity .2s; }
     .logo-item:hover { opacity:1; color:var(--orange); }
 
-    /* ─── FEATURES ──────────────────────────────────── */
+    /* ══════════════════════════════════════════
+       FEATURES
+    ══════════════════════════════════════════ */
     .features-header { text-align:center; margin-bottom:3.5rem; }
     .features-header .section-sub { margin:0 auto; }
     .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .feat-card { background:hsl(var(--card)); border:1px solid var(--bd); border-radius:16px; padding:1.75rem; transition:box-shadow .2s, border-color .2s; }
-    .feat-card:hover { border-color:rgba(217,119,87,.4); box-shadow:0 4px 24px hsl(var(--foreground)/.06); }
-    .feat-icon { width:40px; height:40px; border-radius:10px; background:rgba(217,119,87,.12); border:1px solid rgba(217,119,87,.2); display:flex; align-items:center; justify-content:center; margin-bottom:1rem; }
-    .feat-icon svg { width:18px; height:18px; color:var(--orange); }
-    .feat-title { font-size:.9375rem; font-weight:600; margin-bottom:.4rem; }
-    .feat-desc { font-size:.875rem; color:var(--muted-color); line-height:1.65; }
+    .feat-card {
+      background: var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:1.875rem;
+      transition: box-shadow .2s, border-color .2s, transform .2s;
+    }
+    .feat-card:hover {
+      border-color: var(--orange-ring);
+      box-shadow: 0 6px 28px rgba(232,132,62,.08);
+      transform: translateY(-2px);
+    }
+    .feat-icon {
+      width:44px; height:44px; border-radius:12px;
+      background: var(--orange-lt);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:1.125rem; font-size:1.25rem;
+    }
+    .feat-title { font-size:.9375rem; font-weight:700; margin-bottom:.375rem; }
+    .feat-desc  { font-size:.875rem; color:var(--fg-2); line-height:1.65; }
 
-    /* ─── MODELS BAR ──────────────────────────────────── */
-    .models-bar { padding:2rem 0; }
-    .models-bar-label { text-align:center; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--muted-color); margin-bottom:1.25rem; }
-    .models-list { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem 1.25rem; }
-    .model-chip { font-size:.8125rem; font-weight:500; color:var(--muted-color); padding:.3rem .75rem; border-radius:999px; border:1px solid var(--bd); background:hsl(var(--card)); transition:border-color .15s, color .15s; }
+    /* ══════════════════════════════════════════
+       MODELS BAR
+    ══════════════════════════════════════════ */
+    .models-bar { background:var(--bg-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:2rem 0; }
+    .models-bar-label { text-align:center; font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--fg-2); margin-bottom:1.25rem; }
+    .models-list { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem 1rem; }
+    .model-chip { font-size:.8125rem; font-weight:600; color:var(--fg-2); padding:.3rem .875rem; border-radius:999px; border:1.5px solid var(--border); background:var(--bg-card); transition:border-color .15s, color .15s; }
     .model-chip:hover { border-color:var(--orange); color:var(--orange); }
 
-    /* ─── HOW IT WORKS ──────────────────────────────────── */
+    /* ══════════════════════════════════════════
+       HOW IT WORKS
+    ══════════════════════════════════════════ */
     .hiw-inner { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:start; }
     .hiw-steps { display:flex; flex-direction:column; }
-    .hiw-step { display:flex; gap:1.25rem; padding-bottom:2.25rem; position:relative; }
-    .hiw-step:not(:last-child) .step-left::after { content:''; position:absolute; left:18px; top:36px; bottom:0; width:1px; background:linear-gradient(to bottom, var(--bd), transparent); }
+    .hiw-step  { display:flex; gap:1.25rem; padding-bottom:2.25rem; position:relative; }
+    .hiw-step:not(:last-child) .step-left::after { content:''; position:absolute; left:18px; top:38px; bottom:0; width:1px; background:linear-gradient(to bottom,var(--border),transparent); }
     .step-left { position:relative; flex-shrink:0; }
-    .step-num { width:36px; height:36px; border-radius:50%; background:var(--orange); color:#fff; font-size:.875rem; font-weight:700; display:flex; align-items:center; justify-content:center; }
-    .step-content h3 { font-size:.9375rem; font-weight:600; margin-bottom:.3rem; }
-    .step-content p { font-size:.875rem; color:var(--muted-color); line-height:1.65; }
+    .step-num  { width:38px; height:38px; border-radius:50%; background:var(--orange); color:#fff; font-size:.875rem; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .step-content h3 { font-size:.9375rem; font-weight:700; margin-bottom:.3rem; }
+    .step-content p  { font-size:.875rem; color:var(--fg-2); line-height:1.65; }
 
-    /* ─── PRODUCT SCREENSHOTS ──────────────────────────────────── */
-    .product-section { background:hsl(var(--secondary)); border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:5.5rem 0; }
+    /* ══════════════════════════════════════════
+       PRODUCT SCREENSHOTS
+    ══════════════════════════════════════════ */
+    .product-section {
+      background: var(--bg-2);
+      border-top:1px solid var(--border);
+      border-bottom:1px solid var(--border);
+      padding:5.5rem 0;
+    }
     .product-header { text-align:center; margin-bottom:3.5rem; }
     .product-header .section-sub { margin:0 auto; }
 
-    /* Hero screenshot — largura total com borda de "janela" */
     .screenshot-main {
-      position:relative; border-radius:14px; overflow:hidden;
-      border:1px solid var(--bd);
-      box-shadow:0 24px 80px hsl(var(--foreground)/.13);
-      margin-bottom:1.5rem;
+      border-radius:var(--radius-lg); overflow:hidden;
+      border:1px solid var(--border);
+      box-shadow:0 24px 80px rgba(45,37,32,.12);
+      margin-bottom:1.5rem; background:var(--bg-card);
     }
-    .screenshot-main img { width:100%; display:block; }
     .screenshot-bar {
       display:flex; align-items:center; gap:.4rem;
       padding:.625rem 1rem;
-      background:hsl(var(--card));
-      border-bottom:1px solid var(--bd);
+      background:var(--bg-card);
+      border-bottom:1px solid var(--border);
     }
-    .dot { width:10px; height:10px; border-radius:50%; }
-    .dot-r { background:#FF5F56; }
-    .dot-y { background:#FFBD2E; }
-    .dot-g { background:#27C93F; }
-    .url-bar { flex:1; background:hsl(var(--muted)); border-radius:6px; padding:.25rem .75rem; font-size:.75rem; color:var(--muted-color); margin:0 .5rem; }
+    .dot { width:11px; height:11px; border-radius:50%; }
+    .dot-r{background:#FF5F56;} .dot-y{background:#FFBD2E;} .dot-g{background:#27C93F;}
+    .url-bar { flex:1; background:var(--bg-2); border-radius:6px; padding:.25rem .75rem; font-size:.75rem; color:var(--fg-2); margin:0 .5rem; }
+    .screenshot-main img { width:100%; display:block; max-height:420px; object-fit:cover; object-position:top; }
 
-    /* 3 col screenshot grid */
     .screenshots-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .screenshot-card {
-      background:hsl(var(--card)); border:1px solid var(--bd); border-radius:14px; overflow:hidden;
+    .sc-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); overflow:hidden;
       transition:transform .2s, box-shadow .2s;
     }
-    .screenshot-card:hover { transform:translateY(-3px); box-shadow:0 12px 40px hsl(var(--foreground)/.1); }
-    .screenshot-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
-    .screenshot-label { padding:.875rem 1rem; }
-    .screenshot-label strong { font-size:.875rem; font-weight:600; display:block; margin-bottom:.2rem; }
-    .screenshot-label span { font-size:.78rem; color:var(--muted-color); }
+    .sc-card:hover { transform:translateY(-3px); box-shadow:0 12px 40px rgba(45,37,32,.10); }
+    .sc-card img { width:100%; aspect-ratio:4/3; object-fit:cover; }
+    .sc-label { padding:.875rem 1rem; }
+    .sc-label strong { font-size:.875rem; font-weight:700; display:block; margin-bottom:.2rem; }
+    .sc-label span   { font-size:.78rem; color:var(--fg-2); }
 
-    @media (max-width:900px) { .screenshots-grid { grid-template-columns:1fr 1fr; } }
-    @media (max-width:600px) { .screenshots-grid { grid-template-columns:1fr; } }
+    /* ══════════════════════════════════════════
+       PERSONAS
+    ══════════════════════════════════════════ */
+    .personas-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .persona-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-lg); padding:1.5rem;
+      transition:all .2s;
+    }
+    .persona-card:hover { border-color:var(--orange-ring); box-shadow:0 4px 20px rgba(232,132,62,.08); }
+    .p-avatar { width:46px; height:46px; border-radius:50%; background:var(--orange-lt); color:var(--orange); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-bottom:1rem; }
+    .persona-card h3 { font-size:.9375rem; font-weight:700; margin-bottom:.2rem; }
+    .p-role { font-size:.78rem; font-weight:600; color:var(--orange); margin-bottom:.5rem; }
+    .persona-card p { font-size:.8125rem; color:var(--fg-2); line-height:1.6; }
 
-    /* ─── PERSONAS ──────────────────────────────────── */
-    .personas-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
-    .persona-card { background:hsl(var(--card)); border:1px solid var(--bd); border-radius:16px; padding:1.5rem; transition:all .2s; }
-    .persona-card:hover { border-color:rgba(217,119,87,.4); box-shadow:0 4px 20px hsl(var(--foreground)/.05); }
-    .persona-avatar { width:44px; height:44px; border-radius:50%; background:rgba(217,119,87,.15); color:var(--orange); font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-bottom:1rem; }
-    .persona-card h3 { font-size:.9375rem; font-weight:600; margin-bottom:.2rem; }
-    .persona-specialty { font-size:.78rem; font-weight:500; color:var(--orange); margin-bottom:.5rem; }
-    .persona-card p { font-size:.8125rem; color:var(--muted-color); line-height:1.6; }
-
-    /* ─── CASES DE SUCESSO ──────────────────────────────────── */
+    /* ══════════════════════════════════════════
+       CASES
+    ══════════════════════════════════════════ */
     .cases-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
-    .case-card { background:hsl(var(--card)); border:1px solid var(--bd); border-radius:20px; overflow:hidden; transition:transform .2s, box-shadow .2s; }
-    .case-card:hover { transform:translateY(-4px); box-shadow:0 16px 48px hsl(var(--foreground)/.1); }
-    .case-img { width:100%; aspect-ratio:16/9; object-fit:cover; }
+    .case-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--radius-xl); overflow:hidden;
+      transition:transform .2s, box-shadow .2s;
+    }
+    .case-card:hover { transform:translateY(-4px); box-shadow:0 16px 48px rgba(45,37,32,.10); }
+    .case-card img { width:100%; aspect-ratio:16/9; object-fit:cover; }
     .case-body { padding:1.5rem; }
-    .case-sector { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.09em; color:var(--orange); margin-bottom:.5rem; }
-    .case-company { font-size:.8125rem; font-weight:600; color:var(--muted-color); margin-bottom:.875rem; }
-    .case-metric { font-size:2.25rem; font-weight:700; letter-spacing:-.04em; color:var(--fg); margin-bottom:.25rem; line-height:1; }
-    .case-metric-label { font-size:.8125rem; color:var(--muted-color); margin-bottom:1rem; }
-    .case-quote { font-size:.875rem; color:var(--muted-color); line-height:1.65; font-style:italic; border-left:3px solid rgba(217,119,87,.35); padding-left:.875rem; }
+    .case-sector { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--orange); margin-bottom:.4rem; }
+    .case-company{ font-size:.8125rem; font-weight:600; color:var(--fg-2); margin-bottom:.875rem; }
+    .case-metric { font-size:2.5rem; font-weight:800; letter-spacing:-.04em; color:var(--fg); margin-bottom:.2rem; line-height:1; }
+    .case-mlabel { font-size:.8125rem; color:var(--fg-2); margin-bottom:1rem; }
+    .case-quote  { font-size:.875rem; color:var(--fg-2); line-height:1.65; font-style:italic; border-left:3px solid var(--orange-ring); padding-left:.875rem; }
 
-    /* ─── BENEFITS ──────────────────────────────────── */
+    /* ══════════════════════════════════════════
+       BENEFITS
+    ══════════════════════════════════════════ */
     .benefits-inner { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
     .benefits-list { display:flex; flex-direction:column; gap:1.25rem; }
     .benefit-item { display:flex; gap:.875rem; align-items:flex-start; }
-    .benefit-check { width:20px; height:20px; border-radius:50%; background:rgba(16,185,129,.15); color:var(--emerald); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
-    .benefit-check svg { width:11px; height:11px; }
-    .benefit-item h4 { font-size:.9375rem; font-weight:600; margin-bottom:.2rem; }
-    .benefit-item p { font-size:.875rem; color:var(--muted-color); line-height:1.6; }
-    .metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:.875rem; }
-    .metric-card { background:hsl(var(--card)); border:1px solid var(--bd); border-radius:12px; padding:1.25rem; }
-    .metric-value { font-size:2rem; font-weight:700; letter-spacing:-.04em; color:var(--orange); }
-    .metric-label { font-size:.78rem; color:var(--muted-color); margin-top:.15rem; }
+    .b-check { width:22px; height:22px; border-radius:50%; background:rgba(92,158,49,.15); color:var(--green); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+    .b-check svg { width:12px; height:12px; }
+    .benefit-item h4 { font-size:.9375rem; font-weight:700; margin-bottom:.2rem; }
+    .benefit-item p  { font-size:.875rem; color:var(--fg-2); line-height:1.6; }
+    .metric-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .metric-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.375rem; }
+    .metric-value{ font-size:2.125rem; font-weight:800; letter-spacing:-.04em; color:var(--orange); }
+    .metric-label{ font-size:.78rem; color:var(--fg-2); margin-top:.15rem; }
 
-    /* ─── TECH ──────────────────────────────────── */
-    .tech-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:16px; overflow:hidden; }
-    .tech-cell { background:hsl(var(--card)); padding:2rem 1.75rem; }
-    .tech-cell h3 { font-size:.9375rem; font-weight:600; margin-bottom:.5rem; }
-    .tech-cell p { font-size:.875rem; color:var(--muted-color); line-height:1.65; }
-    .tech-tag { display:inline-block; font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; padding:.2rem .6rem; border-radius:999px; background:rgba(217,119,87,.12); color:var(--orange); margin-bottom:.75rem; }
+    /* ══════════════════════════════════════════
+       TECH GRID
+    ══════════════════════════════════════════ */
+    .tech-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+    .tech-cell { background:var(--bg-card); padding:2rem 1.75rem; }
+    .tech-cell h3 { font-size:.9375rem; font-weight:700; margin-bottom:.5rem; }
+    .tech-cell p  { font-size:.875rem; color:var(--fg-2); line-height:1.65; }
+    .tech-tag { display:inline-block; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; padding:.2rem .625rem; border-radius:999px; background:var(--orange-lt); color:var(--orange); margin-bottom:.75rem; }
 
-    /* ─── TESTIMONIALS ──────────────────────────────────── */
+    /* ══════════════════════════════════════════
+       TESTIMONIALS
+    ══════════════════════════════════════════ */
     .testimonials-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-    .test-card { background:hsl(var(--card)); border:1px solid var(--bd); border-radius:16px; padding:1.75rem; }
-    .test-stars { display:flex; gap:2px; margin-bottom:1rem; }
-    .test-star { color:#f59e0b; font-size:1rem; }
+    .test-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.875rem; }
+    .test-stars { color:#F59E0B; font-size:1rem; letter-spacing:.1em; margin-bottom:1rem; }
     .test-quote { font-size:.9375rem; line-height:1.7; color:var(--fg); margin-bottom:1.25rem; }
-    .test-author { display:flex; align-items:center; gap:.625rem; }
+    .test-author{ display:flex; align-items:center; gap:.625rem; }
     .test-photo { width:40px; height:40px; border-radius:50%; object-fit:cover; flex-shrink:0; }
-    .test-photo-fallback { width:40px; height:40px; border-radius:50%; background:rgba(217,119,87,.15); color:var(--orange); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .test-name { font-size:.875rem; font-weight:600; }
-    .test-role { font-size:.78rem; color:var(--muted-color); }
+    .test-name  { font-size:.875rem; font-weight:700; }
+    .test-role  { font-size:.78rem; color:var(--fg-2); }
 
-    /* ─── FAQ ──────────────────────────────────── */
+    /* ══════════════════════════════════════════
+       FAQ
+    ══════════════════════════════════════════ */
     .faq-list { display:flex; flex-direction:column; max-width:720px; margin:0 auto; }
-    .faq-item { border-bottom:1px solid var(--bd); }
-    .faq-q { display:flex; justify-content:space-between; align-items:center; padding:1.125rem 0; font-size:.9375rem; font-weight:500; cursor:pointer; background:none; border:none; color:var(--fg); width:100%; text-align:left; gap:1rem; }
-    .faq-q svg { flex-shrink:0; transition:transform .2s; color:var(--muted-color); }
+    .faq-item { border-bottom:1px solid var(--border); }
+    .faq-q { display:flex; justify-content:space-between; align-items:center; padding:1.125rem 0; font-size:.9375rem; font-weight:600; cursor:pointer; background:none; border:none; color:var(--fg); width:100%; text-align:left; gap:1rem; font-family:inherit; }
+    .faq-q svg { flex-shrink:0; transition:transform .2s; color:var(--fg-2); }
     .faq-item.open .faq-q svg { transform:rotate(180deg); }
-    .faq-a { font-size:.875rem; color:var(--muted-color); line-height:1.7; max-height:0; overflow:hidden; transition:max-height .3s cubic-bezier(.22,1,.36,1), padding .3s; }
+    .faq-a { font-size:.875rem; color:var(--fg-2); line-height:1.7; max-height:0; overflow:hidden; transition:max-height .3s cubic-bezier(.22,1,.36,1), padding .3s; }
     .faq-item.open .faq-a { max-height:300px; padding-bottom:1.125rem; }
 
-    /* ─── CTA ──────────────────────────────────── */
-    .cta-section { background:hsl(var(--foreground)); color:hsl(var(--background)); text-align:center; padding:5rem 2rem; }
-    .cta-section .eyebrow { color:rgba(217,119,87,.9); }
-    .cta-section .section-title { color:hsl(var(--background)); margin:0 auto .875rem; }
-    .cta-section .section-sub { color:hsl(var(--background)/.65); margin:0 auto 2.5rem; }
-    .cta-section .btn-orange { font-size:1rem; padding:.875rem 2rem; }
-    .cta-microcopy { font-size:.8125rem; color:hsl(var(--background)/.5); margin-top:1.25rem; }
+    /* ══════════════════════════════════════════
+       CTA
+    ══════════════════════════════════════════ */
+    .cta-section {
+      background: var(--fg); color: var(--bg);
+      text-align:center; padding:5.5rem 2rem;
+    }
+    .cta-section .eyebrow { color:rgba(232,132,62,.9); }
+    .cta-section .section-title { color:var(--bg); margin:0 auto .875rem; }
+    .cta-section .section-sub   { color:color-mix(in srgb, var(--bg) 65%, transparent); margin:0 auto 2.5rem; }
+    .cta-section .btn-primary   { font-size:1rem; padding:.9375rem 2.25rem; }
+    .cta-micro { font-size:.8125rem; color:color-mix(in srgb, var(--bg) 50%, transparent); margin-top:1.25rem; }
+    .cta-micro a { color:color-mix(in srgb, var(--bg) 70%, transparent); text-decoration:underline; }
 
-    /* ─── FOOTER ──────────────────────────────────── */
-    footer { background:hsl(var(--background)); border-top:1px solid var(--bd); padding:3rem 0 2rem; }
+    /* ══════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════ */
+    footer { background:var(--bg); border-top:1px solid var(--border); padding:3rem 0 2rem; }
     .footer-inner { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
-    .footer-brand p { font-size:.875rem; color:var(--muted-color); line-height:1.7; max-width:240px; margin-top:.625rem; }
-    .footer-col h4 { font-size:.8125rem; font-weight:600; text-transform:uppercase; letter-spacing:.07em; color:var(--muted-color); margin-bottom:.875rem; }
+    .footer-brand p { font-size:.875rem; color:var(--fg-2); line-height:1.7; max-width:240px; margin-top:.625rem; }
+    .footer-col h4 { font-size:.8125rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--fg-2); margin-bottom:.875rem; }
     .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
-    .footer-col a { font-size:.875rem; color:var(--muted-color); transition:color .15s; }
+    .footer-col a { font-size:.875rem; color:var(--fg-2); transition:color .15s; }
     .footer-col a:hover { color:var(--orange); }
-    .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--bd); font-size:.8125rem; color:var(--muted-color); }
+    .footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); font-size:.8125rem; color:var(--fg-2); }
 
-    /* ─── RESPONSIVE ──────────────────────────────────── */
-    @media (max-width:900px) {
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media(max-width:900px){
       .hero-inner        { grid-template-columns:1fr; }
-      .chat-card-wrap    { display:none; }
+      .hero-visual       { display:none; }
       .features-grid     { grid-template-columns:1fr 1fr; }
       .hiw-inner         { grid-template-columns:1fr; gap:3rem; }
-      .video-inner       { grid-template-columns:1fr; }
+      .screenshots-grid  { grid-template-columns:1fr 1fr; }
       .cases-grid        { grid-template-columns:1fr 1fr; }
       .benefits-inner    { grid-template-columns:1fr; }
       .tech-grid         { grid-template-columns:1fr; }
       .testimonials-grid { grid-template-columns:1fr; }
       .footer-inner      { grid-template-columns:1fr 1fr; }
     }
-    @media (max-width:600px) {
-      .nav-links      { display:none; }
-      .features-grid  { grid-template-columns:1fr; }
-      .cases-grid     { grid-template-columns:1fr; }
-      .footer-inner   { grid-template-columns:1fr; }
-      .metric-grid    { grid-template-columns:1fr; }
-      .video-stats    { flex-direction:column; gap:1rem; }
+    @media(max-width:600px){
+      .nav-links         { display:none; }
+      .features-grid     { grid-template-columns:1fr; }
+      .screenshots-grid  { grid-template-columns:1fr; }
+      .cases-grid        { grid-template-columns:1fr; }
+      .footer-inner      { grid-template-columns:1fr; }
+      .metric-grid       { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
+<!-- ══════════════════════════════════
+     NAV
+══════════════════════════════════ -->
 <nav id="main-nav">
   <a href="#" class="nav-logo">
-    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <!-- Mangaba fruit SVG — estilo emoji arredondado -->
+    <svg class="logo-svg" width="30" height="30" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
-        <linearGradient id="leaf-g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#A4CE6E"/><stop offset="100%" stop-color="#6B9540"/>
-        </linearGradient>
-        <radialGradient id="fruit-g" cx="38%" cy="32%" r="62%">
-          <stop offset="0%" stop-color="#D87555"/><stop offset="55%" stop-color="#C96442"/><stop offset="100%" stop-color="#A24E30"/>
+        <radialGradient id="fruit-n" cx="40%" cy="35%" r="60%">
+          <stop offset="0%"   stop-color="#F5C842"/>
+          <stop offset="50%"  stop-color="#E8843E"/>
+          <stop offset="100%" stop-color="#C96030"/>
         </radialGradient>
+        <linearGradient id="leaf-n" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#78C03B"/>
+          <stop offset="100%" stop-color="#4A8226"/>
+        </linearGradient>
       </defs>
-      <path d="M28 14 Q 16 8 8 16 Q 16 22 28 18 Z" fill="url(#leaf-g)"/>
-      <line x1="28" y1="16" x2="30.5" y2="24" stroke="#7A4A2A" stroke-width="2.2" stroke-linecap="round"/>
-      <ellipse cx="36" cy="42" rx="20" ry="18" fill="url(#fruit-g)"/>
-      <ellipse cx="28" cy="35" rx="5" ry="7" fill="white" fill-opacity=".22" transform="rotate(-15 28 35)"/>
+      <!-- corpo da fruta -->
+      <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fruit-n)"/>
+      <!-- highlight -->
+      <ellipse cx="25" cy="31" rx="6" ry="8" fill="white" fill-opacity=".22" transform="rotate(-20 25 31)"/>
+      <!-- folha -->
+      <path d="M33 18 Q 24 8 15 12 Q 22 18 33 16 Z" fill="url(#leaf-n)"/>
+      <!-- haste -->
+      <line x1="33" y1="16" x2="33" y2="22" stroke="#6B4423" stroke-width="2.2" stroke-linecap="round"/>
     </svg>
-    Mangaba AI
+    <span class="wordmark">mangaba</span><span class="dot-ai">.ai</span>
   </a>
+
   <ul class="nav-links">
     <li><a href="#recursos">Recursos</a></li>
     <li><a href="#como-funciona">Como funciona</a></li>
     <li><a href="#cases">Cases</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
+
   <div class="nav-right">
     <button class="theme-toggle" onclick="toggleTheme()" aria-label="Alternar tema">
       <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -422,59 +583,70 @@
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- ══════════════════════════════════
+     HERO
+══════════════════════════════════ -->
 <section class="hero">
   <div class="container">
     <div class="hero-inner">
+
+      <!-- Texto -->
       <div>
-        <div class="hero-eyebrow fade-in">
-          <div class="status-pill"><span class="status-dot"></span>Infraestrutura online · 99,9% uptime</div>
+        <div style="margin-bottom:1.5rem" class="fade-up">
+          <span class="pill"><span class="pulse"></span>Infraestrutura online · 99,9% uptime</span>
         </div>
-        <h1 class="fade-in fade-in-1">
-          Infraestrutura de IA<br/>para sua <span class="accent">empresa</span>
+
+        <h1 class="fade-up delay-1">
+          Transforme ideias em<br/><span class="accent">fluxos inteligentes</span>
         </h1>
-        <p class="hero-sub fade-in fade-in-2">
-          Agentes especializados em Jurídico, Financeiro, RH e mais —
-          treinados no contexto corporativo brasileiro.
-          Sem instalação. Dados 100% no Brasil.
+
+        <p class="hero-sub fade-up delay-2">
+          Um framework brasileiro para criar agentes inteligentes,
+          automatizar fluxos e conectar IA a processos reais —
+          sem instalação, sem lock-in.
         </p>
-        <div class="hero-actions fade-in fade-in-3">
-          <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar agora</a>
-          <a href="#cases" class="link-cta">Ver cases reais →</a>
+
+        <div class="hero-actions fade-up delay-3">
+          <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar gratuitamente</a>
+          <a href="#cases" class="link-arrow">Ver cases reais →</a>
         </div>
-        <p class="hero-microcopy fade-in fade-in-3">Sem cartão de crédito · Acesso imediato</p>
+        <p class="hero-micro fade-up delay-3">Sem cartão de crédito · Dados 100% no Brasil</p>
 
         <!-- Social proof -->
-        <div class="hero-proof fade-in fade-in-3">
-          <div class="proof-avatars">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
+        <div class="hero-proof fade-up delay-3">
+          <div class="proof-faces">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
           </div>
-          <div class="proof-text"><strong>+1.200 profissionais</strong> usando Mangaba hoje</div>
+          <div class="proof-copy"><strong>+1.200 profissionais</strong> usando mangaba.ai hoje</div>
         </div>
       </div>
 
-      <!-- Chat preview -->
-      <div class="chat-card-wrap fade-in fade-in-2">
-        <div class="chat-card">
-          <div class="chat-header">
-            <div class="avatar">MN</div>
-            <div>
-              <div class="persona-name">Manoela</div>
-              <div class="persona-role">Especialista Jurídico</div>
-            </div>
-            <div class="status-pill" style="margin-left:auto"><span class="status-dot"></span>online</div>
+      <!-- Visual direito: foto + badges de tipos de agente -->
+      <div class="hero-visual fade-up delay-2">
+        <div class="tablet-wrap">
+          <img class="tablet-img"
+            src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=700&h=800&q=85&fit=crop&crop=top"
+            alt="Profissional usando mangaba.ai no tablet"/>
+
+          <!-- Floating agent-type badges — como no Brand Brief -->
+          <div class="float-badge fb-consensual">
+            <span class="fb-dot" style="background:#E8843E"></span>Consensual
           </div>
-          <div class="chat-body">
-            <div class="msg-user" style="animation-delay:.1s">Analise esta cláusula de rescisão contratual</div>
-            <div class="msg-agent" style="animation-delay:.4s">Cláusula com risco <strong>moderado</strong>. O prazo de aviso prévio de 90 dias está acima do limite CLT para contratos &gt;5 anos.</div>
-            <div class="msg-user" style="animation-delay:.7s">Quais ajustes você recomenda?</div>
-            <div class="msg-agent" style="animation-delay:1s">Reduza para 60 dias (limite legal) e inclua multa proporcional ao tempo de serviço. Posso gerar a redação revisada agora.<span class="cursor"></span></div>
+          <div class="float-badge fb-parallel">
+            <span class="fb-dot" style="background:#5C9E31"></span>Parallel
+          </div>
+          <div class="float-badge fb-sequential">
+            <span class="fb-dot" style="background:#6366f1"></span>Sequential
+          </div>
+          <div class="float-badge fb-hierarchical">
+            <span class="fb-dot" style="background:#E8843E;opacity:.6"></span>Hierarchical
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -483,10 +655,9 @@
 
 <!-- LOGOS MARQUEE -->
 <div class="logos-section">
-  <div class="logos-label">Empresas que confiam na infraestrutura Mangaba</div>
+  <div class="logos-label">Empresas que confiam na infraestrutura mangaba.ai</div>
   <div class="logos-track-wrap">
     <div class="logos-track">
-      <!-- Duplicated for seamless loop -->
       <span class="logo-item">Construtora Brasil</span>
       <span class="logo-item">GrupoAtacadista SP</span>
       <span class="logo-item">Fintech Belém</span>
@@ -497,7 +668,6 @@
       <span class="logo-item">TechStartup RJ</span>
       <span class="logo-item">ConsultoriaForte</span>
       <span class="logo-item">FarmaRede</span>
-      <!-- duplicate -->
       <span class="logo-item">Construtora Brasil</span>
       <span class="logo-item">GrupoAtacadista SP</span>
       <span class="logo-item">Fintech Belém</span>
@@ -518,46 +688,46 @@
     <div class="features-header">
       <div class="eyebrow">Recursos</div>
       <h2 class="section-title">Tudo que sua empresa precisa</h2>
-      <p class="section-sub">Infraestrutura completa de agentes de IA. Modelos proprietários, dados no Brasil, sem configuração.</p>
+      <p class="section-sub">Infraestrutura completa de agentes de IA — modelos proprietários, dados no Brasil, sem configuração.</p>
     </div>
     <div class="features-grid">
       <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 6v6l4 2"/></svg></div>
-        <div class="feat-title">Modelos proprietários Mangaba</div>
-        <div class="feat-desc">Destilados dos melhores fundamentos mundiais, otimizados para português corporativo e conformidade com LGPD.</div>
+        <div class="feat-icon">🤖</div>
+        <div class="feat-title">Agentes inteligentes prontos</div>
+        <div class="feat-desc">Consensual, Parallel, Sequential, Hierarchical — 4 tipos de orquestração de agentes para qualquer fluxo corporativo.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div class="feat-title">Agentes-persona especializados</div>
-        <div class="feat-desc">Jurídico, Financeiro, RH, Comercial, Estratégia e mais. Treinados no contexto do seu setor, em pt-BR.</div>
+        <div class="feat-icon">🇧🇷</div>
+        <div class="feat-title">Contexto corporativo brasileiro</div>
+        <div class="feat-desc">CLT, LGPD, Simples Nacional, NF-e, eSocial. Os agentes entendem o contexto local sem ajustes.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div>
-        <div class="feat-title">Direto no navegador</div>
-        <div class="feat-desc">Sem instalação, sem SDK, sem integração. Acesso imediato — compatível com qualquer sistema corporativo.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="feat-icon">🔒</div>
         <div class="feat-title">Dados 100% no Brasil</div>
-        <div class="feat-desc">Infraestrutura dedicada em datacenter brasileiro. Soberania de dados, conformidade com LGPD e auditoria completa.</div>
+        <div class="feat-desc">Datacenters tier III em São Paulo. Conformidade LGPD, isolamento por tenant, criptografia AES-256.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <div class="feat-title">API &amp; Integração enterprise</div>
-        <div class="feat-desc">REST API compatível com OpenAI spec. Webhooks, SSO e integração com ERP, CRM e ferramentas de BI.</div>
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">Sem instalação</div>
+        <div class="feat-desc">Acesso via navegador. Nenhuma configuração de servidor, nenhum SDK obrigatório. Pronto em minutos.</div>
       </div>
       <div class="feat-card">
-        <div class="feat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
-        <div class="feat-title">SLA garantido por contrato</div>
-        <div class="feat-desc">Pipeline exclusivo por cliente. Sem filas públicas, sem rate limits compartilhados. 99,9% uptime contratual.</div>
+        <div class="feat-icon">🔗</div>
+        <div class="feat-title">API &amp; Integrações enterprise</div>
+        <div class="feat-desc">REST API compatível com OpenAI spec. Webhooks, SSO, integração com ERP, CRM e ferramentas de BI.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💰</div>
+        <div class="feat-title">Custo previsível em reais</div>
+        <div class="feat-desc">Planos fixos em BRL, sem variação cambial. SLA garantido por contrato. Suporte em horário comercial BR.</div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- MODELS BAR -->
-<div style="background:hsl(var(--secondary));border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)">
-  <div class="container models-bar">
+<div class="models-bar">
+  <div class="container">
     <p class="models-bar-label">Também suporta via gateway — troca com um clique</p>
     <div class="models-list">
       <span class="model-chip">Claude Sonnet</span>
@@ -588,15 +758,15 @@
         </div>
         <div class="hiw-step">
           <div class="step-left"><div class="step-num">2</div></div>
-          <div class="step-content"><h3>Escolha os agentes do seu setor</h3><p>Jurídico, Financeiro, RH, Comercial ou crie um agente personalizado com sua base de conhecimento.</p></div>
+          <div class="step-content"><h3>Escolha o tipo de agente</h3><p>Consensual, Parallel, Sequential ou Hierarchical — configure o fluxo ideal para seu processo.</p></div>
         </div>
         <div class="hiw-step">
           <div class="step-left"><div class="step-num">3</div></div>
-          <div class="step-content"><h3>Conecte seus dados (opcional)</h3><p>Upload de documentos, políticas e bases de conhecimento para personalizar os agentes ao seu contexto.</p></div>
+          <div class="step-content"><h3>Conecte seus dados</h3><p>Upload de documentos, políticas e bases de conhecimento para personalizar os agentes ao seu contexto.</p></div>
         </div>
         <div class="hiw-step">
           <div class="step-left"><div class="step-num">4</div></div>
-          <div class="step-content"><h3>Sua equipe começa a usar</h3><p>Interface no navegador, sem treinamento técnico. Acompanhe uso, qualidade e ROI no dashboard em tempo real.</p></div>
+          <div class="step-content"><h3>Sua equipe começa a usar</h3><p>Interface no navegador, sem treinamento técnico. Acompanhe ROI no dashboard em tempo real.</p></div>
         </div>
       </div>
     </div>
@@ -609,51 +779,40 @@
 <div class="product-section">
   <div class="container">
     <div class="product-header">
-      <div class="eyebrow">Veja em ação</div>
-      <h2 class="section-title">Interface pensada para times corporativos</h2>
+      <div class="eyebrow">Interface</div>
+      <h2 class="section-title">Pensada para times corporativos</h2>
       <p class="section-sub">Do chat ao dashboard de analytics — tudo em português, no navegador, sem instalação.</p>
     </div>
 
-    <!-- Screenshot principal — chat interface -->
     <div class="screenshot-main">
       <div class="screenshot-bar">
         <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
-        <span class="url-bar">mangaba.chat · Manoela — Especialista Jurídico</span>
+        <span class="url-bar">mangaba.ai · Agente Jurídico — análise de contrato</span>
       </div>
       <img
-        src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=560&q=85&fit=crop"
-        alt="Interface Mangaba AI — chat com agente jurídico"
+        src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=460&q=85&fit=crop&crop=top"
+        alt="Interface mangaba.ai — agente jurídico em ação"
         loading="lazy"/>
     </div>
 
-    <!-- 3 screenshots menores -->
     <div class="screenshots-grid">
-      <div class="screenshot-card">
-        <img
-          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=480&q=80&fit=crop"
-          alt="Dashboard de analytics e uso"
-          loading="lazy"/>
-        <div class="screenshot-label">
+      <div class="sc-card">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=480&q=80&fit=crop" alt="Dashboard analytics" loading="lazy"/>
+        <div class="sc-label">
           <strong>Dashboard de analytics</strong>
           <span>Uso por equipe, custo por departamento, qualidade em tempo real</span>
         </div>
       </div>
-      <div class="screenshot-card">
-        <img
-          src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&h=480&q=80&fit=crop"
-          alt="Agentes em equipe corporativa"
-          loading="lazy"/>
-        <div class="screenshot-label">
+      <div class="sc-card">
+        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&h=480&q=80&fit=crop" alt="Equipe usando IA" loading="lazy"/>
+        <div class="sc-label">
           <strong>Colaboração em equipe</strong>
           <span>Múltiplos usuários, histórico compartilhado, permissões por cargo</span>
         </div>
       </div>
-      <div class="screenshot-card">
-        <img
-          src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&h=480&q=80&fit=crop"
-          alt="Análise financeira com IA"
-          loading="lazy"/>
-        <div class="screenshot-label">
+      <div class="sc-card">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&h=480&q=80&fit=crop" alt="Análise de documentos" loading="lazy"/>
+        <div class="sc-label">
           <strong>Análise de documentos</strong>
           <span>Upload de contratos, relatórios e planilhas — resposta em segundos</span>
         </div>
@@ -671,97 +830,57 @@
       <p class="section-sub" style="margin:0 auto">Cada agente tem nome, personalidade e conhecimento profundo do domínio — em português brasileiro.</p>
     </div>
     <div class="personas-grid">
-      <div class="persona-card">
-        <div class="persona-avatar">MN</div>
-        <h3>Manoela</h3><div class="persona-specialty">Especialista Jurídico</div>
-        <p>Análise de contratos, compliance trabalhista, LGPD e regulatório. Revisa cláusulas e aponta riscos em segundos.</p>
-      </div>
-      <div class="persona-card">
-        <div class="persona-avatar">RC</div>
-        <h3>Ricardo</h3><div class="persona-specialty">Especialista Financeiro</div>
-        <p>Relatórios financeiros, análise de DRE, fluxo de caixa e indicadores. Contexto do mercado brasileiro nativo.</p>
-      </div>
-      <div class="persona-card">
-        <div class="persona-avatar">JP</div>
-        <h3>Juliana</h3><div class="persona-specialty">Especialista RH</div>
-        <p>Recrutamento, avaliação de desempenho e folha de pagamento conforme legislação trabalhista vigente.</p>
-      </div>
-      <div class="persona-card">
-        <div class="persona-avatar">TM</div>
-        <h3>Thiago</h3><div class="persona-specialty">Especialista Comercial</div>
-        <p>Propostas, pipeline B2B, scripts de vendas e gestão de relacionamento com clientes corporativos.</p>
-      </div>
-      <div class="persona-card">
-        <div class="persona-avatar">BL</div>
-        <h3>Beatriz</h3><div class="persona-specialty">Especialista Estratégia</div>
-        <p>Planejamento, análise competitiva, OKRs e diagnóstico de mercado para PMEs e médias empresas.</p>
-      </div>
-      <div class="persona-card">
-        <div class="persona-avatar">AL</div>
-        <h3>Alexandre</h3><div class="persona-specialty">Especialista TI</div>
-        <p>Arquitetura, segurança da informação, ITIL e documentação técnica. Tudo em pt-BR corporativo.</p>
-      </div>
+      <div class="persona-card"><div class="p-avatar">MN</div><h3>Manoela</h3><div class="p-role">Especialista Jurídico</div><p>Análise de contratos, compliance trabalhista, LGPD. Revisa cláusulas e aponta riscos em segundos.</p></div>
+      <div class="persona-card"><div class="p-avatar">RC</div><h3>Ricardo</h3><div class="p-role">Especialista Financeiro</div><p>Relatórios, DRE, fluxo de caixa e indicadores. Contexto do mercado brasileiro nativo.</p></div>
+      <div class="persona-card"><div class="p-avatar">JP</div><h3>Juliana</h3><div class="p-role">Especialista RH</div><p>Recrutamento, avaliação de desempenho e folha conforme legislação trabalhista vigente.</p></div>
+      <div class="persona-card"><div class="p-avatar">TM</div><h3>Thiago</h3><div class="p-role">Especialista Comercial</div><p>Propostas, pipeline B2B, scripts de vendas e gestão de relacionamento corporativo.</p></div>
+      <div class="persona-card"><div class="p-avatar">BL</div><h3>Beatriz</h3><div class="p-role">Especialista Estratégia</div><p>Planejamento, análise competitiva e OKRs para PMEs e médias empresas.</p></div>
+      <div class="persona-card"><div class="p-avatar">AL</div><h3>Alexandre</h3><div class="p-role">Especialista TI</div><p>Arquitetura, segurança e documentação técnica. Tudo em pt-BR corporativo.</p></div>
     </div>
   </div>
 </section>
 
 <hr class="divider"/>
 
-<!-- CASES DE SUCESSO -->
+<!-- CASES -->
 <section id="cases">
   <div class="container">
     <div style="text-align:center;margin-bottom:3.5rem">
       <div class="eyebrow">Cases reais</div>
       <h2 class="section-title">Resultados que falam por si</h2>
-      <p class="section-sub" style="margin:0 auto">Empresas brasileiras que transformaram operações com a infraestrutura Mangaba.</p>
+      <p class="section-sub" style="margin:0 auto">Empresas brasileiras que transformaram operações com a infraestrutura mangaba.ai.</p>
     </div>
     <div class="cases-grid">
-
-      <!-- Case 1 — Jurídico -->
       <div class="case-card">
-        <img class="case-img"
-          src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&h=360&q=80&fit=crop"
-          alt="Revisão de contratos — Setor Jurídico"
-          loading="lazy"/>
+        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&h=360&q=80&fit=crop" alt="Jurídico" loading="lazy"/>
         <div class="case-body">
           <div class="case-sector">Jurídico &amp; Compliance</div>
           <div class="case-company">Construtora Brasil · Belém, PA</div>
           <div class="case-metric">87%</div>
-          <div class="case-metric-label">redução no tempo de revisão de contratos</div>
-          <p class="case-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas para nosso jurídico ficou pronto antes do fechamento do expediente."</p>
+          <div class="case-mlabel">redução no tempo de revisão de contratos</div>
+          <p class="case-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas ficou pronto antes do fechamento."</p>
         </div>
       </div>
-
-      <!-- Case 2 — Financeiro -->
       <div class="case-card">
-        <img class="case-img"
-          src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&h=360&q=80&fit=crop"
-          alt="Relatórios financeiros automatizados"
-          loading="lazy"/>
+        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&h=360&q=80&fit=crop" alt="Financeiro" loading="lazy"/>
         <div class="case-body">
           <div class="case-sector">Financeiro &amp; Controladoria</div>
           <div class="case-company">Fintech Belém · Belém, PA</div>
           <div class="case-metric">3×</div>
-          <div class="case-metric-label">mais relatórios produzidos por mês</div>
-          <p class="case-quote">"Custo previsível em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava qualquer expansão. Com Mangaba crescemos 5× o uso."</p>
+          <div class="case-mlabel">mais relatórios produzidos por mês</div>
+          <p class="case-quote">"Custo previsível em reais foi decisivo. Com mangaba.ai crescemos 5× o uso sem susto no CFO."</p>
         </div>
       </div>
-
-      <!-- Case 3 — RH -->
       <div class="case-card">
-        <img class="case-img"
-          src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&h=360&q=80&fit=crop"
-          alt="RH e recrutamento com IA"
-          loading="lazy"/>
+        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&h=360&q=80&fit=crop" alt="RH" loading="lazy"/>
         <div class="case-body">
           <div class="case-sector">Recursos Humanos</div>
           <div class="case-company">GrupoAtacadista SP · São Paulo, SP</div>
           <div class="case-metric">60%</div>
-          <div class="case-metric-label">mais rápido no ciclo de contratação</div>
-          <p class="case-quote">"Finalmente uma IA que entende eSocial e os quirks da legislação trabalhista brasileira. Sem precisar explicar o básico toda hora."</p>
+          <div class="case-mlabel">mais rápido no ciclo de contratação</div>
+          <p class="case-quote">"Finalmente uma IA que entende eSocial e legislação trabalhista brasileira. Sem explicar o básico."</p>
         </div>
       </div>
-
     </div>
   </div>
 </section>
@@ -774,31 +893,31 @@
     <div class="benefits-inner">
       <div>
         <div class="eyebrow">Vantagens</div>
-        <h2 class="section-title">Por que Mangaba AI</h2>
+        <h2 class="section-title">Por que mangaba.ai</h2>
         <p class="section-sub" style="margin-bottom:2rem">Desenvolvido para o ecossistema empresarial brasileiro — não apenas adaptado de soluções americanas.</p>
         <div class="benefits-list">
           <div class="benefit-item">
-            <div class="benefit-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Contexto corporativo brasileiro nativo</h4><p>CLT, LGPD, Simples Nacional, NF-e, eSocial. Os agentes entendem o contexto local sem ajustes.</p></div>
+            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><h4>Contexto corporativo brasileiro nativo</h4><p>CLT, LGPD, Simples Nacional, NF-e, eSocial. Sem ajustes.</p></div>
           </div>
           <div class="benefit-item">
-            <div class="benefit-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Sem dependência de cloud estrangeira</h4><p>Infraestrutura 100% em solo brasileiro. Seus dados nunca saem do país — conformidade total com LGPD.</p></div>
+            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><h4>Sem dependência de cloud estrangeira</h4><p>100% em solo brasileiro. Conformidade total com LGPD.</p></div>
           </div>
           <div class="benefit-item">
-            <div class="benefit-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Custo previsível em reais</h4><p>Planos fixos em BRL, sem variação cambial. Sem surpresas no faturamento no final do mês.</p></div>
+            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><h4>Custo previsível em reais</h4><p>Planos fixos em BRL. Sem variação cambial, sem surpresas.</p></div>
           </div>
           <div class="benefit-item">
-            <div class="benefit-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Suporte em português, horário comercial BR</h4><p>Time de suporte brasileiro, fuso correto. Sem ticket em inglês, sem esperar a madrugada.</p></div>
+            <div class="b-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><h4>Suporte em português, horário BR</h4><p>Time local, fuso correto. Sem ticket em inglês.</p></div>
           </div>
         </div>
       </div>
       <div class="metric-grid">
         <div class="metric-card"><div class="metric-value">200+</div><div class="metric-label">modelos disponíveis</div></div>
         <div class="metric-card"><div class="metric-value">40+</div><div class="metric-label">ferramentas integradas</div></div>
-        <div class="metric-card"><div class="metric-value">8</div><div class="metric-label">agentes-persona prontos</div></div>
+        <div class="metric-card"><div class="metric-value">4</div><div class="metric-label">tipos de orquestração</div></div>
         <div class="metric-card"><div class="metric-value">100%</div><div class="metric-label">dados no Brasil</div></div>
       </div>
     </div>
@@ -815,11 +934,11 @@
       <h2 class="section-title">Infraestrutura de nível enterprise</h2>
     </div>
     <div class="tech-grid">
-      <div class="tech-cell"><div class="tech-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation comprime os maiores modelos fundacionais em versões Mangaba otimizadas para cada domínio corporativo.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado por empresa. Dados nunca usados para treinar outros clientes. AES-256 em repouso, TLS 1.3 em trânsito.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Escala</div><h3>Pipeline de alta throughput</h3><p>GPU dedicada, sem filas compartilhadas. Streaming de resposta em tempo real. Latência p99 abaixo de 800ms.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Integração</div><h3>REST API completa</h3><p>Endpoints compatíveis com OpenAI API spec. Migração sem reescrita. SDKs para Python, Node.js e Java.</p></div>
-      <div class="tech-cell"><div class="tech-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs de interações, métricas de qualidade, custo por departamento e alertas. Exportação para BI e data lake.</p></div>
+      <div class="tech-cell"><div class="tech-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation comprime os maiores modelos fundacionais em versões mangaba otimizadas por domínio.</p></div>
+      <div class="tech-cell"><div class="tech-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado. Dados nunca usados para treinar outros clientes. AES-256 em repouso, TLS 1.3 em trânsito.</p></div>
+      <div class="tech-cell"><div class="tech-tag">Escala</div><h3>Pipeline de alta throughput</h3><p>GPU dedicada, sem filas compartilhadas. Streaming em tempo real. Latência p99 abaixo de 800ms.</p></div>
+      <div class="tech-cell"><div class="tech-tag">Integração</div><h3>REST API completa</h3><p>Compatível com OpenAI API spec. SDKs para Python, Node.js e Java. Migração sem reescrita.</p></div>
+      <div class="tech-cell"><div class="tech-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs, métricas de qualidade, custo por departamento, alertas e exportação para BI.</p></div>
       <div class="tech-cell"><div class="tech-tag">Conformidade</div><h3>LGPD by design</h3><p>Direito ao esquecimento, portabilidade e RIPD automáticos. DPO disponível no plano Enterprise.</p></div>
     </div>
   </div>
@@ -837,7 +956,7 @@
     <div class="testimonials-grid">
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas para nosso jurídico interno ficou pronto antes do fechamento do expediente."</p>
+        <p class="test-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas para nosso jurídico ficou pronto antes do fechamento do expediente."</p>
         <div class="test-author">
           <img class="test-photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&q=80&fit=crop&crop=face" alt="Carla Lima" loading="lazy"/>
           <div><div class="test-name">Carla Lima</div><div class="test-role">Diretora Jurídica · Construtora Brasil</div></div>
@@ -845,7 +964,7 @@
       </div>
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"Finalmente uma IA que entende folha de pagamento com eSocial e os quirks da legislação trabalhista brasileira. Sem precisar explicar o básico toda hora."</p>
+        <p class="test-quote">"Finalmente uma IA que entende folha de pagamento com eSocial. Sem precisar explicar o básico toda hora — é como ter um especialista disponível 24h."</p>
         <div class="test-author">
           <img class="test-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face" alt="Pedro Rocha" loading="lazy"/>
           <div><div class="test-name">Pedro Rocha</div><div class="test-role">Gerente de RH · GrupoAtacadista SP</div></div>
@@ -853,7 +972,7 @@
       </div>
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"Custo previsível em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava qualquer expansão. Com Mangaba crescemos 5× o uso sem susto."</p>
+        <p class="test-quote">"Custo em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava expansão. Com mangaba.ai crescemos 5× sem nenhum susto."</p>
         <div class="test-author">
           <img class="test-photo" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&q=80&fit=crop&crop=face" alt="Fernanda Neves" loading="lazy"/>
           <div><div class="test-name">Fernanda Neves</div><div class="test-role">CTO · Fintech Belém</div></div>
@@ -873,30 +992,12 @@
       <h2 class="section-title">Perguntas frequentes</h2>
     </div>
     <div class="faq-list">
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-a">Não. Seus dados, documentos e conversas são estritamente confidenciais e nunca utilizados para treinar modelos. Cada cliente opera em ambiente isolado. Você pode solicitar exclusão completa a qualquer momento.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Onde ficam armazenados meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-a">100% em solo brasileiro, em datacenters tier III em São Paulo. Nenhum dado trafega para fora do Brasil. Conformidade total com LGPD (Lei 13.709/2018) e possibilidade de assinar DPA personalizado.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Preciso de uma equipe técnica para implementar?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-a">Não. A interface web funciona direto no navegador, sem instalação. Para integração via API (ERP, CRM), oferecemos suporte técnico dedicado e documentação completa em português.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Quais modelos de IA estão disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-a">Os modelos proprietários Mangaba são o padrão — otimizados para pt-BR corporativo. Via gateway, também oferecemos Claude, GPT-4o, Gemini, Llama, Mistral, DeepSeek e mais de 200 modelos. Troca com um clique.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-a">Planos mensais fixos em reais, sem variação cambial. Starter para até 5 usuários, Business para equipes de até 50 e Enterprise sob medida com SLA garantido. Todos incluem agentes-persona, dashboard e suporte em português.</div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFaq(this)">É possível criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
-        <div class="faq-a">Sim. No plano Business e Enterprise você cria agentes com base nos documentos, políticas e processos internos da sua empresa. Fine-tuning ou RAG sobre sua base de conhecimento com acompanhamento técnico.</div>
-      </div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Não. Seus dados, documentos e conversas são estritamente confidenciais e nunca utilizados para treinar modelos. Cada cliente opera em namespace isolado e pode solicitar exclusão completa a qualquer momento.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Onde ficam armazenados meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">100% em solo brasileiro, datacenters tier III em São Paulo. Nenhum dado trafega fora do Brasil. Conformidade total com LGPD (Lei 13.709/2018) e possibilidade de assinar DPA personalizado.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Preciso de equipe técnica para implementar?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Não. A interface web funciona direto no navegador, sem instalação. Para integração via API (ERP, CRM), oferecemos suporte técnico dedicado e documentação completa em português.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Quais os tipos de agente disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Consensual (decisão colaborativa entre agentes), Parallel (execução simultânea), Sequential (fluxo encadeado) e Hierarchical (orquestrador delega para sub-agentes). Cada tipo é ideal para um conjunto de casos de uso.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Planos mensais fixos em reais, sem variação cambial. Starter (até 5 usuários), Business (até 50) e Enterprise sob medida com SLA garantido. Todos incluem agentes-persona, dashboard e suporte em português.</div></div>
+      <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">É possível criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Sim. No plano Business e Enterprise você cria agentes com base nos documentos e processos internos da sua empresa. Fine-tuning ou RAG sobre sua base de conhecimento com acompanhamento técnico.</div></div>
     </div>
   </div>
 </section>
@@ -907,8 +1008,8 @@
     <div class="eyebrow">Comece hoje</div>
     <h2 class="section-title">Sua empresa pronta para a IA<br/>em menos de um dia</h2>
     <p class="section-sub">Sem cartão de crédito. Sem instalação. Sem lock-in. Cancele quando quiser.</p>
-    <a href="https://mangaba.chat/" class="btn btn-orange" target="_blank">Começar agora →</a>
-    <p class="cta-microcopy">Ou fale com nosso time: <a href="mailto:contato@mangaba-agent.online" style="color:rgba(255,255,255,.7);text-decoration:underline">contato@mangaba-agent.online</a></p>
+    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar gratuitamente →</a>
+    <p class="cta-micro">Ou fale com nosso time: <a href="mailto:contato@mangaba-agent.online">contato@mangaba-agent.online</a></p>
   </div>
 </section>
 
@@ -920,17 +1021,17 @@
         <div class="nav-logo">
           <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
             <defs>
-              <linearGradient id="leaf-g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#A4CE6E"/><stop offset="100%" stop-color="#6B9540"/></linearGradient>
-              <radialGradient id="fruit-g2" cx="38%" cy="32%" r="62%"><stop offset="0%" stop-color="#D87555"/><stop offset="55%" stop-color="#C96442"/><stop offset="100%" stop-color="#A24E30"/></radialGradient>
+              <radialGradient id="fg2" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#F5C842"/><stop offset="50%" stop-color="#E8843E"/><stop offset="100%" stop-color="#C96030"/></radialGradient>
+              <linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#78C03B"/><stop offset="100%" stop-color="#4A8226"/></linearGradient>
             </defs>
-            <path d="M28 14 Q 16 8 8 16 Q 16 22 28 18 Z" fill="url(#leaf-g2)"/>
-            <line x1="28" y1="16" x2="30.5" y2="24" stroke="#7A4A2A" stroke-width="2.2" stroke-linecap="round"/>
-            <ellipse cx="36" cy="42" rx="20" ry="18" fill="url(#fruit-g2)"/>
-            <ellipse cx="28" cy="35" rx="5" ry="7" fill="white" fill-opacity=".22" transform="rotate(-15 28 35)"/>
+            <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fg2)"/>
+            <ellipse cx="25" cy="31" rx="6" ry="8" fill="white" fill-opacity=".22" transform="rotate(-20 25 31)"/>
+            <path d="M33 18 Q 24 8 15 12 Q 22 18 33 16 Z" fill="url(#lg2)"/>
+            <line x1="33" y1="16" x2="33" y2="22" stroke="#6B4423" stroke-width="2.2" stroke-linecap="round"/>
           </svg>
-          Mangaba AI
+          <span class="wordmark">mangaba</span><span class="dot-ai">.ai</span>
         </div>
-        <p>Infraestrutura de IA para empresas brasileiras. Modelos proprietários, dados no Brasil, suporte em português.</p>
+        <p>Infraestrutura de IA para empresas brasileiras. Agentes inteligentes, dados no Brasil, suporte em português.</p>
       </div>
       <div class="footer-col">
         <h4>Produto</h4>
@@ -961,7 +1062,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Mangaba AI · Todos os direitos reservados</span>
+      <span>© 2026 mangaba.ai · Todos os direitos reservados</span>
       <span>Feito no Brasil 🇧🇷 · Private Enterprise</span>
     </div>
   </div>
@@ -970,45 +1071,41 @@
 <script>
   /* Navbar scroll */
   const nav = document.getElementById('main-nav');
-  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10), { passive: true });
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 10), { passive:true });
 
   /* Theme toggle */
   function toggleTheme() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    document.getElementById('icon-sun').style.display  = isDark ? 'block' : 'none';
-    document.getElementById('icon-moon').style.display = isDark ? 'none'  : 'block';
-    try { localStorage.setItem('mg-theme', isDark ? 'dark' : 'light'); } catch(e){}
+    const d = document.documentElement.classList.toggle('dark');
+    document.getElementById('icon-sun').style.display  = d ? 'block' : 'none';
+    document.getElementById('icon-moon').style.display = d ? 'none'  : 'block';
+    try{ localStorage.setItem('mg-theme', d ? 'dark' : 'light'); }catch(e){}
   }
   (function(){
-    const isDark = document.documentElement.classList.contains('dark');
-    document.getElementById('icon-sun').style.display  = isDark ? 'block' : 'none';
-    document.getElementById('icon-moon').style.display = isDark ? 'none'  : 'block';
+    const d = document.documentElement.classList.contains('dark');
+    document.getElementById('icon-sun').style.display  = d ? 'block' : 'none';
+    document.getElementById('icon-moon').style.display = d ? 'none'  : 'block';
   })();
 
-  /* FAQ accordion */
+  /* FAQ */
   function toggleFaq(btn) {
     const item = btn.closest('.faq-item');
-    const isOpen = item.classList.contains('open');
+    const open = item.classList.contains('open');
     document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-    if (!isOpen) item.classList.add('open');
+    if (!open) item.classList.add('open');
   }
 
   /* Fade-in on scroll */
-  const observer = new IntersectionObserver((entries) => {
+  const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
-        e.target.style.animation = 'fade-in .4s cubic-bezier(.22,1,.36,1) both';
-        observer.unobserve(e.target);
+        e.target.style.animation = 'fade-up .4s cubic-bezier(.22,1,.36,1) both';
+        obs.unobserve(e.target);
       }
     });
-  }, { threshold: 0.10 });
-
+  }, { threshold:.1 });
   document.querySelectorAll(
-    '.feat-card, .persona-card, .test-card, .tech-cell, .hiw-step, .benefit-item, .metric-card, .case-card'
-  ).forEach(el => {
-    el.style.opacity = '0';
-    observer.observe(el);
-  });
+    '.feat-card,.persona-card,.test-card,.tech-cell,.hiw-step,.benefit-item,.metric-card,.case-card,.sc-card'
+  ).forEach(el => { el.style.opacity='0'; obs.observe(el); });
 </script>
 
 </body>
