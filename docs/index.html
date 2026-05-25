@@ -243,34 +243,45 @@
     .step-content h3 { font-size:.9375rem; font-weight:600; margin-bottom:.3rem; }
     .step-content p { font-size:.875rem; color:var(--muted-color); line-height:1.65; }
 
-    /* ─── VIDEO DEMO ──────────────────────────────────── */
-    .video-section { background:hsl(var(--secondary)); border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:5rem 0; }
-    .video-inner { display:grid; grid-template-columns:1fr 1.6fr; gap:4rem; align-items:center; }
-    .video-wrapper {
-      position:relative; border-radius:16px; overflow:hidden;
-      aspect-ratio:16/9;
+    /* ─── PRODUCT SCREENSHOTS ──────────────────────────────────── */
+    .product-section { background:hsl(var(--secondary)); border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:5.5rem 0; }
+    .product-header { text-align:center; margin-bottom:3.5rem; }
+    .product-header .section-sub { margin:0 auto; }
+
+    /* Hero screenshot — largura total com borda de "janela" */
+    .screenshot-main {
+      position:relative; border-radius:14px; overflow:hidden;
       border:1px solid var(--bd);
-      box-shadow:0 20px 60px hsl(var(--foreground)/.12);
-      background:#000;
-      cursor:pointer;
+      box-shadow:0 24px 80px hsl(var(--foreground)/.13);
+      margin-bottom:1.5rem;
     }
-    .video-wrapper iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
-    .video-thumb { position:absolute; inset:0; background:#0d0c0b; }
-    .video-thumb img { width:100%; height:100%; object-fit:cover; opacity:.6; }
-    .play-btn {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-      width:64px; height:64px; border-radius:50%;
-      background:var(--orange); border:none; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      box-shadow:0 0 0 8px rgba(217,119,87,.2);
+    .screenshot-main img { width:100%; display:block; }
+    .screenshot-bar {
+      display:flex; align-items:center; gap:.4rem;
+      padding:.625rem 1rem;
+      background:hsl(var(--card));
+      border-bottom:1px solid var(--bd);
+    }
+    .dot { width:10px; height:10px; border-radius:50%; }
+    .dot-r { background:#FF5F56; }
+    .dot-y { background:#FFBD2E; }
+    .dot-g { background:#27C93F; }
+    .url-bar { flex:1; background:hsl(var(--muted)); border-radius:6px; padding:.25rem .75rem; font-size:.75rem; color:var(--muted-color); margin:0 .5rem; }
+
+    /* 3 col screenshot grid */
+    .screenshots-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+    .screenshot-card {
+      background:hsl(var(--card)); border:1px solid var(--bd); border-radius:14px; overflow:hidden;
       transition:transform .2s, box-shadow .2s;
     }
-    .play-btn:hover { transform:translate(-50%,-50%) scale(1.08); box-shadow:0 0 0 12px rgba(217,119,87,.15); }
-    .play-btn svg { color:#fff; margin-left:4px; }
-    .video-text .section-sub { margin-bottom:1.5rem; }
-    .video-stats { display:flex; gap:2rem; margin-top:2rem; }
-    .vstat-value { font-size:1.75rem; font-weight:700; letter-spacing:-.04em; color:var(--orange); }
-    .vstat-label { font-size:.8125rem; color:var(--muted-color); }
+    .screenshot-card:hover { transform:translateY(-3px); box-shadow:0 12px 40px hsl(var(--foreground)/.1); }
+    .screenshot-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block; }
+    .screenshot-label { padding:.875rem 1rem; }
+    .screenshot-label strong { font-size:.875rem; font-weight:600; display:block; margin-bottom:.2rem; }
+    .screenshot-label span { font-size:.78rem; color:var(--muted-color); }
+
+    @media (max-width:900px) { .screenshots-grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:600px) { .screenshots-grid { grid-template-columns:1fr; } }
 
     /* ─── PERSONAS ──────────────────────────────────── */
     .personas-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; }
@@ -594,29 +605,58 @@
 
 <hr class="divider"/>
 
-<!-- VIDEO DEMO -->
-<div class="video-section">
+<!-- PRODUCT SCREENSHOTS -->
+<div class="product-section">
   <div class="container">
-    <div class="video-inner">
-      <div class="video-text">
-        <div class="eyebrow">Veja em ação</div>
-        <h2 class="section-title">Da análise ao resultado em segundos</h2>
-        <p class="section-sub">Assista como a Manoela (agente jurídico) processa um contrato de 40 páginas, identifica cláusulas abusivas e sugere ajustes — em menos de 30 segundos.</p>
-        <div class="video-stats">
-          <div><div class="vstat-value">30s</div><div class="vstat-label">para analisar 40 páginas</div></div>
-          <div><div class="vstat-value">94%</div><div class="vstat-label">precisão em testes internos</div></div>
-          <div><div class="vstat-value">0</div><div class="vstat-label">instalação necessária</div></div>
+    <div class="product-header">
+      <div class="eyebrow">Veja em ação</div>
+      <h2 class="section-title">Interface pensada para times corporativos</h2>
+      <p class="section-sub">Do chat ao dashboard de analytics — tudo em português, no navegador, sem instalação.</p>
+    </div>
+
+    <!-- Screenshot principal — chat interface -->
+    <div class="screenshot-main">
+      <div class="screenshot-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="url-bar">mangaba.chat · Manoela — Especialista Jurídico</span>
+      </div>
+      <img
+        src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=560&q=85&fit=crop"
+        alt="Interface Mangaba AI — chat com agente jurídico"
+        loading="lazy"/>
+    </div>
+
+    <!-- 3 screenshots menores -->
+    <div class="screenshots-grid">
+      <div class="screenshot-card">
+        <img
+          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=480&q=80&fit=crop"
+          alt="Dashboard de analytics e uso"
+          loading="lazy"/>
+        <div class="screenshot-label">
+          <strong>Dashboard de analytics</strong>
+          <span>Uso por equipe, custo por departamento, qualidade em tempo real</span>
         </div>
       </div>
-
-      <!-- Video player — clica para abrir YouTube -->
-      <div class="video-wrapper" id="video-wrapper" onclick="loadVideo()">
-        <div class="video-thumb" id="video-thumb">
-          <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=900&h=506&q=80&fit=crop" alt="Demo Mangaba AI"/>
+      <div class="screenshot-card">
+        <img
+          src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&h=480&q=80&fit=crop"
+          alt="Agentes em equipe corporativa"
+          loading="lazy"/>
+        <div class="screenshot-label">
+          <strong>Colaboração em equipe</strong>
+          <span>Múltiplos usuários, histórico compartilhado, permissões por cargo</span>
         </div>
-        <button class="play-btn" aria-label="Assistir demo">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>
-        </button>
+      </div>
+      <div class="screenshot-card">
+        <img
+          src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&h=480&q=80&fit=crop"
+          alt="Análise financeira com IA"
+          loading="lazy"/>
+        <div class="screenshot-label">
+          <strong>Análise de documentos</strong>
+          <span>Upload de contratos, relatórios e planilhas — resposta em segundos</span>
+        </div>
       </div>
     </div>
   </div>
@@ -944,23 +984,6 @@
     document.getElementById('icon-sun').style.display  = isDark ? 'block' : 'none';
     document.getElementById('icon-moon').style.display = isDark ? 'none'  : 'block';
   })();
-
-  /* Video — ao clicar, substitui thumb pelo iframe do YouTube */
-  function loadVideo() {
-    const wrapper = document.getElementById('video-wrapper');
-    // Remove o handler para não triggar duas vezes
-    wrapper.onclick = null;
-    // Insere iframe do YouTube (vídeo placeholder — pode trocar pelo ID real)
-    const iframe = document.createElement('iframe');
-    iframe.src = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0';
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    iframe.allowFullscreen = true;
-    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
-    // Remove thumb e play btn
-    document.getElementById('video-thumb').remove();
-    wrapper.querySelector('.play-btn').remove();
-    wrapper.appendChild(iframe);
-  }
 
   /* FAQ accordion */
   function toggleFaq(btn) {
