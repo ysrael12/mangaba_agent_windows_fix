@@ -6,695 +6,519 @@
   <title>mangaba.ai — Transforme ideias em fluxos inteligentes</title>
   <meta name="description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
   <meta property="og:title" content="mangaba.ai — Transforme ideias em fluxos inteligentes"/>
+  <meta property="og:description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
   <meta property="og:type" content="website"/>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='40%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23F5C842'/%3E%3Cstop offset='50%25' stop-color='%23E8843E'/%3E%3Cstop offset='100%25' stop-color='%23C96030'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2378C03B'/%3E%3Cstop offset='100%25' stop-color='%234A8226'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='33' cy='39' rx='22' ry='20' fill='url(%23fg)'/%3E%3Cellipse cx='25' cy='31' rx='6' ry='8' fill='white' fill-opacity='.22' transform='rotate(-20 25 31)'/%3E%3Cpath d='M33 18 Q 24 8 15 12 Q 22 18 33 16 Z' fill='url(%23lg)'/%3E%3Cline x1='33' y1='16' x2='33' y2='22' stroke='%236B4423' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='40%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23F5C842'/%3E%3Cstop offset='50%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238ABF5E'/%3E%3Cstop offset='100%25' stop-color='%235A8A3A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='33' cy='39' rx='22' ry='20' fill='url(%23fg)'/%3E%3Cellipse cx='25' cy='31' rx='7' ry='9' fill='white' fill-opacity='.22' transform='rotate(-22 25 31)'/%3E%3Cpath d='M33 17 Q 23 7 14 11 Q 22 17 33 15 Z' fill='url(%23lg)'/%3E%3Cline x1='33' y1='15' x2='33' y2='22' stroke='%236B4423' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
   <script>(function(){try{var t=localStorage.getItem('mg-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()</script>
 
   <style>
-  /* ─────────────────────────────────────────
-     DESIGN TOKENS
-  ───────────────────────────────────────── */
+  /* ─────────────────────────────────────────────
+     DESIGN TOKENS — extraídos de mangabapixel.online
+  ───────────────────────────────────────────── */
   :root {
-    /* Palette */
-    --cream:       #FAF6EE;
-    --cream-2:     #F2EAD8;
-    --cream-3:     #E8DDCA;
-    --card:        #FFFFFF;
-    --text-1:      #1C1510;
-    --text-2:      #7A6A5F;
-    --text-3:      #A89880;
+    --bg:        #F5F2EB;   /* warm ivory */
+    --bg-2:      #EEEAE0;   /* slightly deeper */
+    --bg-hero:   hsl(27 85% 95%);  /* warm peach — hero radial center */
+    --card:      #FFFFFF;
+    --text-1:    #1C1917;   /* near-black warm */
+    --text-2:    #57534E;   /* warm gray */
+    --text-3:    #A8A29E;   /* lighter warm gray */
+    --border:    #E7E4DC;   /* warm light border */
 
-    --orange-1:    #F5C25A;
-    --orange-2:    #E8843E;
-    --orange-3:    #C96030;
-    --green-1:     #A8D96B;
-    --green-2:     #5C9E31;
-    --green-3:     #3E7020;
-    --emerald:     #22c55e;
+    --orange:    #EB7215;   /* mangabapixel primary orange */
+    --orange-2:  #FF8A28;   /* brighter hover */
+    --orange-3:  #C45E0A;   /* deep */
+    --orange-bg: rgba(235,114,21,.10);
+    --orange-bg2:rgba(235,114,21,.06);
 
-    /* Gradients */
-    --grad-orange: linear-gradient(135deg, #F5C25A 0%, #E8843E 50%, #C96030 100%);
-    --grad-warm:   linear-gradient(160deg, #FAF6EE 0%, #F2EAD8 60%, #EBD9BE 100%);
-    --grad-card:   linear-gradient(145deg, rgba(255,255,255,.9) 0%, rgba(250,246,238,.6) 100%);
+    --green:     #5A8A3A;
+    --green-2:   #8ABF5E;
+    --green-bg:  rgba(90,138,58,.10);
+    --emerald:   #22c55e;
 
-    /* Shadows — multi-layer premium */
-    --shadow-sm:   0 1px 3px rgba(28,21,16,.06), 0 1px 2px rgba(28,21,16,.04);
-    --shadow-md:   0 4px 12px rgba(28,21,16,.07), 0 2px 4px rgba(28,21,16,.04);
-    --shadow-lg:   0 12px 40px rgba(28,21,16,.10), 0 4px 12px rgba(28,21,16,.05);
-    --shadow-xl:   0 24px 64px rgba(28,21,16,.12), 0 8px 24px rgba(28,21,16,.06);
-    --shadow-orange: 0 8px 32px rgba(232,132,62,.25);
-
-    /* Borders */
-    --bd:          rgba(28,21,16,.09);
-    --bd-2:        rgba(28,21,16,.05);
-
-    /* Radii */
-    --r-sm:  8px;
-    --r-md:  12px;
-    --r-lg:  20px;
-    --r-xl:  28px;
-    --r-2xl: 40px;
+    --radius:    8px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
   }
 
   .dark {
-    --cream:       #1A1612;
-    --cream-2:     #221E18;
-    --cream-3:     #2C2620;
-    --card:        #2A2420;
-    --text-1:      #F5F0E8;
-    --text-2:      #A89880;
-    --text-3:      #7A6A5F;
-    --bd:          rgba(245,240,232,.08);
-    --bd-2:        rgba(245,240,232,.04);
-    --shadow-sm:   0 1px 3px rgba(0,0,0,.3);
-    --shadow-md:   0 4px 12px rgba(0,0,0,.3);
-    --shadow-lg:   0 12px 40px rgba(0,0,0,.35);
-    --shadow-xl:   0 24px 64px rgba(0,0,0,.4);
-    --grad-warm:   linear-gradient(160deg, #1A1612 0%, #221E18 60%, #2C2620 100%);
-    --grad-card:   linear-gradient(145deg, rgba(42,36,32,.95) 0%, rgba(34,30,24,.7) 100%);
+    --bg:      #1C1917;
+    --bg-2:    #252220;
+    --bg-hero: hsl(27 40% 12%);
+    --card:    #2C2926;
+    --text-1:  #F5F2EB;
+    --text-2:  #A8A29E;
+    --text-3:  #78716C;
+    --border:  #3A3632;
   }
 
-  /* ─────────────────────────────────────────
+  /* ─────────────────────────────────────────────
      RESET
-  ───────────────────────────────────────── */
+  ───────────────────────────────────────────── */
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
-  ::selection { background:rgba(232,132,62,.18); }
-  ::-webkit-scrollbar { width:6px; }
-  ::-webkit-scrollbar-thumb { background:var(--bd); border-radius:999px; }
+  ::selection { background:rgba(235,114,21,.15); }
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
 
   body {
-    background: var(--cream);
+    background: var(--bg);
     color: var(--text-1);
     font-family: 'Open Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
     font-size: 15px; line-height: 1.6;
     overflow-x: hidden;
-    transition: background .3s, color .3s;
+    transition: background .25s, color .25s;
   }
   a { color:inherit; text-decoration:none; }
   img { max-width:100%; display:block; }
 
-  /* ─────────────────────────────────────────
-     DOT PATTERN UTILITY
-  ───────────────────────────────────────── */
-  .dots {
-    background-image: radial-gradient(circle, rgba(28,21,16,.12) 1px, transparent 1px);
-    background-size: 20px 20px;
-  }
-  .dark .dots {
-    background-image: radial-gradient(circle, rgba(245,240,232,.06) 1px, transparent 1px);
-  }
-
-  /* ─────────────────────────────────────────
+  /* ─────────────────────────────────────────────
      ANIMATIONS
-  ───────────────────────────────────────── */
-  @keyframes rise   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-  @keyframes pulse  { 0%,100%{opacity:.3;transform:scale(.65)} 50%{opacity:1;transform:scale(1)} }
-  @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:0} }
-  @keyframes scroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-  @keyframes spin   { to{transform:rotate(360deg)} }
-  @keyframes msg    { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  ───────────────────────────────────────────── */
+  @keyframes rise    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse   { 0%,100%{opacity:.35;transform:scale(.65)} 50%{opacity:1;transform:scale(1)} }
+  @keyframes scroll  { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
 
-  .rise   { animation: rise .5s cubic-bezier(.22,1,.36,1) both; }
-  .d1{ animation-delay:.07s } .d2{ animation-delay:.14s } .d3{ animation-delay:.22s } .d4{ animation-delay:.30s }
+  .rise  { animation: rise .45s cubic-bezier(.22,1,.36,1) both; }
+  .d1 { animation-delay:.07s } .d2 { animation-delay:.14s } .d3 { animation-delay:.22s }
 
-  /* ─────────────────────────────────────────
-     GRADIENT TEXT
-  ───────────────────────────────────────── */
-  .grad-text {
-    background: var(--grad-orange);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ─────────────────────────────────────────
-     NAV
-  ───────────────────────────────────────── */
+  /* ─────────────────────────────────────────────
+     NAV — exato como mangabapixel
+  ───────────────────────────────────────────── */
   nav {
     position: fixed; top:0; left:0; right:0; z-index:200;
     height: 64px;
     display: flex; align-items:center; justify-content:space-between;
     padding: 0 max(1.5rem, calc(50% - 620px));
-    transition: all .25s;
+    transition: background .2s, border-color .2s, backdrop-filter .2s;
+    border-bottom: 1px solid transparent;
   }
   nav.scrolled {
-    background: color-mix(in srgb, var(--cream) 85%, transparent);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
     backdrop-filter: blur(20px) saturate(1.4);
-    border-bottom: 1px solid var(--bd);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--border);
   }
 
+  /* Logo — mesmo estilo mangabapixel: fruta + "mangaba" dark + ".ai" orange */
   .nav-logo { display:flex; align-items:center; gap:.5rem; }
-  .nav-logo .name { font-size:1.125rem; font-weight:800; letter-spacing:-.015em; }
-  .nav-logo .name b { color:var(--text-1); font-weight:800; }
-  .nav-logo .name span { color:var(--orange-2); }
+  .logo-name { font-size:1.0625rem; font-weight:700; letter-spacing:-.015em; line-height:1; }
+  .logo-name b { color:var(--text-1); }
+  .logo-name span { color:var(--orange); }
 
   .nav-links { display:flex; gap:2rem; list-style:none; }
-  .nav-links a { font-size:.875rem; font-weight:600; color:var(--text-2); transition:color .15s; }
+  .nav-links a {
+    font-size:.875rem; font-weight:600; color:var(--text-2);
+    transition:color .15s;
+  }
   .nav-links a:hover { color:var(--text-1); }
 
-  .nav-actions { display:flex; align-items:center; gap:.75rem; }
+  .nav-right { display:flex; align-items:center; gap:.75rem; }
 
   .btn-icon {
-    width:38px; height:38px; border-radius:10px;
-    background:transparent; border:1.5px solid var(--bd);
+    width:36px; height:36px; border-radius:var(--radius);
+    background:transparent; border:1px solid var(--border);
     cursor:pointer; display:flex; align-items:center; justify-content:center;
     color:var(--text-2); transition:all .15s;
   }
-  .btn-icon:hover { border-color:var(--orange-2); color:var(--orange-2); }
+  .btn-icon:hover { border-color:var(--orange); color:var(--orange); }
 
-  /* ─────────────────────────────────────────
-     BUTTONS
-  ───────────────────────────────────────── */
+  /* ─────────────────────────────────────────────
+     BUTTONS — idênticos ao mangabapixel
+  ───────────────────────────────────────────── */
   .btn {
-    display: inline-flex; align-items:center; gap:.5rem;
-    font-family: inherit; font-weight:700; font-size:.875rem;
+    display: inline-flex; align-items:center; gap:.45rem;
+    font-family:inherit; font-size:.875rem; font-weight:600;
     border:none; cursor:pointer; white-space:nowrap;
-    transition: all .2s cubic-bezier(.22,1,.36,1);
-    text-decoration:none; border-radius:var(--r-md);
-    padding: .75rem 1.625rem; min-height:44px;
+    transition: all .18s; text-decoration:none;
+    border-radius: var(--radius);
+    padding: .6875rem 1.5rem; min-height:42px;
+    line-height:1;
   }
-  .btn-orange {
-    background: var(--grad-orange);
-    color: #fff;
-    box-shadow: var(--shadow-orange);
+  .btn-primary {
+    background: var(--orange); color: #fff;
   }
-  .btn-orange:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(232,132,62,.35); }
-  .btn-orange:active{ transform:translateY(0); }
+  .btn-primary:hover { background: var(--orange-2); }
 
   .btn-ghost {
-    background: transparent; color:var(--text-1);
-    border: 1.5px solid var(--bd);
+    background:transparent; color:var(--text-1);
+    border: 1px solid var(--border);
   }
-  .btn-ghost:hover { border-color:var(--orange-2); color:var(--orange-2); }
+  .btn-ghost:hover { border-color:var(--orange); color:var(--orange); }
 
   .btn-dark {
-    background: var(--text-1); color:var(--cream);
-    box-shadow: var(--shadow-md);
+    background:var(--text-1); color:var(--bg);
   }
-  .btn-dark:hover { transform:translateY(-1px); box-shadow:var(--shadow-lg); }
+  .btn-dark:hover { opacity:.88; }
 
-  .btn-lg { padding:.9375rem 2.25rem; font-size:1rem; border-radius:var(--r-lg); }
-
-  .arrow-link {
-    font-size:.9375rem; font-weight:700; color:var(--text-2);
-    display:inline-flex; align-items:center; gap:.35rem;
-    transition:all .15s;
+  /* Link com seta — como "Ver exemplos →" no mangabapixel */
+  .link-arr {
+    font-size:.9375rem; font-weight:600; color:var(--text-2);
+    display:inline-flex; align-items:center; gap:.3rem;
+    transition: all .15s;
   }
-  .arrow-link:hover { color:var(--text-1); gap:.6rem; }
+  .link-arr:hover { color:var(--text-1); gap:.55rem; }
 
-  /* ─────────────────────────────────────────
+  /* ─────────────────────────────────────────────
      LAYOUT
-  ───────────────────────────────────────── */
-  .container { max-width:1180px; margin:0 auto; padding:0 2rem; }
+  ───────────────────────────────────────────── */
+  .wrap { max-width:1160px; margin:0 auto; padding:0 2rem; }
   section { padding:6rem 0; }
+  .sep { border:none; border-top:1px solid var(--border); }
 
-  .eyebrow {
-    display:inline-flex; align-items:center; gap:.375rem;
-    font-size:.7rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-    color:var(--orange-2);
+  .label {
+    display:inline-block;
+    font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--orange); margin-bottom:.875rem;
+  }
+  .h2 {
+    font-size: clamp(1.875rem,3.5vw,2.75rem);
+    font-weight:800; letter-spacing:-.025em; line-height:1.1;
     margin-bottom:1rem;
   }
-  .eyebrow::before { content:''; width:16px; height:2px; background:var(--orange-2); border-radius:1px; }
-
-  .section-title {
-    font-size: clamp(1.875rem, 3.8vw, 2.875rem);
-    font-weight:800; letter-spacing:-.03em; line-height:1.1;
-    margin-bottom:1rem;
-  }
-  .section-sub {
+  .sub {
     font-size:1.0625rem; color:var(--text-2);
     max-width:560px; line-height:1.75;
   }
 
-  /* Premium card */
-  .card {
-    background: var(--grad-card);
-    border: 1px solid var(--bd);
-    border-radius: var(--r-xl);
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-md);
-    transition: transform .25s, box-shadow .25s;
+  /* Pill status */
+  .pill {
+    display:inline-flex; align-items:center; gap:.4rem;
+    padding:.3rem .875rem; border-radius:999px;
+    border:1px solid var(--border); background:var(--card);
+    font-size:.75rem; font-weight:600; color:var(--text-2);
   }
-  .card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
-  }
+  .dot-live { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse 1.5s ease-in-out infinite; }
 
-  /* Tag badge */
-  .tag {
-    display:inline-flex; align-items:center; gap:.35rem;
-    padding:.275rem .75rem; border-radius:999px;
-    font-size:.72rem; font-weight:700; letter-spacing:.04em;
-    border: 1.5px solid var(--bd);
-    background: var(--card); color:var(--text-2);
-  }
-  .tag .dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse 1.5s ease-in-out infinite; }
-
-  hr.sep { border:none; border-top:1px solid var(--bd); }
-
-  /* ─────────────────────────────────────────
-     HERO
-  ───────────────────────────────────────── */
+  /* ─────────────────────────────────────────────
+     § 1 HERO — layout do mangabapixel
+  ───────────────────────────────────────────── */
   .hero {
-    min-height:100vh;
-    display:flex; align-items:center;
-    padding:9rem 0 6rem;
+    min-height: 100vh;
+    display: flex; align-items:center;
+    padding: 8rem 0 5rem;
     position:relative; overflow:hidden;
+    /* Radial peach glow — MESMO do mangabapixel */
+    background: radial-gradient(ellipse 90% 80% at 55% 40%,
+      var(--bg-hero) 0%,
+      var(--bg) 65%);
   }
 
-  /* Organic background blobs */
-  .hero-blob {
-    position:absolute; border-radius:50%; pointer-events:none;
-    filter: blur(80px);
-  }
-  .blob-1 { width:600px; height:600px; top:-100px; right:-80px; background:radial-gradient(circle, rgba(245,194,90,.18) 0%, transparent 70%); }
-  .blob-2 { width:400px; height:400px; bottom:-80px; left:-60px; background:radial-gradient(circle, rgba(168,217,107,.12) 0%, transparent 70%); }
-  .blob-3 { width:300px; height:300px; top:30%; left:40%; background:radial-gradient(circle, rgba(232,132,62,.08) 0%, transparent 70%); }
-
-  /* Dot texture overlay */
-  .hero-dots {
-    position:absolute; inset:0; pointer-events:none;
-    background-image: radial-gradient(circle, rgba(28,21,16,.07) 1px, transparent 1px);
-    background-size: 24px 24px;
-    mask-image: radial-gradient(ellipse 70% 60% at 70% 50%, black 30%, transparent 80%);
-  }
-  .dark .hero-dots {
-    background-image: radial-gradient(circle, rgba(245,240,232,.04) 1px, transparent 1px);
-  }
-
-  .hero-inner {
+  .hero-grid {
     display:grid; grid-template-columns:1fr 1fr;
-    gap:5rem; align-items:center; position:relative; z-index:1;
+    gap:4.5rem; align-items:center;
   }
 
   .hero h1 {
-    font-size: clamp(2.5rem, 5.5vw, 5rem);
-    font-weight:800; letter-spacing:-.035em; line-height:1.06;
-    margin-bottom:1.5rem;
+    font-size: clamp(2.375rem, 5vw, 4.5rem);
+    font-weight:800; letter-spacing:-.03em; line-height:1.07;
+    margin-bottom:1.375rem;
   }
+  /* "inteligentes" em laranja sólido — igual ao mangabapixel */
+  .hero h1 .hl { color:var(--orange); }
+
   .hero-sub {
-    font-size:1.125rem; color:var(--text-2); line-height:1.75;
-    max-width:460px; margin-bottom:2.25rem;
+    font-size:1.0625rem; color:var(--text-2); line-height:1.75;
+    max-width:460px; margin-bottom:2rem;
   }
-  .hero-cta { display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; margin-bottom:1rem; }
-  .hero-micro { font-size:.8125rem; color:var(--text-3); }
 
-  /* Social proof */
-  .social-proof {
-    display:flex; align-items:center; gap:1rem;
-    margin-top:2.25rem; padding-top:1.75rem;
-    border-top:1px solid var(--bd);
+  .hero-cta { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:.875rem; }
+  .hero-trust { font-size:.8125rem; color:var(--text-3); }
+
+  /* Social proof — fotos + texto */
+  .proof {
+    display:flex; align-items:center; gap:.875rem;
+    margin-top:2rem; padding-top:1.75rem;
+    border-top:1px solid var(--border);
   }
-  .face-stack { display:flex; }
-  .face-stack img {
-    width:32px; height:32px; border-radius:50%;
-    border:2.5px solid var(--cream);
-    margin-left:-9px; object-fit:cover;
+  .proof-imgs { display:flex; }
+  .proof-imgs img {
+    width:30px; height:30px; border-radius:50%;
+    border:2px solid var(--bg); margin-left:-8px; object-fit:cover;
   }
-  .face-stack img:first-child { margin-left:0; }
-  .proof-text { font-size:.8125rem; color:var(--text-2); line-height:1.45; }
-  .proof-text strong { color:var(--text-1); font-weight:700; display:block; }
+  .proof-imgs img:first-child { margin-left:0; }
+  .proof-copy { font-size:.8125rem; color:var(--text-2); }
+  .proof-copy strong { color:var(--text-1); font-weight:700; }
 
-  /* ─── Hero visual ─── */
-  .hero-visual { position:relative; }
+  /* Hero direito — foto com badges flutuantes (como mangabapixel) */
+  .hero-right { position:relative; }
 
-  .hero-img-wrap {
-    position:relative; border-radius:var(--r-2xl);
-    overflow:hidden;
-    border:1px solid var(--bd);
-    box-shadow:var(--shadow-xl);
+  .hero-photo {
+    width:100%; border-radius:var(--radius-xl);
+    overflow:hidden; border:1px solid var(--border);
+    box-shadow: 0 20px 60px rgba(28,25,23,.12);
+    position:relative;
   }
-  .hero-img-wrap img { width:100%; display:block; aspect-ratio:4/5; object-fit:cover; }
-
-  /* Gradient overlay on photo bottom */
-  .hero-img-wrap::after {
-    content:'';
-    position:absolute; bottom:0; left:0; right:0; height:45%;
-    background:linear-gradient(to top, rgba(28,21,16,.55) 0%, transparent 100%);
+  .hero-photo img {
+    width:100%; aspect-ratio:4/5; object-fit:cover; display:block;
+  }
+  /* Overlay gradiente no rodapé da foto */
+  .hero-photo::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:40%;
+    background: linear-gradient(to top, rgba(28,25,23,.5) 0%, transparent 100%);
     pointer-events:none;
   }
-
-  /* Floating agent badges */
-  .float-card {
-    position:absolute;
-    background: color-mix(in srgb, var(--card) 92%, transparent);
-    backdrop-filter: blur(16px) saturate(1.4);
-    border:1px solid var(--bd);
-    border-radius:var(--r-lg);
-    padding:.75rem 1rem;
-    box-shadow:var(--shadow-lg);
-    display:flex; align-items:center; gap:.625rem;
-    font-size:.8125rem; font-weight:700; color:var(--text-1);
-    white-space:nowrap;
-    animation: float 4s ease-in-out infinite;
-  }
-  .float-card .fc-icon {
-    width:28px; height:28px; border-radius:8px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:14px; flex-shrink:0;
-  }
-  .fc-orange { background:rgba(232,132,62,.15); }
-  .fc-green  { background:rgba(92,158,49,.15); }
-  .fc-purple { background:rgba(139,92,246,.12); }
-  .fc-blue   { background:rgba(59,130,246,.12); }
-
-  .fc-1 { top:8%; right:-9%; animation-delay:0s; }
-  .fc-2 { top:38%; left:-11%; animation-delay:.8s; }
-  .fc-3 { bottom:24%; right:-12%; animation-delay:1.6s; }
-  .fc-4 { bottom:9%;  right:8%; animation-delay:2.4s; }
-
-  /* Caption inside photo */
-  .photo-caption {
+  .photo-label {
     position:absolute; bottom:1.25rem; left:1.25rem; right:1.25rem;
     color:#fff; z-index:2;
   }
-  .photo-caption h3 { font-size:1.125rem; font-weight:700; margin-bottom:.2rem; }
-  .photo-caption p  { font-size:.8125rem; opacity:.8; }
+  .photo-label h3 { font-size:1.0625rem; font-weight:700; margin-bottom:.2rem; }
+  .photo-label p  { font-size:.8125rem; opacity:.75; }
 
-  /* ─────────────────────────────────────────
-     LOGOS MARQUEE
-  ───────────────────────────────────────── */
-  .logos-band {
-    background:var(--cream-2);
-    border-top:1px solid var(--bd);
-    border-bottom:1px solid var(--bd);
-    padding:2.25rem 0; overflow:hidden;
-  }
-  .logos-label {
-    text-align:center; font-size:.68rem; font-weight:700;
-    letter-spacing:.14em; text-transform:uppercase;
-    color:var(--text-3); margin-bottom:1.5rem;
-  }
-  .marquee-wrap {
-    overflow:hidden;
-    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-  }
-  .marquee-track {
-    display:flex; gap:3.5rem; align-items:center;
-    width:max-content;
-    animation:scroll 26s linear infinite;
-  }
-  .marquee-track:hover { animation-play-state:paused; }
-  .m-item {
-    font-size:.9375rem; font-weight:800; letter-spacing:-.015em;
-    color:var(--text-3); opacity:.5; white-space:nowrap;
-    transition:opacity .2s, color .2s;
-  }
-  .m-item:hover { opacity:1; color:var(--orange-2); }
-
-  /* ─────────────────────────────────────────
-     FEATURES
-  ───────────────────────────────────────── */
-  .features-header { text-align:center; margin-bottom:4rem; }
-  .features-header .section-sub { margin:0 auto; }
-
-  .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
-  .feat-card {
-    padding:2rem;
-    background:var(--grad-card);
-    border:1px solid var(--bd);
-    border-radius:var(--r-xl);
-    box-shadow:var(--shadow-sm);
-    transition:all .25s cubic-bezier(.22,1,.36,1);
-    position:relative; overflow:hidden;
-  }
-  .feat-card::before {
-    content:'';
-    position:absolute; top:-40px; right:-40px;
-    width:120px; height:120px; border-radius:50%;
-    background:radial-gradient(circle, rgba(232,132,62,.08) 0%, transparent 70%);
-    pointer-events:none;
-  }
-  .feat-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); border-color:rgba(232,132,62,.2); }
-
-  .feat-icon-wrap {
-    width:48px; height:48px; border-radius:14px;
-    display:flex; align-items:center; justify-content:center;
-    font-size:22px; margin-bottom:1.25rem;
-    position:relative; z-index:1;
-  }
-  .fi-orange { background:linear-gradient(135deg, rgba(245,194,90,.2), rgba(232,132,62,.15)); border:1px solid rgba(232,132,62,.2); }
-  .fi-green  { background:linear-gradient(135deg, rgba(168,217,107,.2), rgba(92,158,49,.12)); border:1px solid rgba(92,158,49,.2); }
-  .fi-cream  { background:var(--cream-2); border:1px solid var(--bd); }
-
-  .feat-title { font-size:1rem; font-weight:700; margin-bottom:.4rem; }
-  .feat-desc  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
-
-  /* ─────────────────────────────────────────
-     MODELS
-  ───────────────────────────────────────── */
-  .models-wrap { background:var(--cream-2); border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:2rem 0; }
-  .models-label { text-align:center; font-size:.68rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-3); margin-bottom:1.25rem; }
-  .models-list { display:flex; flex-wrap:wrap; justify-content:center; gap:.5rem 1.125rem; }
-  .model-pill {
-    font-size:.8125rem; font-weight:600; color:var(--text-2);
-    padding:.35rem .9375rem; border-radius:999px;
-    border:1.5px solid var(--bd); background:var(--card);
-    box-shadow:var(--shadow-sm);
-    transition:all .15s;
-  }
-  .model-pill:hover { border-color:var(--orange-2); color:var(--orange-2); box-shadow:0 0 0 3px rgba(232,132,62,.08); }
-
-  /* ─────────────────────────────────────────
-     HOW IT WORKS
-  ───────────────────────────────────────── */
-  .hiw-wrap { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:start; }
-  .hiw-text { position:sticky; top:8rem; }
-  .steps { display:flex; flex-direction:column; }
-  .step {
-    display:flex; gap:1.375rem; padding-bottom:2.5rem;
-    position:relative;
-  }
-  .step:not(:last-child)::after {
-    content:''; position:absolute; left:19px; top:42px; bottom:0;
-    width:1px;
-    background:linear-gradient(to bottom, var(--bd), transparent);
-  }
-  .step-num {
-    width:40px; height:40px; flex-shrink:0; border-radius:50%;
-    background:var(--grad-orange); color:#fff;
-    font-size:.875rem; font-weight:800;
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 4px 14px rgba(232,132,62,.3);
-  }
-  .step-body h3 { font-size:1rem; font-weight:700; margin-bottom:.35rem; }
-  .step-body p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
-
-  /* ─────────────────────────────────────────
-     PRODUCT SCREENSHOTS
-  ───────────────────────────────────────── */
-  .product-band {
-    background: var(--cream-2);
-    border-top:1px solid var(--bd); border-bottom:1px solid var(--bd);
-    padding:6rem 0; position:relative; overflow:hidden;
-  }
-  .product-band .dots {
-    position:absolute; inset:0; pointer-events:none;
-    opacity:.5;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
-  }
-  .product-header { text-align:center; margin-bottom:4rem; position:relative; z-index:1; }
-  .product-header .section-sub { margin:0 auto; }
-
-  /* Main screenshot — browser frame */
-  .browser-frame {
-    background:var(--card); border:1px solid var(--bd);
-    border-radius:var(--r-xl); overflow:hidden;
-    box-shadow:var(--shadow-xl);
-    margin-bottom:1.5rem;
-    position:relative; z-index:1;
-  }
-  .browser-chrome {
+  /* Floating agent-type badges — estilo exato da imagem de referência */
+  .fc {
+    position:absolute; z-index:3;
     display:flex; align-items:center; gap:.5rem;
-    padding:.75rem 1.25rem;
-    background:var(--cream-2);
-    border-bottom:1px solid var(--bd);
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(12px);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:.5rem .875rem;
+    font-size:.8125rem; font-weight:600; color:var(--text-1);
+    white-space:nowrap;
+    box-shadow:0 4px 20px rgba(28,25,23,.10);
+    animation:float 4s ease-in-out infinite;
   }
-  .chrome-dot { width:11px; height:11px; border-radius:50%; }
-  .cd-r{background:#FF5F56} .cd-y{background:#FFBD2E} .cd-g{background:#27C93F}
-  .chrome-bar {
-    flex:1; background:var(--cream-3); border-radius:7px;
-    padding:.275rem 1rem; font-size:.75rem; color:var(--text-3);
-    margin:0 .75rem; display:flex; align-items:center; gap:.4rem;
-  }
-  .chrome-bar svg { opacity:.5; flex-shrink:0; }
-  .browser-frame > img {
-    width:100%; display:block;
-    max-height:440px; object-fit:cover; object-position:top center;
-  }
+  .dark .fc { background:rgba(44,41,38,.92); }
+  .fc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .fc-1 { top:10%; right:-6%; animation-delay:0s; }
+  .fc-2 { top:38%; left:-8%; animation-delay:.7s; }
+  .fc-3 { bottom:28%; right:-8%; animation-delay:1.4s; }
+  .fc-4 { bottom:12%; right:6%; animation-delay:2.1s; }
 
-  /* 3-col screenshots */
-  .sc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.375rem; position:relative; z-index:1; }
-  .sc-item {
-    background:var(--card); border:1px solid var(--bd);
-    border-radius:var(--r-xl); overflow:hidden;
-    box-shadow:var(--shadow-md);
-    transition:transform .25s, box-shadow .25s;
+  /* ─────────────────────────────────────────────
+     STATS BAR — como mangabapixel (4s / 100% / ∞)
+  ───────────────────────────────────────────── */
+  .stats-bar {
+    background:var(--bg-2);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:2.75rem 0;
   }
-  .sc-item:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
-  .sc-item img { width:100%; aspect-ratio:4/3; object-fit:cover; }
-  .sc-caption { padding:1rem 1.25rem; }
-  .sc-caption strong { font-size:.9375rem; font-weight:700; display:block; margin-bottom:.25rem; }
-  .sc-caption span   { font-size:.8125rem; color:var(--text-2); line-height:1.5; }
+  .stats-inner {
+    display:flex; justify-content:center; align-items:center;
+    gap:0; flex-wrap:wrap;
+  }
+  .stat-item {
+    text-align:center; padding:0 3.5rem;
+    border-right:1px solid var(--border);
+  }
+  .stat-item:last-child { border-right:none; }
+  .stat-value {
+    font-size:2.375rem; font-weight:800; letter-spacing:-.04em;
+    color:var(--text-1); line-height:1; margin-bottom:.35rem;
+  }
+  .stat-value span { color:var(--orange); }
+  .stat-label { font-size:.8125rem; color:var(--text-2); font-weight:600; }
 
-  /* ─────────────────────────────────────────
-     PERSONAS
-  ───────────────────────────────────────── */
-  .personas-grid {
+  /* ─────────────────────────────────────────────
+     MARQUEE LOGOS
+  ───────────────────────────────────────────── */
+  .logos-band {
+    padding:2rem 0; overflow:hidden;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+  }
+  .logos-label { text-align:center; font-size:.68rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--text-3); margin-bottom:1.5rem; }
+  .marquee-wrap { overflow:hidden; mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent); }
+  .marquee-track { display:flex; gap:3.5rem; align-items:center; width:max-content; animation:scroll 26s linear infinite; }
+  .marquee-track:hover { animation-play-state:paused; }
+  .m-item { font-size:.9375rem; font-weight:700; color:var(--text-3); opacity:.55; white-space:nowrap; transition:opacity .2s,color .2s; }
+  .m-item:hover { opacity:1; color:var(--orange); }
+
+  /* ─────────────────────────────────────────────
+     § GALERIA — grid de imagens como mangabapixel
+  ───────────────────────────────────────────── */
+  .gallery-header { text-align:center; margin-bottom:2.5rem; }
+  .gallery-header .sub { margin:0 auto; }
+
+  .gallery-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    grid-template-columns:repeat(3,1fr);
     gap:1.25rem;
   }
-  .persona-card {
-    background:var(--grad-card); border:1px solid var(--bd);
-    border-radius:var(--r-xl); padding:1.625rem;
-    box-shadow:var(--shadow-sm);
-    transition:all .25s;
-    position:relative; overflow:hidden;
-  }
-  .persona-card::after {
-    content:''; position:absolute; bottom:-20px; right:-20px;
-    width:80px; height:80px; border-radius:50%;
-    background:radial-gradient(circle, rgba(232,132,62,.06) 0%, transparent 70%);
-    pointer-events:none;
-  }
-  .persona-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:rgba(232,132,62,.2); }
-
-  .p-av {
-    width:48px; height:48px; border-radius:50%;
-    background:linear-gradient(135deg, rgba(245,194,90,.3), rgba(232,132,62,.2));
-    border:1.5px solid rgba(232,132,62,.2);
-    color:var(--orange-2); font-size:14px; font-weight:800;
-    display:flex; align-items:center; justify-content:center;
-    margin-bottom:1rem;
-  }
-  .persona-card h3 { font-size:1rem; font-weight:700; margin-bottom:.2rem; }
-  .p-role { font-size:.75rem; font-weight:700; color:var(--orange-2); margin-bottom:.5rem; letter-spacing:.02em; }
-  .persona-card p { font-size:.8125rem; color:var(--text-2); line-height:1.65; }
-
-  /* ─────────────────────────────────────────
-     CASES
-  ───────────────────────────────────────── */
-  .cases-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
-  .case-card {
-    background:var(--card); border:1px solid var(--bd);
-    border-radius:var(--r-2xl); overflow:hidden;
-    box-shadow:var(--shadow-md);
+  .gallery-card {
+    position:relative; border-radius:var(--radius-lg);
+    overflow:hidden; border:1px solid var(--border);
+    cursor:pointer;
+    background:var(--card);
+    box-shadow:0 2px 8px rgba(28,25,23,.06);
     transition:transform .25s, box-shadow .25s;
   }
-  .case-card:hover { transform:translateY(-5px); box-shadow:var(--shadow-xl); }
-  .case-img-wrap { position:relative; overflow:hidden; }
-  .case-img-wrap img {
-    width:100%; aspect-ratio:16/9; object-fit:cover;
+  .gallery-card:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(28,25,23,.11); }
+  .gallery-card img {
+    width:100%; aspect-ratio:3/2; object-fit:cover; display:block;
     transition:transform .4s;
   }
-  .case-card:hover .case-img-wrap img { transform:scale(1.03); }
-  .case-sector-badge {
-    position:absolute; top:.875rem; left:.875rem;
-    background:color-mix(in srgb, var(--card) 88%, transparent);
-    backdrop-filter:blur(12px);
-    border:1px solid var(--bd);
-    border-radius:999px;
-    padding:.25rem .75rem;
-    font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--orange-2);
-  }
-  .case-body { padding:1.625rem; }
-  .case-co { font-size:.8125rem; font-weight:600; color:var(--text-2); margin-bottom:1rem; }
-  .case-metric { font-size:3rem; font-weight:800; letter-spacing:-.05em; line-height:1; margin-bottom:.25rem; }
-  .case-mlabel { font-size:.8125rem; color:var(--text-2); margin-bottom:1.125rem; }
-  .case-q {
-    font-size:.875rem; color:var(--text-2); line-height:1.7; font-style:italic;
-    padding-left:.875rem;
-    border-left:3px solid rgba(232,132,62,.3);
-  }
+  .gallery-card:hover img { transform:scale(1.04); }
 
-  /* ─────────────────────────────────────────
-     BENEFITS
-  ───────────────────────────────────────── */
-  .benefits-wrap { display:grid; grid-template-columns:1fr 1fr; gap:5rem; align-items:center; }
-  .b-list { display:flex; flex-direction:column; gap:1.5rem; }
-  .b-item { display:flex; gap:1rem; align-items:flex-start; }
-  .b-icon {
-    width:24px; height:24px; border-radius:8px; flex-shrink:0; margin-top:1px;
-    background:rgba(92,158,49,.15); color:var(--green-2);
+  /* Overlay com info — aparece no hover como no mangabapixel */
+  .gallery-overlay {
+    position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(28,25,23,.82) 0%, rgba(28,25,23,.2) 50%, transparent 100%);
+    display:flex; flex-direction:column; justify-content:flex-end;
+    padding:1.125rem;
+    opacity:0; transition:opacity .25s;
+  }
+  .gallery-card:hover .gallery-overlay { opacity:1; }
+  .g-sector {
+    display:inline-block; font-size:.68rem; font-weight:700;
+    letter-spacing:.08em; text-transform:uppercase;
+    color:var(--orange); margin-bottom:.3rem;
+  }
+  .g-title { font-size:.9375rem; font-weight:700; color:#fff; margin-bottom:.2rem; }
+  .g-sub   { font-size:.78rem; color:rgba(255,255,255,.7); line-height:1.4; }
+
+  /* Caption abaixo da imagem — sempre visível */
+  .gallery-caption { padding:.875rem 1rem; }
+  .gallery-caption .gc-tag { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--orange); margin-bottom:.25rem; }
+  .gallery-caption .gc-name{ font-size:.875rem; font-weight:700; color:var(--text-1); }
+
+  /* ─────────────────────────────────────────────
+     § PARA QUEM É — 6 use-case cards como mangabapixel
+  ───────────────────────────────────────────── */
+  .cases-header { text-align:center; margin-bottom:3rem; }
+  .cases-header .sub { margin:0 auto; }
+
+  .cases-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem;
+  }
+  .case-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:1.75rem;
+    transition:all .22s;
+  }
+  .case-card:hover {
+    border-color:rgba(235,114,21,.3);
+    box-shadow:0 8px 28px rgba(235,114,21,.07);
+    transform:translateY(-2px);
+  }
+  .case-icon {
+    width:40px; height:40px; border-radius:10px;
+    background:var(--orange-bg);
     display:flex; align-items:center; justify-content:center;
+    font-size:18px; margin-bottom:1rem;
   }
-  .b-icon svg { width:13px; height:13px; }
-  .b-item h4 { font-size:1rem; font-weight:700; margin-bottom:.25rem; }
-  .b-item p  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
+  .case-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
+  .case-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; margin-bottom:1rem; }
+  .case-list  { list-style:none; display:flex; flex-direction:column; gap:.3rem; }
+  .case-list li {
+    font-size:.8125rem; color:var(--text-2);
+    padding-left:1.125rem; position:relative;
+  }
+  .case-list li::before {
+    content:''; position:absolute; left:0; top:.55em;
+    width:5px; height:5px; border-radius:50%;
+    background:var(--green-2);
+  }
 
-  .metrics-quad { display:grid; grid-template-columns:1fr 1fr; gap:1.125rem; }
-  .m-card {
-    background:var(--grad-card); border:1px solid var(--bd);
-    border-radius:var(--r-xl); padding:1.5rem;
-    box-shadow:var(--shadow-sm);
-    position:relative; overflow:hidden;
-  }
-  .m-card::before {
-    content:''; position:absolute; bottom:-10px; right:-10px;
-    width:60px; height:60px; border-radius:50%;
-    background:radial-gradient(circle, rgba(232,132,62,.07) 0%, transparent 70%);
-  }
-  .m-value { font-size:2.25rem; font-weight:800; letter-spacing:-.04em; margin-bottom:.2rem; }
-  .m-label { font-size:.78rem; color:var(--text-2); font-weight:600; }
+  /* ─────────────────────────────────────────────
+     § COMO FUNCIONA — numbered steps como mangabapixel
+  ───────────────────────────────────────────── */
+  .hiw-header { text-align:center; margin-bottom:3.5rem; }
+  .hiw-header .sub { margin:0 auto; }
 
-  /* ─────────────────────────────────────────
-     TECH
-  ───────────────────────────────────────── */
+  .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
+  .step-card {
+    position:relative;
+    padding:2rem 1.75rem;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    transition:all .22s;
+  }
+  .step-card:hover { border-color:rgba(235,114,21,.25); transform:translateY(-2px); box-shadow:0 8px 28px rgba(235,114,21,.07); }
+  .step-num {
+    font-size:3rem; font-weight:800; letter-spacing:-.04em;
+    color:var(--orange); opacity:.18; line-height:1;
+    margin-bottom:.75rem; font-variant-numeric:tabular-nums;
+  }
+  .step-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
+  .step-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
+
+  /* Seta de conexão entre steps */
+  .steps-grid .step-card:not(:last-child)::after {
+    content:'→';
+    position:absolute; right:-1.125rem; top:50%;
+    transform:translateY(-50%);
+    font-size:1.25rem; color:var(--border); font-weight:300;
+  }
+
+  /* ─────────────────────────────────────────────
+     § AGENTES — personas como mangabapixel
+  ───────────────────────────────────────────── */
+  .agents-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1.125rem;
+  }
+  .agent-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:1.5rem;
+    transition:all .22s;
+  }
+  .agent-card:hover {
+    border-color:rgba(235,114,21,.3);
+    box-shadow:0 6px 24px rgba(235,114,21,.07);
+    transform:translateY(-2px);
+  }
+  .agent-av {
+    width:44px; height:44px; border-radius:50%;
+    background:var(--orange-bg);
+    border:1px solid rgba(235,114,21,.2);
+    color:var(--orange); font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:.875rem;
+  }
+  .agent-name { font-size:.9375rem; font-weight:700; margin-bottom:.2rem; }
+  .agent-role { font-size:.75rem; font-weight:600; color:var(--orange); margin-bottom:.5rem; }
+  .agent-desc { font-size:.8125rem; color:var(--text-2); line-height:1.6; }
+
+  /* ─────────────────────────────────────────────
+     § DEPOIMENTOS
+  ───────────────────────────────────────────── */
+  .tests-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+  .test-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:1.75rem;
+    transition:all .22s;
+  }
+  .test-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(28,25,23,.07); }
+  .test-stars { color:#F59E0B; font-size:1rem; letter-spacing:.06em; margin-bottom:1rem; }
+  .test-quote { font-size:.9375rem; line-height:1.75; color:var(--text-1); margin-bottom:1.375rem; }
+  .test-author { display:flex; align-items:center; gap:.75rem; }
+  .test-photo { width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--border); }
+  .test-name  { font-size:.875rem; font-weight:700; }
+  .test-role  { font-size:.78rem; color:var(--text-2); }
+
+  /* ─────────────────────────────────────────────
+     § TECH
+  ───────────────────────────────────────────── */
   .tech-grid {
     display:grid; grid-template-columns:repeat(3,1fr);
-    gap:1px; background:var(--bd);
-    border:1px solid var(--bd); border-radius:var(--r-xl); overflow:hidden;
+    gap:1px; background:var(--border);
+    border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;
   }
-  .t-cell {
-    background:var(--card); padding:2.25rem 2rem;
-    transition:background .2s;
-  }
-  .t-cell:hover { background:var(--cream-2); }
+  .t-cell { background:var(--card); padding:2rem 1.75rem; transition:background .2s; }
+  .t-cell:hover { background:var(--bg-2); }
   .t-tag {
     display:inline-block; font-size:.68rem; font-weight:700;
     text-transform:uppercase; letter-spacing:.09em;
-    padding:.2rem .65rem; border-radius:999px;
-    background:rgba(232,132,62,.12); color:var(--orange-2);
-    margin-bottom:.875rem;
+    padding:.2rem .6rem; border-radius:999px;
+    background:var(--orange-bg); color:var(--orange); margin-bottom:.75rem;
   }
   .t-cell h3 { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
   .t-cell p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
 
-  /* ─────────────────────────────────────────
-     TESTIMONIALS
-  ───────────────────────────────────────── */
-  .tests-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.375rem; }
-  .test-card {
-    background:var(--grad-card); border:1px solid var(--bd);
-    border-radius:var(--r-xl); padding:2rem;
-    box-shadow:var(--shadow-sm);
-    transition:transform .25s, box-shadow .25s;
-  }
-  .test-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
-  .test-stars { color:#F59E0B; font-size:1rem; letter-spacing:.08em; margin-bottom:1.125rem; }
-  .test-q { font-size:.9375rem; line-height:1.75; color:var(--text-1); margin-bottom:1.375rem; }
-  .test-au { display:flex; align-items:center; gap:.75rem; }
-  .test-photo { width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid var(--bd); }
-  .test-name  { font-size:.875rem; font-weight:700; }
-  .test-role  { font-size:.78rem; color:var(--text-2); }
-
-  /* ─────────────────────────────────────────
-     FAQ
-  ───────────────────────────────────────── */
-  .faq-inner { max-width:740px; margin:0 auto; }
-  .faq-item  { border-bottom:1px solid var(--bd); }
+  /* ─────────────────────────────────────────────
+     § FAQ
+  ───────────────────────────────────────────── */
+  .faq-inner { max-width:720px; margin:0 auto; }
+  .faq-item { border-bottom:1px solid var(--border); }
   .faq-btn {
     display:flex; justify-content:space-between; align-items:center;
-    padding:1.25rem 0; width:100%; text-align:left;
+    padding:1.125rem 0; width:100%; text-align:left;
     background:none; border:none; cursor:pointer;
     font-family:inherit; font-size:.9375rem; font-weight:700; color:var(--text-1);
     gap:1rem;
@@ -702,129 +526,148 @@
   .faq-btn svg { flex-shrink:0; color:var(--text-2); transition:transform .25s; }
   .faq-item.open .faq-btn svg { transform:rotate(180deg); }
   .faq-ans { font-size:.875rem; color:var(--text-2); line-height:1.75; max-height:0; overflow:hidden; transition:max-height .35s cubic-bezier(.22,1,.36,1), padding .3s; }
-  .faq-item.open .faq-ans { max-height:300px; padding-bottom:1.25rem; }
+  .faq-item.open .faq-ans { max-height:300px; padding-bottom:1.125rem; }
 
-  /* ─────────────────────────────────────────
-     CTA
-  ───────────────────────────────────────── */
-  .cta-band {
-    background:var(--text-1); color:var(--cream);
-    padding:6rem 2rem; text-align:center;
-    position:relative; overflow:hidden;
+  /* ─────────────────────────────────────────────
+     § CTA SECUNDÁRIO — "Pare de pagar…" como mangabapixel
+  ───────────────────────────────────────────── */
+  .cta-mid {
+    background: radial-gradient(ellipse 80% 100% at 50% 50%,
+      hsl(27 85% 93%) 0%, var(--bg-2) 70%);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:5rem 2rem; text-align:center;
   }
-  .cta-band::before {
-    content:''; position:absolute; inset:0; pointer-events:none;
-    background-image: radial-gradient(circle, rgba(245,240,232,.04) 1px, transparent 1px);
-    background-size:22px 22px;
-  }
-  .cta-band .eyebrow { color:rgba(232,132,62,.85); }
-  .cta-band .section-title { color:var(--cream); margin:0 auto .875rem; }
-  .cta-band .section-sub { color:rgba(250,246,238,.55); margin:0 auto 2.75rem; }
-  .cta-band .btn-orange { font-size:1.0625rem; }
-  .cta-fine { font-size:.8125rem; color:rgba(250,246,238,.4); margin-top:1.25rem; }
-  .cta-fine a { color:rgba(250,246,238,.6); text-decoration:underline; }
+  .dark .cta-mid { background: radial-gradient(ellipse 80% 100% at 50% 50%, hsl(27 40% 16%) 0%, var(--bg-2) 70%); }
+  .cta-mid .h2 { margin:0 auto 1rem; }
+  .cta-mid .sub { margin:0 auto 2.25rem; }
 
-  /* ─────────────────────────────────────────
-     FOOTER
-  ───────────────────────────────────────── */
-  footer { background:var(--cream); border-top:1px solid var(--bd); padding:3.5rem 0 2.25rem; }
-  .foot-grid { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem; }
-  .foot-brand p { font-size:.875rem; color:var(--text-2); line-height:1.7; max-width:250px; margin-top:.75rem; }
-  .foot-col h4 { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); margin-bottom:1rem; }
+  /* ─────────────────────────────────────────────
+     § CTA FINAL — dark section
+  ───────────────────────────────────────────── */
+  .cta-final {
+    background:var(--text-1); color:var(--bg);
+    padding:5.5rem 2rem; text-align:center;
+  }
+  .cta-final .label { color:rgba(235,114,21,.85); }
+  .cta-final .h2 { color:var(--bg); margin:0 auto .875rem; }
+  .cta-final .sub { color:color-mix(in srgb, var(--bg) 60%, transparent); margin:0 auto 2.5rem; }
+  .cta-fine { font-size:.8125rem; color:color-mix(in srgb, var(--bg) 45%, transparent); margin-top:1.25rem; }
+  .cta-fine a { color:color-mix(in srgb, var(--bg) 65%, transparent); text-decoration:underline; }
+
+  /* ─────────────────────────────────────────────
+     FOOTER — minimal como mangabapixel
+  ───────────────────────────────────────────── */
+  footer {
+    background:var(--bg); border-top:1px solid var(--border);
+    padding:3rem 0 2rem;
+  }
+  .foot-top {
+    display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem;
+    margin-bottom:3rem;
+  }
+  .foot-brand p { font-size:.875rem; color:var(--text-2); line-height:1.7; max-width:240px; margin-top:.75rem; }
+  .foot-col h4 {
+    font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+    color:var(--text-3); margin-bottom:.875rem;
+  }
   .foot-col ul { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
   .foot-col a  { font-size:.875rem; color:var(--text-2); transition:color .15s; }
-  .foot-col a:hover { color:var(--orange-2); }
-  .foot-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem; margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--bd); font-size:.8125rem; color:var(--text-3); }
-
-  /* ─────────────────────────────────────────
-     RESPONSIVE
-  ───────────────────────────────────────── */
-  @media(max-width:1000px){
-    .hero-inner  { grid-template-columns:1fr; }
-    .hero-visual { display:none; }
-    .feat-grid   { grid-template-columns:1fr 1fr; }
-    .hiw-wrap    { grid-template-columns:1fr; gap:3rem; }
-    .hiw-text    { position:static; }
-    .sc-grid     { grid-template-columns:1fr 1fr; }
-    .cases-grid  { grid-template-columns:1fr 1fr; }
-    .benefits-wrap { grid-template-columns:1fr; }
-    .tech-grid   { grid-template-columns:1fr; }
-    .tests-grid  { grid-template-columns:1fr; }
-    .foot-grid   { grid-template-columns:1fr 1fr; }
+  .foot-col a:hover { color:var(--orange); }
+  .foot-bottom {
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem;
+    padding-top:1.5rem; border-top:1px solid var(--border);
+    font-size:.8125rem; color:var(--text-3);
   }
-  @media(max-width:640px){
-    .nav-links { display:none; }
-    .feat-grid { grid-template-columns:1fr; }
-    .sc-grid   { grid-template-columns:1fr; }
-    .cases-grid{ grid-template-columns:1fr; }
-    .metrics-quad { grid-template-columns:1fr; }
-    .foot-grid { grid-template-columns:1fr; }
+
+  /* ─────────────────────────────────────────────
+     RESPONSIVE
+  ───────────────────────────────────────────── */
+  @media(max-width:1024px) {
+    .hero-grid  { grid-template-columns:1fr; }
+    .hero-right { display:none; }
+    .gallery-grid { grid-template-columns:1fr 1fr; }
+    .cases-grid   { grid-template-columns:1fr 1fr; }
+    .steps-grid   { grid-template-columns:1fr 1fr; }
+    .tests-grid   { grid-template-columns:1fr; }
+    .tech-grid    { grid-template-columns:1fr; }
+    .foot-top     { grid-template-columns:1fr 1fr; }
+    .stats-inner  { gap:0; }
+    .stat-item    { padding:0 2rem; }
+    .step-card::after { display:none; }
+  }
+  @media(max-width:640px) {
+    .nav-links    { display:none; }
+    .gallery-grid { grid-template-columns:1fr; }
+    .cases-grid   { grid-template-columns:1fr; }
+    .steps-grid   { grid-template-columns:1fr; }
+    .agents-grid  { grid-template-columns:1fr 1fr; }
+    .foot-top     { grid-template-columns:1fr; }
+    .stats-inner  { flex-direction:column; gap:1.5rem; }
+    .stat-item    { border-right:none; border-bottom:1px solid var(--border); padding-bottom:1.5rem; width:100%; }
+    .stat-item:last-child { border-bottom:none; padding-bottom:0; }
   }
   </style>
 </head>
 <body>
 
-<!-- ════════════════════════════════
+<!-- ══════════════════════
      NAV
-════════════════════════════════ -->
+══════════════════════ -->
 <nav id="nav">
   <a href="#" class="nav-logo">
-    <svg width="32" height="32" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <!-- Fruta mangaba — estilo emoji fiel à marca -->
+    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <defs>
         <radialGradient id="fn" cx="40%" cy="35%" r="60%">
           <stop offset="0%"   stop-color="#F5C842"/>
-          <stop offset="50%"  stop-color="#E8843E"/>
-          <stop offset="100%" stop-color="#C96030"/>
+          <stop offset="50%"  stop-color="#EB7215"/>
+          <stop offset="100%" stop-color="#C45E0A"/>
         </radialGradient>
         <linearGradient id="ln" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stop-color="#78C03B"/>
-          <stop offset="100%" stop-color="#4A8226"/>
+          <stop offset="0%"   stop-color="#8ABF5E"/>
+          <stop offset="100%" stop-color="#5A8A3A"/>
         </linearGradient>
       </defs>
       <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fn)"/>
-      <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".24" transform="rotate(-22 25 31)"/>
+      <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".22" transform="rotate(-22 25 31)"/>
       <path d="M33 17 Q 23 7 14 11 Q 22 17 33 15 Z" fill="url(#ln)"/>
       <line x1="33" y1="15" x2="33" y2="22" stroke="#6B4423" stroke-width="2.5" stroke-linecap="round"/>
     </svg>
-    <div class="name"><b>mangaba</b><span>.ai</span></div>
+    <div class="logo-name"><b>mangaba</b><span>.ai</span></div>
   </a>
 
   <ul class="nav-links">
-    <li><a href="#recursos">Recursos</a></li>
+    <li><a href="#galeria">Galeria</a></li>
+    <li><a href="#casos">Casos</a></li>
     <li><a href="#como-funciona">Como funciona</a></li>
-    <li><a href="#cases">Cases</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
 
-  <div class="nav-actions">
+  <div class="nav-right">
     <button class="btn-icon" onclick="toggleTheme()" aria-label="Tema">
-      <svg id="i-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
-      <svg id="i-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <svg id="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-    <a href="https://mangaba.chat/" class="btn btn-orange" target="_blank">Começar agora</a>
+    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Abrir app</a>
   </div>
 </nav>
 
-<!-- ════════════════════════════════
+<!-- ══════════════════════
      HERO
-════════════════════════════════ -->
+══════════════════════ -->
 <section class="hero">
-  <div class="hero-blob blob-1"></div>
-  <div class="hero-blob blob-2"></div>
-  <div class="hero-blob blob-3"></div>
-  <div class="hero-dots"></div>
+  <div class="wrap">
+    <div class="hero-grid">
 
-  <div class="container">
-    <div class="hero-inner">
-
-      <!-- Copy -->
+      <!-- Texto -->
       <div>
-        <div class="rise" style="margin-bottom:1.5rem">
-          <span class="tag"><span class="dot"></span>Infraestrutura online · 99,9% uptime</span>
+        <div class="rise" style="margin-bottom:1.375rem">
+          <span class="pill"><span class="dot-live"></span>Infraestrutura online · 99,9% uptime</span>
         </div>
 
         <h1 class="rise d1">
-          Transforme ideias<br/>em <span class="grad-text">fluxos inteligentes</span>
+          Agentes inteligentes<br/>para sua <span class="hl">empresa</span>
         </h1>
 
         <p class="hero-sub rise d2">
@@ -834,410 +677,382 @@
         </p>
 
         <div class="hero-cta rise d3">
-          <a href="https://mangaba.chat/" class="btn btn-orange btn-lg" target="_blank">Começar gratuitamente</a>
-          <a href="#cases" class="arrow-link">Ver cases reais <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar agora</a>
+          <a href="#galeria" class="link-arr">Ver exemplos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
-        <p class="hero-micro rise d3">Sem cartão · Dados 100% no Brasil · Suporte em português</p>
+        <p class="hero-trust rise d3">Sem cartão de crédito. Sem instalação. Direto no navegador.</p>
 
-        <div class="social-proof rise d4">
-          <div class="face-stack">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=64&h=64&q=80&fit=crop&crop=face" alt=""/>
+        <div class="proof rise d3">
+          <div class="proof-imgs">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
           </div>
-          <div class="proof-text">
-            <strong>+1.200 profissionais</strong>
-            usando mangaba.ai em empresas brasileiras
-          </div>
+          <div class="proof-copy"><strong>+1.200 profissionais</strong> usando mangaba.ai hoje</div>
         </div>
       </div>
 
-      <!-- Hero visual -->
-      <div class="hero-visual rise d2">
-        <div class="hero-img-wrap">
-          <img
-            src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=720&h=900&q=85&fit=crop&crop=top"
-            alt="Profissional usando mangaba.ai"/>
-          <div class="photo-caption">
-            <h3>Agentes trabalhando para você</h3>
+      <!-- Foto + badges -->
+      <div class="hero-right rise d2">
+        <div class="hero-photo">
+          <img src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=720&h=900&q=85&fit=crop&crop=top" alt="Profissional usando mangaba.ai"/>
+          <div class="photo-label">
+            <h3>Transforme ideias em fluxos</h3>
             <p>Consensual · Parallel · Sequential · Hierarchical</p>
           </div>
         </div>
-
-        <!-- Floating agent-type cards -->
-        <div class="float-card fc-1">
-          <div class="fc-icon fc-orange">🤝</div>
-          <div>
-            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
-            Consensual
-          </div>
-        </div>
-        <div class="float-card fc-2">
-          <div class="fc-icon fc-green">⚡</div>
-          <div>
-            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
-            Parallel
-          </div>
-        </div>
-        <div class="float-card fc-3">
-          <div class="fc-icon fc-purple">🔗</div>
-          <div>
-            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
-            Sequential
-          </div>
-        </div>
-        <div class="float-card fc-4">
-          <div class="fc-icon fc-blue">🏛️</div>
-          <div>
-            <div style="font-size:.7rem;color:var(--text-2);font-weight:600;margin-bottom:.1rem">Tipo de Agente</div>
-            Hierarchical
-          </div>
-        </div>
+        <!-- Floating agent badges — exato da referência -->
+        <div class="fc fc-1"><span class="fc-dot" style="background:#EB7215"></span>Consensual</div>
+        <div class="fc fc-2"><span class="fc-dot" style="background:#5A8A3A"></span>Parallel</div>
+        <div class="fc fc-3"><span class="fc-dot" style="background:#6366f1"></span>Sequential</div>
+        <div class="fc fc-4"><span class="fc-dot" style="background:#EB7215;opacity:.6"></span>Hierarchical</div>
       </div>
 
     </div>
   </div>
 </section>
 
+<!-- STATS BAR — 4 métricas como mangabapixel -->
+<div class="stats-bar">
+  <div class="wrap">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-value"><span>4</span> tipos</div>
+        <div class="stat-label">de orquestração de agentes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value"><span>100%</span></div>
+        <div class="stat-label">infraestrutura no Brasil</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value"><span>200+</span></div>
+        <div class="stat-label">modelos disponíveis</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value"><span>∞</span></div>
+        <div class="stat-label">fluxos possíveis</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <hr class="sep"/>
 
-<!-- LOGOS MARQUEE -->
+<!-- MARQUEE LOGOS -->
 <div class="logos-band">
   <div class="logos-label">Empresas que confiam na infraestrutura mangaba.ai</div>
   <div class="marquee-wrap">
     <div class="marquee-track">
-      <span class="m-item">Construtora Brasil</span>
-      <span class="m-item">GrupoAtacadista SP</span>
-      <span class="m-item">Fintech Belém</span>
-      <span class="m-item">Advocacia Cardoso</span>
-      <span class="m-item">LogísticaNorte</span>
-      <span class="m-item">IndústriaGoiás</span>
-      <span class="m-item">BancoBahia</span>
-      <span class="m-item">TechStartup RJ</span>
-      <span class="m-item">ConsultoriaForte</span>
-      <span class="m-item">FarmaRede</span>
-      <span class="m-item">Construtora Brasil</span>
-      <span class="m-item">GrupoAtacadista SP</span>
-      <span class="m-item">Fintech Belém</span>
-      <span class="m-item">Advocacia Cardoso</span>
-      <span class="m-item">LogísticaNorte</span>
-      <span class="m-item">IndústriaGoiás</span>
-      <span class="m-item">BancoBahia</span>
-      <span class="m-item">TechStartup RJ</span>
-      <span class="m-item">ConsultoriaForte</span>
-      <span class="m-item">FarmaRede</span>
+      <span class="m-item">Construtora Brasil</span><span class="m-item">GrupoAtacadista SP</span>
+      <span class="m-item">Fintech Belém</span><span class="m-item">Advocacia Cardoso</span>
+      <span class="m-item">LogísticaNorte</span><span class="m-item">IndústriaGoiás</span>
+      <span class="m-item">BancoBahia</span><span class="m-item">TechStartup RJ</span>
+      <span class="m-item">ConsultoriaForte</span><span class="m-item">FarmaRede</span>
+      <span class="m-item">Construtora Brasil</span><span class="m-item">GrupoAtacadista SP</span>
+      <span class="m-item">Fintech Belém</span><span class="m-item">Advocacia Cardoso</span>
+      <span class="m-item">LogísticaNorte</span><span class="m-item">IndústriaGoiás</span>
+      <span class="m-item">BancoBahia</span><span class="m-item">TechStartup RJ</span>
+      <span class="m-item">ConsultoriaForte</span><span class="m-item">FarmaRede</span>
     </div>
   </div>
 </div>
 
-<!-- FEATURES -->
-<section id="recursos">
-  <div class="container">
-    <div class="features-header">
-      <div class="eyebrow">Recursos</div>
-      <h2 class="section-title">Tudo que sua empresa precisa</h2>
-      <p class="section-sub">Infraestrutura completa de agentes de IA — modelos proprietários, dados no Brasil, sem configuração.</p>
+<!-- ══════════════════════
+     GALERIA — grid de cases com imagens reais
+══════════════════════ -->
+<section id="galeria">
+  <div class="wrap">
+    <div class="gallery-header">
+      <div class="label">Galeria de resultados</div>
+      <h2 class="h2">Agentes em ação</h2>
+      <p class="sub">Passe o mouse para ver o tipo de agente e o resultado obtido.</p>
     </div>
-    <div class="feat-grid">
-      <div class="feat-card">
-        <div class="feat-icon-wrap fi-orange">🤖</div>
-        <div class="feat-title">Agentes inteligentes prontos</div>
-        <div class="feat-desc">Consensual, Parallel, Sequential, Hierarchical — 4 tipos de orquestração para qualquer fluxo corporativo.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon-wrap fi-green">🇧🇷</div>
-        <div class="feat-title">Contexto brasileiro nativo</div>
-        <div class="feat-desc">CLT, LGPD, Simples Nacional, NF-e, eSocial. Agentes que entendem o contexto local sem ajustes.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon-wrap fi-cream">🔒</div>
-        <div class="feat-title">Dados 100% no Brasil</div>
-        <div class="feat-desc">Datacenters tier III em São Paulo. Conformidade LGPD, isolamento por tenant, AES-256.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon-wrap fi-orange">⚡</div>
-        <div class="feat-title">Sem instalação</div>
-        <div class="feat-desc">Acesso via navegador. Nenhum servidor, nenhum SDK obrigatório. Pronto em minutos.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon-wrap fi-green">🔗</div>
-        <div class="feat-title">API &amp; Integrações enterprise</div>
-        <div class="feat-desc">REST API compatível com OpenAI spec. Webhooks, SSO, ERP, CRM e BI sem reescrita.</div>
-      </div>
-      <div class="feat-card">
-        <div class="feat-icon-wrap fi-cream">💰</div>
-        <div class="feat-title">Custo previsível em reais</div>
-        <div class="feat-desc">Planos fixos em BRL sem variação cambial. SLA garantido. Suporte horário comercial BR.</div>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="gallery-grid">
 
-<!-- MODELS -->
-<div class="models-wrap">
-  <div class="container">
-    <p class="models-label">Suporta via gateway — troca com um clique, sem reconfiguração</p>
-    <div class="models-list">
-      <span class="model-pill">Claude Sonnet</span>
-      <span class="model-pill">GPT-4o</span>
-      <span class="model-pill">Gemini 1.5 Pro</span>
-      <span class="model-pill">Llama 3.1 70B</span>
-      <span class="model-pill">Mistral Large</span>
-      <span class="model-pill">DeepSeek V3</span>
-      <span class="model-pill">Qwen 2.5</span>
-      <span class="model-pill">Command R+</span>
-    </div>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section id="como-funciona">
-  <div class="container">
-    <div class="hiw-wrap">
-      <div class="hiw-text">
-        <div class="eyebrow">Como funciona</div>
-        <h2 class="section-title">Implementado em minutos,<br/>não em meses</h2>
-        <p class="section-sub">Nenhuma integração complexa. Nenhum cientista de dados. Sua equipe começa no mesmo dia.</p>
-        <div style="margin-top:2rem">
-          <a href="https://mangaba.chat/" class="btn btn-orange" target="_blank">Experimentar agora</a>
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&q=80&fit=crop" alt="Jurídico" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente Jurídico · Sequential</span>
+          <div class="g-title">Análise de contratos</div>
+          <div class="g-sub">47 contratos revisados em 4h. Risco identificado em 12 cláusulas.</div>
         </div>
+        <div class="gallery-caption"><div class="gc-tag">Jurídico</div><div class="gc-name">Revisão de contratos</div></div>
       </div>
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-body"><h3>Crie sua conta enterprise</h3><p>Cadastro com CNPJ, sem cartão. Acesso imediato ao painel e aos agentes prontos para uso.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-body"><h3>Escolha o tipo de agente</h3><p>Consensual, Parallel, Sequential ou Hierarchical — configure o fluxo ideal para o seu processo.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-body"><h3>Conecte seus dados</h3><p>Upload de documentos, políticas e bases de conhecimento para personalizar os agentes ao seu contexto.</p></div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-body"><h3>Sua equipe começa a usar</h3><p>Interface no navegador, sem treinamento técnico. Acompanhe ROI no dashboard em tempo real.</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<hr class="sep"/>
-
-<!-- PRODUCT SCREENSHOTS -->
-<div class="product-band">
-  <div class="dots"></div>
-  <div class="container" style="position:relative;z-index:1">
-    <div class="product-header">
-      <div class="eyebrow">Interface</div>
-      <h2 class="section-title">Pensada para times corporativos</h2>
-      <p class="section-sub">Do chat ao dashboard de analytics — tudo em português, no navegador, sem instalação.</p>
-    </div>
-
-    <div class="browser-frame">
-      <div class="browser-chrome">
-        <span class="chrome-dot cd-r"></span>
-        <span class="chrome-dot cd-y"></span>
-        <span class="chrome-dot cd-g"></span>
-        <div class="chrome-bar">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-          mangaba.ai · Agente Jurídico — análise de contrato em andamento
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&q=80&fit=crop" alt="Financeiro" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente Financeiro · Parallel</span>
+          <div class="g-title">Relatórios automatizados</div>
+          <div class="g-sub">DRE, fluxo de caixa e indicadores gerados automaticamente todo mês.</div>
         </div>
+        <div class="gallery-caption"><div class="gc-tag">Financeiro</div><div class="gc-name">Automação de relatórios</div></div>
       </div>
-      <img
-        src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=460&q=85&fit=crop&crop=top"
-        alt="Interface mangaba.ai" loading="lazy"/>
-    </div>
 
-    <div class="sc-grid">
-      <div class="sc-item">
-        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&h=480&q=80&fit=crop" alt="Dashboard" loading="lazy"/>
-        <div class="sc-caption">
-          <strong>Dashboard de analytics</strong>
-          <span>Uso por equipe, custo por departamento, qualidade em tempo real</span>
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&q=80&fit=crop" alt="RH" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente RH · Consensual</span>
+          <div class="g-title">Triagem de candidatos</div>
+          <div class="g-sub">60% mais rápido no ciclo de contratação. eSocial nativo.</div>
         </div>
+        <div class="gallery-caption"><div class="gc-tag">Recursos Humanos</div><div class="gc-name">Triagem e contratação</div></div>
       </div>
-      <div class="sc-item">
-        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&h=480&q=80&fit=crop" alt="Equipe" loading="lazy"/>
-        <div class="sc-caption">
-          <strong>Colaboração em equipe</strong>
-          <span>Múltiplos usuários, histórico compartilhado, permissões por cargo</span>
-        </div>
-      </div>
-      <div class="sc-item">
-        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&h=480&q=80&fit=crop" alt="Análise" loading="lazy"/>
-        <div class="sc-caption">
-          <strong>Análise de documentos</strong>
-          <span>Upload de contratos, relatórios e planilhas — resposta em segundos</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- PERSONAS -->
-<section id="agentes">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:3.5rem">
-      <div class="eyebrow">Agentes-persona</div>
-      <h2 class="section-title">Especialistas para cada área</h2>
-      <p class="section-sub" style="margin:0 auto">Cada agente tem nome, personalidade e conhecimento profundo do domínio — em português brasileiro.</p>
-    </div>
-    <div class="personas-grid">
-      <div class="persona-card"><div class="p-av">MN</div><h3>Manoela</h3><div class="p-role">Especialista Jurídico</div><p>Análise de contratos, LGPD e compliance. Revisa cláusulas e aponta riscos em segundos.</p></div>
-      <div class="persona-card"><div class="p-av">RC</div><h3>Ricardo</h3><div class="p-role">Especialista Financeiro</div><p>DRE, fluxo de caixa e indicadores. Contexto do mercado brasileiro nativo.</p></div>
-      <div class="persona-card"><div class="p-av">JP</div><h3>Juliana</h3><div class="p-role">Especialista RH</div><p>Recrutamento e folha conforme legislação trabalhista. eSocial nativo.</p></div>
-      <div class="persona-card"><div class="p-av">TM</div><h3>Thiago</h3><div class="p-role">Especialista Comercial</div><p>Pipeline B2B, propostas e gestão de relacionamento corporativo.</p></div>
-      <div class="persona-card"><div class="p-av">BL</div><h3>Beatriz</h3><div class="p-role">Especialista Estratégia</div><p>OKRs, análise competitiva e planejamento para médias empresas.</p></div>
-      <div class="persona-card"><div class="p-av">AL</div><h3>Alexandre</h3><div class="p-role">Especialista TI</div><p>Arquitetura, segurança e documentação técnica. Tudo em pt-BR.</p></div>
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&q=80&fit=crop" alt="Estratégia" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente Estratégia · Hierarchical</span>
+          <div class="g-title">Planejamento estratégico</div>
+          <div class="g-sub">OKRs e análise competitiva para PMEs brasileiras em minutos.</div>
+        </div>
+        <div class="gallery-caption"><div class="gc-tag">Estratégia</div><div class="gc-name">OKRs e planejamento</div></div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&q=80&fit=crop" alt="Comercial" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente Comercial · Sequential</span>
+          <div class="g-title">Pipeline B2B</div>
+          <div class="g-sub">Propostas, análise de pipeline e scripts de vendas corporativos.</div>
+        </div>
+        <div class="gallery-caption"><div class="gc-tag">Comercial</div><div class="gc-name">Pipeline e propostas</div></div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=80&fit=crop" alt="Analytics" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Dashboard · Todos os agentes</span>
+          <div class="g-title">Analytics em tempo real</div>
+          <div class="g-sub">Uso por equipe, custo por departamento, qualidade de resposta.</div>
+        </div>
+        <div class="gallery-caption"><div class="gc-tag">Analytics</div><div class="gc-name">Dashboard de uso</div></div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=640&q=80&fit=crop&crop=face" alt="TI" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente TI · Parallel</span>
+          <div class="g-title">Documentação técnica</div>
+          <div class="g-sub">Arquitetura, segurança e ITIL em pt-BR corporativo.</div>
+        </div>
+        <div class="gallery-caption"><div class="gc-tag">Tecnologia</div><div class="gc-name">Docs e arquitetura</div></div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=640&q=80&fit=crop" alt="Compliance" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Agente Jurídico · Sequential</span>
+          <div class="g-title">Compliance LGPD</div>
+          <div class="g-sub">RIPD, políticas de privacidade e adequação automática.</div>
+        </div>
+        <div class="gallery-caption"><div class="gc-tag">Compliance</div><div class="gc-name">LGPD e privacidade</div></div>
+      </div>
+
+      <div class="gallery-card">
+        <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=640&q=80&fit=crop" alt="Equipe" loading="lazy"/>
+        <div class="gallery-overlay">
+          <span class="g-sector">Multi-agente · Hierarchical</span>
+          <div class="g-title">Orquestração de equipes</div>
+          <div class="g-sub">Múltiplos agentes colaborando em fluxos empresariais complexos.</div>
+        </div>
+        <div class="gallery-caption"><div class="gc-tag">Multi-agente</div><div class="gc-name">Orquestração complexa</div></div>
+      </div>
+
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- CASES -->
-<section id="cases">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:4rem">
-      <div class="eyebrow">Cases reais</div>
-      <h2 class="section-title">Resultados que falam por si</h2>
-      <p class="section-sub" style="margin:0 auto">Empresas brasileiras que transformaram operações com a infraestrutura mangaba.ai.</p>
+<!-- ══════════════════════
+     PARA QUEM É — 6 use cases como mangabapixel
+══════════════════════ -->
+<section id="casos">
+  <div class="wrap">
+    <div class="cases-header">
+      <div class="label">Para quem é</div>
+      <h2 class="h2">Para quem é o mangaba.ai?</h2>
+      <p class="sub">Agentes especializados para cada área da empresa, prontos para usar.</p>
     </div>
     <div class="cases-grid">
+
       <div class="case-card">
-        <div class="case-img-wrap">
-          <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&h=360&q=80&fit=crop" alt="Jurídico" loading="lazy"/>
-          <span class="case-sector-badge">Jurídico</span>
-        </div>
-        <div class="case-body">
-          <div class="case-co">Construtora Brasil · Belém, PA</div>
-          <div class="case-metric grad-text">87%</div>
-          <div class="case-mlabel">redução no tempo de revisão de contratos</div>
-          <p class="case-q">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas ficou pronto antes do fechamento."</p>
-        </div>
+        <div class="case-icon">⚖️</div>
+        <div class="case-title">Jurídico &amp; Compliance</div>
+        <div class="case-desc">Análise de contratos, LGPD, compliance trabalhista e regulatório em segundos.</div>
+        <ul class="case-list">
+          <li>Revisão de cláusulas e riscos</li>
+          <li>Adequação LGPD automática</li>
+          <li>Triagem de processos</li>
+          <li>Pareceres jurídicos em pt-BR</li>
+        </ul>
       </div>
+
       <div class="case-card">
-        <div class="case-img-wrap">
-          <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&h=360&q=80&fit=crop" alt="Financeiro" loading="lazy"/>
-          <span class="case-sector-badge">Financeiro</span>
-        </div>
-        <div class="case-body">
-          <div class="case-co">Fintech Belém · Belém, PA</div>
-          <div class="case-metric grad-text">3×</div>
-          <div class="case-mlabel">mais relatórios produzidos por mês</div>
-          <p class="case-q">"Custo previsível em reais foi decisivo. Com mangaba.ai crescemos 5× o uso sem susto no CFO."</p>
-        </div>
+        <div class="case-icon">📊</div>
+        <div class="case-title">Financeiro &amp; Controladoria</div>
+        <div class="case-desc">DRE, fluxo de caixa, indicadores e relatórios — no contexto brasileiro.</div>
+        <ul class="case-list">
+          <li>Relatórios mensais automáticos</li>
+          <li>Análise de DRE e balanço</li>
+          <li>Conciliação bancária</li>
+          <li>Previsão de fluxo de caixa</li>
+        </ul>
       </div>
+
       <div class="case-card">
-        <div class="case-img-wrap">
-          <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&h=360&q=80&fit=crop" alt="RH" loading="lazy"/>
-          <span class="case-sector-badge">Recursos Humanos</span>
-        </div>
-        <div class="case-body">
-          <div class="case-co">GrupoAtacadista SP · São Paulo, SP</div>
-          <div class="case-metric grad-text">60%</div>
-          <div class="case-mlabel">mais rápido no ciclo de contratação</div>
-          <p class="case-q">"Finalmente uma IA que entende eSocial. Sem precisar explicar o básico — especialista disponível 24h."</p>
-        </div>
+        <div class="case-icon">👥</div>
+        <div class="case-title">Recursos Humanos</div>
+        <div class="case-desc">Recrutamento, folha de pagamento e gestão de pessoas com eSocial nativo.</div>
+        <ul class="case-list">
+          <li>Triagem de candidatos</li>
+          <li>Onboarding automatizado</li>
+          <li>Análise de desempenho</li>
+          <li>eSocial e CLT nativos</li>
+        </ul>
       </div>
+
+      <div class="case-card">
+        <div class="case-icon">🚀</div>
+        <div class="case-title">Comercial &amp; Vendas</div>
+        <div class="case-desc">Propostas, pipeline B2B e relacionamento com clientes corporativos.</div>
+        <ul class="case-list">
+          <li>Geração de propostas</li>
+          <li>Scripts de vendas B2B</li>
+          <li>Análise de pipeline</li>
+          <li>Follow-up automatizado</li>
+        </ul>
+      </div>
+
+      <div class="case-card">
+        <div class="case-icon">🎯</div>
+        <div class="case-title">Estratégia &amp; Gestão</div>
+        <div class="case-desc">OKRs, análise competitiva e planejamento para PMEs e médias empresas.</div>
+        <ul class="case-list">
+          <li>Definição de OKRs</li>
+          <li>Análise de concorrência</li>
+          <li>Diagnóstico de mercado</li>
+          <li>Relatórios executivos</li>
+        </ul>
+      </div>
+
+      <div class="case-card">
+        <div class="case-icon">💻</div>
+        <div class="case-title">Tecnologia &amp; TI</div>
+        <div class="case-desc">Arquitetura, segurança e documentação técnica em português corporativo.</div>
+        <ul class="case-list">
+          <li>Documentação técnica</li>
+          <li>Revisão de segurança</li>
+          <li>ITIL e gestão de infra</li>
+          <li>Code review em pt-BR</li>
+        </ul>
+      </div>
+
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- BENEFITS -->
-<section>
-  <div class="container">
-    <div class="benefits-wrap">
-      <div>
-        <div class="eyebrow">Vantagens</div>
-        <h2 class="section-title">Por que mangaba.ai</h2>
-        <p class="section-sub" style="margin-bottom:2.25rem">Desenvolvido para o ecossistema empresarial brasileiro — não apenas adaptado de soluções americanas.</p>
-        <div class="b-list">
-          <div class="b-item">
-            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Contexto corporativo brasileiro nativo</h4><p>CLT, LGPD, Simples Nacional, NF-e, eSocial. Sem ajustes.</p></div>
-          </div>
-          <div class="b-item">
-            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Sem dependência de cloud estrangeira</h4><p>100% em solo brasileiro. Conformidade total com LGPD.</p></div>
-          </div>
-          <div class="b-item">
-            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Custo previsível em reais</h4><p>Planos fixos em BRL. Sem variação cambial, sem surpresas.</p></div>
-          </div>
-          <div class="b-item">
-            <div class="b-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div><h4>Suporte em português, horário BR</h4><p>Time local, fuso correto. Sem ticket em inglês.</p></div>
-          </div>
-        </div>
+<!-- ══════════════════════
+     COMO FUNCIONA — 3 steps numerados como mangabapixel
+══════════════════════ -->
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="hiw-header">
+      <div class="label">Como funciona</div>
+      <h2 class="h2">Implementado em minutos</h2>
+      <p class="sub">Nenhuma integração complexa. Nenhum cientista de dados. Sua equipe começa no mesmo dia.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Crie sua conta enterprise</div>
+        <div class="step-desc">Cadastro com CNPJ, sem cartão. Acesso imediato ao painel e aos agentes prontos para uso.</div>
       </div>
-      <div class="metrics-quad">
-        <div class="m-card"><div class="m-value grad-text">200+</div><div class="m-label">modelos disponíveis</div></div>
-        <div class="m-card"><div class="m-value grad-text">40+</div><div class="m-label">ferramentas integradas</div></div>
-        <div class="m-card"><div class="m-value grad-text">4</div><div class="m-label">tipos de orquestração</div></div>
-        <div class="m-card"><div class="m-value grad-text">100%</div><div class="m-label">dados no Brasil</div></div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Escolha o agente e o fluxo</div>
+        <div class="step-desc">Selecione o especialista da área desejada e configure o tipo de orquestração: Consensual, Parallel, Sequential ou Hierarchical.</div>
       </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Sua equipe começa a usar</div>
+        <div class="step-desc">Interface no navegador, sem treinamento. Conecte seus dados internos e monitore resultados no dashboard.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA INTERMEDIÁRIO — como o "Pare de pagar por sessões fotográficas" do mangabapixel -->
+<div class="cta-mid">
+  <div class="wrap" style="max-width:680px">
+    <div class="label">Economize tempo e dinheiro</div>
+    <h2 class="h2">Pare de perder horas em tarefas repetitivas</h2>
+    <p class="sub">Agentes que trabalham 24h, no contexto da sua empresa, em português, sem custo de dólar.</p>
+    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank" style="margin-top:2rem;font-size:.9375rem;padding:.8125rem 2rem">Começar agora — é grátis</a>
+    <p style="font-size:.8125rem;color:var(--text-3);margin-top:.875rem">Sem cartão de crédito. Sem instalação. Direto no navegador.</p>
+  </div>
+</div>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════
+     AGENTES PERSONA
+══════════════════════ -->
+<section id="agentes">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Agentes-persona</div>
+      <h2 class="h2">Especialistas para cada área</h2>
+      <p class="sub" style="margin:0 auto">Nome, personalidade e conhecimento profundo do domínio — em português.</p>
+    </div>
+    <div class="agents-grid">
+      <div class="agent-card"><div class="agent-av">MN</div><div class="agent-name">Manoela</div><div class="agent-role">Jurídico</div><div class="agent-desc">Contratos, LGPD e compliance. Risco em segundos.</div></div>
+      <div class="agent-card"><div class="agent-av">RC</div><div class="agent-name">Ricardo</div><div class="agent-role">Financeiro</div><div class="agent-desc">DRE, fluxo de caixa e indicadores BR.</div></div>
+      <div class="agent-card"><div class="agent-av">JP</div><div class="agent-name">Juliana</div><div class="agent-role">RH</div><div class="agent-desc">Recrutamento e folha com eSocial nativo.</div></div>
+      <div class="agent-card"><div class="agent-av">TM</div><div class="agent-name">Thiago</div><div class="agent-role">Comercial</div><div class="agent-desc">Pipeline B2B e propostas corporativas.</div></div>
+      <div class="agent-card"><div class="agent-av">BL</div><div class="agent-name">Beatriz</div><div class="agent-role">Estratégia</div><div class="agent-desc">OKRs, análise competitiva e planejamento.</div></div>
+      <div class="agent-card"><div class="agent-av">AL</div><div class="agent-name">Alexandre</div><div class="agent-role">TI</div><div class="agent-desc">Arquitetura, segurança e docs técnicas.</div></div>
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- TECH -->
+<!-- ══════════════════════
+     DEPOIMENTOS
+══════════════════════ -->
 <section>
-  <div class="container">
-    <div style="text-align:center;margin-bottom:3.5rem">
-      <div class="eyebrow">Tecnologia</div>
-      <h2 class="section-title">Infraestrutura de nível enterprise</h2>
-    </div>
-    <div class="tech-grid">
-      <div class="t-cell"><div class="t-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation comprime os maiores modelos fundacionais em versões mangaba otimizadas por domínio.</p></div>
-      <div class="t-cell"><div class="t-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado. Dados nunca usados para outros clientes. AES-256 em repouso, TLS 1.3 em trânsito.</p></div>
-      <div class="t-cell"><div class="t-tag">Escala</div><h3>Pipeline de alta throughput</h3><p>GPU dedicada, sem filas compartilhadas. Streaming em tempo real. Latência p99 abaixo de 800ms.</p></div>
-      <div class="t-cell"><div class="t-tag">Integração</div><h3>REST API completa</h3><p>Compatível com OpenAI API spec. SDKs para Python, Node.js e Java. Migração sem reescrita.</p></div>
-      <div class="t-cell"><div class="t-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs, métricas de qualidade, custo por depto, alertas e exportação para BI e data lake.</p></div>
-      <div class="t-cell"><div class="t-tag">Conformidade</div><h3>LGPD by design</h3><p>Direito ao esquecimento, portabilidade e RIPD automáticos. DPO disponível no plano Enterprise.</p></div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- TESTIMONIALS -->
-<section>
-  <div class="container">
-    <div style="text-align:center;margin-bottom:3.5rem">
-      <div class="eyebrow">Depoimentos</div>
-      <h2 class="section-title">O que dizem nossos clientes</h2>
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Depoimentos</div>
+      <h2 class="h2">O que dizem nossos clientes</h2>
     </div>
     <div class="tests-grid">
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-q">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas para nosso jurídico ficou pronto antes do fechamento do expediente."</p>
-        <div class="test-au">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=84&h=84&q=80&fit=crop&crop=face" alt="Carla Lima" loading="lazy"/>
+        <p class="test-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas ficou pronto antes do fechamento do expediente."</p>
+        <div class="test-author">
+          <img class="test-photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&q=80&fit=crop&crop=face" alt="Carla Lima" loading="lazy"/>
           <div><div class="test-name">Carla Lima</div><div class="test-role">Diretora Jurídica · Construtora Brasil</div></div>
         </div>
       </div>
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-q">"Finalmente uma IA que entende eSocial e legislação trabalhista brasileira sem precisar explicar o básico toda hora. É como ter um especialista 24h."</p>
-        <div class="test-au">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=84&h=84&q=80&fit=crop&crop=face" alt="Pedro Rocha" loading="lazy"/>
+        <p class="test-quote">"Finalmente uma IA que entende eSocial e CLT sem precisar explicar o básico. É como ter um especialista disponível 24h."</p>
+        <div class="test-author">
+          <img class="test-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face" alt="Pedro Rocha" loading="lazy"/>
           <div><div class="test-name">Pedro Rocha</div><div class="test-role">Gerente de RH · GrupoAtacadista SP</div></div>
         </div>
       </div>
       <div class="test-card">
         <div class="test-stars">★★★★★</div>
-        <p class="test-q">"Custo em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava expansão. Com mangaba.ai crescemos 5× sem nenhum susto."</p>
-        <div class="test-au">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=84&h=84&q=80&fit=crop&crop=face" alt="Fernanda Neves" loading="lazy"/>
+        <p class="test-quote">"Custo em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava expansão. Com mangaba.ai crescemos 5× sem susto."</p>
+        <div class="test-author">
+          <img class="test-photo" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&q=80&fit=crop&crop=face" alt="Fernanda Neves" loading="lazy"/>
           <div><div class="test-name">Fernanda Neves</div><div class="test-role">CTO · Fintech Belém</div></div>
         </div>
       </div>
@@ -1247,52 +1062,80 @@
 
 <hr class="sep"/>
 
-<!-- FAQ -->
-<section id="faq">
-  <div class="container">
-    <div style="text-align:center;margin-bottom:3.5rem">
-      <div class="eyebrow">FAQ</div>
-      <h2 class="section-title">Perguntas frequentes</h2>
+<!-- ══════════════════════
+     TECH
+══════════════════════ -->
+<section>
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Tecnologia</div>
+      <h2 class="h2">Infraestrutura de nível enterprise</h2>
     </div>
-    <div class="faq-inner">
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Seus dados, documentos e conversas nunca são utilizados para treinar modelos. Cada cliente opera em namespace isolado e pode solicitar exclusão completa a qualquer momento.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Onde ficam armazenados meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">100% em solo brasileiro, datacenters tier III em São Paulo. Nenhum dado sai do Brasil. Conformidade total com LGPD (Lei 13.709/2018) e possibilidade de assinar DPA personalizado.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Quais os tipos de agente disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Consensual (decisão colaborativa), Parallel (execução simultânea), Sequential (fluxo encadeado) e Hierarchical (orquestrador delega para sub-agentes). Cada tipo é ideal para um conjunto de casos de uso.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Preciso de equipe técnica para implementar?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Interface web direto no navegador, sem instalação. Para integração via API (ERP, CRM), oferecemos suporte técnico dedicado e documentação em português.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Planos mensais fixos em reais, sem variação cambial. Starter (até 5 usuários), Business (até 50) e Enterprise sob medida com SLA garantido. Todos incluem agentes, dashboard e suporte em pt-BR.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">É possível criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Sim. No plano Business e Enterprise você cria agentes com base nos documentos e processos internos. Fine-tuning ou RAG sobre sua base com acompanhamento técnico.</div></div>
+    <div class="tech-grid">
+      <div class="t-cell"><div class="t-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation otimiza os maiores fundamentos para domínios corporativos brasileiros.</p></div>
+      <div class="t-cell"><div class="t-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado por empresa. AES-256 em repouso, TLS 1.3 em trânsito. LGPD nativa.</p></div>
+      <div class="t-cell"><div class="t-tag">Escala</div><h3>GPU dedicada</h3><p>Sem filas compartilhadas. Streaming em tempo real. Latência p99 abaixo de 800ms.</p></div>
+      <div class="t-cell"><div class="t-tag">Integração</div><h3>REST API completa</h3><p>Compatível com OpenAI API spec. SDKs Python, Node.js e Java. Migração sem reescrita.</p></div>
+      <div class="t-cell"><div class="t-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs, métricas de qualidade, custo por depto, alertas e exportação para BI.</p></div>
+      <div class="t-cell"><div class="t-tag">Conformidade</div><h3>LGPD by design</h3><p>Direito ao esquecimento, portabilidade e RIPD automáticos. DPO no plano Enterprise.</p></div>
     </div>
   </div>
 </section>
 
-<!-- CTA -->
-<div class="cta-band">
-  <div class="container" style="position:relative;z-index:1">
-    <div class="eyebrow">Comece hoje</div>
-    <h2 class="section-title">Sua empresa pronta para a IA<br/>em menos de um dia</h2>
-    <p class="section-sub">Sem cartão. Sem instalação. Sem lock-in. Cancele quando quiser.</p>
-    <a href="https://mangaba.chat/" class="btn btn-orange btn-lg" target="_blank">Começar gratuitamente →</a>
+<hr class="sep"/>
+
+<!-- ══════════════════════
+     FAQ
+══════════════════════ -->
+<section id="faq">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">FAQ</div>
+      <h2 class="h2">Perguntas frequentes</h2>
+    </div>
+    <div class="faq-inner">
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Seus dados e conversas nunca são usados para treinar modelos. Cada cliente opera em namespace isolado e pode solicitar exclusão completa a qualquer momento.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Onde ficam meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">100% em solo brasileiro, datacenters tier III em São Paulo. Nenhum dado sai do Brasil. Conformidade total com LGPD e possibilidade de assinar DPA personalizado.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Quais os tipos de agente disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Consensual (decisão colaborativa), Parallel (execução simultânea), Sequential (fluxo encadeado) e Hierarchical (orquestrador delega para sub-agentes).</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Preciso de equipe técnica?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Interface web direto no navegador. Para integração via API (ERP, CRM), suporte técnico dedicado e documentação em português.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Planos mensais fixos em reais, sem variação cambial. Starter (até 5 usuários), Business (até 50) e Enterprise sob medida com SLA garantido.</div></div>
+      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Posso criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Sim. No plano Business e Enterprise você cria agentes com fine-tuning ou RAG sobre a base de conhecimento da sua empresa, com acompanhamento técnico.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════
+     CTA FINAL
+══════════════════════ -->
+<div class="cta-final">
+  <div class="wrap" style="max-width:680px">
+    <div class="label">Comece hoje</div>
+    <h2 class="h2">Sua empresa pronta para a IA<br/>em menos de um dia</h2>
+    <p class="sub">Sem cartão de crédito. Sem instalação. Sem lock-in. Cancele quando quiser.</p>
+    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank" style="font-size:1rem;padding:.9375rem 2.25rem">Começar agora — é grátis</a>
     <p class="cta-fine">Ou fale com nosso time: <a href="mailto:contato@mangaba-agent.online">contato@mangaba-agent.online</a></p>
   </div>
 </div>
 
-<!-- FOOTER -->
+<!-- ══════════════════════
+     FOOTER — idêntico ao mangabapixel
+══════════════════════ -->
 <footer>
-  <div class="container">
-    <div class="foot-grid">
+  <div class="wrap">
+    <div class="foot-top">
       <div class="foot-brand">
         <div class="nav-logo">
-          <svg width="26" height="26" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
             <defs>
-              <radialGradient id="fn2" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#F5C842"/><stop offset="50%" stop-color="#E8843E"/><stop offset="100%" stop-color="#C96030"/></radialGradient>
-              <linearGradient id="ln2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#78C03B"/><stop offset="100%" stop-color="#4A8226"/></linearGradient>
+              <radialGradient id="fn2" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#F5C842"/><stop offset="50%" stop-color="#EB7215"/><stop offset="100%" stop-color="#C45E0A"/></radialGradient>
+              <linearGradient id="ln2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8ABF5E"/><stop offset="100%" stop-color="#5A8A3A"/></linearGradient>
             </defs>
             <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fn2)"/>
-            <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".24" transform="rotate(-22 25 31)"/>
+            <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".22" transform="rotate(-22 25 31)"/>
             <path d="M33 17 Q 23 7 14 11 Q 22 17 33 15 Z" fill="url(#ln2)"/>
             <line x1="33" y1="15" x2="33" y2="22" stroke="#6B4423" stroke-width="2.5" stroke-linecap="round"/>
           </svg>
-          <div class="name"><b>mangaba</b><span>.ai</span></div>
+          <div class="logo-name"><b>mangaba</b><span>.ai</span></div>
         </div>
         <p>Infraestrutura de IA para empresas brasileiras. Agentes inteligentes, dados no Brasil, suporte em português.</p>
       </div>
@@ -1308,8 +1151,8 @@
       <div class="foot-col">
         <h4>Empresa</h4>
         <ul>
-          <li><a href="#recursos">Recursos</a></li>
-          <li><a href="#cases">Cases</a></li>
+          <li><a href="#galeria">Galeria</a></li>
+          <li><a href="#casos">Casos de uso</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="mailto:contato@mangaba-agent.online">Enterprise</a></li>
         </ul>
@@ -1325,7 +1168,7 @@
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 mangaba.ai · Todos os direitos reservados</span>
+      <span>© 2026 mangaba.ai</span>
       <span>Feito no Brasil 🇧🇷 · Private Enterprise</span>
     </div>
   </div>
@@ -1333,42 +1176,35 @@
 
 <script>
   /* Nav scroll */
-  const nav = document.getElementById('nav');
-  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 10), {passive:true});
+  addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>10),{passive:true});
 
   /* Theme */
-  function toggleTheme() {
-    const d = document.documentElement.classList.toggle('dark');
-    document.getElementById('i-sun').style.display  = d ? 'block' : 'none';
-    document.getElementById('i-moon').style.display = d ? 'none'  : 'block';
-    try{ localStorage.setItem('mg-theme', d ? 'dark' : 'light') }catch(e){}
+  function toggleTheme(){
+    const d=document.documentElement.classList.toggle('dark');
+    document.getElementById('i-sun').style.display=d?'block':'none';
+    document.getElementById('i-moon').style.display=d?'none':'block';
+    try{localStorage.setItem('mg-theme',d?'dark':'light')}catch(e){}
   }
   (function(){
-    const d = document.documentElement.classList.contains('dark');
-    document.getElementById('i-sun').style.display  = d ? 'block' : 'none';
-    document.getElementById('i-moon').style.display = d ? 'none'  : 'block';
+    const d=document.documentElement.classList.contains('dark');
+    document.getElementById('i-sun').style.display=d?'block':'none';
+    document.getElementById('i-moon').style.display=d?'none':'block';
   })();
 
   /* FAQ */
-  function faq(btn) {
-    const item = btn.closest('.faq-item');
-    const open = item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-    if (!open) item.classList.add('open');
+  function faq(btn){
+    const item=btn.closest('.faq-item'),open=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
+    if(!open)item.classList.add('open');
   }
 
-  /* Scroll-triggered fade-up */
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.animation = 'rise .5s cubic-bezier(.22,1,.36,1) both';
-        obs.unobserve(e.target);
-      }
+  /* Scroll fade-in */
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){e.target.style.animation='rise .45s cubic-bezier(.22,1,.36,1) both';obs.unobserve(e.target);}
     });
-  }, {threshold:.08});
-  document.querySelectorAll(
-    '.feat-card,.persona-card,.test-card,.t-cell,.step,.b-item,.m-card,.case-card,.sc-item'
-  ).forEach(el => { el.style.opacity='0'; obs.observe(el); });
+  },{threshold:.08});
+  document.querySelectorAll('.gallery-card,.case-card,.step-card,.agent-card,.test-card,.t-cell').forEach(el=>{el.style.opacity='0';obs.observe(el);});
 </script>
 </body>
 </html>
