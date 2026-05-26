@@ -8,7 +8,7 @@
   <meta property="og:title" content="mangaba.ai — Transforme ideias em fluxos inteligentes"/>
   <meta property="og:description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
   <meta property="og:type" content="website"/>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='40%25' cy='35%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%23F5C842'/%3E%3Cstop offset='50%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%238ABF5E'/%3E%3Cstop offset='100%25' stop-color='%235A8A3A'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='33' cy='39' rx='22' ry='20' fill='url(%23fg)'/%3E%3Cellipse cx='25' cy='31' rx='7' ry='9' fill='white' fill-opacity='.22' transform='rotate(-22 25 31)'/%3E%3Cpath d='M33 17 Q 23 7 14 11 Q 22 17 33 15 Z' fill='url(%23lg)'/%3E%3Cline x1='33' y1='15' x2='33' y2='22' stroke='%236B4423' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cellipse cx='24' cy='32' rx='8' ry='10' fill='white' fill-opacity='.22' transform='rotate(-18 24 32)'/%3E%3Cpath d='M32 19 Q 32 15 33 12' stroke='%238B5A1C' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3Cpath d='M33 19 C 24 14 16 11 10 12' stroke='%234A7A2E' stroke-opacity='.4' stroke-width='1' fill='none'/%3E%3C/svg%3E"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -20,24 +20,26 @@
      DESIGN TOKENS — extraídos de mangabapixel.online
   ───────────────────────────────────────────── */
   :root {
-    --bg:        #F5F2EB;   /* warm ivory */
+    --bg:        #F7F4EC;   /* warm ivory — fiel à marca */
     --bg-2:      #EEEAE0;   /* slightly deeper */
-    --bg-hero:   hsl(27 85% 95%);  /* warm peach — hero radial center */
+    --bg-hero:   hsl(30 90% 96%);  /* warm peach suave — hero radial center */
     --card:      #FFFFFF;
     --text-1:    #1C1917;   /* near-black warm */
     --text-2:    #57534E;   /* warm gray */
     --text-3:    #A8A29E;   /* lighter warm gray */
     --border:    #E7E4DC;   /* warm light border */
 
-    --orange:    #EB7215;   /* mangabapixel primary orange */
-    --orange-2:  #FF8A28;   /* brighter hover */
-    --orange-3:  #C45E0A;   /* deep */
+    --orange:    #EB7215;   /* mangaba brand primary orange — exato da identidade */
+    --orange-2:  #FF8C28;   /* hover mais vibrante */
+    --orange-3:  #C45E0A;   /* profundidade */
+    --orange-gold:#FFDA3D;  /* dourado da fruta — highlight */
     --orange-bg: rgba(235,114,21,.10);
     --orange-bg2:rgba(235,114,21,.06);
 
-    --green:     #5A8A3A;
-    --green-2:   #8ABF5E;
-    --green-bg:  rgba(90,138,58,.10);
+    --green:     #4A7A2E;   /* verde escuro da folha */
+    --green-2:   #9BCE6A;   /* verde claro da folha */
+    --green-3:   #5A8A3A;   /* verde médio */
+    --green-bg:  rgba(74,122,46,.10);
     --emerald:   #22c55e;
 
     --radius:    8px;
@@ -106,9 +108,9 @@
 
   /* Logo — mesmo estilo mangabapixel: fruta + "mangaba" dark + ".ai" orange */
   .nav-logo { display:flex; align-items:center; gap:.5rem; }
-  .logo-name { font-size:1.0625rem; font-weight:700; letter-spacing:-.015em; line-height:1; }
-  .logo-name b { color:var(--text-1); }
-  .logo-name span { color:var(--orange); }
+  .logo-name { font-size:1.0625rem; font-weight:600; letter-spacing:-.02em; line-height:1; }
+  .logo-name b { color:var(--text-1); font-weight:600; }
+  .logo-name span { color:var(--orange); font-weight:600; }
 
   .nav-links { display:flex; gap:2rem; list-style:none; }
   .nav-links a {
@@ -413,7 +415,7 @@
   .case-list li::before {
     content:''; position:absolute; left:0; top:.55em;
     width:5px; height:5px; border-radius:50%;
-    background:var(--green-2);
+    background:var(--green-3);
   }
 
   /* ─────────────────────────────────────────────
@@ -616,23 +618,29 @@
 ══════════════════════ -->
 <nav id="nav">
   <a href="#" class="nav-logo">
-    <!-- Fruta mangaba — estilo emoji fiel à marca -->
-    <svg width="28" height="28" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+    <!-- Fruta mangaba — fiel à identidade visual oficial -->
+    <svg width="30" height="30" viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <defs>
-        <radialGradient id="fn" cx="40%" cy="35%" r="60%">
-          <stop offset="0%"   stop-color="#F5C842"/>
-          <stop offset="50%"  stop-color="#EB7215"/>
+        <radialGradient id="fn" cx="30%" cy="25%" r="70%">
+          <stop offset="0%"   stop-color="#FFDA3D"/>
+          <stop offset="45%"  stop-color="#EB7215"/>
           <stop offset="100%" stop-color="#C45E0A"/>
         </radialGradient>
         <linearGradient id="ln" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stop-color="#8ABF5E"/>
-          <stop offset="100%" stop-color="#5A8A3A"/>
+          <stop offset="0%"   stop-color="#9BCE6A"/>
+          <stop offset="100%" stop-color="#4A7A2E"/>
         </linearGradient>
       </defs>
-      <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fn)"/>
-      <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".22" transform="rotate(-22 25 31)"/>
-      <path d="M33 17 Q 23 7 14 11 Q 22 17 33 15 Z" fill="url(#ln)"/>
-      <line x1="33" y1="15" x2="33" y2="22" stroke="#6B4423" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Corpo da fruta — círculo como na identidade visual -->
+      <circle cx="32" cy="40" r="21" fill="url(#fn)"/>
+      <!-- Reflexo especular superior-esquerdo -->
+      <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
+      <!-- Haste curta marrom-quente -->
+      <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <!-- Folha única apontando superior-esquerdo -->
+      <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/>
+      <!-- Nervura central da folha -->
+      <path d="M33 19 C 24 14 16 11 10 12" stroke="#3D6622" stroke-opacity=".45" stroke-width="1" fill="none"/>
     </svg>
     <div class="logo-name"><b>mangaba</b><span>.ai</span></div>
   </a>
@@ -662,7 +670,27 @@
 
       <!-- Texto -->
       <div>
-        <div class="rise" style="margin-bottom:1.375rem">
+        <!-- Wordmark pill — fiel à imagem de referência -->
+        <div class="rise" style="display:flex;align-items:center;gap:.625rem;margin-bottom:1.625rem">
+          <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden="true" style="flex-shrink:0">
+            <defs>
+              <radialGradient id="hp" cx="30%" cy="25%" r="70%">
+                <stop offset="0%"   stop-color="#FFDA3D"/>
+                <stop offset="45%"  stop-color="#EB7215"/>
+                <stop offset="100%" stop-color="#C45E0A"/>
+              </radialGradient>
+              <linearGradient id="hp2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#9BCE6A"/>
+                <stop offset="100%" stop-color="#4A7A2E"/>
+              </linearGradient>
+            </defs>
+            <circle cx="32" cy="40" r="21" fill="url(#hp)"/>
+            <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
+            <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#hp2)"/>
+          </svg>
+          <span class="pill" style="border:none;background:none;padding:0;font-size:.8125rem;font-weight:700;letter-spacing:-.01em;color:var(--text-2)">mangaba<span style="color:var(--orange)">.ai</span></span>
+          <span style="width:1px;height:14px;background:var(--border);display:inline-block"></span>
           <span class="pill"><span class="dot-live"></span>Infraestrutura online · 99,9% uptime</span>
         </div>
 
@@ -1125,15 +1153,16 @@
     <div class="foot-top">
       <div class="foot-brand">
         <div class="nav-logo">
-          <svg width="24" height="24" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 64 64" fill="none" aria-hidden="true">
             <defs>
-              <radialGradient id="fn2" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#F5C842"/><stop offset="50%" stop-color="#EB7215"/><stop offset="100%" stop-color="#C45E0A"/></radialGradient>
-              <linearGradient id="ln2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#8ABF5E"/><stop offset="100%" stop-color="#5A8A3A"/></linearGradient>
+              <radialGradient id="fn2" cx="30%" cy="25%" r="70%"><stop offset="0%" stop-color="#FFDA3D"/><stop offset="45%" stop-color="#EB7215"/><stop offset="100%" stop-color="#C45E0A"/></radialGradient>
+              <linearGradient id="ln2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#9BCE6A"/><stop offset="100%" stop-color="#4A7A2E"/></linearGradient>
             </defs>
-            <ellipse cx="33" cy="39" rx="22" ry="20" fill="url(#fn2)"/>
-            <ellipse cx="25" cy="31" rx="7" ry="9" fill="white" fill-opacity=".22" transform="rotate(-22 25 31)"/>
-            <path d="M33 17 Q 23 7 14 11 Q 22 17 33 15 Z" fill="url(#ln2)"/>
-            <line x1="33" y1="15" x2="33" y2="22" stroke="#6B4423" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="32" cy="40" r="21" fill="url(#fn2)"/>
+            <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
+            <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+            <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln2)"/>
+            <path d="M33 19 C 24 14 16 11 10 12" stroke="#3D6622" stroke-opacity=".45" stroke-width="1" fill="none"/>
           </svg>
           <div class="logo-name"><b>mangaba</b><span>.ai</span></div>
         </div>
