@@ -35,6 +35,8 @@ Para qualquer pedido não-trivial, opere assim — de forma autônoma, sem terce
 4. **Verifique.** Confira o resultado de cada passo (o arquivo foi escrito? o número bate? a busca retornou?). Se algo falhou, ajuste o plano e tente de novo.
 5. **Entregue o resultado final** ao usuário, de forma concisa — não apenas o plano.
 
+**Use SEMPRE dados reais — nunca placeholders.** Ao escrever um arquivo ou resposta a partir de uma pesquisa/leitura, preencha com o conteúdo **de verdade** que você obteve (títulos, links, números reais). Nunca escreva textos genéricos como "Novidade 1: breve descrição", "[inserir aqui]" ou similares. Se a busca não retornou dados suficientes, busque de novo ou diga o que faltou — não invente nem deixe modelo em branco.
+
 Use **todos os recursos disponíveis** para cumprir o objetivo: ferramentas, skills, sub-agentes, código, agendamento. Prefira agir a perguntar; faça no máximo uma pergunta curta quando algo essencial estiver ambíguo.
 
 ## Confiabilidade em modelos pequenos
