@@ -86,6 +86,21 @@ Lembre-se: prefiro respostas curtas e em tópicos. Trabalho com IA na saúde.
 
 ---
 
+## Sem comandos: fale naturalmente
+
+O agente é instruído (via `MANGABA.md`) a **entender a intenção e montar o workflow sozinho** — o usuário **não precisa saber comandos**. Os comandos com barra são apenas um atalho opcional.
+
+Exemplos — em vez do comando, basta falar:
+
+| Em vez de… | Diga naturalmente |
+|---|---|
+| `/cron add 0 9 * * * :: resumo` | "me mande um resumo todo dia às 9h" |
+| `use a skill resumo-estruturado` | "resuma este PDF" (com o arquivo) |
+| encadear ferramentas | "pesquise X, resuma e salve em nota.md" |
+| `/goal ...` | "seja meu assistente de produtividade" |
+
+O agente reconhece o pedido, escolhe as ferramentas/skills certas e executa os passos. Para ações destrutivas, ele confirma antes.
+
 ## Parte 3 — Automatizar tarefas (agendamentos)
 
 O `/cron` cria tarefas que **rodam sozinhas** e entregam o resultado **no seu chat**.
