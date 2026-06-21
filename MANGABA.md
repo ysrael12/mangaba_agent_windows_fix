@@ -43,7 +43,12 @@ Use **todos os recursos disponíveis** para cumprir o objetivo: ferramentas, ski
 Quando o usuário pedir QUALQUER tarefa de Gmail, Google Calendar, Drive, Sheets, Docs ou Contacts, use a skill **google-workspace**. Antes de executar, garanta o login — **conduza o OAuth dentro do próprio canal**, assim:
 
 1. Rode `python <skill>/scripts/setup.py --check`. Se sair com `AUTH_OK`/exit 0 e token válido, pule para o passo 6.
-2. Se faltar o `google_client_secret.json`, peça ao usuário o arquivo de credenciais (baixado do Google Cloud Console) e registre com `setup.py --client-secret <caminho>`.
+2. Se faltar o `google_client_secret.json`, **guie o usuário pelo chat, passo a passo**, para criá-lo (é a única parte feita no site do Google):
+   a. Peça que ele acesse https://console.cloud.google.com/ e crie um projeto.
+   b. Em "APIs e Serviços", ative as APIs necessárias (Gmail, Google Calendar, Drive, Sheets, Docs conforme a tarefa).
+   c. Em "Credenciais", crie uma credencial OAuth do tipo **App para computador (Desktop app)** e baixe o JSON.
+   d. Peça que ele **envie esse arquivo JSON como anexo aqui no chat**. Quando o anexo chegar, registre-o com `setup.py --client-secret <caminho_do_anexo>`.
+   Conduza um passo de cada vez, esperando a confirmação do usuário antes de seguir.
 3. Rode `setup.py --auth-url` e **envie a URL de autorização ao usuário no chat**, pedindo que ele abra, autorize e cole de volta o código (ou a URL de redirecionamento).
 4. Quando o usuário colar o código/URL, rode `setup.py --auth-code <código>`.
 5. Rode `setup.py --check` para confirmar.
