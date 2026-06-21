@@ -7268,6 +7268,15 @@ class GatewayRunner:
         if canonical == "config":
             return await self._handle_config_command(event)
 
+        if canonical == "tools":
+            return await self._handle_tools_command(event)
+
+        if canonical == "skills":
+            return await self._handle_skills_command(event)
+
+        if canonical == "cron":
+            return await self._handle_cron_command(event)
+
         if canonical == "whoami":
             return await self._handle_whoami_command(event)
 
@@ -9268,6 +9277,165 @@ class GatewayRunner:
             f"• Comandos admin no canal: `{_get('gateway.expose_admin_commands', 'false')}`",
         ]
         return "\n".join(lines)
+
+    async def _handle_tools_command(self, event: MessageEvent) -> str:
+        """Handle /tools [list|enable|disable] [name...] nos canais.
+
+        Gated por ``gateway.expose_admin_commands``. Reaproveita a lógica de
+        CLI (``tools_disable_enable_command``) capturando stdout e limpando
+        ANSI para devolver texto amigável ao chat.
+        """
+        import io, types, contextlib
+        from tools.ansi_strip import strip_ansi
+
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split()
+        action = parts[0].lower() if parts else "list"
+        if action not in {"list", "enable", "disable"}:
+            return ("Uso: `/tools list` | `/tools enable <nome>` | "
+                    "`/tools disable <nome>`")
+        names = parts[1:]
+        if action in {"enable", "disable"} and not names:
+            return f"Informe ao menos um nome: `/tools {action} web_search`"
+
+        platform = event.source.platform.value if event.source and event.source.platform else "cli"
+        fake_args = types.SimpleNamespace(tools_action=action, platform=platform, names=names)
+        buf = io.StringIO()
+        try:
+            from mangaba_cli.tools_config import tools_disable_enable_command
+            with contextlib.redirect_stdout(buf):
+                tools_disable_enable_command(fake_args)
+        except Exception as exc:
+            return f"⚠ Erro ao gerenciar ferramentas: {exc}"
+        out = strip_ansi(buf.getvalue()).strip()
+        return out or "✓ Feito."
+
+    async def _handle_skills_command(self, event: MessageEvent) -> str:
+        """Handle /skills [list] nos canais — lista habilidades disponíveis."""
+        args_str = (event.get_command_args() or "").strip()
+        category = None
+        if args_str:
+            parts = args_str.split()
+            # /skills list  ou  /skills <categoria>
+            if parts[0].lower() not in {"list", "browse"}:
+                category = parts[0]
+            elif len(parts) > 1:
+                category = parts[1]
+        try:
+            from tools.skills_tool import skills_list
+            result = skills_list(category=category)
+        except Exception as exc:
+            return f"⚠ Erro ao listar habilidades: {exc}"
+        # skills_list devolve JSON pensado p/ o agente — formata p/ humano.
+        import json
+        try:
+            data = json.loads(str(result))
+            skills = data.get("skills", []) if isinstance(data, dict) else []
+        except Exception:
+            skills = None
+        if skills is not None:
+            if not skills:
+                return "Nenhuma habilidade encontrada."
+            header = f"🧩 *Habilidades* ({len(skills)})"
+            if category:
+                header += f" — categoria `{category}`"
+            lines = [header]
+            for s in skills[:40]:
+                lines.append(f"• `{s.get('name','?')}` — {s.get('description','')[:70]}")
+            if len(skills) > 40:
+                lines.append(f"… e mais {len(skills) - 40}. Filtre por categoria.")
+            return "\n".join(lines)
+        from tools.ansi_strip import strip_ansi
+        text = strip_ansi(str(result)).strip()
+        return text[:3500] or "Nenhuma habilidade encontrada."
+
+    async def _handle_cron_command(self, event: MessageEvent) -> str:
+        """Handle /cron nos canais — list/add/remove/pause/resume.
+
+        ``/cron list`` — lista os agendamentos
+        ``/cron add <schedule> :: <prompt>`` — cria (entrega no canal de origem)
+        ``/cron remove|pause|resume <id>`` — gerencia um job
+        """
+        import json
+        from tools.ansi_strip import strip_ansi
+
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split(maxsplit=1)
+        sub = parts[0].lower() if parts else "list"
+        rest = parts[1].strip() if len(parts) > 1 else ""
+
+        # garante que o cron capture o canal de origem para entrega
+        from gateway.session_context import set_session_vars, clear_session_vars
+        src = event.source
+        tokens = set_session_vars(
+            platform=src.platform.value if src and src.platform else "",
+            chat_id=src.chat_id if src else "",
+            chat_name=(src.chat_name or "") if src else "",
+            thread_id=str(src.thread_id) if src and src.thread_id else "",
+            user_id=str(src.user_id) if src and src.user_id else "",
+            user_name=str(src.user_name) if src and src.user_name else "",
+            session_key="",
+            message_id="",
+        )
+        try:
+            from tools.cronjob_tools import cronjob
+
+            if sub == "list":
+                raw = cronjob(action="list")
+                try:
+                    data = json.loads(raw)
+                    jobs = data.get("jobs", data if isinstance(data, list) else [])
+                except Exception:
+                    return strip_ansi(str(raw)).strip() or "Sem agendamentos."
+                if not jobs:
+                    return ("📭 Nenhum agendamento.\n"
+                            "Crie com `/cron add 0 9 * * * :: me mande o resumo do dia`")
+                out = ["⏰ *Agendamentos*"]
+                for j in jobs:
+                    out.append(
+                        f"• `{j.get('job_id', j.get('id','?'))}` [{j.get('state','?')}] — "
+                        f"{j.get('schedule_display', j.get('schedule','?'))}\n"
+                        f"  {j.get('name') or j.get('prompt_preview') or (j.get('prompt','') or '')[:60]}"
+                    )
+                return "\n".join(out)
+
+            if sub == "add":
+                if "::" not in rest:
+                    return ("Uso: `/cron add <schedule> :: <prompt>`\n"
+                            "Ex: `/cron add 0 9 * * * :: me mande o resumo do dia`")
+                schedule, prompt = (x.strip() for x in rest.split("::", 1))
+                if not schedule or not prompt:
+                    return "Schedule e prompt são obrigatórios."
+                raw = cronjob(action="create", schedule=schedule, prompt=prompt, deliver="origin")
+                try:
+                    data = json.loads(raw)
+                except Exception:
+                    data = {}
+                if data.get("success") is False or data.get("error"):
+                    return f"⚠ {data.get('error') or raw}"
+                jid = (data.get("job_id") or data.get("id")
+                       or (data.get("job") or {}).get("job_id", "?"))
+                return f"✅ Agendado (`{jid}`): {schedule} → {prompt}"
+
+            if sub in {"remove", "delete", "pause", "resume"}:
+                if not rest:
+                    return f"Informe o id: `/cron {sub} <id>`"
+                action = "remove" if sub in {"remove", "delete"} else sub
+                raw = cronjob(action=action, job_id=rest.split()[0])
+                try:
+                    data = json.loads(raw)
+                except Exception:
+                    data = {}
+                if data.get("success") is False or data.get("error"):
+                    return f"⚠ {data.get('error') or raw}"
+                return f"✓ `{sub}` aplicado ao job `{rest.split()[0]}`."
+
+            return ("Uso: `/cron list` | `/cron add <sched> :: <prompt>` | "
+                    "`/cron remove|pause|resume <id>`")
+        except Exception as exc:
+            return f"⚠ Erro no cron: {exc}"
+        finally:
+            clear_session_vars(tokens)
 
     async def _handle_profile_command(self, event: MessageEvent) -> str:
         """Handle /profile — show active profile name and home directory."""
