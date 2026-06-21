@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+#
+# setup-channels.sh — Configuração interativa de canais do Mangaba Agent.
+#
+# O que faz:
+#   1. Verifica se o Ollama está no ar (modelo local).
+#   2. Deixa você ESCOLHER quais canais ativar (Telegram, WhatsApp, Discord,
+#      Slack, Email).
+#   3. Pede só os tokens dos canais marcados e grava no .env.
+#   4. Sobe o gateway — em primeiro plano (teste) ou como serviço (24/7).
+#
+# Uso:
+#   ./setup-channels.sh
+#
+set -euo pipefail
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ENV_FILE="$PROJECT_DIR/.env"
+cd "$PROJECT_DIR"
+
+# --- cores -------------------------------------------------------------------
+B="\033[1m"; G="\033[32m"; Y="\033[33m"; R="\033[31m"; C="\033[36m"; N="\033[0m"
+say()  { echo -e "$@"; }
+ok()   { echo -e "${G}✓${N} $*"; }
+warn() { echo -e "${Y}!${N} $*"; }
+err()  { echo -e "${R}✗${N} $*"; }
+hr()   { echo -e "${C}────────────────────────────────────────────────────${N}"; }
+
+# --- grava/atualiza uma chave no .env (remove linha antiga, comentada ou não) -
+set_env() {
+  local key="$1" val="$2"
+  touch "$ENV_FILE"
+  # remove qualquer linha existente (ativa ou comentada) dessa chave
+  grep -vE "^[#[:space:]]*${key}=" "$ENV_FILE" > "$ENV_FILE.tmp" || true
+  mv "$ENV_FILE.tmp" "$ENV_FILE"
+  echo "${key}=${val}" >> "$ENV_FILE"
+}
+
+ask() { # ask "Pergunta" -> ecoa resposta
+  local prompt="$1" ans
+  read -r -p "$(echo -e "${B}${prompt}${N} ")" ans
+  echo "$ans"
+}
+
+# =============================================================================
+clear
+say "${B}🥭 Mangaba Agent — Configuração de Canais${N}"
+hr
+
+# --- 1. Ollama ---------------------------------------------------------------
+say "${B}1) Verificando modelo local (Ollama)...${N}"
+if curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
+  ok "Ollama respondendo na porta 11434."
+else
+  warn "Ollama NÃO está respondendo."
+  if command -v ollama >/dev/null 2>&1; then
+    say "  Tentando iniciar com 'brew services start ollama'..."
+    brew services start ollama >/dev/null 2>&1 || ollama serve >/dev/null 2>&1 &
+    sleep 3
+    if curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
+      ok "Ollama iniciado."
+    else
+      err "Não consegui subir o Ollama. Abra outro terminal e rode 'ollama serve'."
+    fi
+  else
+    err "Ollama não instalado. Instale em https://ollama.com/download"
+  fi
+fi
+hr
+
+# --- 2. Seleção de canais ----------------------------------------------------
+say "${B}2) Quais canais você quer ativar?${N}"
+say "   Digite os números separados por espaço (ex: ${C}1 3${N}), ou Enter p/ só Telegram."
+say ""
+say "   ${C}1)${N} Telegram"
+say "   ${C}2)${N} WhatsApp"
+say "   ${C}3)${N} Discord"
+say "   ${C}4)${N} Slack"
+say "   ${C}5)${N} Email"
+say ""
+CHOICE="$(ask '➜ Canais:')"
+CHOICE="${CHOICE:-1}"
+hr
+
+# --- 3. Coleta de tokens por canal -------------------------------------------
+configure_telegram() {
+  say "${B}📱 Telegram${N} — token do @BotFather"
+  local tk uid
+  tk="$(ask 'Bot token:')"
+  uid="$(ask 'Seu user ID (TELEGRAM_ALLOWED_USERS):')"
+  [ -n "$tk" ]  && set_env TELEGRAM_BOT_TOKEN "$tk"
+  [ -n "$uid" ] && { set_env TELEGRAM_ALLOWED_USERS "$uid"; set_env TELEGRAM_HOME_CHANNEL "$uid"; }
+  ok "Telegram configurado."
+}
+configure_whatsapp() {
+  say "${B}💬 WhatsApp${N} — pareamento via QR depois (rode: mangaba whatsapp)"
+  local num
+  num="$(ask 'Seu número permitido (ex: 5571999999999):')"
+  set_env WHATSAPP_ENABLED true
+  [ -n "$num" ] && set_env WHATSAPP_ALLOWED_USERS "$num"
+  ok "WhatsApp ativado (pareie o QR após subir o gateway)."
+}
+configure_discord() {
+  say "${B}🎮 Discord${N} — token do Developer Portal"
+  local tk uid
+  tk="$(ask 'Bot token:')"
+  uid="$(ask 'Seu user ID (DISCORD_ALLOWED_USERS):')"
+  [ -n "$tk" ]  && set_env DISCORD_BOT_TOKEN "$tk"
+  [ -n "$uid" ] && set_env DISCORD_ALLOWED_USERS "$uid"
+  ok "Discord configurado."
+}
+configure_slack() {
+  say "${B}💼 Slack${N} — Bot Token (xoxb-) + App Token (xapp-)"
+  local bt at uid
+  bt="$(ask 'Bot token (xoxb-...):')"
+  at="$(ask 'App token (xapp-...):')"
+  uid="$(ask 'Seu user ID (SLACK_ALLOWED_USERS):')"
+  [ -n "$bt" ]  && set_env SLACK_BOT_TOKEN "$bt"
+  [ -n "$at" ]  && set_env SLACK_APP_TOKEN "$at"
+  [ -n "$uid" ] && set_env SLACK_ALLOWED_USERS "$uid"
+  ok "Slack configurado."
+}
+configure_email() {
+  say "${B}📧 Email${N} — IMAP/SMTP (Gmail: use App Password)"
+  local addr pass
+  addr="$(ask 'Endereço de email:')"
+  pass="$(ask 'Senha / App Password:')"
+  [ -n "$addr" ] && { set_env EMAIL_ADDRESS "$addr"; set_env EMAIL_ALLOWED_USERS "$addr"; set_env EMAIL_HOME_ADDRESS "$addr"; }
+  [ -n "$pass" ] && set_env EMAIL_PASSWORD "$pass"
+  set_env EMAIL_IMAP_HOST imap.gmail.com
+  set_env EMAIL_IMAP_PORT 993
+  set_env EMAIL_SMTP_HOST smtp.gmail.com
+  set_env EMAIL_SMTP_PORT 587
+  ok "Email configurado (ajuste os hosts no .env se não for Gmail)."
+}
+
+for n in $CHOICE; do
+  case "$n" in
+    1) configure_telegram ;;
+    2) configure_whatsapp ;;
+    3) configure_discord ;;
+    4) configure_slack ;;
+    5) configure_email ;;
+    *) warn "Opção '$n' ignorada." ;;
+  esac
+  echo ""
+done
+hr
+
+# --- 4. Subir o gateway ------------------------------------------------------
+say "${B}3) Como você quer rodar o gateway?${N}"
+say "   ${C}1)${N} Agora em primeiro plano (teste — fecha ao sair do terminal)"
+say "   ${C}2)${N} Como serviço 24/7 (launchd — sobe no login, reinicia sozinho)"
+say "   ${C}3)${N} Não subir agora"
+MODE="$(ask '➜ Opção [1]:')"
+MODE="${MODE:-1}"
+
+case "$MODE" in
+  1) ok "Iniciando gateway... (Ctrl+C para parar)"; exec mangaba gateway ;;
+  2)
+     ./scripts/mangaba-gateway install
+     ok "Serviço instalado. Comandos: ./scripts/mangaba-gateway {status|stop|start|restart}"
+     ;;
+  *) ok "Tudo configurado. Suba quando quiser com: mangaba gateway" ;;
+esac

@@ -32,7 +32,38 @@ Use qualquer modelo que quiser — [OpenRouter](https://openrouter.ai) (200+ mod
 
 ---
 
-## Instalação Rápida
+## Instalação em 1 Comando (do zero ao bot no ar)
+
+Para quem quer **clonar e ter tudo funcionando** — pré-requisitos, modelo local (Ollama) e canais de mensagem — sem configurar nada na mão:
+
+```bash
+git clone https://github.com/dheiver2/mangaba-agent.git
+cd mangaba-agent
+./bootstrap.sh
+```
+
+O [`bootstrap.sh`](bootstrap.sh) faz, em sequência:
+
+1. **Pré-requisitos do sistema** — Homebrew (se faltar), git, Node.js, ripgrep, ffmpeg (macOS via `brew`, Linux via `apt`).
+2. **Ambiente Python** — instala `uv`, cria o `.venv` e instala o pacote.
+3. **Ollama + modelo local** — instala o Ollama, sobe o servidor e baixa o modelo (`qwen2.5:7b-instruct` por padrão).
+4. **Config do modelo** — aponta `~/.mangaba/config.yaml` para o Ollama local.
+5. **Canais + gateway** — abre o [`setup-channels.sh`](setup-channels.sh) interativo: você **escolhe quais canais ativar** (Telegram, WhatsApp, Discord, Slack, Email), informa os tokens, e sobe o gateway em primeiro plano ou como **serviço 24/7** (launchd/systemd: inicia no login e reinicia sozinho).
+
+> Trocar o modelo baixado: `MANGABA_MODEL=qwen3:4b ./bootstrap.sh`
+> O script é **idempotente** — rode quantas vezes quiser para adicionar canais ou reconfigurar.
+
+### Só configurar canais (já instalado)
+
+Se o Mangaba já está instalado e você só quer ativar/trocar canais:
+
+```bash
+./setup-channels.sh
+```
+
+---
+
+## Instalação Rápida (somente o CLI)
 
 ### Linux, macOS, WSL2, Termux
 
