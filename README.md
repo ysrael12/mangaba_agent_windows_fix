@@ -129,6 +129,32 @@ mangaba doctor       # Diagnosticar problemas
 
 ---
 
+## Configuração pelos Canais (Telegram, Discord…)
+
+Você configura o agente **sem voltar ao terminal** — direto pelo chat. Ative uma vez no `~/.mangaba/config.yaml`:
+
+```yaml
+gateway:
+  expose_admin_commands: true
+```
+
+Depois, no próprio canal:
+
+| Comando | Função |
+|---|---|
+| `/config` | Ver configuração atual (modelo, provider, contexto, plataformas) |
+| `/model qwen3:4b` | Trocar o modelo |
+| `/tools list` · `/tools enable web` · `/tools disable browser` | Gerenciar ferramentas |
+| `/skills list` · `/skills <categoria>` | Listar habilidades |
+| `/cron add 0 9 * * * :: me mande o resumo do dia` | Agendar tarefa (entrega no chat) |
+| `/cron list` · `/cron remove <id>` · `/cron pause <id>` | Gerenciar agendamentos |
+| `/personality` · `/goal` · `/reasoning` | Ajustar comportamento |
+| `/new` · `/whoami` · `/help` | Sessão, acesso e ajuda |
+
+📖 **Tutorial completo:** [Criar e configurar agentes pelos canais](https://dheiver2.github.io/mangaba-agent/docs/guides/criar-agente-pelos-canais)
+
+---
+
 ## Referência Rápida: CLI vs Mensageria
 
 | Situação | CLI | Gateway |
