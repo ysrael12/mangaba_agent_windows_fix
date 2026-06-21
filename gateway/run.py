@@ -7274,6 +7274,9 @@ class GatewayRunner:
         if canonical == "set":
             return await self._handle_set_command(event)
 
+        if canonical == "mcp":
+            return await self._handle_mcp_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -9354,6 +9357,55 @@ class GatewayRunner:
             f"{confiavel}\n\n{baixa}\n\n{media}\n\n{alta}\n\n"
             "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
         )
+
+    async def _handle_mcp_command(self, event: MessageEvent) -> str:
+        """Handle /mcp [list|add <nome> <url>|remove <nome>] nos canais.
+
+        Permite conectar servidores MCP (ex: Composio, Pipedream) direto do
+        chat. Gated por ``gateway.expose_admin_commands``.
+        """
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split()
+        sub = parts[0].lower() if parts else "list"
+        try:
+            from mangaba_cli.mcp_config import (
+                _get_mcp_servers, _save_mcp_server, _remove_mcp_server,
+            )
+        except Exception as exc:
+            return f"⚠ Erro ao carregar MCP: {exc}"
+
+        if sub == "list":
+            servers = _get_mcp_servers()
+            if not servers:
+                return ("Nenhum servidor MCP. Adicione com:\n"
+                        "`/mcp add <nome> <url>` (ex: Composio/Pipedream)")
+            out = ["🔌 *Servidores MCP*"]
+            for name, cfg in servers.items():
+                tgt = cfg.get("url") or cfg.get("command") or "?"
+                out.append(f"• `{name}` → {tgt}")
+            return "\n".join(out)
+
+        if sub == "add":
+            if len(parts) < 3:
+                return ("Uso: `/mcp add <nome> <url>`\n"
+                        "Ex.: `/mcp add google https://mcp.composio.dev/.../mcp`")
+            name, url = parts[1], parts[2]
+            if not url.startswith("http"):
+                return "A URL deve começar com http(s)://"
+            try:
+                _save_mcp_server(name, {"url": url})
+            except Exception as exc:
+                return f"⚠ Erro ao salvar: {exc}"
+            return (f"✅ MCP `{name}` adicionado.\n"
+                    f"Rode `/restart` para conectar e carregar as ferramentas.")
+
+        if sub == "remove":
+            if len(parts) < 2:
+                return "Uso: `/mcp remove <nome>`"
+            ok = _remove_mcp_server(parts[1])
+            return f"✓ Removido `{parts[1]}`." if ok else f"`{parts[1]}` não existe."
+
+        return "Uso: `/mcp list` | `/mcp add <nome> <url>` | `/mcp remove <nome>`"
 
     async def _handle_set_command(self, event: MessageEvent) -> str:
         """Handle /set <chave> <valor> — grava no config.yaml ou no .env.
