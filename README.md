@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://dheiver2.github.io/mangaba-agent"><img src="https://img.shields.io/badge/Docs-dheiver2.github.io/mangaba--agent-8B5CF6?style=for-the-badge" alt="Documentação"></a>
+  <a href="https://mangaba-agent.online"><img src="https://img.shields.io/badge/Docs-mangaba--agent.online-8B5CF6?style=for-the-badge" alt="Documentação"></a>
   <a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE"><img src="https://img.shields.io/badge/Licença-MIT-green?style=for-the-badge" alt="Licença MIT"></a>
   <a href="https://github.com/dheiver2/mangaba-agent/issues"><img src="https://img.shields.io/badge/Issues-GitHub-E07830?style=for-the-badge&logo=github" alt="Issues"></a>
   <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/200%2B_Modelos-OpenRouter-F59E0B?style=for-the-badge" alt="200+ Modelos"></a>
@@ -62,7 +62,7 @@ O [`bootstrap.sh`](bootstrap.sh) faz, em sequência:
 
 1. **Pré-requisitos do sistema** — Homebrew (se faltar), Xcode Command Line Tools (macOS), build tools (Linux: `build-essential`, `python3-dev`, `libffi-dev`), git, Node.js, ripgrep, ffmpeg. As dependências extras (incluindo **Playwright/Chromium** para as ferramentas de navegador) são instaladas via `scripts/install.sh --ensure`. Pule o navegador com `SKIP_BROWSER=true ./bootstrap.sh`.
 2. **Ambiente Python** — instala `uv`, cria o `.venv` e instala o pacote.
-3. **Ollama + modelo local** — instala o Ollama, sobe o servidor e baixa o modelo (`qwen2.5:7b-instruct` por padrão).
+3. **Ollama + modelo local** — instala o Ollama, sobe o servidor e baixa o modelo (`gemma4:e4b` por padrão — 64K de contexto nativo).
 4. **Config do modelo** — aponta `~/.mangaba/config.yaml` para o Ollama local.
 5. **Canais + gateway** — abre o [`setup-channels.sh`](setup-channels.sh) interativo: você **escolhe quais canais ativar** (os 13 suportados — Telegram, WhatsApp, Discord, Slack, Email, Signal, Matrix, Mattermost, SMS/Twilio, DingTalk, Feishu/Lark, WeCom, WeChat), informa os tokens, e sobe o gateway em primeiro plano ou como **serviço 24/7** (launchd/systemd: inicia no login e reinicia sozinho).
 
@@ -101,7 +101,7 @@ iex (irm https://raw.githubusercontent.com/dheiver2/mangaba-agent/main/scripts/i
 
 O instalador cuida de tudo: uv, Python 3.11, Node.js, ripgrep, ffmpeg e **um Git Bash portátil** (MinGit, descompactado em `%LOCALAPPDATA%\mangaba\git` — sem necessidade de admin, completamente isolado de qualquer instalação Git do sistema).
 
-> **Android / Termux:** O caminho manual testado está documentado no [guia Termux](https://dheiver2.github.io/mangaba-agent/docs/getting-started/termux).
+> **Android / Termux:** O caminho manual testado está documentado no [guia Termux](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/getting-started/termux.md).
 
 Após a instalação:
 
@@ -125,7 +125,7 @@ mangaba update       # Atualizar para a versão mais recente
 mangaba doctor       # Diagnosticar problemas
 ```
 
-📖 **[Documentação completa →](https://dheiver2.github.io/mangaba-agent)**
+📖 **[Documentação completa →](https://mangaba-agent.online)**
 
 ---
 
@@ -171,7 +171,7 @@ Depois, no próprio canal:
 | `/mcp composio <api_key> gmail` | Conectar Google (hosted, sem Google Cloud) |
 | `/new` · `/whoami` · `/help` | Sessão, acesso e ajuda |
 
-📖 **Tutoriais:** [Criar agentes pelos canais](https://dheiver2.github.io/mangaba-agent/docs/guides/criar-agente-pelos-canais) · [Tarefas por complexidade](https://dheiver2.github.io/mangaba-agent/docs/guides/catalogo-de-tarefas) · [Tarefas em qualquer modelo](https://dheiver2.github.io/mangaba-agent/docs/guides/tarefas-independentes-de-modelo)
+📖 **Tutoriais:** [Criar agentes pelos canais](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/criar-agente-pelos-canais.md) · [Tarefas por complexidade](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/catalogo-de-tarefas.md) · [Tarefas em qualquer modelo](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/tarefas-independentes-de-modelo.md)
 
 ---
 
@@ -185,7 +185,7 @@ O agente exige **≥64K de contexto nativo** para usar ferramentas. Isso **elimi
 | 16 GB | **`gemma4:e4b`** (gemma 3n) | 256K | ~3.4 GB a 64K, 100% GPU — validado |
 | 32 GB+ | `llama3.1:8b` / `qwen3:8b` | 128K | mais capaz |
 
-O `bootstrap.sh` já usa `gemma4:e4b` por padrão. 📖 [Guia de modelo local](https://dheiver2.github.io/mangaba-agent/docs/guides/local-llm-on-mac).
+O `bootstrap.sh` já usa `gemma4:e4b` por padrão. 📖 [Guia de modelo local](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/local-llm-on-mac.md).
 
 ---
 
@@ -197,7 +197,7 @@ O `bootstrap.sh` já usa `gemma4:e4b` por padrão. 📖 [Guia de modelo local](h
 | **Workspace MCP self-host** | Tudo (72 ferramentas) | seu app OAuth (Google Cloud 1x) — privado |
 | **Email (IMAP/SMTP)** | Só Gmail | Senha de App — sem Google Cloud, 100% local |
 
-📖 [Google Workspace via MCP](https://dheiver2.github.io/mangaba-agent/docs/guides/google-workspace-mcp). Peça em linguagem natural ("conecte meu google pelo composio") ou use o comando direto.
+📖 [Google Workspace via MCP](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/google-workspace-mcp.md). Peça em linguagem natural ("conecte meu google pelo composio") ou use o comando direto.
 
 ---
 
