@@ -1,18 +1,20 @@
 /* Mangaba Agent - GitHub Pages Shared Styles */
+/* Paleta oficial mangaba.ai (raspada de www.mangaba.ia.br):
+   laranja #F97518, marrom #382B22, fundo escuro #1E0D01, âmbar #FFD485 */
 :root {
-  --bg:        #F7F4EC;
-  --bg-2:      #EEEAE0;
-  --bg-hero:   hsl(30 90% 96%);
+  --bg:        #FAF7F0;
+  --bg-2:      #F1ECE2;
+  --bg-hero:   hsl(33 95% 95%);
   --card:      #FFFFFF;
-  --text-1:    #1C1917;
-  --text-2:    #57534E;
-  --text-3:    #A8A29E;
-  --border:    #E7E4DC;
-  --orange:    #EB7215;
-  --orange-2:  #FF8C28;
+  --text-1:    #382B22;
+  --text-2:    #6B5D52;
+  --text-3:    #A89A8C;
+  --border:    #E7E0D4;
+  --orange:    #F97518;
+  --orange-2:  #F5910F;
   --orange-3:  #C45E0A;
-  --orange-gold:#FFDA3D;
-  --orange-bg: rgba(235,114,21,.10);
+  --orange-gold:#FFD485;
+  --orange-bg: rgba(249,117,24,.10);
   --green:     #4A7A2E;
   --green-2:   #9BCE6A;
   --green-3:   #5A8A3A;
@@ -23,14 +25,14 @@
   --radius-xl: 24px;
 }
 .dark {
-  --bg:      #1C1917;
-  --bg-2:    #252220;
-  --bg-hero: hsl(27 40% 12%);
-  --card:    #2C2926;
-  --text-1:  #F5F2EB;
-  --text-2:  #A8A29E;
-  --text-3:  #78716C;
-  --border:  #3A3632;
+  --bg:      #1E0D01;
+  --bg-2:    #2A1810;
+  --bg-hero: hsl(27 70% 8%);
+  --card:    #2C1C12;
+  --text-1:  #F7EFE3;
+  --text-2:  #C9B8A6;
+  --text-3:  #8A7A6C;
+  --border:  #3D2A1C;
 }
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 html { scroll-behavior:smooth; }
