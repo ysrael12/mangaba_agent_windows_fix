@@ -30,11 +30,28 @@ def _url_from(obj):
 
 
 def main():
+    # Aceita a key inline: --key <KEY> (e a persiste no .env), ou via ambiente.
+    argv = sys.argv[1:]
     key = os.getenv("COMPOSIO_API_KEY", "").strip()
+    if "--key" in argv:
+        i = argv.index("--key")
+        try:
+            key = argv[i + 1].strip()
+            del argv[i:i + 2]
+        except IndexError:
+            print(json.dumps({"error": "use: --key <CHAVE>"}))
+            return 1
+        # persiste no .env para o runtime do MCP
+        try:
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            from mangaba_cli.config import save_env_value
+            save_env_value("COMPOSIO_API_KEY", key)
+        except Exception:
+            pass
     if not key:
-        print(json.dumps({"error": "COMPOSIO_API_KEY não definida. Use /set COMPOSIO_API_KEY <chave> e /reload."}))
+        print(json.dumps({"error": "Sem API key. Passe --key <CHAVE> ou defina COMPOSIO_API_KEY."}))
         return 1
-    toolkits = [t.lower() for t in (sys.argv[1:] or ["gmail"])]
+    toolkits = [t.lower() for t in (argv or ["gmail"])]
     user_id = os.getenv("COMPOSIO_USER_ID", "mangaba-user").strip()
 
     try:
