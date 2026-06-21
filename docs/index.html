@@ -5,468 +5,34 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Mangaba Agent — O Agente de IA Auto-Aperfeiçoável</title>
   <meta name="description" content="O agente de IA auto-aperfeiçoável feito para evoluir com você. Loop de aprendizado embutido, 40+ ferramentas, multi-plataforma."/>
-  <meta property="og:title" content="Mangaba Agent — O Agente de IA Auto-Aperfeiçoável"/>
-  <meta property="og:description" content="O agente de IA auto-aperfeiçoável feito para evoluir com você. Loop de aprendizado embutido, 40+ ferramentas, multi-plataforma."/>
-  <meta property="og:type" content="website"/>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cellipse cx='24' cy='32' rx='8' ry='10' fill='white' fill-opacity='.22' transform='rotate(-18 24 32)'/%3E%3Cpath d='M32 19 Q 32 15 33 12' stroke='%238B5A1C' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3Cpath d='M33 19 C 24 14 16 11 10 12' stroke='%234A7A2E' stroke-opacity='.4' stroke-width='1' fill='none'/%3E%3C/svg%3E"/>
-  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3C/svg%3E"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="styles.css"/>
   <script>(function(){try{var t=localStorage.getItem('mg-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()</script>
-
-  <style>
-  :root {
-    --bg:        #F7F4EC;
-    --bg-2:      #EEEAE0;
-    --bg-hero:   hsl(30 90% 96%);
-    --card:      #FFFFFF;
-    --text-1:    #1C1917;
-    --text-2:    #57534E;
-    --text-3:    #A8A29E;
-    --border:    #E7E4DC;
-    --orange:    #EB7215;
-    --orange-2:  #FF8C28;
-    --orange-3:  #C45E0A;
-    --orange-gold:#FFDA3D;
-    --orange-bg: rgba(235,114,21,.10);
-    --green:     #4A7A2E;
-    --green-2:   #9BCE6A;
-    --green-3:   #5A8A3A;
-    --green-bg:  rgba(74,122,46,.10);
-    --emerald:   #22c55e;
-    --radius:    8px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
-  }
-  .dark {
-    --bg:      #1C1917;
-    --bg-2:    #252220;
-    --bg-hero: hsl(27 40% 12%);
-    --card:    #2C2926;
-    --text-1:  #F5F2EB;
-    --text-2:  #A8A29E;
-    --text-3:  #78716C;
-    --border:  #3A3632;
-  }
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior:smooth; }
-  ::selection { background:rgba(235,114,21,.15); }
-  ::-webkit-scrollbar { width:5px; }
-  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
-  body {
-    background: var(--bg);
-    color: var(--text-1);
-    font-family: 'Open Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-size: 15px; line-height: 1.6;
-    overflow-x: hidden;
-    transition: background .25s, color .25s;
-  }
-  a { color:inherit; text-decoration:none; }
-  img { max-width:100%; display:block; }
-
-  @keyframes rise    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes pulse   { 0%,100%{opacity:.35;transform:scale(.65)} 50%{opacity:1;transform:scale(1)} }
-  @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-  .rise  { animation: rise .45s cubic-bezier(.22,1,.36,1) both; }
-  .d1 { animation-delay:.07s } .d2 { animation-delay:.14s } .d3 { animation-delay:.22s }
-
-  nav {
-    position: fixed; top:0; left:0; right:0; z-index:200;
-    height: 64px;
-    display: flex; align-items:center; justify-content:space-between;
-    padding: 0 max(1.5rem, calc(50% - 620px));
-    transition: background .2s, border-color .2s, backdrop-filter .2s;
-    border-bottom: 1px solid transparent;
-  }
-  nav.scrolled {
-    background: color-mix(in srgb, var(--bg) 90%, transparent);
-    backdrop-filter: blur(20px) saturate(1.4);
-    border-color: var(--border);
-  }
-  .nav-logo { display:flex; align-items:center; gap:.5rem; }
-  .logo-name { font-size:1.0625rem; font-weight:600; letter-spacing:-.02em; line-height:1; }
-  .logo-name b { color:var(--text-1); font-weight:600; }
-  .logo-name span { color:var(--orange); font-weight:600; }
-  .nav-links { display:flex; gap:2rem; list-style:none; }
-  .nav-links a { font-size:.875rem; font-weight:600; color:var(--text-2); transition:color .15s; }
-  .nav-links a:hover { color:var(--text-1); }
-  .nav-right { display:flex; align-items:center; gap:.75rem; }
-  .btn-icon {
-    width:36px; height:36px; border-radius:var(--radius);
-    background:transparent; border:1px solid var(--border);
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-    color:var(--text-2); transition:all .15s;
-  }
-  .btn-icon:hover { border-color:var(--orange); color:var(--orange); }
-
-  .btn {
-    display: inline-flex; align-items:center; gap:.45rem;
-    font-family:inherit; font-size:.875rem; font-weight:600;
-    border:none; cursor:pointer; white-space:nowrap;
-    transition: all .18s; text-decoration:none;
-    border-radius: var(--radius);
-    padding: .6875rem 1.5rem; min-height:42px;
-    line-height:1;
-  }
-  .btn-primary { background: var(--orange); color: #fff; }
-  .btn-primary:hover { background: var(--orange-2); }
-  .btn-ghost { background:transparent; color:var(--text-1); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color:var(--orange); color:var(--orange); }
-  .link-arr {
-    font-size:.9375rem; font-weight:600; color:var(--text-2);
-    display:inline-flex; align-items:center; gap:.3rem;
-    transition: all .15s;
-  }
-  .link-arr:hover { color:var(--text-1); gap:.55rem; }
-
-  .wrap { max-width:1160px; margin:0 auto; padding:0 2rem; }
-  section { padding:6rem 0; }
-  .sep { border:none; border-top:1px solid var(--border); }
-  .label {
-    display:inline-block;
-    font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
-    color:var(--orange); margin-bottom:.875rem;
-  }
-  .h2 {
-    font-size: clamp(1.875rem,3.5vw,2.75rem);
-    font-weight:800; letter-spacing:-.025em; line-height:1.1;
-    margin-bottom:1rem;
-  }
-  .sub {
-    font-size:1.0625rem; color:var(--text-2);
-    max-width:560px; line-height:1.75;
-  }
-  .pill {
-    display:inline-flex; align-items:center; gap:.4rem;
-    padding:.3rem .875rem; border-radius:999px;
-    border:1px solid var(--border); background:var(--card);
-    font-size:.75rem; font-weight:600; color:var(--text-2);
-  }
-  .dot-live { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse 1.5s ease-in-out infinite; }
-
-  .hero {
-    min-height: 100vh;
-    display: flex; align-items:center;
-    padding: 8rem 0 5rem;
-    position:relative; overflow:hidden;
-    background: radial-gradient(ellipse 90% 80% at 55% 40%, var(--bg-hero) 0%, var(--bg) 65%);
-  }
-  .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:4.5rem; align-items:center; }
-  .hero h1 {
-    font-size: clamp(2.375rem, 5vw, 4.5rem);
-    font-weight:800; letter-spacing:-.03em; line-height:1.07;
-    margin-bottom:1.375rem;
-  }
-  .hero h1 .hl { color:var(--orange); }
-  .hero-sub { font-size:1.0625rem; color:var(--text-2); line-height:1.75; max-width:460px; margin-bottom:2rem; }
-  .hero-cta { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:.875rem; }
-  .hero-trust { font-size:.8125rem; color:var(--text-3); }
-
-  .hero-right { position:relative; }
-  .hero-photo {
-    width:100%; border-radius:var(--radius-xl);
-    overflow:hidden; border:1px solid var(--border);
-    box-shadow: 0 20px 60px rgba(28,25,23,.12);
-    position:relative; background:var(--card); padding:2rem;
-  }
-  .code-block {
-    background:#1a1a2e; border-radius:var(--radius);
-    padding:1.25rem; font-family:'Fira Code',monospace;
-    font-size:.8125rem; line-height:1.7; color:#e2e8f0;
-    overflow-x:auto;
-  }
-  .code-block .comment { color:#6b7280; }
-  .code-block .keyword { color:#c084fc; }
-  .code-block .string { color:#34d399; }
-  .code-block .function { color:#60a5fa; }
-
-  .fc {
-    position:absolute; z-index:3;
-    display:flex; align-items:center; gap:.5rem;
-    background:rgba(255,255,255,.92);
-    backdrop-filter:blur(12px);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:.5rem .875rem;
-    font-size:.8125rem; font-weight:600; color:var(--text-1);
-    white-space:nowrap;
-    box-shadow:0 4px 20px rgba(28,25,23,.10);
-    animation:float 4s ease-in-out infinite;
-  }
-  .dark .fc { background:rgba(44,41,38,.92); }
-  .fc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .fc-1 { top:5%; right:-4%; animation-delay:0s; }
-  .fc-2 { top:35%; left:-6%; animation-delay:.7s; }
-  .fc-3 { bottom:35%; right:-6%; animation-delay:1.4s; }
-  .fc-4 { bottom:10%; right:4%; animation-delay:2.1s; }
-
-  .stats-bar {
-    background:var(--bg-2);
-    border-top:1px solid var(--border);
-    border-bottom:1px solid var(--border);
-    padding:2.75rem 0;
-  }
-  .stats-inner { display:flex; justify-content:center; align-items:center; gap:0; flex-wrap:wrap; }
-  .stat-item { text-align:center; padding:0 3.5rem; border-right:1px solid var(--border); }
-  .stat-item:last-child { border-right:none; }
-  .stat-value {
-    font-size:2.375rem; font-weight:800; letter-spacing:-.04em;
-    color:var(--text-1); line-height:1; margin-bottom:.35rem;
-  }
-  .stat-value span { color:var(--orange); }
-  .stat-label { font-size:.8125rem; color:var(--text-2); font-weight:600; }
-
-  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-  .feature-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1.75rem;
-    transition:all .22s;
-  }
-  .feature-card:hover {
-    border-color:rgba(235,114,21,.3);
-    box-shadow:0 8px 28px rgba(235,114,21,.07);
-    transform:translateY(-2px);
-  }
-  .feature-icon {
-    width:40px; height:40px; border-radius:10px;
-    background:var(--orange-bg);
-    display:flex; align-items:center; justify-content:center;
-    font-size:18px; margin-bottom:1rem;
-  }
-  .feature-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
-  .feature-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
-
-  .how-header { text-align:center; margin-bottom:3.5rem; }
-  .how-header .sub { margin:0 auto; }
-  .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
-  .step-card {
-    position:relative;
-    padding:2rem 1.75rem;
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg);
-    transition:all .22s;
-  }
-  .step-card:hover { border-color:rgba(235,114,21,.25); transform:translateY(-2px); box-shadow:0 8px 28px rgba(235,114,21,.07); }
-  .step-num {
-    font-size:3rem; font-weight:800; letter-spacing:-.04em;
-    color:var(--orange); opacity:.18; line-height:1;
-    margin-bottom:.75rem; font-variant-numeric:tabular-nums;
-  }
-  .step-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
-  .step-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
-  .steps-grid .step-card:not(:last-child)::after {
-    content:'→';
-    position:absolute; right:-1.125rem; top:50%;
-    transform:translateY(-50%);
-    font-size:1.25rem; color:var(--border); font-weight:300;
-  }
-
-  .arch-header { text-align:center; margin-bottom:3.5rem; }
-  .arch-header .sub { margin:0 auto; }
-  .arch-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2rem; }
-  .arch-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:2rem;
-    transition:all .22s;
-  }
-  .arch-card:hover { border-color:rgba(235,114,21,.25); transform:translateY(-2px); }
-  .arch-tag {
-    display:inline-block; font-size:.68rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:.09em;
-    padding:.2rem .6rem; border-radius:999px;
-    background:var(--orange-bg); color:var(--orange); margin-bottom:.75rem;
-  }
-  .arch-card h3 { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
-  .arch-card p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
-
-  .code-section { display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start; }
-  .code-section .code-block { margin-top:1rem; }
-
-  .footer-cta {
-    background:var(--text-1); color:var(--bg);
-    padding:5.5rem 2rem; text-align:center;
-  }
-  .footer-cta .label { color:rgba(235,114,21,.85); }
-  .footer-cta .h2 { color:var(--bg); margin:0 auto .875rem; }
-  .footer-cta .sub { color:color-mix(in srgb, var(--bg) 60%, transparent); margin:0 auto 2.5rem; }
-
-  footer {
-    background:var(--bg); border-top:1px solid var(--border);
-    padding:3rem 0 2rem;
-  }
-  .foot-top {
-    display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:3rem;
-    margin-bottom:3rem;
-  }
-  .foot-brand p { font-size:.875rem; color:var(--text-2); line-height:1.7; max-width:240px; margin-top:.75rem; }
-  .foot-col h4 {
-    font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
-    color:var(--text-3); margin-bottom:.875rem;
-  }
-  .foot-col ul { list-style:none; display:flex; flex-direction:column; gap:.5rem; }
-  .foot-col a  { font-size:.875rem; color:var(--text-2); transition:color .15s; }
-  .foot-col a:hover { color:var(--orange); }
-  .foot-bottom {
-    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.75rem;
-    padding-top:1.5rem; border-top:1px solid var(--border);
-    font-size:.8125rem; color:var(--text-3);
-  }
-
-  @media(max-width:1024px) {
-    .hero-grid  { grid-template-columns:1fr; }
-    .hero-right { display:none; }
-    .features-grid { grid-template-columns:1fr 1fr; }
-    .steps-grid   { grid-template-columns:1fr 1fr; }
-    .arch-grid    { grid-template-columns:1fr; }
-    .code-section { grid-template-columns:1fr; }
-    .foot-top     { grid-template-columns:1fr 1fr; }
-    .stats-inner  { gap:0; }
-    .stat-item    { padding:0 2rem; }
-    .step-card::after { display:none; }
-  }
-  @media(max-width:640px) {
-    .nav-links    { display:none; }
-    .features-grid { grid-template-columns:1fr; }
-    .steps-grid   { grid-template-columns:1fr; }
-    .foot-top     { grid-template-columns:1fr; }
-    .stats-inner  { flex-direction:column; gap:1.5rem; }
-    .stat-item    { border-right:none; border-bottom:1px solid var(--border); padding-bottom:1.5rem; width:100%; }
-    .stat-item:last-child { border-bottom:none; padding-bottom:0; }
-    .pipeline-grid { grid-template-columns:1fr; }
-    .pipeline-flow { flex-direction:column; }
-    .pipeline-arrow { transform:rotate(90deg); }
-  }
-
-  /* ── Cadeia de Negócio End-to-End ── */
-  .pipeline-header { text-align:center; margin-bottom:3.5rem; }
-  .pipeline-header .sub { margin:0 auto; }
-
-  .pipeline-flow {
-    display:flex; align-items:stretch; justify-content:center; gap:0;
-    margin-bottom:3rem; flex-wrap:wrap;
-  }
-  .pipeline-stage {
-    flex:1; min-width:180px; max-width:220px;
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1.5rem;
-    text-align:center; position:relative;
-    transition:all .22s;
-  }
-  .pipeline-stage:hover {
-    border-color:rgba(235,114,21,.3);
-    box-shadow:0 8px 28px rgba(235,114,21,.07);
-    transform:translateY(-3px);
-  }
-  .pipeline-stage-num {
-    width:32px; height:32px; border-radius:50%;
-    background:var(--orange); color:#fff;
-    font-size:.75rem; font-weight:700;
-    display:flex; align-items:center; justify-content:center;
-    margin:0 auto .75rem;
-  }
-  .pipeline-stage-icon { font-size:1.75rem; margin-bottom:.5rem; }
-  .pipeline-stage-title { font-size:.875rem; font-weight:700; margin-bottom:.35rem; }
-  .pipeline-stage-desc { font-size:.75rem; color:var(--text-2); line-height:1.5; }
-  .pipeline-arrow {
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.5rem; color:var(--orange); padding:0 .5rem;
-    font-weight:300;
-  }
-
-  .pipeline-grid {
-    display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;
-    margin-top:2rem;
-  }
-  .pipeline-detail {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1.75rem;
-    transition:all .22s;
-  }
-  .pipeline-detail:hover {
-    border-color:rgba(235,114,21,.25);
-    box-shadow:0 8px 28px rgba(235,114,21,.07);
-    transform:translateY(-2px);
-  }
-  .pipeline-detail-tag {
-    display:inline-block; font-size:.65rem; font-weight:700;
-    text-transform:uppercase; letter-spacing:.09em;
-    padding:.2rem .55rem; border-radius:999px;
-    margin-bottom:.75rem;
-  }
-  .tag-input { background:rgba(99,102,241,.1); color:#6366f1; }
-  .tag-process { background:var(--orange-bg); color:var(--orange); }
-  .tag-output { background:var(--green-bg); color:var(--green); }
-  .pipeline-detail h4 { font-size:.9375rem; font-weight:700; margin-bottom:.4rem; }
-  .pipeline-detail p { font-size:.8125rem; color:var(--text-2); line-height:1.6; }
-  .pipeline-detail ul { list-style:none; margin-top:.5rem; }
-  .pipeline-detail li {
-    font-size:.8125rem; color:var(--text-2);
-    padding:.25rem 0 .25rem 1rem; position:relative;
-  }
-  .pipeline-detail li::before {
-    content:''; position:absolute; left:0; top:.6em;
-    width:5px; height:5px; border-radius:50%;
-    background:var(--orange);
-  }
-
-  .usecase-header { text-align:center; margin-bottom:3rem; }
-  .usecase-header .sub { margin:0 auto; }
-  .usecase-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.5rem; }
-  .usecase-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:2rem;
-    transition:all .22s;
-  }
-  .usecase-card:hover {
-    border-color:rgba(235,114,21,.3);
-    box-shadow:0 8px 28px rgba(235,114,21,.07);
-    transform:translateY(-2px);
-  }
-  .usecase-icon { font-size:2rem; margin-bottom:1rem; }
-  .usecase-title { font-size:1.125rem; font-weight:700; margin-bottom:.5rem; }
-  .usecase-desc { font-size:.875rem; color:var(--text-2); line-height:1.65; margin-bottom:1rem; }
-  .usecase-steps { display:flex; gap:.5rem; flex-wrap:wrap; }
-  .usecase-step {
-    font-size:.7rem; font-weight:600;
-    padding:.25rem .6rem; border-radius:999px;
-    background:var(--bg-2); color:var(--text-2);
-  }
-  </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="#" class="nav-logo">
-    <svg width="30" height="30" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+  <a href="index.html" class="nav-logo">
+    <svg width="30" height="30" viewBox="0 0 64 64" fill="none">
       <defs>
-        <radialGradient id="fn" cx="30%" cy="25%" r="70%">
-          <stop offset="0%"   stop-color="#FFDA3D"/>
-          <stop offset="45%"  stop-color="#EB7215"/>
-          <stop offset="100%" stop-color="#C45E0A"/>
-        </radialGradient>
-        <linearGradient id="ln" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%"   stop-color="#9BCE6A"/>
-          <stop offset="100%" stop-color="#4A7A2E"/>
-        </linearGradient>
+        <radialGradient id="fn" cx="30%" cy="25%" r="70%"><stop offset="0%" stop-color="#FFDA3D"/><stop offset="45%" stop-color="#EB7215"/><stop offset="100%" stop-color="#C45E0A"/></radialGradient>
+        <linearGradient id="ln" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#9BCE6A"/><stop offset="100%" stop-color="#4A7A2E"/></linearGradient>
       </defs>
       <circle cx="32" cy="40" r="21" fill="url(#fn)"/>
-      <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
-      <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
       <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/>
     </svg>
     <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
   </a>
-
   <ul class="nav-links">
-    <li><a href="#features">Recursos</a></li>
-    <li><a href="#pipeline">Cadeia de Negócio</a></li>
-    <li><a href="#how">Como funciona</a></li>
-    <li><a href="#architecture">Arquitetura</a></li>
-    <li><a href="#quickstart">Começar</a></li>
+    <li><a href="features.html">Recursos</a></li>
+    <li><a href="business-chain.html">Cadeia de Negócio</a></li>
+    <li><a href="architecture.html">Arquitetura</a></li>
+    <li><a href="quickstart.html">Começar</a></li>
   </ul>
-
   <div class="nav-right">
     <button class="btn-icon" onclick="toggleTheme()" aria-label="Tema">
       <svg id="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -478,43 +44,39 @@
 </nav>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" style="min-height:100vh;display:flex;align-items:center;padding:8rem 0 5rem;position:relative;overflow:hidden;background:radial-gradient(ellipse 90% 80% at 55% 40%,var(--bg-hero) 0%,var(--bg) 65%)">
   <div class="wrap">
-    <div class="hero-grid">
+    <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:center">
       <div>
         <div class="rise" style="display:flex;align-items:center;gap:.625rem;margin-bottom:1.625rem">
           <span class="pill"><span class="dot-live"></span>Open Source · MIT License</span>
         </div>
-
-        <h1 class="rise d1">
-          O agente de IA<br/><span class="hl">auto-aperfeiçoável</span>
+        <h1 class="rise d1" style="font-size:clamp(2.375rem,5vw,4.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.07;margin-bottom:1.375rem">
+          O agente de IA<br/><span style="color:var(--orange)">auto-aperfeiçoável</span>
         </h1>
-
-        <p class="hero-sub rise d2">
+        <p class="hero-sub rise d2" style="font-size:1.0625rem;color:var(--text-2);line-height:1.75;max-width:460px;margin-bottom:2rem">
           Feito para evoluir com você. Cria habilidades a partir de experiências,
           se melhora durante o uso, persiste conhecimento entre sessões e constrói
           um modelo profundo de quem você é ao longo do tempo.
         </p>
-
-        <div class="hero-cta rise d3">
-          <a href="#quickstart" class="btn btn-primary">Instalar agora</a>
-          <a href="https://dheiver2.github.io/mangaba-agent/docs/" class="link-arr">Documentação <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <div class="hero-cta rise d3" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.875rem">
+          <a href="quickstart.html" class="btn btn-primary">Instalar agora</a>
+          <a href="features.html" class="link-arr">Ver recursos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
-        <p class="hero-trust rise d3">Rode em VPS de $5, cluster GPU, ou infraestrutura serverless.</p>
+        <p class="hero-trust rise d3" style="font-size:.8125rem;color:var(--text-3)">Rode em VPS de $5, cluster GPU, ou infraestrutura serverless.</p>
       </div>
-
-      <div class="hero-right rise d2">
-        <div class="hero-photo">
+      <div class="hero-right rise d2" style="position:relative">
+        <div style="background:var(--card);border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border);box-shadow:0 20px 60px rgba(28,25,23,.12);padding:2rem">
           <div class="code-block">
-            <span class="comment"># Instalação em uma linha</span><br/>
-            <span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
-            &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span><br/><br/>
-            <span class="comment"># Iniciar conversa</span><br/>
-            <span class="function">mangaba</span><br/><br/>
-            <span class="comment"># Trocar de modelo</span><br/>
-            <span class="function">mangaba</span> <span class="string">model set openrouter/claude-sonnet-4</span><br/><br/>
-            <span class="comment"># Agendar automação</span><br/>
-            <span class="function">mangaba</span> <span class="string">cron add "0 9 * * *" "resumo dos emails"</span>
+<span class="comment"># Instalação em uma linha</span><br/>
+<span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
+&nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span><br/><br/>
+<span class="comment"># Iniciar conversa</span><br/>
+<span class="function">mangaba</span><br/><br/>
+<span class="comment"># Trocar de modelo</span><br/>
+<span class="function">mangaba</span> <span class="string">model set openrouter/claude-sonnet-4</span><br/><br/>
+<span class="comment"># Agendar automação</span><br/>
+<span class="function">mangaba</span> <span class="string">cron add "0 9 * * *" "resumo dos emails"</span>
           </div>
         </div>
         <div class="fc fc-1"><span class="fc-dot" style="background:#EB7215"></span>40+ Ferramentas</div>
@@ -548,300 +110,129 @@
       </div>
     </div>
   </div>
-</section>
+</div>
 
 <hr class="sep"/>
 
-<!-- ══════════════════════════════════════════════
-     CADEIA DE NEGÓCIO END-TO-END
-══════════════════════════════════════════════ -->
-<section id="pipeline">
-  <div class="wrap">
-    <div class="pipeline-header">
-      <div class="label">Cadeia de Negócio</div>
-      <h2 class="h2">Do dado ao resultado — end-to-end</h2>
-      <p class="sub">Veja como o Mangaba Agent processa uma tarefa completa, de ponta a ponta.</p>
-    </div>
-
-    <!-- Pipeline visual -->
-    <div class="pipeline-flow">
-      <div class="pipeline-stage">
-        <div class="pipeline-stage-num">1</div>
-        <div class="pipeline-stage-icon">💬</div>
-        <div class="pipeline-stage-title">Entrada</div>
-        <div class="pipeline-stage-desc">Mensagem do usuário via CLI, Telegram, Discord, WhatsApp ou API</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-stage">
-        <div class="pipeline-stage-num">2</div>
-        <div class="pipeline-stage-icon">🧠</div>
-        <div class="pipeline-stage-title">Raciocínio</div>
-        <div class="pipeline-stage-desc">LLM analisa, planeja e decide quais ferramentas usar</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-stage">
-        <div class="pipeline-stage-num">3</div>
-        <div class="pipeline-stage-icon">🔧</div>
-        <div class="pipeline-stage-title">Execução</div>
-        <div class="pipeline-stage-desc">40+ ferramentas: código, web, arquivos, APIs, banco de dados</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-stage">
-        <div class="pipeline-stage-num">4</div>
-        <div class="pipeline-stage-icon">🔄</div>
-        <div class="pipeline-stage-title">Iteração</div>
-        <div class="pipeline-stage-desc">Loop continua até completar a tarefa (max 90 turnos)</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-stage">
-        <div class="pipeline-stage-num">5</div>
-        <div class="pipeline-stage-icon">📤</div>
-        <div class="pipeline-stage-title">Saída</div>
-        <div class="pipeline-stage-desc">Resposta final + habilidade criada + memória persistida</div>
-      </div>
-    </div>
-
-    <!-- Detalhes da cadeia -->
-    <div class="pipeline-grid">
-      <div class="pipeline-detail">
-        <div class="pipeline-detail-tag tag-input">Entrada</div>
-        <h4>Recepção da Solicitação</h4>
-        <p>O gateway unificado recebe mensagens de qualquer plataforma e roteia para o agente.</p>
-        <ul>
-          <li>Multi-plataforma: Telegram, Discord, Slack, WhatsApp, Signal, CLI</li>
-          <li>Transcrição de voz automática</li>
-          <li>Continuidade entre sessões e plataformas</li>
-          <li>Fila de mensagens com prioridade</li>
-        </ul>
-      </div>
-      <div class="pipeline-detail">
-        <div class="pipeline-detail-tag tag-process">Processamento</div>
-        <h4>Raciocínio e Planejamento</h4>
-        <p>O LLM analisa a solicitação, consulta memória e planeja os passos necessários.</p>
-        <ul>
-          <li>Contexto carregado: memória, sessões anteriores, preferências</li>
-          <li>Seleção de modelo: 200+ opções via OpenRouter, HF, Ollama</li>
-          <li>Compressão de contexto para economia de tokens</li>
-          <li>Routing inteligente de tarefas auxiliares</li>
-        </ul>
-      </div>
-      <div class="pipeline-detail">
-        <div class="pipeline-detail-tag tag-output">Saída</div>
-        <h4>Resultado e Aprendizado</h4>
-        <p>O agente entrega o resultado e extrai aprendizados para melhorar futuras sessões.</p>
-        <ul>
-          <li>Resposta formatada na plataforma de origem</li>
-          <li>Habilidade criada automaticamente (se aplicável)</li>
-          <li>Memória persistida com busca FTS5</li>
-          <li>Modelo de usuário atualizado</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Casos de uso end-to-end -->
-    <div class="usecase-header" style="margin-top:4rem">
-      <div class="label">Exemplos Reais</div>
-      <h2 class="h2">Fluxos completos de negócio</h2>
-      <p class="sub" style="margin:0 auto">Veja como o Mangaba Agent resolve problemas reais de ponta a ponta.</p>
-    </div>
-    <div class="usecase-grid">
-      <div class="usecase-card">
-        <div class="usecase-icon">📊</div>
-        <div class="usecase-title">Relatório Financeiro Automatizado</div>
-        <div class="usecase-desc">Extrai dados de APIs, processa em Python, gera gráficos e envia o relatório via Slack — tudo em uma única conversa.</div>
-        <div class="usecase-steps">
-          <span class="usecase-step">1. Conecta API financeira</span>
-          <span class="usecase-step">2. Extrai e limpa dados</span>
-          <span class="usecase-step">3. Calcula indicadores</span>
-          <span class="usecase-step">4. Gera gráficos</span>
-          <span class="usecase-step">5. Envia via Slack</span>
-        </div>
-      </div>
-      <div class="usecase-card">
-        <div class="usecase-icon">🔍</div>
-        <div class="usecase-title">Auditoria de Código</div>
-        <div class="usecase-desc">Analisa repositório inteiro, identifica vulnerabilidades, sugere correções e cria pull request automaticamente.</div>
-        <div class="usecase-steps">
-          <span class="usecase-step">1. Clona repositório</span>
-          <span class="usecase-step">2. Escaneia código</span>
-          <span class="usecase-step">3. Identifica issues</span>
-          <span class="usecase-step">4. Sugere correções</span>
-          <span class="usecase-step">5. Cria PR no GitHub</span>
-        </div>
-      </div>
-      <div class="usecase-card">
-        <div class="usecase-icon">📧</div>
-        <div class="usecase-title">Triagem de Emails com IA</div>
-        <div class="usecase-desc">Le emails, classifica por urgência, extrai ações pendentes e cria tarefas no projeto automaticamente.</div>
-        <div class="usecase-steps">
-          <span class="usecase-step">1. Conecta邮箱</span>
-          <span class="usecase-step">2. Classifica emails</span>
-          <span class="usecase-step">3. Extrai ações</span>
-          <span class="usecase-step">4. Cria tarefas</span>
-          <span class="usecase-step">5. Resumo diário</span>
-        </div>
-      </div>
-      <div class="usecase-card">
-        <div class="usecase-icon">🤖</div>
-        <div class="usecase-title">Deploy Automatizado</div>
-        <div class="usecase-desc">Testa, faz build e deploy em qualquer infraestrutura — Docker, Modal, VPS — com notificação no Telegram.</div>
-        <div class="usecase-steps">
-          <span class="usecase-step">1. Roda testes</span>
-          <span class="usecase-step">2. Build da imagem</span>
-          <span class="usecase-step">3. Push para registry</span>
-          <span class="usecase-step">4. Deploy em produção</span>
-          <span class="usecase-step">5. Notifica time</span>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- FEATURES -->
-<section id="features">
+<!-- FEATURES RESUMO -->
+<section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Recursos</div>
       <h2 class="h2">Tudo que você precisa em um agente</h2>
       <p class="sub" style="margin:0 auto">Do terminal ao Telegram, de scripts a automações — um único agente para tudo.</p>
     </div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">🧠</div>
-        <div class="feature-title">Loop de Aprendizado</div>
-        <div class="feature-desc">Cria habilidades automaticamente após tarefas complexas. As melhora durante o uso. Busca FTS5 de sessões com sumarização por LLM.</div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Loop de Aprendizado</div>
+        <div class="card-desc">Cria habilidades automaticamente após tarefas complexas. As melhora durante o uso.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">💬</div>
-        <div class="feature-title">Multi-Plataforma</div>
-        <div class="feature-desc">Telegram, Discord, Slack, WhatsApp, Signal e CLI — tudo de um único processo gateway. Continuidade entre plataformas.</div>
+      <div class="card">
+        <div class="card-icon">💬</div>
+        <div class="card-title">Multi-Plataforma</div>
+        <div class="card-desc">Telegram, Discord, Slack, WhatsApp, Signal e CLI — tudo de um único processo.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔧</div>
-        <div class="feature-title">40+ Ferramentas</div>
-        <div class="feature-desc">Código, web, arquivos, APIs, banco de dados, mídia, comunicação. Tudo integrado e pronto para usar.</div>
+      <div class="card">
+        <div class="card-icon">🔧</div>
+        <div class="card-title">40+ Ferramentas</div>
+        <div class="card-desc">Código, web, arquivos, APIs, banco de dados, mídia, comunicação.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">⏰</div>
-        <div class="feature-title">Automações Agendadas</div>
-        <div class="feature-desc">Cron integrado com entrega em qualquer plataforma. Relatórios diários, backups noturnos — em linguagem natural.</div>
+      <div class="card">
+        <div class="card-icon">⏰</div>
+        <div class="card-title">Automações Agendadas</div>
+        <div class="card-desc">Cron integrado com entrega em qualquer plataforma.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🤖</div>
-        <div class="feature-title">Sub-Agentes</div>
-        <div class="feature-desc">Spawn de sub-agentes isolados para fluxos paralelos. Colapsando pipelines multi-etapa em turnos de custo zero.</div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">Sub-Agentes</div>
+        <div class="card-desc">Spawn de sub-agentes isolados para fluxos paralelos.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🌐</div>
-        <div class="feature-title">Roda em Qualquer Lugar</div>
-        <div class="feature-desc">Local, Docker, SSH, Modal, Daytona, Vercel Sandbox, Singularity. Serverless com persistência.</div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Roda em Qualquer Lugar</div>
+        <div class="card-desc">Local, Docker, SSH, Modal, Daytona, Vercel Sandbox, Singularity.</div>
       </div>
+    </div>
+    <div style="text-align:center;margin-top:2rem">
+      <a href="features.html" class="btn btn-ghost">Ver todos os recursos →</a>
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div class="wrap">
-    <div class="how-header">
-      <div class="label">Como funciona</div>
-      <h2 class="h2">Simples de instalar, poderoso para usar</h2>
-      <p class="sub">Uma linha para instalar. Um comando para começar. O agente faz o resto.</p>
-    </div>
-    <div class="steps-grid">
-      <div class="step-card">
-        <div class="step-num">01</div>
-        <div class="step-title">Instale com uma linha</div>
-        <div class="step-desc">Execute o script de instalação no seu terminal. Funciona em Linux, macOS, WSL2 e Termux.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">02</div>
-        <div class="step-title">Configure seu modelo</div>
-        <div class="step-desc">Escolha entre OpenRouter, OpenAI, NVIDIA, Hugging Face ou seu próprio endpoint. Troque a qualquer momento.</div>
-      </div>
-      <div class="step-card">
-        <div class="step-num">03</div>
-        <div class="step-title">Comece a conversar</div>
-        <div class="step-desc">O agente aprende com cada interação, cria habilidades automaticamente e evolui com você.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- ARCHITECTURE -->
-<section id="architecture">
-  <div class="wrap">
-    <div class="arch-header">
-      <div class="label">Arquitetura</div>
-      <h2 class="h2">Construído para escalar</h2>
-      <p class="sub">Modular, extensível e pronto para produção.</p>
-    </div>
-    <div class="arch-grid">
-      <div class="arch-card">
-        <div class="arch-tag">Núcleo</div>
-        <h3>AIAgent</h3>
-        <p>O loop principal de conversação com orquestração de ferramentas, compressão de contexto e tracking de orçamento.</p>
-      </div>
-      <div class="arch-card">
-        <div class="arch-tag">Ferramentas</div>
-        <h3>Registry + Toolsets</h3>
-        <p>Sistema de descoberta automática com 40+ ferramentas organizadas em toolsets por plataforma.</p>
-      </div>
-      <div class="arch-card">
-        <div class="arch-tag">Gateway</div>
-        <h3>Multi-Plataforma</h3>
-        <p>Adaptadores para Telegram, Discord, Slack, WhatsApp, Signal e mais — tudo em um único processo.</p>
-      </div>
-      <div class="arch-card">
-        <div class="arch-tag">Plugins</div>
-        <h3>Sistema Extensível</h3>
-        <p>Memória, provedores de modelo, engines de contexto e mais — tudo via plugins descobertos automaticamente.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- QUICK START -->
-<section id="quickstart">
+<!-- CADEIA DE NEGÓCIO RESUMO -->
+<section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Comece agora</div>
-      <h2 class="h2">Instalação rápida</h2>
+      <div class="label">Cadeia de Negócio</div>
+      <h2 class="h2">Do dado ao resultado — end-to-end</h2>
+      <p class="sub" style="margin:0 auto">Veja como o Mangaba Agent processa uma tarefa completa.</p>
+    </div>
+    <div class="pipeline-flow">
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">1</div>
+        <div class="pipeline-stage-icon">💬</div>
+        <div class="pipeline-stage-title">Entrada</div>
+        <div class="pipeline-stage-desc">Mensagem via CLI, Telegram, Discord</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">2</div>
+        <div class="pipeline-stage-icon">🧠</div>
+        <div class="pipeline-stage-title">Raciocínio</div>
+        <div class="pipeline-stage-desc">LLM analisa e planeja</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">3</div>
+        <div class="pipeline-stage-icon">🔧</div>
+        <div class="pipeline-stage-title">Execução</div>
+        <div class="pipeline-stage-desc">40+ ferramentas</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">4</div>
+        <div class="pipeline-stage-icon">📤</div>
+        <div class="pipeline-stage-title">Saída</div>
+        <div class="pipeline-stage-desc">Resultado + aprendizado</div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:2rem">
+      <a href="business-chain.html" class="btn btn-ghost">Ver fluxo completo →</a>
+    </div>
+  </div>
+</section>
+
+<hr class="sep"/>
+
+<!-- QUICKSTART RESUMO -->
+<section>
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Comece Agora</div>
+      <h2 class="h2">Instalação em uma linha</h2>
       <p class="sub" style="margin:0 auto">Uma linha no terminal e você está pronto.</p>
     </div>
-    <div class="code-section">
-      <div>
-        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Linux, macOS, WSL2, Termux</h3>
-        <div class="code-block">
-          <span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
-          &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span>
+    <div class="grid-2">
+      <div class="detail-card">
+        <h3>🐧 Linux, macOS, WSL2</h3>
+        <div class="code-block" style="margin-top:1rem">
+<span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
+&nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span>
         </div>
       </div>
-      <div>
-        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Windows (PowerShell)</h3>
-        <div class="code-block">
-          <span class="keyword">iex</span> (irm https://raw.githubusercontent.com/<br/>
-          &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.ps1)
+      <div class="detail-card">
+        <h3>🪟 Windows (PowerShell)</h3>
+        <div class="code-block" style="margin-top:1rem">
+<span class="keyword">iex</span> (irm https://raw.githubusercontent.com/<br/>
+&nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.ps1)
         </div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:3rem">
-      <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Após a instalação</h3>
-      <div class="code-block" style="max-width:500px;margin:0 auto;text-align:left">
-        <span class="function">source</span> ~/.bashrc<br/>
-        <span class="function">mangaba</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># começar a conversar!</span><br/>
-        <span class="function">mangaba</span> <span class="string">model</span>&nbsp;&nbsp;&nbsp;<span class="comment"># escolher modelo</span><br/>
-        <span class="function">mangaba</span> <span class="string">tools</span>&nbsp;&nbsp;&nbsp;<span class="comment"># configurar ferramentas</span><br/>
-        <span class="function">mangaba</span> <span class="string">gateway</span>&nbsp;<span class="comment"># iniciar Telegram, Discord, etc.</span>
-      </div>
+    <div style="text-align:center;margin-top:2rem">
+      <a href="quickstart.html" class="btn btn-primary">Ver guia completo →</a>
     </div>
   </div>
 </section>
@@ -851,8 +242,11 @@
   <div class="wrap" style="max-width:680px">
     <div class="label">Open Source</div>
     <h2 class="h2">Pronto para evoluir com você?</h2>
-    <p class="sub">O Mangaba Agent é gratuito e open source. Comece hoje e construa algo extraordinário.</p>
-    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-primary" target="_blank" style="margin-top:2rem;font-size:.9375rem;padding:.8125rem 2rem">Ver no GitHub</a>
+    <p class="sub">O Mangaba Agent é gratuito e open source. Comece hoje.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
+      <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-primary">Ver no GitHub</a>
+      <a href="quickstart.html" class="btn btn-ghost">Começar agora</a>
+    </div>
   </div>
 </div>
 
@@ -862,10 +256,7 @@
     <div class="foot-top">
       <div class="foot-brand">
         <div class="nav-logo">
-          <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
-            <circle cx="32" cy="40" r="21" fill="url(#fn)"/>
-            <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/>
-          </svg>
+          <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="40" r="21" fill="url(#fn)"/><path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/></svg>
           <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
         </div>
         <p>O agente de IA auto-aperfeiçoável feito para evoluir com você.</p>
@@ -879,19 +270,20 @@
         </ul>
       </div>
       <div class="foot-col">
+        <h4>Páginas</h4>
+        <ul>
+          <li><a href="features.html">Recursos</a></li>
+          <li><a href="business-chain.html">Cadeia de Negócio</a></li>
+          <li><a href="architecture.html">Arquitetura</a></li>
+          <li><a href="quickstart.html">Começar</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
         <h4>Comunidade</h4>
         <ul>
           <li><a href="https://discord.gg/dheiver2">Discord</a></li>
           <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Discussions</a></li>
           <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Issues</a></li>
-        </ul>
-      </div>
-      <div class="foot-col">
-        <h4>Recursos</h4>
-        <ul>
-          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/getting-started/quickstart">Começar</a></li>
-          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/user-guide/cli">CLI</a></li>
-          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/developer-guide/architecture">Arquitetura</a></li>
         </ul>
       </div>
     </div>
@@ -903,13 +295,8 @@
 </footer>
 
 <script>
-// Nav scroll effect
 const nav = document.getElementById('nav');
-window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 20);
-});
-
-// Theme toggle
+window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.classList.toggle('dark');
@@ -917,7 +304,6 @@ function toggleTheme() {
   document.getElementById('i-sun').style.display = isDark ? 'none' : 'block';
   document.getElementById('i-moon').style.display = isDark ? 'block' : 'none';
 }
-// Init theme icon
 (function() {
   const isDark = document.documentElement.classList.contains('dark');
   document.getElementById('i-sun').style.display = isDark ? 'none' : 'block';
