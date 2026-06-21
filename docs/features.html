@@ -431,158 +431,606 @@ essa preferência para as próximas vezes.
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Para Profissionais</div>
-      <h2 class="h2">Como cada profissional pode usar</h2>
+      <h2 class="h2">Roteiros e Comandos por Profissão</h2>
       <p class="sub" style="margin:0 auto">
-        Não importa sua profissão — eu posso te ajudar. Veja como médicos, 
-        advogados, contadores e professores estão usando o Mangaba Agent 
-        para trabalhar menos e fazer mais.
+        Veja passo a passo como cada profissional pode usar o Mangaba Agent 
+        no dia a dia. Copie os comandos e comece agora mesmo.
       </p>
     </div>
 
-    <div class="grid-2">
-      <!-- MÉDICOS -->
-      <div class="card" style="border-left:4px solid #3b82f6">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <div class="card-icon" style="background:#3b82f620;color:#3b82f6">🏥</div>
-          <div>
-            <div class="card-title">Médicos</div>
-            <div style="font-size:.75rem;color:var(--text-3)">Saúde e Pacientes</div>
-          </div>
-        </div>
-        <div class="card-desc">
-          <strong>O que eu faço:</strong>
-          <ul style="margin:.5rem 0;padding-left:1.2rem;font-size:.875rem">
-            <li><strong>Prontuários:</strong> Organizo e resumo prontuários de pacientes</li>
-            <li><strong>Receitas:</strong> Verifico interações medicamentosas</li>
-            <li><strong>Agenda:</strong> Gerencio consultas e lembretes</li>
-            <li><strong>Pesquisa:</strong> Busco artigos científicos atualizados</li>
-            <li><strong>Relatórios:</strong> Gero relatórios para convênios</li>
-          </ul>
-          <div style="margin-top:1rem;padding:.75rem;background:var(--bg-2);border-radius:8px;font-size:.8125rem">
-            <strong>Exemplo:</strong> <em>"Resuma os exames do paciente João da última semana e sugira próximos passos"</em>
-          </div>
+    <!-- MÉDICOS -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #3b82f6">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">🏥</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Médicos</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Saúde e Pacientes</div>
         </div>
       </div>
 
-      <!-- ADVOGADOS -->
-      <div class="card" style="border-left:4px solid #8b5cf6">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <div class="card-icon" style="background:#8b5cf620;color:#8b5cf6">⚖️</div>
-          <div>
-            <div class="card-title">Advogados</div>
-            <div style="font-size:.75rem;color:var(--text-3)">Direito e Processos</div>
-          </div>
-        </div>
-        <div class="card-desc">
-          <strong>O que eu faço:</strong>
-          <ul style="margin:.5rem 0;padding-left:1.2rem;font-size:.875rem">
-            <li><strong>Petições:</strong> Redijo petições iniciais e finais</li>
-            <li><strong>Pesquisa:</strong> Busco jurisprudência e doutrina</li>
-            <li><strong>Prazos:</strong> Controlo prazos processuais</li>
-            <li><strong>Contratos:</strong> Analiso e reviso contratos</li>
-            <li><strong>Organização:</strong> Organizo processos por prioridade</li>
-          </ul>
-          <div style="margin-top:1rem;padding:.75rem;background:var(--bg-2);border-radius:8px;font-size:.8125rem">
-            <strong>Exemplo:</strong> <em>"Elabore uma contestação para o processo X com base na jurisprudência recente do STJ"</em>
-          </div>
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Consulta do Dia</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Resumir prontuários do dia</span>
+<span class="string">"Resuma os prontuários dos 8 pacientes agendados para hoje, 
+destacando exames pendentes e medicamentos em uso"</span>
+
+<span class="comment"># Passo 2: Verificar interações medicamentosas</span>
+<span class="string">"O paciente João toma Losartana 50mg e Amiodarona 200mg. 
+Existem interações medicamentosas relevantes?"</span>
+
+<span class="comment"># Passo 3: Gerar relatório para convênio</span>
+<span class="string">"Gere um relatório de atendimento do mês de maio para a 
+operadora Unimed, no formato exigido"</span>
+
+<span class="comment"># Passo 4: Buscar artigos científicos</span>
+<span class="string">"Busque artigos recentes sobre tratamento de hipertensão 
+resistente publicados nos últimos 6 meses"</span>
+
+<span class="comment"># Passo 5: Organizar agenda</span>
+<span class="string">"Organize minha agenda da semana priorizando pacientes 
+com exames pendentes de resultado"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Resumo de prontuário</td>
+            <td><code>"Resuma o prontuário do paciente [nome]"</code></td>
+          </tr>
+          <tr>
+            <td>Verificar interações</td>
+            <td><code>"Verifique interações entre [medicamento A] e [medicamento B]"</code></td>
+          </tr>
+          <tr>
+            <td>Receita digital</td>
+            <td><code>"Gere receita de [medicamento] para o paciente [nome]"</code></td>
+          </tr>
+          <tr>
+            <td>Relatório médico</td>
+            <td><code>"Crie relatório de atendimento de [período]"</code></td>
+          </tr>
+          <tr>
+            <td>Lembrete de follow-up</td>
+            <td><code>"Agende lembretes para follow-up dos pacientes da semana"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ADVOGADOS -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #8b5cf6">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">⚖️</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Advogados</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Direito e Processos</div>
         </div>
       </div>
 
-      <!-- CONTADORES -->
-      <div class="card" style="border-left:4px solid #10b981">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <div class="card-icon" style="background:#10b98120;color:#10b981">📊</div>
-          <div>
-            <div class="card-title">Contadores</div>
-            <div style="font-size:.75rem;color:var(--text-3)">Finanças e Tributos</div>
-          </div>
-        </div>
-        <div class="card-desc">
-          <strong>O que eu faço:</strong>
-          <ul style="margin:.5rem 0;padding-left:1.2rem;font-size:.875rem">
-            <li><strong>Impostos:</strong> Calculo tributos e gero guias</li>
-            <li><strong>Relatórios:</strong> Crio DRE, balanço patrimonial</li>
-            <li><strong>Conciliação:</strong> Concilio bancário e fiscal</li>
-            <li><strong>SPED:</strong> Gero obrigações acessórias</li>
-            <li><strong>Análises:</strong> Análise de custos e margens</li>
-          </ul>
-          <div style="margin-top:1rem;padding:.75rem;background:var(--bg-2);border-radius:8px;font-size:.8125rem">
-            <strong>Exemplo:</strong> <em>"Gere o DRE do mês de maio e identifique as categorias com maior crescimento"</em>
-          </div>
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Análise de Processo</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Receber e analisar petição</span>
+<span class="string">"Analise a petição inicial do processo 0001234-56.2024.8.26.0100 
+e identifique os pontos principais da ação"</span>
+
+<span class="comment"># Passo 2: Buscar jurisprudência</span>
+<span class="string">"Busque jurisprudência recente do TJSP sobre dano moral 
+em relações de consumo de banco"</span>
+
+<span class="comment"># Passo 3: Verificar prazos</span>
+<span class="string">"Quais prazos processuais estão pendentes para os processos 
+da fila de trâmite?</span>
+
+<span class="comment"># Passo 4: Redigir contestação</span>
+<span class="string">"Elabore contestação para o processo X com base na 
+jurisprudência encontrada e nos fatos narrados"</span>
+
+<span class="comment"># Passo 5: Revisar contrato</span>
+<span class="string">"Revise o contrato de prestação de serviços e identifique 
+cláusulas de risco para o cliente"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Petição inicial</td>
+            <td><code>"Redija petição inicial para [tipo de ação] contra [réu]"</code></td>
+          </tr>
+          <tr>
+            <td>Jurisprudência</td>
+            <td><code>"Busque jurisprudência sobre [tema] nos tribunais [TJ/STJ/STF]"</code></td>
+          </tr>
+          <tr>
+            <td>Contestação</td>
+            <td><code>"Elabore contestação para o processo [número]"</code></td>
+          </tr>
+          <tr>
+            <td>Contrato</td>
+            <td><code>"Revise o contrato de [tipo] e aponte riscos"</code></td>
+          </tr>
+          <tr>
+            <td>Prazos</td>
+            <td><code>" Liste prazos processuais da semana"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CONTADORES -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #10b981">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">📊</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Contadores</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Finanças e Tributos</div>
         </div>
       </div>
 
-      <!-- PROFESSORES -->
-      <div class="card" style="border-left:4px solid #f59e0b">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <div class="card-icon" style="background:#f59e0b20;color:#f59e0b">📚</div>
-          <div>
-            <div class="card-title">Professores</div>
-            <div style="font-size:.75rem;color:var(--text-3)">Educação e Ensino</div>
-          </div>
-        </div>
-        <div class="card-desc">
-          <strong>O que eu faço:</strong>
-          <ul style="margin:.5rem 0;padding-left:1.2rem;font-size:.875rem">
-            <li><strong>Planos:</strong> Crio planos de aula detalhados</li>
-            <li><strong>Avaliações:</strong> Gero provas e gabaritos</li>
-            <li><strong>Material:</strong> Resumo de conteúdos e apostilas</li>
-            <li><strong>Notas:</strong> Organizo e calculo médias</li>
-            <li><strong>Comunicação:</strong> Redijo comunicados para pais</li>
-          </ul>
-          <div style="margin-top:1rem;padding:.75rem;background:var(--bg-2);border-radius:8px;font-size:.8125rem">
-            <strong>Exemplo:</strong> <em>"Crie uma prova de matemática para o 9º ano com 10 questões de múltipla escolha sobre equações do 2º grau"</em>
-          </div>
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Fechamento Mensal</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Conciliação bancária</span>
+<span class="string">"Concilie o extrato bancário de maio com os lançamentos 
+do sistema. Identifique divergências"</span>
+
+<span class="comment"># Passo 2: Cálculo de impostos</span>
+<span class="string">"Calcule o ICMS, PIS e COFINS devido em maio com base 
+na receita bruta de R$ 150.000,00"</span>
+
+<span class="comment"># Passo 3: Gerar DRE</span>
+<span class="string">"Gere o DRE (Demonstração do Resultado do Exercício) 
+do mês de maio no padrão BRGAAP"</span>
+
+<span class="comment"># Passo 4: SPED Fiscal</span>
+<span class="string">"Prepare os dados para o SPED Fiscal de maio, 
+validando CFOPs e CSTs"</span>
+
+<span class="comment"># Passo 5: Relatório para cliente</span>
+<span class="string">"Crie um relatório financeiro resumido para o cliente 
+Empresa XYZ com destaque para variação patrimonial"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Conciliação</td>
+            <td><code>"Concilie o extrato bancário de [mês]"</code></td>
+          </tr>
+          <tr>
+            <td>Cálculo de impostos</td>
+            <td><code>"Calcule [imposto] sobre a receita de [valor]"</code></td>
+          </tr>
+          <tr>
+            <td>DRE</td>
+            <td><code>"Gere o DRE de [mês/ano]"</code></td>
+          </tr>
+          <tr>
+            <td>SPED</td>
+            <td><code>"Prepare dados para o SPED [Fiscal/Contribuições] de [mês]"</code></td>
+          </tr>
+          <tr>
+            <td>Balanço</td>
+            <td><code>"Monte o balanço patrimonial de [empresa]"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PROFESSORES -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #f59e0b">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">📚</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Professores</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Educação e Ensino</div>
         </div>
       </div>
 
-      <!-- EMPRESÁRIOS -->
-      <div class="card" style="border-left:4px solid #ec4899">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <div class="card-icon" style="background:#ec489920;color:#ec4899">💼</div>
-          <div>
-            <div class="card-title">Empresários</div>
-            <div style="font-size:.75rem;color:var(--text-3)">Gestão e Negócios</div>
-          </div>
-        </div>
-        <div class="card-desc">
-          <strong>O que eu faço:</strong>
-          <ul style="margin:.5rem 0;padding-left:1.2rem;font-size:.875rem">
-            <li><strong>Vendas:</strong> Analiso dados de vendas e tendências</li>
-            <li><strong>Marketing:</strong> Crio campanhas e conteúdo</li>
-            <li><strong>Financeiro:</strong> Previsão de fluxo de caixa</li>
-            <li><strong>Equipe:</strong> Gerencio tarefas e produtividade</li>
-            <li><strong>Relatórios:</strong> Dashboards para tomada de decisão</li>
-          </ul>
-          <div style="margin-top:1rem;padding:.75rem;background:var(--bg-2);border-radius:8px;font-size:.8125rem">
-            <strong>Exemplo:</strong> <em>"Analise as vendas do trimestre e sugira ações para aumentar a margem de lucro"</em>
-          </div>
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Planejamento Semanal</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Criar plano de aula</span>
+<span class="string">"Crie um plano de aula de Matemática para o 9º ano sobre 
+equações do 2º grau, com duração de 50 minutos"</span>
+
+<span class="comment"># Passo 2: Gerar avaliação</span>
+<parameter name="newString"><!-- PROFISSIONAIS -->
+<section>
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Para Profissionais</div>
+      <h2 class="h2">Roteiros e Comandos por Profissão</h2>
+      <p class="sub" style="margin:0 auto">
+        Veja passo a passo como cada profissional pode usar o Mangaba Agent 
+        no dia a dia. Copie os comandos e comece agora mesmo.
+      </p>
+    </div>
+
+    <!-- MÉDICOS -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #3b82f6">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">🏥</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Médicos</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Saúde e Pacientes</div>
         </div>
       </div>
 
-      <!-- DESENVOLVEDORES -->
-      <div class="card" style="border-left:4px solid #06b6d4">
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
-          <div class="card-icon" style="background:#06b6d420;color:#06b6d4">💻</div>
-          <div>
-            <div class="card-title">Desenvolvedores</div>
-            <div style="font-size:.75rem;color:var(--text-3)">Tecnologia e Código</div>
-          </div>
-        </div>
-        <div class="card-desc">
-          <strong>O que eu faço:</strong>
-          <ul style="margin:.5rem 0;padding-left:1.2rem;font-size:.875rem">
-            <li><strong>Código:</strong> Escrevo, reviso e depuro código</li>
-            <li><strong>Documentação:</strong> Gero docs automáticos</li>
-            <li><strong>Testes:</strong> Crio testes unitários e E2E</li>
-            <li><strong>Deploy:</strong> Configuro CI/CD e publico</li>
-            <li><strong>Arquitetura:</strong> Sugiro melhorias de design</li>
-          </ul>
-          <div style="margin-top:1rem;padding:.75rem;background:var(--bg-2);border-radius:8px;font-size:.8125rem">
-            <strong>Exemplo:</strong> <em>"Escreva testes para a função de pagamento e configure o deploy automático no GitHub Actions"</em>
-          </div>
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Consulta do Dia</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Resumir prontuários do dia</span>
+<span class="string">"Resuma os prontuários dos 8 pacientes agendados para hoje, 
+destacando exames pendentes e medicamentos em uso"</span>
+
+<span class="comment"># Passo 2: Verificar interações medicamentosas</span>
+<span class="string">"O paciente João toma Losartana 50mg e Amiodarona 200mg. 
+Existem interações medicamentosas relevantes?"</span>
+
+<span class="comment"># Passo 3: Gerar relatório para convênio</span>
+<span class="string">"Gere um relatório de atendimento do mês de maio para a 
+operadora Unimed, no formato exigido"</span>
+
+<span class="comment"># Passo 4: Buscar artigos científicos</span>
+<span class="string">"Busque artigos recentes sobre tratamento de hipertensão 
+resistente publicados nos últimos 6 meses"</span>
+
+<span class="comment"># Passo 5: Organizar agenda</span>
+<span class="string">"Organize minha agenda da semana priorizando pacientes 
+com exames pendentes de resultado"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Resumo de prontuário</td>
+            <td><code>"Resuma o prontuário do paciente [nome]"</code></td>
+          </tr>
+          <tr>
+            <td>Verificar interações</td>
+            <td><code>"Verifique interações entre [medicamento A] e [medicamento B]"</code></td>
+          </tr>
+          <tr>
+            <td>Receita digital</td>
+            <td><code>"Gere receita de [medicamento] para o paciente [nome]"</code></td>
+          </tr>
+          <tr>
+            <td>Relatório médico</td>
+            <td><code>"Crie relatório de atendimento de [período]"</code></td>
+          </tr>
+          <tr>
+            <td>Lembrete de follow-up</td>
+            <td><code>"Agende lembretes para follow-up dos pacientes da semana"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ADVOGADOS -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #8b5cf6">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">⚖️</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Advogados</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Direito e Processos</div>
         </div>
       </div>
+
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Análise de Processo</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Receber e analisar petição</span>
+<span class="string">"Analise a petição inicial do processo 0001234-56.2024.8.26.0100 
+e identifique os pontos principais da ação"</span>
+
+<span class="comment"># Passo 2: Buscar jurisprudência</span>
+<span class="string">"Busque jurisprudência recente do TJSP sobre dano moral 
+em relações de consumo de banco"</span>
+
+<span class="comment"># Passo 3: Verificar prazos</span>
+<span class="string">"Quais prazos processuais estão pendentes para os processos 
+da fila de trâmite?</span>
+
+<span class="comment"># Passo 4: Redigir contestação</span>
+<span class="string">"Elabore contestação para o processo X com base na 
+jurisprudência encontrada e nos fatos narrados"</span>
+
+<span class="comment"># Passo 5: Revisar contrato</span>
+<span class="string">"Revise o contrato de prestação de serviços e identifique 
+cláusulas de risco para o cliente"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Petição inicial</td>
+            <td><code>"Redija petição inicial para [tipo de ação] contra [réu]"</code></td>
+          </tr>
+          <tr>
+            <td>Jurisprudência</td>
+            <td><code>"Busque jurisprudência sobre [tema] nos tribunais [TJ/STJ/STF]"</code></td>
+          </tr>
+          <tr>
+            <td>Contestação</td>
+            <td><code>"Elabore contestação para o processo [número]"</code></td>
+          </tr>
+          <tr>
+            <td>Contrato</td>
+            <td><code>"Revise o contrato de [tipo] e aponte riscos"</code></td>
+          </tr>
+          <tr>
+            <td>Prazos</td>
+            <td><code>" Liste prazos processuais da semana"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CONTADORES -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #10b981">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">📊</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Contadores</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Finanças e Tributos</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Fechamento Mensal</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Conciliação bancária</span>
+<span class="string">"Concilie o extrato bancário de maio com os lançamentos 
+do sistema. Identifique divergências"</span>
+
+<span class="comment"># Passo 2: Cálculo de impostos</span>
+<span class="string">"Calcule o ICMS, PIS e COFINS devido em maio com base 
+na receita bruta de R$ 150.000,00"</span>
+
+<span class="comment"># Passo 3: Gerar DRE</span>
+<span class="string">"Gere o DRE (Demonstração do Resultado do Exercício) 
+do mês de maio no padrão BRGAAP"</span>
+
+<span class="comment"># Passo 4: SPED Fiscal</span>
+<span class="string">"Prepare os dados para o SPED Fiscal de maio, 
+validando CFOPs e CSTs"</span>
+
+<span class="comment"># Passo 5: Relatório para cliente</span>
+<span class="string">"Crie um relatório financeiro resumido para o cliente 
+Empresa XYZ com destaque para variação patrimonial"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Conciliação</td>
+            <td><code>"Concilie o extrato bancário de [mês]"</code></td>
+          </tr>
+          <tr>
+            <td>Cálculo de impostos</td>
+            <td><code>"Calcule [imposto] sobre a receita de [valor]"</code></td>
+          </tr>
+          <tr>
+            <td>DRE</td>
+            <td><code>"Gere o DRE de [mês/ano]"</code></td>
+          </tr>
+          <tr>
+            <td>SPED</td>
+            <td><code>"Prepare dados para o SPED [Fiscal/Contribuições] de [mês]"</code></td>
+          </tr>
+          <tr>
+            <td>Balanço</td>
+            <td><code>"Monte o balanço patrimonial de [empresa]"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PROFESSORES -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #f59e0b">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">📚</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Professores</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Educação e Ensino</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Planejamento Semanal</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Criar plano de aula</span>
+<span class="string">"Crie um plano de aula de Matemática para o 9º ano sobre 
+equações do 2º grau, com duração de 50 minutos"</span>
+
+<span class="comment"># Passo 2: Gerar avaliação</span>
+<span class="string">"Elabore uma prova com 10 questões de múltipla escolha 
+sobre equações do 2º grau, com gabarito"</span>
+
+<span class="comment"># Passo 3: Criar material de apoio</span>
+<span class="string">"Gere um resumo visual sobre equações do 2º grau para 
+os alunos copiarem no caderno"</span>
+
+<span class="comment"># Passo 4: Calcular médias</span>
+<span class="string">"Calcule a média aritmética das notas da turma do 9º A: 
+[lista de notas]"</span>
+
+<span class="comment"># Passo 5: Comunicado para pais</span>
+<span class="string">"Redija um comunicado informando sobre a reunião de pais 
+no dia [data] às [hora]"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Plano de aula</td>
+            <td><code>"Crie plano de aula de [disciplina] para [série] sobre [tema]"</code></td>
+          </tr>
+          <tr>
+            <td>Prova</td>
+            <td><code>"Elabore prova de [disciplina] com [nº] questões sobre [tema]"</code></td>
+          </tr>
+          <tr>
+            <td>Material</td>
+            <td><code>"Gere resumo sobre [tema] para [série]"</code></td>
+          </tr>
+          <tr>
+            <td>Notas</td>
+            <td><code>"Calcule a média das notas: [lista]"</code></td>
+          </tr>
+          <tr>
+            <td>Comunicado</td>
+            <td><code>"Redija comunicado sobre [assunto] para [destinatários]"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- EMPRESÁRIOS -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #ec4899">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">💼</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Empresários</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Gestão e Negócios</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Análise de Desempenho</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Analisar vendas</span>
+<span class="string">"Analise as vendas do trimestre Q1 2026 e identifique 
+os produtos mais e menos vendidos"</span>
+
+<span class="comment"># Passo 2: Previsão de fluxo de caixa</span>
+<span class="string">"Faça uma previsão de fluxo de caixa para os próximos 
+3 meses com base nas receitas e despesas atuais"</span>
+
+<span class="comment"># Passo 3: Criar campanha de marketing</span>
+<span class="string">"Elabore um plano de marketing digital para promover 
+o lançamento do novo produto"</span>
+
+<span class="comment"># Passo 4: Relatório para investidores</span>
+<span class="string">"Gere um relatório executivo para os investidores com 
+os principais KPIs do trimestre"</span>
+
+<span class="comment"># Passo 5: Análise de custos</span>
+<span class="string">"Analise os custos fixos e variáveis e sugira 
+oportunidades de redução de despesas"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Análise de vendas</td>
+            <td><code>"Analise as vendas de [período]"</code></td>
+          </tr>
+          <tr>
+            <td>Fluxo de caixa</td>
+            <td><code>"Faça previsão de fluxo de caixa para [período]"</code></td>
+          </tr>
+          <tr>
+            <td>Marketing</td>
+            <td><code>"Elabore plano de marketing para [produto/campanha]"</code></td>
+          </tr>
+          <tr>
+            <td>Relatório executivo</td>
+            <td><code>"Gere relatório executivo de [período]"</code></td>
+          </tr>
+          <tr>
+            <td>Redução de custos</td>
+            <td><code>"Analise custos e sugira reduções"</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- DESENVOLVEDORES -->
+    <div class="detail-card" style="margin-bottom:2rem;border-left:4px solid #06b6d4">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+        <div style="font-size:2.5rem">💻</div>
+        <div>
+          <h2 class="h2" style="margin:0;font-size:1.5rem">Desenvolvedores</h2>
+          <div style="font-size:.875rem;color:var(--text-3)">Tecnologia e Código</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:1rem">📋 Roteiro: Sprint de Desenvolvimento</h3>
+      <div class="code-block" style="font-size:.8125rem;margin-bottom:1.5rem">
+<span class="comment"># Passo 1: Revisar código</span>
+<span class="string">"Revise o pull request #42 e identifique possíveis 
+bugs, melhorias de performance e boas práticas"</span>
+
+<span class="comment"># Passo 2: Escrever testes</span>
+<span class="string">"Escreva testes unitários para a classe PaymentService 
+cobrindo cenários de sucesso e erro"</span>
+
+<span class="comment"># Passo 3: Documentar API</span>
+<span class="string">"Gere documentação da API REST no formato OpenAPI 
+para os endpoints de /users"</span>
+
+<span class="comment"># Passo 4: Configurar CI/CD</span>
+<span class="string">"Crie um workflow no GitHub Actions para rodar testes 
+e fazer deploy automaticamente"</span>
+
+<span class="comment"># Passo 5: Depurar erro</span>
+<span class="string">"Analise o log de erro [cola o log] e sugira a correção"</span>
+      </div>
+
+      <h3 style="margin-bottom:1rem">⚡ Comandos Rápidos</h3>
+      <table class="data-table" style="font-size:.875rem">
+        <thead>
+          <tr><th>Tarefa</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Code review</td>
+            <td><code>"Revise o PR [número] do repositório [nome]"</code></td>
+          </tr>
+          <tr>
+            <td>Testes</td>
+            <td><code>"Escreva testes para [classe/função]"</code></td>
+          </tr>
+          <tr>
+            <td>Documentação</td>
+            <td><code>"Gere docs da API para [endpoint]"</code></td>
+          </tr>
+          <tr>
+            <td>CI/CD</td>
+            <td><code>"Configure deploy automático no [GitHub Actions/GitLab CI]"</code></td>
+          </tr>
+          <tr>
+            <td>Debug</td>
+            <td><code>"Analise este erro e sugira correção: [erro]"</code></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="detail-card" style="margin-top:3rem;max-width:700px;margin-left:auto;margin-right:auto;text-align:center;background:linear-gradient(135deg,var(--card) 0%,rgba(235,114,21,.03) 100%)">
