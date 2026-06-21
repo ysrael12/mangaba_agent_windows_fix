@@ -7268,6 +7268,9 @@ class GatewayRunner:
         if canonical == "config":
             return await self._handle_config_command(event)
 
+        if canonical == "exemplos":
+            return await self._handle_exemplos_command(event)
+
         if canonical == "set":
             return await self._handle_set_command(event)
 
@@ -9286,6 +9289,58 @@ class GatewayRunner:
             f"• Comandos admin no canal: `{_get('gateway.expose_admin_commands', 'false')}`",
         ]
         return "\n".join(lines)
+
+    async def _handle_exemplos_command(self, event: MessageEvent) -> str:
+        """Handle /exemplos [baixa|media|alta] — catálogo de tarefas por
+        complexidade, mostrando como usar os recursos do agente nos canais.
+        """
+        arg = (event.get_command_args() or "").strip().lower()
+
+        baixa = (
+            "🟢 *BAIXA complexidade* (1 ação, resposta direta)\n"
+            "• `resuma este texto: <cole o texto>`\n"
+            "• `traduza para inglês: <frase>`\n"
+            "• 🎙️ mande um *áudio* — ele transcreve e responde\n"
+            "• `crie um arquivo notas.txt com minha lista de compras`\n"
+            "• `rode: df -h e explique o resultado`\n"
+            "• `leia documento.pdf e me diga o valor total`\n"
+            "• `/cron add 0 8 * * * :: me mande bom dia com 3 prioridades`"
+        )
+        media = (
+            "🟡 *MÉDIA complexidade* (2–3 ferramentas encadeadas / 1 skill)\n"
+            "• `pesquise as notícias de IA de hoje, resuma e salve em noticias.md`\n"
+            "• `leia vendas.csv, calcule o total por mês e gere um resumo`\n"
+            "• `analise esta imagem e descreva o que há nela` (+ foto)\n"
+            "• `gere uma planilha com 12 meses de orçamento`\n"
+            "• `/cron add 0 9 * * 1 :: pesquise minha agenda e monte o plano da semana`\n"
+            "• instale uma habilidade: `/skills research` e depois use no chat"
+        )
+        alta = (
+            "🔴 *ALTA complexidade* (multi-etapas, sub-agentes, skills)\n"
+            "• `delegue a sub-agentes: 1) pesquisar X, 2) escrever resumo, "
+            "3) listar prós/contras — junte tudo no final`\n"
+            "• `faça uma pesquisa profunda sobre <tema> com fontes e conclusão`\n"
+            "• `/goal ser meu assistente de produtividade e me manter organizado`\n"
+            "• `monte um kanban do projeto com tarefas e me atualize o progresso`\n"
+            "• `/background <tarefa longa>` — roda em segundo plano\n"
+            "• `/cron add 0 18 * * 5 :: gere o relatório semanal e me envie`\n"
+            "⚠️ Tarefas de alta complexidade rendem muito mais com modelo na "
+            "nuvem (`/model openrouter/...`); o modelo local pequeno se atrapalha."
+        )
+
+        if arg in {"baixa", "low", "1"}:
+            return baixa
+        if arg in {"media", "média", "medium", "2"}:
+            return media
+        if arg in {"alta", "high", "3"}:
+            return alta
+
+        return (
+            "🧰 *Catálogo de tarefas* — o que pedir ao agente nos canais.\n"
+            "Filtre com `/exemplos baixa`, `/exemplos media` ou `/exemplos alta`.\n\n"
+            f"{baixa}\n\n{media}\n\n{alta}\n\n"
+            "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
+        )
 
     async def _handle_set_command(self, event: MessageEvent) -> str:
         """Handle /set <chave> <valor> — grava no config.yaml ou no .env.

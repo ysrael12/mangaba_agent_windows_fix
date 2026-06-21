@@ -152,6 +152,7 @@ Depois, no próprio canal:
 | `/cron add 0 9 * * * :: me mande o resumo do dia` | Agendar tarefa (entrega no chat) |
 | `/cron list` · `/cron remove <id>` · `/cron pause <id>` | Gerenciar agendamentos |
 | `/personality` · `/goal` · `/reasoning` | Ajustar comportamento |
+| `/exemplos [baixa\|media\|alta]` | Catálogo de tarefas por complexidade |
 | `/new` · `/whoami` · `/help` | Sessão, acesso e ajuda |
 
 📖 **Tutorial completo:** [Criar e configurar agentes pelos canais](https://dheiver2.github.io/mangaba-agent/docs/guides/criar-agente-pelos-canais)

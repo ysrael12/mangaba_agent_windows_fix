@@ -211,6 +211,9 @@ COMMAND_REGISTRY: list[CommandDef] = [
     # Info
     CommandDef("commands", "Browse all commands and skills (paginated)", "Info",
                gateway_only=True, args_hint="[page]"),
+    CommandDef("exemplos", "Exemplos de tarefas por complexidade (baixa/média/alta)",
+               "Info", gateway_only=True, aliases=("examples", "tarefas"),
+               args_hint="[baixa|media|alta]"),
     CommandDef("help", "Show available commands", "Info"),
     CommandDef("restart", "Gracefully restart the gateway after draining active runs", "Session",
                gateway_only=True),
