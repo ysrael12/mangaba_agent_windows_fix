@@ -42,20 +42,35 @@ if [ "$OS" = "Darwin" ]; then
     warn "Se um popup apareceu, conclua a instalação do CLT e rode ./bootstrap.sh de novo."
   fi
   ok "Xcode Command Line Tools ok."
+  # detecta brew em locais conhecidos (mesmo fora do PATH deste shell)
   if ! have brew; then
-    warn "Homebrew não encontrado — instalando..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [ -x /usr/local/bin/brew ]    && eval "$(/usr/local/bin/brew shellenv)"
   fi
-  ok "Homebrew pronto."
-  for pkg in git node ripgrep ffmpeg; do
-    if brew list "$pkg" >/dev/null 2>&1 || have "${pkg/ripgrep/rg}"; then
-      ok "$pkg já instalado."
+  if ! have brew; then
+    warn "Homebrew não encontrado — tentando instalar (precisa de admin)..."
+    # não pode abortar o script todo se falhar (sudo/sem TTY)
+    if /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+      [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+      [ -x /usr/local/bin/brew ]    && eval "$(/usr/local/bin/brew shellenv)"
     else
-      echo "  instalando $pkg..."; brew install "$pkg" || warn "Falha ao instalar $pkg (siga mesmo assim)."
+      warn "Não instalei o Homebrew automaticamente."
+      warn "Instale manualmente em https://brew.sh e rode ./bootstrap.sh de novo,"
+      warn "ou garanta git/node/ripgrep/ffmpeg por conta própria. Seguindo mesmo assim..."
     fi
-  done
+  fi
+  if have brew; then
+    ok "Homebrew pronto."
+    for pkg in git node ripgrep ffmpeg; do
+      if brew list "$pkg" >/dev/null 2>&1 || have "${pkg/ripgrep/rg}"; then
+        ok "$pkg já instalado."
+      else
+        echo "  instalando $pkg..."; brew install "$pkg" || warn "Falha ao instalar $pkg (siga mesmo assim)."
+      fi
+    done
+  else
+    warn "Sem brew — pulando git/node/ripgrep/ffmpeg. O núcleo do agente ainda funciona via uv."
+  fi
 elif [ "$OS" = "Linux" ] && have apt-get; then
   sudo apt-get update -y
   # inclui build tools (build-essential, python3-dev, libffi-dev) p/ compilar deps Python
