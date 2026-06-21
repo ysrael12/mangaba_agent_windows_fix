@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>mangaba.ai — Transforme ideias em fluxos inteligentes</title>
-  <meta name="description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
-  <meta property="og:title" content="mangaba.ai — Transforme ideias em fluxos inteligentes"/>
-  <meta property="og:description" content="Um framework brasileiro para criar agentes inteligentes, automatizar fluxos e conectar IA a processos reais."/>
+  <title>Mangaba Agent — O Agente de IA Auto-Aperfeiçoável</title>
+  <meta name="description" content="O agente de IA auto-aperfeiçoável feito para evoluir com você. Loop de aprendizado embutido, 40+ ferramentas, multi-plataforma."/>
+  <meta property="og:title" content="Mangaba Agent — O Agente de IA Auto-Aperfeiçoável"/>
+  <meta property="og:description" content="O agente de IA auto-aperfeiçoável feito para evoluir com você. Loop de aprendizado embutido, 40+ ferramentas, multi-plataforma."/>
   <meta property="og:type" content="website"/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cellipse cx='24' cy='32' rx='8' ry='10' fill='white' fill-opacity='.22' transform='rotate(-18 24 32)'/%3E%3Cpath d='M32 19 Q 32 15 33 12' stroke='%238B5A1C' stroke-width='2.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3Cpath d='M33 19 C 24 14 16 11 10 12' stroke='%234A7A2E' stroke-opacity='.4' stroke-width='1' fill='none'/%3E%3C/svg%3E"/>
   <meta name="twitter:card" content="summary_large_image"/>
@@ -16,37 +16,29 @@
   <script>(function(){try{var t=localStorage.getItem('mg-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.classList.add('dark')}catch(e){}})()</script>
 
   <style>
-  /* ─────────────────────────────────────────────
-     DESIGN TOKENS — extraídos de mangabapixel.online
-  ───────────────────────────────────────────── */
   :root {
-    --bg:        #F7F4EC;   /* warm ivory — fiel à marca */
-    --bg-2:      #EEEAE0;   /* slightly deeper */
-    --bg-hero:   hsl(30 90% 96%);  /* warm peach suave — hero radial center */
+    --bg:        #F7F4EC;
+    --bg-2:      #EEEAE0;
+    --bg-hero:   hsl(30 90% 96%);
     --card:      #FFFFFF;
-    --text-1:    #1C1917;   /* near-black warm */
-    --text-2:    #57534E;   /* warm gray */
-    --text-3:    #A8A29E;   /* lighter warm gray */
-    --border:    #E7E4DC;   /* warm light border */
-
-    --orange:    #EB7215;   /* mangaba brand primary orange — exato da identidade */
-    --orange-2:  #FF8C28;   /* hover mais vibrante */
-    --orange-3:  #C45E0A;   /* profundidade */
-    --orange-gold:#FFDA3D;  /* dourado da fruta — highlight */
+    --text-1:    #1C1917;
+    --text-2:    #57534E;
+    --text-3:    #A8A29E;
+    --border:    #E7E4DC;
+    --orange:    #EB7215;
+    --orange-2:  #FF8C28;
+    --orange-3:  #C45E0A;
+    --orange-gold:#FFDA3D;
     --orange-bg: rgba(235,114,21,.10);
-    --orange-bg2:rgba(235,114,21,.06);
-
-    --green:     #4A7A2E;   /* verde escuro da folha */
-    --green-2:   #9BCE6A;   /* verde claro da folha */
-    --green-3:   #5A8A3A;   /* verde médio */
+    --green:     #4A7A2E;
+    --green-2:   #9BCE6A;
+    --green-3:   #5A8A3A;
     --green-bg:  rgba(74,122,46,.10);
     --emerald:   #22c55e;
-
     --radius:    8px;
     --radius-lg: 16px;
     --radius-xl: 24px;
   }
-
   .dark {
     --bg:      #1C1917;
     --bg-2:    #252220;
@@ -57,16 +49,11 @@
     --text-3:  #78716C;
     --border:  #3A3632;
   }
-
-  /* ─────────────────────────────────────────────
-     RESET
-  ───────────────────────────────────────────── */
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
   html { scroll-behavior:smooth; }
   ::selection { background:rgba(235,114,21,.15); }
   ::-webkit-scrollbar { width:5px; }
   ::-webkit-scrollbar-thumb { background:var(--border); border-radius:999px; }
-
   body {
     background: var(--bg);
     color: var(--text-1);
@@ -78,20 +65,12 @@
   a { color:inherit; text-decoration:none; }
   img { max-width:100%; display:block; }
 
-  /* ─────────────────────────────────────────────
-     ANIMATIONS
-  ───────────────────────────────────────────── */
   @keyframes rise    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
   @keyframes pulse   { 0%,100%{opacity:.35;transform:scale(.65)} 50%{opacity:1;transform:scale(1)} }
-  @keyframes scroll  { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
   @keyframes float   { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
-
   .rise  { animation: rise .45s cubic-bezier(.22,1,.36,1) both; }
   .d1 { animation-delay:.07s } .d2 { animation-delay:.14s } .d3 { animation-delay:.22s }
 
-  /* ─────────────────────────────────────────────
-     NAV — exato como mangabapixel
-  ───────────────────────────────────────────── */
   nav {
     position: fixed; top:0; left:0; right:0; z-index:200;
     height: 64px;
@@ -105,22 +84,14 @@
     backdrop-filter: blur(20px) saturate(1.4);
     border-color: var(--border);
   }
-
-  /* Logo — mesmo estilo mangabapixel: fruta + "mangaba" dark + ".ai" orange */
   .nav-logo { display:flex; align-items:center; gap:.5rem; }
   .logo-name { font-size:1.0625rem; font-weight:600; letter-spacing:-.02em; line-height:1; }
   .logo-name b { color:var(--text-1); font-weight:600; }
   .logo-name span { color:var(--orange); font-weight:600; }
-
   .nav-links { display:flex; gap:2rem; list-style:none; }
-  .nav-links a {
-    font-size:.875rem; font-weight:600; color:var(--text-2);
-    transition:color .15s;
-  }
+  .nav-links a { font-size:.875rem; font-weight:600; color:var(--text-2); transition:color .15s; }
   .nav-links a:hover { color:var(--text-1); }
-
   .nav-right { display:flex; align-items:center; gap:.75rem; }
-
   .btn-icon {
     width:36px; height:36px; border-radius:var(--radius);
     background:transparent; border:1px solid var(--border);
@@ -129,9 +100,6 @@
   }
   .btn-icon:hover { border-color:var(--orange); color:var(--orange); }
 
-  /* ─────────────────────────────────────────────
-     BUTTONS — idênticos ao mangabapixel
-  ───────────────────────────────────────────── */
   .btn {
     display: inline-flex; align-items:center; gap:.45rem;
     font-family:inherit; font-size:.875rem; font-weight:600;
@@ -141,23 +109,10 @@
     padding: .6875rem 1.5rem; min-height:42px;
     line-height:1;
   }
-  .btn-primary {
-    background: var(--orange); color: #fff;
-  }
+  .btn-primary { background: var(--orange); color: #fff; }
   .btn-primary:hover { background: var(--orange-2); }
-
-  .btn-ghost {
-    background:transparent; color:var(--text-1);
-    border: 1px solid var(--border);
-  }
+  .btn-ghost { background:transparent; color:var(--text-1); border: 1px solid var(--border); }
   .btn-ghost:hover { border-color:var(--orange); color:var(--orange); }
-
-  .btn-dark {
-    background:var(--text-1); color:var(--bg);
-  }
-  .btn-dark:hover { opacity:.88; }
-
-  /* Link com seta — como "Ver exemplos →" no mangabapixel */
   .link-arr {
     font-size:.9375rem; font-weight:600; color:var(--text-2);
     display:inline-flex; align-items:center; gap:.3rem;
@@ -165,13 +120,9 @@
   }
   .link-arr:hover { color:var(--text-1); gap:.55rem; }
 
-  /* ─────────────────────────────────────────────
-     LAYOUT
-  ───────────────────────────────────────────── */
   .wrap { max-width:1160px; margin:0 auto; padding:0 2rem; }
   section { padding:6rem 0; }
   .sep { border:none; border-top:1px solid var(--border); }
-
   .label {
     display:inline-block;
     font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
@@ -186,8 +137,6 @@
     font-size:1.0625rem; color:var(--text-2);
     max-width:560px; line-height:1.75;
   }
-
-  /* Pill status */
   .pill {
     display:inline-flex; align-items:center; gap:.4rem;
     padding:.3rem .875rem; border-radius:999px;
@@ -196,82 +145,42 @@
   }
   .dot-live { width:6px; height:6px; border-radius:50%; background:var(--emerald); animation:pulse 1.5s ease-in-out infinite; }
 
-  /* ─────────────────────────────────────────────
-     § 1 HERO — layout do mangabapixel
-  ───────────────────────────────────────────── */
   .hero {
     min-height: 100vh;
     display: flex; align-items:center;
     padding: 8rem 0 5rem;
     position:relative; overflow:hidden;
-    /* Radial peach glow — MESMO do mangabapixel */
-    background: radial-gradient(ellipse 90% 80% at 55% 40%,
-      var(--bg-hero) 0%,
-      var(--bg) 65%);
+    background: radial-gradient(ellipse 90% 80% at 55% 40%, var(--bg-hero) 0%, var(--bg) 65%);
   }
-
-  .hero-grid {
-    display:grid; grid-template-columns:1fr 1fr;
-    gap:4.5rem; align-items:center;
-  }
-
+  .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:4.5rem; align-items:center; }
   .hero h1 {
     font-size: clamp(2.375rem, 5vw, 4.5rem);
     font-weight:800; letter-spacing:-.03em; line-height:1.07;
     margin-bottom:1.375rem;
   }
-  /* "inteligentes" em laranja sólido — igual ao mangabapixel */
   .hero h1 .hl { color:var(--orange); }
-
-  .hero-sub {
-    font-size:1.0625rem; color:var(--text-2); line-height:1.75;
-    max-width:460px; margin-bottom:2rem;
-  }
-
+  .hero-sub { font-size:1.0625rem; color:var(--text-2); line-height:1.75; max-width:460px; margin-bottom:2rem; }
   .hero-cta { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:.875rem; }
   .hero-trust { font-size:.8125rem; color:var(--text-3); }
 
-  /* Social proof — fotos + texto */
-  .proof {
-    display:flex; align-items:center; gap:.875rem;
-    margin-top:2rem; padding-top:1.75rem;
-    border-top:1px solid var(--border);
-  }
-  .proof-imgs { display:flex; }
-  .proof-imgs img {
-    width:30px; height:30px; border-radius:50%;
-    border:2px solid var(--bg); margin-left:-8px; object-fit:cover;
-  }
-  .proof-imgs img:first-child { margin-left:0; }
-  .proof-copy { font-size:.8125rem; color:var(--text-2); }
-  .proof-copy strong { color:var(--text-1); font-weight:700; }
-
-  /* Hero direito — foto com badges flutuantes (como mangabapixel) */
   .hero-right { position:relative; }
-
   .hero-photo {
     width:100%; border-radius:var(--radius-xl);
     overflow:hidden; border:1px solid var(--border);
     box-shadow: 0 20px 60px rgba(28,25,23,.12);
-    position:relative;
+    position:relative; background:var(--card); padding:2rem;
   }
-  .hero-photo img {
-    width:100%; aspect-ratio:4/5; object-fit:cover; display:block;
+  .code-block {
+    background:#1a1a2e; border-radius:var(--radius);
+    padding:1.25rem; font-family:'Fira Code',monospace;
+    font-size:.8125rem; line-height:1.7; color:#e2e8f0;
+    overflow-x:auto;
   }
-  /* Overlay gradiente no rodapé da foto */
-  .hero-photo::after {
-    content:''; position:absolute; bottom:0; left:0; right:0; height:40%;
-    background: linear-gradient(to top, rgba(28,25,23,.5) 0%, transparent 100%);
-    pointer-events:none;
-  }
-  .photo-label {
-    position:absolute; bottom:1.25rem; left:1.25rem; right:1.25rem;
-    color:#fff; z-index:2;
-  }
-  .photo-label h3 { font-size:1.0625rem; font-weight:700; margin-bottom:.2rem; }
-  .photo-label p  { font-size:.8125rem; opacity:.75; }
+  .code-block .comment { color:#6b7280; }
+  .code-block .keyword { color:#c084fc; }
+  .code-block .string { color:#34d399; }
+  .code-block .function { color:#60a5fa; }
 
-  /* Floating agent-type badges — estilo exato da imagem de referência */
   .fc {
     position:absolute; z-index:3;
     display:flex; align-items:center; gap:.5rem;
@@ -287,28 +196,19 @@
   }
   .dark .fc { background:rgba(44,41,38,.92); }
   .fc-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
-  .fc-1 { top:10%; right:-6%; animation-delay:0s; }
-  .fc-2 { top:38%; left:-8%; animation-delay:.7s; }
-  .fc-3 { bottom:28%; right:-8%; animation-delay:1.4s; }
-  .fc-4 { bottom:12%; right:6%; animation-delay:2.1s; }
+  .fc-1 { top:5%; right:-4%; animation-delay:0s; }
+  .fc-2 { top:35%; left:-6%; animation-delay:.7s; }
+  .fc-3 { bottom:35%; right:-6%; animation-delay:1.4s; }
+  .fc-4 { bottom:10%; right:4%; animation-delay:2.1s; }
 
-  /* ─────────────────────────────────────────────
-     STATS BAR — como mangabapixel (4s / 100% / ∞)
-  ───────────────────────────────────────────── */
   .stats-bar {
     background:var(--bg-2);
     border-top:1px solid var(--border);
     border-bottom:1px solid var(--border);
     padding:2.75rem 0;
   }
-  .stats-inner {
-    display:flex; justify-content:center; align-items:center;
-    gap:0; flex-wrap:wrap;
-  }
-  .stat-item {
-    text-align:center; padding:0 3.5rem;
-    border-right:1px solid var(--border);
-  }
+  .stats-inner { display:flex; justify-content:center; align-items:center; gap:0; flex-wrap:wrap; }
+  .stat-item { text-align:center; padding:0 3.5rem; border-right:1px solid var(--border); }
   .stat-item:last-child { border-right:none; }
   .stat-value {
     font-size:2.375rem; font-weight:800; letter-spacing:-.04em;
@@ -317,113 +217,28 @@
   .stat-value span { color:var(--orange); }
   .stat-label { font-size:.8125rem; color:var(--text-2); font-weight:600; }
 
-  /* ─────────────────────────────────────────────
-     MARQUEE LOGOS
-  ───────────────────────────────────────────── */
-  .logos-band {
-    padding:2rem 0; overflow:hidden;
-    border-top:1px solid var(--border);
-    border-bottom:1px solid var(--border);
-  }
-  .logos-label { text-align:center; font-size:.68rem; font-weight:700; letter-spacing:.13em; text-transform:uppercase; color:var(--text-3); margin-bottom:1.5rem; }
-  .marquee-wrap { overflow:hidden; mask-image:linear-gradient(to right,transparent,black 8%,black 92%,transparent); }
-  .marquee-track { display:flex; gap:3.5rem; align-items:center; width:max-content; animation:scroll 26s linear infinite; }
-  .marquee-track:hover { animation-play-state:paused; }
-  .m-item { font-size:.9375rem; font-weight:700; color:var(--text-3); opacity:.55; white-space:nowrap; transition:opacity .2s,color .2s; }
-  .m-item:hover { opacity:1; color:var(--orange); }
-
-  /* ─────────────────────────────────────────────
-     § GALERIA — grid de imagens como mangabapixel
-  ───────────────────────────────────────────── */
-  .gallery-header { text-align:center; margin-bottom:2.5rem; }
-  .gallery-header .sub { margin:0 auto; }
-
-  .gallery-grid {
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:1.25rem;
-  }
-  .gallery-card {
-    position:relative; border-radius:var(--radius-lg);
-    overflow:hidden; border:1px solid var(--border);
-    cursor:pointer;
-    background:var(--card);
-    box-shadow:0 2px 8px rgba(28,25,23,.06);
-    transition:transform .25s, box-shadow .25s;
-  }
-  .gallery-card:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(28,25,23,.11); }
-  .gallery-card img {
-    width:100%; aspect-ratio:3/2; object-fit:cover; display:block;
-    transition:transform .4s;
-  }
-  .gallery-card:hover img { transform:scale(1.04); }
-
-  /* Overlay com info — aparece no hover como no mangabapixel */
-  .gallery-overlay {
-    position:absolute; inset:0;
-    background:linear-gradient(to top, rgba(28,25,23,.82) 0%, rgba(28,25,23,.2) 50%, transparent 100%);
-    display:flex; flex-direction:column; justify-content:flex-end;
-    padding:1.125rem;
-    opacity:0; transition:opacity .25s;
-  }
-  .gallery-card:hover .gallery-overlay { opacity:1; }
-  .g-sector {
-    display:inline-block; font-size:.68rem; font-weight:700;
-    letter-spacing:.08em; text-transform:uppercase;
-    color:var(--orange); margin-bottom:.3rem;
-  }
-  .g-title { font-size:.9375rem; font-weight:700; color:#fff; margin-bottom:.2rem; }
-  .g-sub   { font-size:.78rem; color:rgba(255,255,255,.7); line-height:1.4; }
-
-  /* Caption abaixo da imagem — sempre visível */
-  .gallery-caption { padding:.875rem 1rem; }
-  .gallery-caption .gc-tag { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--orange); margin-bottom:.25rem; }
-  .gallery-caption .gc-name{ font-size:.875rem; font-weight:700; color:var(--text-1); }
-
-  /* ─────────────────────────────────────────────
-     § PARA QUEM É — 6 use-case cards como mangabapixel
-  ───────────────────────────────────────────── */
-  .cases-header { text-align:center; margin-bottom:3rem; }
-  .cases-header .sub { margin:0 auto; }
-
-  .cases-grid {
-    display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem;
-  }
-  .case-card {
+  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
+  .feature-card {
     background:var(--card); border:1px solid var(--border);
     border-radius:var(--radius-lg); padding:1.75rem;
     transition:all .22s;
   }
-  .case-card:hover {
+  .feature-card:hover {
     border-color:rgba(235,114,21,.3);
     box-shadow:0 8px 28px rgba(235,114,21,.07);
     transform:translateY(-2px);
   }
-  .case-icon {
+  .feature-icon {
     width:40px; height:40px; border-radius:10px;
     background:var(--orange-bg);
     display:flex; align-items:center; justify-content:center;
     font-size:18px; margin-bottom:1rem;
   }
-  .case-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
-  .case-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; margin-bottom:1rem; }
-  .case-list  { list-style:none; display:flex; flex-direction:column; gap:.3rem; }
-  .case-list li {
-    font-size:.8125rem; color:var(--text-2);
-    padding-left:1.125rem; position:relative;
-  }
-  .case-list li::before {
-    content:''; position:absolute; left:0; top:.55em;
-    width:5px; height:5px; border-radius:50%;
-    background:var(--green-3);
-  }
+  .feature-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
+  .feature-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
 
-  /* ─────────────────────────────────────────────
-     § COMO FUNCIONA — numbered steps como mangabapixel
-  ───────────────────────────────────────────── */
-  .hiw-header { text-align:center; margin-bottom:3.5rem; }
-  .hiw-header .sub { margin:0 auto; }
-
+  .how-header { text-align:center; margin-bottom:3.5rem; }
+  .how-header .sub { margin:0 auto; }
   .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
   .step-card {
     position:relative;
@@ -440,8 +255,6 @@
   }
   .step-title { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
   .step-desc  { font-size:.875rem; color:var(--text-2); line-height:1.65; }
-
-  /* Seta de conexão entre steps */
   .steps-grid .step-card:not(:last-child)::after {
     content:'→';
     position:absolute; right:-1.125rem; top:50%;
@@ -449,117 +262,35 @@
     font-size:1.25rem; color:var(--border); font-weight:300;
   }
 
-  /* ─────────────────────────────────────────────
-     § AGENTES — personas como mangabapixel
-  ───────────────────────────────────────────── */
-  .agents-grid {
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:1.125rem;
-  }
-  .agent-card {
+  .arch-header { text-align:center; margin-bottom:3.5rem; }
+  .arch-header .sub { margin:0 auto; }
+  .arch-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2rem; }
+  .arch-card {
     background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1.5rem;
+    border-radius:var(--radius-lg); padding:2rem;
     transition:all .22s;
   }
-  .agent-card:hover {
-    border-color:rgba(235,114,21,.3);
-    box-shadow:0 6px 24px rgba(235,114,21,.07);
-    transform:translateY(-2px);
-  }
-  .agent-av {
-    width:44px; height:44px; border-radius:50%;
-    background:var(--orange-bg);
-    border:1px solid rgba(235,114,21,.2);
-    color:var(--orange); font-size:13px; font-weight:700;
-    display:flex; align-items:center; justify-content:center;
-    margin-bottom:.875rem;
-  }
-  .agent-name { font-size:.9375rem; font-weight:700; margin-bottom:.2rem; }
-  .agent-role { font-size:.75rem; font-weight:600; color:var(--orange); margin-bottom:.5rem; }
-  .agent-desc { font-size:.8125rem; color:var(--text-2); line-height:1.6; }
-
-  /* ─────────────────────────────────────────────
-     § DEPOIMENTOS
-  ───────────────────────────────────────────── */
-  .tests-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.25rem; }
-  .test-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:var(--radius-lg); padding:1.75rem;
-    transition:all .22s;
-  }
-  .test-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(28,25,23,.07); }
-  .test-stars { color:#F59E0B; font-size:1rem; letter-spacing:.06em; margin-bottom:1rem; }
-  .test-quote { font-size:.9375rem; line-height:1.75; color:var(--text-1); margin-bottom:1.375rem; }
-  .test-author { display:flex; align-items:center; gap:.75rem; }
-  .test-photo { width:40px; height:40px; border-radius:50%; object-fit:cover; border:2px solid var(--border); }
-  .test-name  { font-size:.875rem; font-weight:700; }
-  .test-role  { font-size:.78rem; color:var(--text-2); }
-
-  /* ─────────────────────────────────────────────
-     § TECH
-  ───────────────────────────────────────────── */
-  .tech-grid {
-    display:grid; grid-template-columns:repeat(3,1fr);
-    gap:1px; background:var(--border);
-    border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;
-  }
-  .t-cell { background:var(--card); padding:2rem 1.75rem; transition:background .2s; }
-  .t-cell:hover { background:var(--bg-2); }
-  .t-tag {
+  .arch-card:hover { border-color:rgba(235,114,21,.25); transform:translateY(-2px); }
+  .arch-tag {
     display:inline-block; font-size:.68rem; font-weight:700;
     text-transform:uppercase; letter-spacing:.09em;
     padding:.2rem .6rem; border-radius:999px;
     background:var(--orange-bg); color:var(--orange); margin-bottom:.75rem;
   }
-  .t-cell h3 { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
-  .t-cell p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
+  .arch-card h3 { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
+  .arch-card p  { font-size:.875rem; color:var(--text-2); line-height:1.7; }
 
-  /* ─────────────────────────────────────────────
-     § FAQ
-  ───────────────────────────────────────────── */
-  .faq-inner { max-width:720px; margin:0 auto; }
-  .faq-item { border-bottom:1px solid var(--border); }
-  .faq-btn {
-    display:flex; justify-content:space-between; align-items:center;
-    padding:1.125rem 0; width:100%; text-align:left;
-    background:none; border:none; cursor:pointer;
-    font-family:inherit; font-size:.9375rem; font-weight:700; color:var(--text-1);
-    gap:1rem;
-  }
-  .faq-btn svg { flex-shrink:0; color:var(--text-2); transition:transform .25s; }
-  .faq-item.open .faq-btn svg { transform:rotate(180deg); }
-  .faq-ans { font-size:.875rem; color:var(--text-2); line-height:1.75; max-height:0; overflow:hidden; transition:max-height .35s cubic-bezier(.22,1,.36,1), padding .3s; }
-  .faq-item.open .faq-ans { max-height:300px; padding-bottom:1.125rem; }
+  .code-section { display:grid; grid-template-columns:1fr 1fr; gap:2rem; align-items:start; }
+  .code-section .code-block { margin-top:1rem; }
 
-  /* ─────────────────────────────────────────────
-     § CTA SECUNDÁRIO — "Pare de pagar…" como mangabapixel
-  ───────────────────────────────────────────── */
-  .cta-mid {
-    background: radial-gradient(ellipse 80% 100% at 50% 50%,
-      hsl(27 85% 93%) 0%, var(--bg-2) 70%);
-    border-top:1px solid var(--border);
-    border-bottom:1px solid var(--border);
-    padding:5rem 2rem; text-align:center;
-  }
-  .dark .cta-mid { background: radial-gradient(ellipse 80% 100% at 50% 50%, hsl(27 40% 16%) 0%, var(--bg-2) 70%); }
-  .cta-mid .h2 { margin:0 auto 1rem; }
-  .cta-mid .sub { margin:0 auto 2.25rem; }
-
-  /* ─────────────────────────────────────────────
-     § CTA FINAL — dark section
-  ───────────────────────────────────────────── */
-  .cta-final {
+  .footer-cta {
     background:var(--text-1); color:var(--bg);
     padding:5.5rem 2rem; text-align:center;
   }
-  .cta-final .label { color:rgba(235,114,21,.85); }
-  .cta-final .h2 { color:var(--bg); margin:0 auto .875rem; }
-  .cta-final .sub { color:color-mix(in srgb, var(--bg) 60%, transparent); margin:0 auto 2.5rem; }
-  .cta-fine { font-size:.8125rem; color:color-mix(in srgb, var(--bg) 45%, transparent); margin-top:1.25rem; }
-  .cta-fine a { color:color-mix(in srgb, var(--bg) 65%, transparent); text-decoration:underline; }
+  .footer-cta .label { color:rgba(235,114,21,.85); }
+  .footer-cta .h2 { color:var(--bg); margin:0 auto .875rem; }
+  .footer-cta .sub { color:color-mix(in srgb, var(--bg) 60%, transparent); margin:0 auto 2.5rem; }
 
-  /* ─────────────────────────────────────────────
-     FOOTER — minimal como mangabapixel
-  ───────────────────────────────────────────── */
   footer {
     background:var(--bg); border-top:1px solid var(--border);
     padding:3rem 0 2rem;
@@ -582,17 +313,13 @@
     font-size:.8125rem; color:var(--text-3);
   }
 
-  /* ─────────────────────────────────────────────
-     RESPONSIVE
-  ───────────────────────────────────────────── */
   @media(max-width:1024px) {
     .hero-grid  { grid-template-columns:1fr; }
     .hero-right { display:none; }
-    .gallery-grid { grid-template-columns:1fr 1fr; }
-    .cases-grid   { grid-template-columns:1fr 1fr; }
+    .features-grid { grid-template-columns:1fr 1fr; }
     .steps-grid   { grid-template-columns:1fr 1fr; }
-    .tests-grid   { grid-template-columns:1fr; }
-    .tech-grid    { grid-template-columns:1fr; }
+    .arch-grid    { grid-template-columns:1fr; }
+    .code-section { grid-template-columns:1fr; }
     .foot-top     { grid-template-columns:1fr 1fr; }
     .stats-inner  { gap:0; }
     .stat-item    { padding:0 2rem; }
@@ -600,10 +327,8 @@
   }
   @media(max-width:640px) {
     .nav-links    { display:none; }
-    .gallery-grid { grid-template-columns:1fr; }
-    .cases-grid   { grid-template-columns:1fr; }
+    .features-grid { grid-template-columns:1fr; }
     .steps-grid   { grid-template-columns:1fr; }
-    .agents-grid  { grid-template-columns:1fr 1fr; }
     .foot-top     { grid-template-columns:1fr; }
     .stats-inner  { flex-direction:column; gap:1.5rem; }
     .stat-item    { border-right:none; border-bottom:1px solid var(--border); padding-bottom:1.5rem; width:100%; }
@@ -613,12 +338,9 @@
 </head>
 <body>
 
-<!-- ══════════════════════
-     NAV
-══════════════════════ -->
+<!-- NAV -->
 <nav id="nav">
   <a href="#" class="nav-logo">
-    <!-- Fruta mangaba — fiel à identidade visual oficial -->
     <svg width="30" height="30" viewBox="0 0 64 64" fill="none" aria-hidden="true">
       <defs>
         <radialGradient id="fn" cx="30%" cy="25%" r="70%">
@@ -631,25 +353,19 @@
           <stop offset="100%" stop-color="#4A7A2E"/>
         </linearGradient>
       </defs>
-      <!-- Corpo da fruta — círculo como na identidade visual -->
       <circle cx="32" cy="40" r="21" fill="url(#fn)"/>
-      <!-- Reflexo especular superior-esquerdo -->
       <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
-      <!-- Haste curta marrom-quente -->
       <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      <!-- Folha única apontando superior-esquerdo -->
       <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/>
-      <!-- Nervura central da folha -->
-      <path d="M33 19 C 24 14 16 11 10 12" stroke="#3D6622" stroke-opacity=".45" stroke-width="1" fill="none"/>
     </svg>
-    <div class="logo-name"><b>mangaba</b><span>.ai</span></div>
+    <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
   </a>
 
   <ul class="nav-links">
-    <li><a href="#galeria">Galeria</a></li>
-    <li><a href="#casos">Casos</a></li>
-    <li><a href="#como-funciona">Como funciona</a></li>
-    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#features">Recursos</a></li>
+    <li><a href="#how">Como funciona</a></li>
+    <li><a href="#architecture">Arquitetura</a></li>
+    <li><a href="#quickstart">Começar</a></li>
   </ul>
 
   <div class="nav-right">
@@ -657,109 +373,79 @@
       <svg id="i-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
       <svg id="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
-    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Abrir app</a>
+    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" target="_blank">GitHub</a>
+    <a href="https://dheiver2.github.io/mangaba-agent/docs/" class="btn btn-primary" target="_blank">Docs</a>
   </div>
 </nav>
 
-<!-- ══════════════════════
-     HERO
-══════════════════════ -->
+<!-- HERO -->
 <section class="hero">
   <div class="wrap">
     <div class="hero-grid">
-
-      <!-- Texto -->
       <div>
-        <!-- Wordmark pill — fiel à imagem de referência -->
         <div class="rise" style="display:flex;align-items:center;gap:.625rem;margin-bottom:1.625rem">
-          <svg width="22" height="22" viewBox="0 0 64 64" fill="none" aria-hidden="true" style="flex-shrink:0">
-            <defs>
-              <radialGradient id="hp" cx="30%" cy="25%" r="70%">
-                <stop offset="0%"   stop-color="#FFDA3D"/>
-                <stop offset="45%"  stop-color="#EB7215"/>
-                <stop offset="100%" stop-color="#C45E0A"/>
-              </radialGradient>
-              <linearGradient id="hp2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%"   stop-color="#9BCE6A"/>
-                <stop offset="100%" stop-color="#4A7A2E"/>
-              </linearGradient>
-            </defs>
-            <circle cx="32" cy="40" r="21" fill="url(#hp)"/>
-            <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
-            <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#hp2)"/>
-          </svg>
-          <span class="pill" style="border:none;background:none;padding:0;font-size:.8125rem;font-weight:700;letter-spacing:-.01em;color:var(--text-2)">mangaba<span style="color:var(--orange)">.ai</span></span>
-          <span style="width:1px;height:14px;background:var(--border);display:inline-block"></span>
-          <span class="pill"><span class="dot-live"></span>Infraestrutura online · 99,9% uptime</span>
+          <span class="pill"><span class="dot-live"></span>Open Source · MIT License</span>
         </div>
 
         <h1 class="rise d1">
-          Agentes inteligentes<br/>para sua <span class="hl">empresa</span>
+          O agente de IA<br/><span class="hl">auto-aperfeiçoável</span>
         </h1>
 
         <p class="hero-sub rise d2">
-          Um framework brasileiro para criar agentes inteligentes,
-          automatizar fluxos e conectar IA a processos reais —
-          sem instalação, sem lock-in.
+          Feito para evoluir com você. Cria habilidades a partir de experiências,
+          se melhora durante o uso, persiste conhecimento entre sessões e constrói
+          um modelo profundo de quem você é ao longo do tempo.
         </p>
 
         <div class="hero-cta rise d3">
-          <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank">Começar agora</a>
-          <a href="#galeria" class="link-arr">Ver exemplos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+          <a href="#quickstart" class="btn btn-primary">Instalar agora</a>
+          <a href="https://dheiver2.github.io/mangaba-agent/docs/" class="link-arr">Documentação <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
-        <p class="hero-trust rise d3">Sem cartão de crédito. Sem instalação. Direto no navegador.</p>
-
-        <div class="proof rise d3">
-          <div class="proof-imgs">
-            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&q=80&fit=crop&crop=face" alt=""/>
-          </div>
-          <div class="proof-copy"><strong>+1.200 profissionais</strong> usando mangaba.ai hoje</div>
-        </div>
+        <p class="hero-trust rise d3">Rode em VPS de $5, cluster GPU, ou infraestrutura serverless.</p>
       </div>
 
-      <!-- Foto + badges -->
       <div class="hero-right rise d2">
         <div class="hero-photo">
-          <img src="https://images.unsplash.com/photo-1573496799652-408c2ac9fe98?w=720&h=900&q=85&fit=crop&crop=top" alt="Profissional usando mangaba.ai"/>
-          <div class="photo-label">
-            <h3>Transforme ideias em fluxos</h3>
-            <p>Consensual · Parallel · Sequential · Hierarchical</p>
+          <div class="code-block">
+            <span class="comment"># Instalação em uma linha</span><br/>
+            <span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
+            &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span><br/><br/>
+            <span class="comment"># Iniciar conversa</span><br/>
+            <span class="function">mangaba</span><br/><br/>
+            <span class="comment"># Trocar de modelo</span><br/>
+            <span class="function">mangaba</span> <span class="string">model set openrouter/claude-sonnet-4</span><br/><br/>
+            <span class="comment"># Agendar automação</span><br/>
+            <span class="function">mangaba</span> <span class="string">cron add "0 9 * * *" "resumo dos emails"</span>
           </div>
         </div>
-        <!-- Floating agent badges — exato da referência -->
-        <div class="fc fc-1"><span class="fc-dot" style="background:#EB7215"></span>Consensual</div>
-        <div class="fc fc-2"><span class="fc-dot" style="background:#5A8A3A"></span>Parallel</div>
-        <div class="fc fc-3"><span class="fc-dot" style="background:#6366f1"></span>Sequential</div>
-        <div class="fc fc-4"><span class="fc-dot" style="background:#EB7215;opacity:.6"></span>Hierarchical</div>
+        <div class="fc fc-1"><span class="fc-dot" style="background:#EB7215"></span>40+ Ferramentas</div>
+        <div class="fc fc-2"><span class="fc-dot" style="background:#5A8A3A"></span>Multi-plataforma</div>
+        <div class="fc fc-3"><span class="fc-dot" style="background:#6366f1"></span>Auto-aperfeiçoável</div>
+        <div class="fc fc-4"><span class="fc-dot" style="background:#EB7215;opacity:.6"></span>200+ Modelos</div>
       </div>
-
     </div>
   </div>
 </section>
 
-<!-- STATS BAR — 4 métricas como mangabapixel -->
+<!-- STATS BAR -->
 <div class="stats-bar">
   <div class="wrap">
     <div class="stats-inner">
       <div class="stat-item">
-        <div class="stat-value"><span>4</span> tipos</div>
-        <div class="stat-label">de orquestração de agentes</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value"><span>100%</span></div>
-        <div class="stat-label">infraestrutura no Brasil</div>
+        <div class="stat-value"><span>40+</span></div>
+        <div class="stat-label">Ferramentas integradas</div>
       </div>
       <div class="stat-item">
         <div class="stat-value"><span>200+</span></div>
-        <div class="stat-label">modelos disponíveis</div>
+        <div class="stat-label">Modelos suportados</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value"><span>∞</span></div>
-        <div class="stat-label">fluxos possíveis</div>
+        <div class="stat-value"><span>6</span></div>
+        <div class="stat-label">Plataformas de chat</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value"><span>7</span></div>
+        <div class="stat-label">Backends de terminal</div>
       </div>
     </div>
   </div>
@@ -767,473 +453,231 @@
 
 <hr class="sep"/>
 
-<!-- MARQUEE LOGOS -->
-<div class="logos-band">
-  <div class="logos-label">Empresas que confiam na infraestrutura mangaba.ai</div>
-  <div class="marquee-wrap">
-    <div class="marquee-track">
-      <span class="m-item">Construtora Brasil</span><span class="m-item">GrupoAtacadista SP</span>
-      <span class="m-item">Fintech Belém</span><span class="m-item">Advocacia Cardoso</span>
-      <span class="m-item">LogísticaNorte</span><span class="m-item">IndústriaGoiás</span>
-      <span class="m-item">BancoBahia</span><span class="m-item">TechStartup RJ</span>
-      <span class="m-item">ConsultoriaForte</span><span class="m-item">FarmaRede</span>
-      <span class="m-item">Construtora Brasil</span><span class="m-item">GrupoAtacadista SP</span>
-      <span class="m-item">Fintech Belém</span><span class="m-item">Advocacia Cardoso</span>
-      <span class="m-item">LogísticaNorte</span><span class="m-item">IndústriaGoiás</span>
-      <span class="m-item">BancoBahia</span><span class="m-item">TechStartup RJ</span>
-      <span class="m-item">ConsultoriaForte</span><span class="m-item">FarmaRede</span>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════════
-     GALERIA — grid de cases com imagens reais
-══════════════════════ -->
-<section id="galeria">
+<!-- FEATURES -->
+<section id="features">
   <div class="wrap">
-    <div class="gallery-header">
-      <div class="label">Galeria de resultados</div>
-      <h2 class="h2">Agentes em ação</h2>
-      <p class="sub">Passe o mouse para ver o tipo de agente e o resultado obtido.</p>
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Recursos</div>
+      <h2 class="h2">Tudo que você precisa em um agente</h2>
+      <p class="sub" style="margin:0 auto">Do terminal ao Telegram, de scripts a automações — um único agente para tudo.</p>
     </div>
-    <div class="gallery-grid">
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=640&q=80&fit=crop" alt="Jurídico" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente Jurídico · Sequential</span>
-          <div class="g-title">Análise de contratos</div>
-          <div class="g-sub">47 contratos revisados em 4h. Risco identificado em 12 cláusulas.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Jurídico</div><div class="gc-name">Revisão de contratos</div></div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Loop de Aprendizado</div>
+        <div class="feature-desc">Cria habilidades automaticamente após tarefas complexas. As melhora durante o uso. Busca FTS5 de sessões com sumarização por LLM.</div>
       </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=640&q=80&fit=crop" alt="Financeiro" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente Financeiro · Parallel</span>
-          <div class="g-title">Relatórios automatizados</div>
-          <div class="g-sub">DRE, fluxo de caixa e indicadores gerados automaticamente todo mês.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Financeiro</div><div class="gc-name">Automação de relatórios</div></div>
+      <div class="feature-card">
+        <div class="feature-icon">💬</div>
+        <div class="feature-title">Multi-Plataforma</div>
+        <div class="feature-desc">Telegram, Discord, Slack, WhatsApp, Signal e CLI — tudo de um único processo gateway. Continuidade entre plataformas.</div>
       </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=640&q=80&fit=crop" alt="RH" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente RH · Consensual</span>
-          <div class="g-title">Triagem de candidatos</div>
-          <div class="g-sub">60% mais rápido no ciclo de contratação. eSocial nativo.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Recursos Humanos</div><div class="gc-name">Triagem e contratação</div></div>
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <div class="feature-title">40+ Ferramentas</div>
+        <div class="feature-desc">Código, web, arquivos, APIs, banco de dados, mídia, comunicação. Tudo integrado e pronto para usar.</div>
       </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=640&q=80&fit=crop" alt="Estratégia" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente Estratégia · Hierarchical</span>
-          <div class="g-title">Planejamento estratégico</div>
-          <div class="g-sub">OKRs e análise competitiva para PMEs brasileiras em minutos.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Estratégia</div><div class="gc-name">OKRs e planejamento</div></div>
+      <div class="feature-card">
+        <div class="feature-icon">⏰</div>
+        <div class="feature-title">Automações Agendadas</div>
+        <div class="feature-desc">Cron integrado com entrega em qualquer plataforma. Relatórios diários, backups noturnos — em linguagem natural.</div>
       </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=640&q=80&fit=crop" alt="Comercial" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente Comercial · Sequential</span>
-          <div class="g-title">Pipeline B2B</div>
-          <div class="g-sub">Propostas, análise de pipeline e scripts de vendas corporativos.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Comercial</div><div class="gc-name">Pipeline e propostas</div></div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Sub-Agentes</div>
+        <div class="feature-desc">Spawn de sub-agentes isolados para fluxos paralelos. Colapsando pipelines multi-etapa em turnos de custo zero.</div>
       </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=640&q=80&fit=crop" alt="Analytics" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Dashboard · Todos os agentes</span>
-          <div class="g-title">Analytics em tempo real</div>
-          <div class="g-sub">Uso por equipe, custo por departamento, qualidade de resposta.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Analytics</div><div class="gc-name">Dashboard de uso</div></div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Roda em Qualquer Lugar</div>
+        <div class="feature-desc">Local, Docker, SSH, Modal, Daytona, Vercel Sandbox, Singularity. Serverless com persistência.</div>
       </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=640&q=80&fit=crop&crop=face" alt="TI" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente TI · Parallel</span>
-          <div class="g-title">Documentação técnica</div>
-          <div class="g-sub">Arquitetura, segurança e ITIL em pt-BR corporativo.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Tecnologia</div><div class="gc-name">Docs e arquitetura</div></div>
-      </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=640&q=80&fit=crop" alt="Compliance" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Agente Jurídico · Sequential</span>
-          <div class="g-title">Compliance LGPD</div>
-          <div class="g-sub">RIPD, políticas de privacidade e adequação automática.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Compliance</div><div class="gc-name">LGPD e privacidade</div></div>
-      </div>
-
-      <div class="gallery-card">
-        <img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?w=640&q=80&fit=crop" alt="Equipe" loading="lazy"/>
-        <div class="gallery-overlay">
-          <span class="g-sector">Multi-agente · Hierarchical</span>
-          <div class="g-title">Orquestração de equipes</div>
-          <div class="g-sub">Múltiplos agentes colaborando em fluxos empresariais complexos.</div>
-        </div>
-        <div class="gallery-caption"><div class="gc-tag">Multi-agente</div><div class="gc-name">Orquestração complexa</div></div>
-      </div>
-
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- ══════════════════════
-     PARA QUEM É — 6 use cases como mangabapixel
-══════════════════════ -->
-<section id="casos">
+<!-- HOW IT WORKS -->
+<section id="how">
   <div class="wrap">
-    <div class="cases-header">
-      <div class="label">Para quem é</div>
-      <h2 class="h2">Para quem é o mangaba.ai?</h2>
-      <p class="sub">Agentes especializados para cada área da empresa, prontos para usar.</p>
-    </div>
-    <div class="cases-grid">
-
-      <div class="case-card">
-        <div class="case-icon">⚖️</div>
-        <div class="case-title">Jurídico &amp; Compliance</div>
-        <div class="case-desc">Análise de contratos, LGPD, compliance trabalhista e regulatório em segundos.</div>
-        <ul class="case-list">
-          <li>Revisão de cláusulas e riscos</li>
-          <li>Adequação LGPD automática</li>
-          <li>Triagem de processos</li>
-          <li>Pareceres jurídicos em pt-BR</li>
-        </ul>
-      </div>
-
-      <div class="case-card">
-        <div class="case-icon">📊</div>
-        <div class="case-title">Financeiro &amp; Controladoria</div>
-        <div class="case-desc">DRE, fluxo de caixa, indicadores e relatórios — no contexto brasileiro.</div>
-        <ul class="case-list">
-          <li>Relatórios mensais automáticos</li>
-          <li>Análise de DRE e balanço</li>
-          <li>Conciliação bancária</li>
-          <li>Previsão de fluxo de caixa</li>
-        </ul>
-      </div>
-
-      <div class="case-card">
-        <div class="case-icon">👥</div>
-        <div class="case-title">Recursos Humanos</div>
-        <div class="case-desc">Recrutamento, folha de pagamento e gestão de pessoas com eSocial nativo.</div>
-        <ul class="case-list">
-          <li>Triagem de candidatos</li>
-          <li>Onboarding automatizado</li>
-          <li>Análise de desempenho</li>
-          <li>eSocial e CLT nativos</li>
-        </ul>
-      </div>
-
-      <div class="case-card">
-        <div class="case-icon">🚀</div>
-        <div class="case-title">Comercial &amp; Vendas</div>
-        <div class="case-desc">Propostas, pipeline B2B e relacionamento com clientes corporativos.</div>
-        <ul class="case-list">
-          <li>Geração de propostas</li>
-          <li>Scripts de vendas B2B</li>
-          <li>Análise de pipeline</li>
-          <li>Follow-up automatizado</li>
-        </ul>
-      </div>
-
-      <div class="case-card">
-        <div class="case-icon">🎯</div>
-        <div class="case-title">Estratégia &amp; Gestão</div>
-        <div class="case-desc">OKRs, análise competitiva e planejamento para PMEs e médias empresas.</div>
-        <ul class="case-list">
-          <li>Definição de OKRs</li>
-          <li>Análise de concorrência</li>
-          <li>Diagnóstico de mercado</li>
-          <li>Relatórios executivos</li>
-        </ul>
-      </div>
-
-      <div class="case-card">
-        <div class="case-icon">💻</div>
-        <div class="case-title">Tecnologia &amp; TI</div>
-        <div class="case-desc">Arquitetura, segurança e documentação técnica em português corporativo.</div>
-        <ul class="case-list">
-          <li>Documentação técnica</li>
-          <li>Revisão de segurança</li>
-          <li>ITIL e gestão de infra</li>
-          <li>Code review em pt-BR</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- ══════════════════════
-     COMO FUNCIONA — 3 steps numerados como mangabapixel
-══════════════════════ -->
-<section id="como-funciona">
-  <div class="wrap">
-    <div class="hiw-header">
+    <div class="how-header">
       <div class="label">Como funciona</div>
-      <h2 class="h2">Implementado em minutos</h2>
-      <p class="sub">Nenhuma integração complexa. Nenhum cientista de dados. Sua equipe começa no mesmo dia.</p>
+      <h2 class="h2">Simples de instalar, poderoso para usar</h2>
+      <p class="sub">Uma linha para instalar. Um comando para começar. O agente faz o resto.</p>
     </div>
     <div class="steps-grid">
       <div class="step-card">
         <div class="step-num">01</div>
-        <div class="step-title">Crie sua conta enterprise</div>
-        <div class="step-desc">Cadastro com CNPJ, sem cartão. Acesso imediato ao painel e aos agentes prontos para uso.</div>
+        <div class="step-title">Instale com uma linha</div>
+        <div class="step-desc">Execute o script de instalação no seu terminal. Funciona em Linux, macOS, WSL2 e Termux.</div>
       </div>
       <div class="step-card">
         <div class="step-num">02</div>
-        <div class="step-title">Escolha o agente e o fluxo</div>
-        <div class="step-desc">Selecione o especialista da área desejada e configure o tipo de orquestração: Consensual, Parallel, Sequential ou Hierarchical.</div>
+        <div class="step-title">Configure seu modelo</div>
+        <div class="step-desc">Escolha entre OpenRouter, OpenAI, NVIDIA, Hugging Face ou seu próprio endpoint. Troque a qualquer momento.</div>
       </div>
       <div class="step-card">
         <div class="step-num">03</div>
-        <div class="step-title">Sua equipe começa a usar</div>
-        <div class="step-desc">Interface no navegador, sem treinamento. Conecte seus dados internos e monitore resultados no dashboard.</div>
+        <div class="step-title">Comece a conversar</div>
+        <div class="step-desc">O agente aprende com cada interação, cria habilidades automaticamente e evolui com você.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA INTERMEDIÁRIO — como o "Pare de pagar por sessões fotográficas" do mangabapixel -->
-<div class="cta-mid">
+<hr class="sep"/>
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="wrap">
+    <div class="arch-header">
+      <div class="label">Arquitetura</div>
+      <h2 class="h2">Construído para escalar</h2>
+      <p class="sub">Modular, extensível e pronto para produção.</p>
+    </div>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-tag">Núcleo</div>
+        <h3>AIAgent</h3>
+        <p>O loop principal de conversação com orquestração de ferramentas, compressão de contexto e tracking de orçamento.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-tag">Ferramentas</div>
+        <h3>Registry + Toolsets</h3>
+        <p>Sistema de descoberta automática com 40+ ferramentas organizadas em toolsets por plataforma.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-tag">Gateway</div>
+        <h3>Multi-Plataforma</h3>
+        <p>Adaptadores para Telegram, Discord, Slack, WhatsApp, Signal e mais — tudo em um único processo.</p>
+      </div>
+      <div class="arch-card">
+        <div class="arch-tag">Plugins</div>
+        <h3>Sistema Extensível</h3>
+        <p>Memória, provedores de modelo, engines de contexto e mais — tudo via plugins descobertos automaticamente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep"/>
+
+<!-- QUICK START -->
+<section id="quickstart">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Comece agora</div>
+      <h2 class="h2">Instalação rápida</h2>
+      <p class="sub" style="margin:0 auto">Uma linha no terminal e você está pronto.</p>
+    </div>
+    <div class="code-section">
+      <div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Linux, macOS, WSL2, Termux</h3>
+        <div class="code-block">
+          <span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
+          &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem">Windows (PowerShell)</h3>
+        <div class="code-block">
+          <span class="keyword">iex</span> (irm https://raw.githubusercontent.com/<br/>
+          &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.ps1)
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:3rem">
+      <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem">Após a instalação</h3>
+      <div class="code-block" style="max-width:500px;margin:0 auto;text-align:left">
+        <span class="function">source</span> ~/.bashrc<br/>
+        <span class="function">mangaba</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># começar a conversar!</span><br/>
+        <span class="function">mangaba</span> <span class="string">model</span>&nbsp;&nbsp;&nbsp;<span class="comment"># escolher modelo</span><br/>
+        <span class="function">mangaba</span> <span class="string">tools</span>&nbsp;&nbsp;&nbsp;<span class="comment"># configurar ferramentas</span><br/>
+        <span class="function">mangaba</span> <span class="string">gateway</span>&nbsp;<span class="comment"># iniciar Telegram, Discord, etc.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<div class="footer-cta">
   <div class="wrap" style="max-width:680px">
-    <div class="label">Economize tempo e dinheiro</div>
-    <h2 class="h2">Pare de perder horas em tarefas repetitivas</h2>
-    <p class="sub">Agentes que trabalham 24h, no contexto da sua empresa, em português, sem custo de dólar.</p>
-    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank" style="margin-top:2rem;font-size:.9375rem;padding:.8125rem 2rem">Começar agora — é grátis</a>
-    <p style="font-size:.8125rem;color:var(--text-3);margin-top:.875rem">Sem cartão de crédito. Sem instalação. Direto no navegador.</p>
+    <div class="label">Open Source</div>
+    <h2 class="h2">Pronto para evoluir com você?</h2>
+    <p class="sub">O Mangaba Agent é gratuito e open source. Comece hoje e construa algo extraordinário.</p>
+    <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-primary" target="_blank" style="margin-top:2rem;font-size:.9375rem;padding:.8125rem 2rem">Ver no GitHub</a>
   </div>
 </div>
 
-<hr class="sep"/>
-
-<!-- ══════════════════════
-     AGENTES PERSONA
-══════════════════════ -->
-<section id="agentes">
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Agentes-persona</div>
-      <h2 class="h2">Especialistas para cada área</h2>
-      <p class="sub" style="margin:0 auto">Nome, personalidade e conhecimento profundo do domínio — em português.</p>
-    </div>
-    <div class="agents-grid">
-      <div class="agent-card"><div class="agent-av">MN</div><div class="agent-name">Manoela</div><div class="agent-role">Jurídico</div><div class="agent-desc">Contratos, LGPD e compliance. Risco em segundos.</div></div>
-      <div class="agent-card"><div class="agent-av">RC</div><div class="agent-name">Ricardo</div><div class="agent-role">Financeiro</div><div class="agent-desc">DRE, fluxo de caixa e indicadores BR.</div></div>
-      <div class="agent-card"><div class="agent-av">JP</div><div class="agent-name">Juliana</div><div class="agent-role">RH</div><div class="agent-desc">Recrutamento e folha com eSocial nativo.</div></div>
-      <div class="agent-card"><div class="agent-av">TM</div><div class="agent-name">Thiago</div><div class="agent-role">Comercial</div><div class="agent-desc">Pipeline B2B e propostas corporativas.</div></div>
-      <div class="agent-card"><div class="agent-av">BL</div><div class="agent-name">Beatriz</div><div class="agent-role">Estratégia</div><div class="agent-desc">OKRs, análise competitiva e planejamento.</div></div>
-      <div class="agent-card"><div class="agent-av">AL</div><div class="agent-name">Alexandre</div><div class="agent-role">TI</div><div class="agent-desc">Arquitetura, segurança e docs técnicas.</div></div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- ══════════════════════
-     DEPOIMENTOS
-══════════════════════ -->
-<section>
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Depoimentos</div>
-      <h2 class="h2">O que dizem nossos clientes</h2>
-    </div>
-    <div class="tests-grid">
-      <div class="test-card">
-        <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"A Manoela revisou 47 contratos em uma tarde. O que levaria semanas ficou pronto antes do fechamento do expediente."</p>
-        <div class="test-author">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&q=80&fit=crop&crop=face" alt="Carla Lima" loading="lazy"/>
-          <div><div class="test-name">Carla Lima</div><div class="test-role">Diretora Jurídica · Construtora Brasil</div></div>
-        </div>
-      </div>
-      <div class="test-card">
-        <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"Finalmente uma IA que entende eSocial e CLT sem precisar explicar o básico. É como ter um especialista disponível 24h."</p>
-        <div class="test-author">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&q=80&fit=crop&crop=face" alt="Pedro Rocha" loading="lazy"/>
-          <div><div class="test-name">Pedro Rocha</div><div class="test-role">Gerente de RH · GrupoAtacadista SP</div></div>
-        </div>
-      </div>
-      <div class="test-card">
-        <div class="test-stars">★★★★★</div>
-        <p class="test-quote">"Custo em reais foi decisivo. Antes pagávamos GPT-4 em dólar e o CFO bloqueava expansão. Com mangaba.ai crescemos 5× sem susto."</p>
-        <div class="test-author">
-          <img class="test-photo" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&q=80&fit=crop&crop=face" alt="Fernanda Neves" loading="lazy"/>
-          <div><div class="test-name">Fernanda Neves</div><div class="test-role">CTO · Fintech Belém</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- ══════════════════════
-     TECH
-══════════════════════ -->
-<section>
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Tecnologia</div>
-      <h2 class="h2">Infraestrutura de nível enterprise</h2>
-    </div>
-    <div class="tech-grid">
-      <div class="t-cell"><div class="t-tag">Destilação</div><h3>Modelos proprietários</h3><p>Knowledge distillation otimiza os maiores fundamentos para domínios corporativos brasileiros.</p></div>
-      <div class="t-cell"><div class="t-tag">Segurança</div><h3>Isolamento por tenant</h3><p>Namespace isolado por empresa. AES-256 em repouso, TLS 1.3 em trânsito. LGPD nativa.</p></div>
-      <div class="t-cell"><div class="t-tag">Escala</div><h3>GPU dedicada</h3><p>Sem filas compartilhadas. Streaming em tempo real. Latência p99 abaixo de 800ms.</p></div>
-      <div class="t-cell"><div class="t-tag">Integração</div><h3>REST API completa</h3><p>Compatível com OpenAI API spec. SDKs Python, Node.js e Java. Migração sem reescrita.</p></div>
-      <div class="t-cell"><div class="t-tag">Observabilidade</div><h3>Dashboard em tempo real</h3><p>Logs, métricas de qualidade, custo por depto, alertas e exportação para BI.</p></div>
-      <div class="t-cell"><div class="t-tag">Conformidade</div><h3>LGPD by design</h3><p>Direito ao esquecimento, portabilidade e RIPD automáticos. DPO no plano Enterprise.</p></div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- ══════════════════════
-     FAQ
-══════════════════════ -->
-<section id="faq">
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">FAQ</div>
-      <h2 class="h2">Perguntas frequentes</h2>
-    </div>
-    <div class="faq-inner">
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Os meus dados são usados para treinar os modelos?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Seus dados e conversas nunca são usados para treinar modelos. Cada cliente opera em namespace isolado e pode solicitar exclusão completa a qualquer momento.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Onde ficam meus dados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">100% em solo brasileiro, datacenters tier III em São Paulo. Nenhum dado sai do Brasil. Conformidade total com LGPD e possibilidade de assinar DPA personalizado.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Quais os tipos de agente disponíveis?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Consensual (decisão colaborativa), Parallel (execução simultânea), Sequential (fluxo encadeado) e Hierarchical (orquestrador delega para sub-agentes).</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Preciso de equipe técnica?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Não. Interface web direto no navegador. Para integração via API (ERP, CRM), suporte técnico dedicado e documentação em português.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Como funciona a precificação?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Planos mensais fixos em reais, sem variação cambial. Starter (até 5 usuários), Business (até 50) e Enterprise sob medida com SLA garantido.</div></div>
-      <div class="faq-item"><button class="faq-btn" onclick="faq(this)">Posso criar agentes personalizados?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-ans">Sim. No plano Business e Enterprise você cria agentes com fine-tuning ou RAG sobre a base de conhecimento da sua empresa, com acompanhamento técnico.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════
-     CTA FINAL
-══════════════════════ -->
-<div class="cta-final">
-  <div class="wrap" style="max-width:680px">
-    <div class="label">Comece hoje</div>
-    <h2 class="h2">Sua empresa pronta para a IA<br/>em menos de um dia</h2>
-    <p class="sub">Sem cartão de crédito. Sem instalação. Sem lock-in. Cancele quando quiser.</p>
-    <a href="https://mangaba.chat/" class="btn btn-primary" target="_blank" style="font-size:1rem;padding:.9375rem 2.25rem">Começar agora — é grátis</a>
-    <p class="cta-fine">Ou fale com nosso time: <a href="mailto:contato@mangaba-agent.online">contato@mangaba-agent.online</a></p>
-  </div>
-</div>
-
-<!-- ══════════════════════
-     FOOTER — idêntico ao mangabapixel
-══════════════════════ -->
+<!-- FOOTER -->
 <footer>
   <div class="wrap">
     <div class="foot-top">
       <div class="foot-brand">
         <div class="nav-logo">
-          <svg width="26" height="26" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <defs>
-              <radialGradient id="fn2" cx="30%" cy="25%" r="70%"><stop offset="0%" stop-color="#FFDA3D"/><stop offset="45%" stop-color="#EB7215"/><stop offset="100%" stop-color="#C45E0A"/></radialGradient>
-              <linearGradient id="ln2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#9BCE6A"/><stop offset="100%" stop-color="#4A7A2E"/></linearGradient>
-            </defs>
-            <circle cx="32" cy="40" r="21" fill="url(#fn2)"/>
-            <ellipse cx="24" cy="32" rx="8" ry="10" fill="white" fill-opacity=".22" transform="rotate(-18 24 32)"/>
-            <path d="M32 19 Q 32 15 33 12" stroke="#8B5A1C" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln2)"/>
-            <path d="M33 19 C 24 14 16 11 10 12" stroke="#3D6622" stroke-opacity=".45" stroke-width="1" fill="none"/>
+          <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+            <circle cx="32" cy="40" r="21" fill="url(#fn)"/>
+            <path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/>
           </svg>
-          <div class="logo-name"><b>mangaba</b><span>.ai</span></div>
+          <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
         </div>
-        <p>Infraestrutura de IA para empresas brasileiras. Agentes inteligentes, dados no Brasil, suporte em português.</p>
+        <p>O agente de IA auto-aperfeiçoável feito para evoluir com você.</p>
       </div>
       <div class="foot-col">
-        <h4>Produto</h4>
+        <h4>Projeto</h4>
         <ul>
-          <li><a href="https://mangaba.chat/">Mangaba Chat</a></li>
-          <li><a href="https://mangabapixel.online/">Mangaba Pixel</a></li>
-          <li><a href="https://mangaba-voice.tech/">Mangaba Voice</a></li>
-          <li><a href="#agentes">Agentes-persona</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent">GitHub</a></li>
+          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/">Documentação</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença MIT</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h4>Empresa</h4>
+        <h4>Comunidade</h4>
         <ul>
-          <li><a href="#galeria">Galeria</a></li>
-          <li><a href="#casos">Casos de uso</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li><a href="mailto:contato@mangaba-agent.online">Enterprise</a></li>
+          <li><a href="https://discord.gg/dheiver2">Discord</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Discussions</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Issues</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h4>Legal</h4>
+        <h4>Recursos</h4>
         <ul>
-          <li><a href="#">Privacidade</a></li>
-          <li><a href="#">Termos de uso</a></li>
-          <li><a href="#">LGPD</a></li>
-          <li><a href="#">Segurança</a></li>
+          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/getting-started/quickstart">Começar</a></li>
+          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/user-guide/cli">CLI</a></li>
+          <li><a href="https://dheiver2.github.io/mangaba-agent/docs/developer-guide/architecture">Arquitetura</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>© 2026 mangaba.ai</span>
-      <span>Feito no Brasil 🇧🇷 · Private Enterprise</span>
+      <span>Feito no Brasil · MIT License</span>
+      <span>&copy; 2026 Mangaba Agent</span>
     </div>
   </div>
 </footer>
 
 <script>
-  /* Nav scroll */
-  addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>10),{passive:true});
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 20);
+});
 
-  /* Theme */
-  function toggleTheme(){
-    const d=document.documentElement.classList.toggle('dark');
-    document.getElementById('i-sun').style.display=d?'block':'none';
-    document.getElementById('i-moon').style.display=d?'none':'block';
-    try{localStorage.setItem('mg-theme',d?'dark':'light')}catch(e){}
-  }
-  (function(){
-    const d=document.documentElement.classList.contains('dark');
-    document.getElementById('i-sun').style.display=d?'block':'none';
-    document.getElementById('i-moon').style.display=d?'none':'block';
-  })();
-
-  /* FAQ */
-  function faq(btn){
-    const item=btn.closest('.faq-item'),open=item.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(i=>i.classList.remove('open'));
-    if(!open)item.classList.add('open');
-  }
-
-  /* Scroll fade-in */
-  const obs=new IntersectionObserver(entries=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){e.target.style.animation='rise .45s cubic-bezier(.22,1,.36,1) both';obs.unobserve(e.target);}
-    });
-  },{threshold:.08});
-  document.querySelectorAll('.gallery-card,.case-card,.step-card,.agent-card,.test-card,.t-cell').forEach(el=>{el.style.opacity='0';obs.observe(el);});
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.classList.toggle('dark');
+  localStorage.setItem('mg-theme', isDark ? 'dark' : 'light');
+  document.getElementById('i-sun').style.display = isDark ? 'none' : 'block';
+  document.getElementById('i-moon').style.display = isDark ? 'block' : 'none';
+}
+// Init theme icon
+(function() {
+  const isDark = document.documentElement.classList.contains('dark');
+  document.getElementById('i-sun').style.display = isDark ? 'none' : 'block';
+  document.getElementById('i-moon').style.display = isDark ? 'block' : 'none';
+})();
 </script>
+
 </body>
 </html>
