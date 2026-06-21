@@ -64,7 +64,7 @@ O [`bootstrap.sh`](bootstrap.sh) faz, em sequência:
 2. **Ambiente Python** — instala `uv`, cria o `.venv` e instala o pacote.
 3. **Ollama + modelo local** — instala o Ollama, sobe o servidor e baixa o modelo (`qwen2.5:7b-instruct` por padrão).
 4. **Config do modelo** — aponta `~/.mangaba/config.yaml` para o Ollama local.
-5. **Canais + gateway** — abre o [`setup-channels.sh`](setup-channels.sh) interativo: você **escolhe quais canais ativar** (Telegram, WhatsApp, Discord, Slack, Email), informa os tokens, e sobe o gateway em primeiro plano ou como **serviço 24/7** (launchd/systemd: inicia no login e reinicia sozinho).
+5. **Canais + gateway** — abre o [`setup-channels.sh`](setup-channels.sh) interativo: você **escolhe quais canais ativar** (os 13 suportados — Telegram, WhatsApp, Discord, Slack, Email, Signal, Matrix, Mattermost, SMS/Twilio, DingTalk, Feishu/Lark, WeCom, WeChat), informa os tokens, e sobe o gateway em primeiro plano ou como **serviço 24/7** (launchd/systemd: inicia no login e reinicia sozinho).
 
 > Trocar o modelo baixado: `MANGABA_MODEL=qwen3:4b ./bootstrap.sh`
 > O script é **idempotente** — rode quantas vezes quiser para adicionar canais ou reconfigurar.

@@ -30,7 +30,7 @@ O `telegram.sh` instala tudo (pré-requisitos, Ollama, modelo), pede **só o tok
 
 Pronto — fale com o bot no Telegram.
 
-> Para escolher mais de um canal (Discord, Slack, WhatsApp…), use `./setup-channels.sh` ou `./bootstrap.sh`.
+> Para escolher um ou mais dos **13 canais** suportados, use `./setup-channels.sh` (ou `./bootstrap.sh`). Ele cobre: Telegram, WhatsApp, Discord, Slack, Email, Signal, Matrix, Mattermost, SMS (Twilio), DingTalk, Feishu/Lark, WeCom e WeChat — cada um pede só as credenciais essenciais e grava no `.env`.
 
 ---
 
