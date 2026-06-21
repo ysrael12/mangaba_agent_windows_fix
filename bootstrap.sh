@@ -28,7 +28,7 @@ err()  { echo -e "${R}✗${N} $*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 OS="$(uname -s)"
-MODEL="${MANGABA_MODEL:-qwen2.5:7b-instruct}"   # override: MANGABA_MODEL=... ./bootstrap.sh
+MODEL="${MANGABA_MODEL:-gemma4:e4b}"   # override: MANGABA_MODEL=... ./bootstrap.sh
 SKIP_BROWSER="${SKIP_BROWSER:-false}"           # SKIP_BROWSER=true pula o Chromium/Playwright (download pesado)
 
 # =============================================================================
