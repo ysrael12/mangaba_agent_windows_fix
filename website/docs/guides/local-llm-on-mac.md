@@ -239,6 +239,38 @@ MANGABA_STREAM_READ_TIMEOUT=1800
 
 The stream read timeout is the one most likely to cause issues — it's the socket-level deadline for receiving the next chunk of data. During prefill on large contexts, local models may produce no output for minutes while processing the prompt. The auto-detection handles this transparently.
 
+## ⚠️ O modelo PRECISA suportar 64K de contexto nativo
+
+O Mangaba **exige ≥64.000 tokens de contexto para uso confiável de ferramentas** — não basta cravar `num_ctx`, o modelo tem que suportar nativamente. Isso elimina toda a família **qwen2.5** (7B e 14B), cujo máximo nativo é **32.768** — o agente recusa tarefas com ferramentas nesses modelos.
+
+**Modelos com contexto nativo ≥64K que cabem em 16 GB:**
+
+| Modelo | Contexto nativo | RAM (a 64K) | Nota |
+|--------|-----------------|-------------|------|
+| `gemma4:e4b` (gemma 3n E4B) | 256K | **~3.4 GB** | recomendado p/ 16 GB — ultra-eficiente, 100% GPU |
+| `llama3.1:8b` / `llama3.2` | 128K | ~6–7 GB | bom, capaz |
+| `qwen3:8b` | 128K | ~6–7 GB | capaz |
+| `qwen2.5:7b/14b` | 32K ❌ | — | **não serve** (abaixo de 64K) |
+
+Receita testada (gemma 3n, leve e com contexto enorme):
+
+```bash
+printf 'FROM gemma4:e4b\nPARAMETER num_ctx 65536\n' > Modelfile
+ollama create mangaba-gemma -f Modelfile
+```
+
+```yaml
+model:
+  default: mangaba-gemma
+  provider: ollama
+  base_url: http://localhost:11434/v1
+  api_key: ollama
+  context_length: 65536
+  ollama_num_ctx: 65536
+```
+
+Confirme com `ollama ps`: `CONTEXT 65536` e `PROCESSOR 100% GPU`. Validado com workflows de média e alta complexidade (pesquisa web + arquivo estruturado + conclusão) rodando localmente.
+
 ## Escolha o tamanho do modelo pela sua RAM (importante)
 
 O Mangaba exige contexto grande. Em Macs de **16 GB**, um modelo **14B** com 32K de contexto ocupa ~15 GB e **derrama para a CPU** (fica lento), ou carrega com contexto reduzido (4096), o que **trunca o system prompt** — sintomas típicos: respostas no idioma errado e conteúdo genérico/placeholder.
