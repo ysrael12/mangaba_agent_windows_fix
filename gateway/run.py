@@ -7265,6 +7265,9 @@ class GatewayRunner:
         if canonical == "profile":
             return await self._handle_profile_command(event)
 
+        if canonical == "config":
+            return await self._handle_config_command(event)
+
         if canonical == "whoami":
             return await self._handle_whoami_command(event)
 
@@ -9216,6 +9219,55 @@ class GatewayRunner:
         if session_info:
             return EphemeralReply(f"{header}\n\n{session_info}{_tip_line}")
         return EphemeralReply(f"{header}{_tip_line}")
+
+    async def _handle_config_command(self, event: MessageEvent) -> str:
+        """Handle /config — show a read-only summary of the current config.
+
+        Gateway-only surface gated behind ``gateway.expose_admin_commands``.
+        Returns a concise, chat-friendly summary (the full CLI ``show_config``
+        prints richly-formatted output to a terminal, which doesn't translate
+        to messaging). Read-only: never mutates config.
+        """
+        try:
+            from mangaba_cli.config import read_raw_config
+            cfg = read_raw_config() or {}
+        except Exception as exc:
+            return f"⚠ Não consegui ler a configuração: {exc}"
+
+        def _get(path, default="—"):
+            val = cfg
+            for key in path.split("."):
+                if isinstance(val, dict):
+                    val = val.get(key)
+                else:
+                    val = None
+                    break
+            return val if val not in (None, "") else default
+
+        model_cfg = cfg.get("model") if isinstance(cfg.get("model"), dict) else {}
+        model = model_cfg.get("default") or model_cfg.get("model") or "—"
+
+        # plataformas habilitadas
+        platforms = []
+        gw = cfg.get("gateway") if isinstance(cfg.get("gateway"), dict) else {}
+        plats = gw.get("platforms") if isinstance(gw.get("platforms"), dict) else {}
+        for name, pcfg in plats.items():
+            if isinstance(pcfg, dict) and pcfg.get("enabled"):
+                platforms.append(name)
+        if not platforms and isinstance(gw.get("telegram"), dict):
+            platforms.append("telegram")
+
+        lines = [
+            "⚙️ *Configuração atual*",
+            f"• Modelo: `{model}`",
+            f"• Provider: `{_get('model.provider')}`",
+            f"• Base URL: `{_get('model.base_url')}`",
+            f"• Contexto: `{_get('model.context_length')}`",
+            f"• Plataformas: `{', '.join(platforms) if platforms else '—'}`",
+            f"• Personalidade: `{_get('agent.personality', 'padrão')}`",
+            f"• Comandos admin no canal: `{_get('gateway.expose_admin_commands', 'false')}`",
+        ]
+        return "\n".join(lines)
 
     async def _handle_profile_command(self, event: MessageEvent) -> str:
         """Handle /profile — show active profile name and home directory."""

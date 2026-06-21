@@ -119,7 +119,7 @@ COMMAND_REGISTRY: list[CommandDef] = [
 
     # Configuration
     CommandDef("config", "Show current configuration", "Configuration",
-               cli_only=True),
+               cli_only=True, gateway_config_gate="gateway.expose_admin_commands"),
     CommandDef("model", "Switch model for this session", "Configuration",
                aliases=("provider",), args_hint="[model] [--provider name] [--global]"),
     CommandDef("codex-runtime", "Toggle codex app-server runtime for OpenAI/Codex models",
