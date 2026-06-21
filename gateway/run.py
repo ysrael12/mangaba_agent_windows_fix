@@ -7268,6 +7268,15 @@ class GatewayRunner:
         if canonical == "config":
             return await self._handle_config_command(event)
 
+        if canonical == "set":
+            return await self._handle_set_command(event)
+
+        if canonical == "soul":
+            return await self._handle_soul_command(event)
+
+        if canonical == "rules":
+            return await self._handle_rules_command(event)
+
         if canonical == "tools":
             return await self._handle_tools_command(event)
 
@@ -9277,6 +9286,85 @@ class GatewayRunner:
             f"• Comandos admin no canal: `{_get('gateway.expose_admin_commands', 'false')}`",
         ]
         return "\n".join(lines)
+
+    async def _handle_set_command(self, event: MessageEvent) -> str:
+        """Handle /set <chave> <valor> — grava no config.yaml ou no .env.
+
+        Reaproveita ``set_config_value``, que roteia chaves/tokens (qualquer
+        coisa terminada em _API_KEY/_TOKEN, etc.) para o ``.env`` e o restante
+        (ex: ``model.context_length``) para o ``config.yaml``. Gated por
+        ``gateway.expose_admin_commands``.
+        """
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split(maxsplit=1)
+        if len(parts) < 2:
+            return ("Uso: `/set <chave> <valor>`\n"
+                    "Ex.: `/set model.context_length 65536`\n"
+                    "Ex.: `/set TELEGRAM_BOT_TOKEN <token>` (vai pro .env)")
+        key, value = parts[0].strip(), parts[1].strip()
+        is_secret = key.upper().endswith(("_API_KEY", "_TOKEN")) or key.upper().startswith("TERMINAL_SSH")
+        try:
+            import io, contextlib
+            from mangaba_cli.config import set_config_value
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                set_config_value(key, value)
+        except Exception as exc:
+            return f"⚠ Erro ao definir `{key}`: {exc}"
+        note = ""
+        if is_secret:
+            note = ("\n🔒 Segredo gravado no `.env`. *Apague esta mensagem do chat* "
+                    "para o valor não ficar no histórico. Rode `/restart` para aplicar.")
+        else:
+            note = "\nReinicie a sessão com `/new` (ou `/restart`) para aplicar."
+        shown = "••••••" if is_secret else value
+        return f"✓ `{key}` = `{shown}`{note}"
+
+    async def _handle_soul_command(self, event: MessageEvent) -> str:
+        """Handle /soul [show|set <texto>] — vê/edita a identidade (SOUL.md)."""
+        from agent.prompt_builder import get_mangaba_home
+        soul_path = get_mangaba_home() / "SOUL.md"
+        args_str = (event.get_command_args() or "").strip()
+        if not args_str or args_str.lower() == "show":
+            if soul_path.exists():
+                content = soul_path.read_text(encoding="utf-8").strip()
+                return f"🎭 *SOUL.md* (identidade):\n\n{content[:3500]}"
+            return "Nenhum SOUL.md definido ainda. Crie com `/soul set <texto>`."
+        if args_str.lower().startswith("set "):
+            new_text = args_str[4:].strip()
+            if not new_text:
+                return "Informe o texto: `/soul set Você é a Aria, assistente...`"
+            try:
+                soul_path.parent.mkdir(parents=True, exist_ok=True)
+                soul_path.write_text(new_text + "\n", encoding="utf-8")
+            except Exception as exc:
+                return f"⚠ Erro ao gravar SOUL.md: {exc}"
+            return ("✅ Identidade atualizada (SOUL.md). "
+                    "Mande `/new` para começar uma sessão com a nova identidade.")
+        return "Uso: `/soul show` ou `/soul set <texto>`"
+
+    async def _handle_rules_command(self, event: MessageEvent) -> str:
+        """Handle /rules [show|set <texto>] — vê/edita regras (MANGABA.md)."""
+        import os
+        from pathlib import Path
+        rules_path = Path(os.getcwd()) / "MANGABA.md"
+        args_str = (event.get_command_args() or "").strip()
+        if not args_str or args_str.lower() == "show":
+            if rules_path.exists():
+                content = rules_path.read_text(encoding="utf-8").strip()
+                return f"📋 *MANGABA.md* (regras de trabalho):\n\n{content[:3500]}"
+            return "Nenhum MANGABA.md ainda. Crie com `/rules set <texto>`."
+        if args_str.lower().startswith("set "):
+            new_text = args_str[4:].strip()
+            if not new_text:
+                return "Informe o texto: `/rules set Responda sempre em pt-BR...`"
+            try:
+                rules_path.write_text(new_text + "\n", encoding="utf-8")
+            except Exception as exc:
+                return f"⚠ Erro ao gravar MANGABA.md: {exc}"
+            return ("✅ Regras atualizadas (MANGABA.md). "
+                    "Mande `/new` para aplicar.")
+        return "Uso: `/rules show` ou `/rules set <texto>`"
 
     async def _handle_tools_command(self, event: MessageEvent) -> str:
         """Handle /tools [list|enable|disable] [name...] nos canais.

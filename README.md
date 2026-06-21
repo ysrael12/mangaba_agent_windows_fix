@@ -143,6 +143,9 @@ Depois, no próprio canal:
 | Comando | Função |
 |---|---|
 | `/config` | Ver configuração atual (modelo, provider, contexto, plataformas) |
+| `/set model.context_length 65536` | Definir qualquer valor de config (tokens vão pro `.env`) |
+| `/soul show` · `/soul set <texto>` | Ver/editar a identidade do agente (SOUL.md) |
+| `/rules show` · `/rules set <texto>` | Ver/editar regras de trabalho (MANGABA.md) |
 | `/model qwen3:4b` | Trocar o modelo |
 | `/tools list` · `/tools enable web` · `/tools disable browser` | Gerenciar ferramentas |
 | `/skills list` · `/skills <categoria>` | Listar habilidades |

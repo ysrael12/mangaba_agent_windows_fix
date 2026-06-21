@@ -115,25 +115,33 @@ Formato da agenda (`minuto hora dia mês dia-da-semana`):
 
 ## Parte 4 — Dar personalidade (o "funcionário")
 
-A identidade do agente vem do arquivo `~/.mangaba/SOUL.md` (1º lugar do prompt). Edite-o para definir nome, cargo e jeito:
+Tudo isso agora é feito **pelo chat**, sem editar arquivos.
 
-```markdown
-Você é a Aria, assistente de escritório do Dheiver.
-Responde sempre em português do Brasil, de forma profissional e cordial.
-É organizada e proativa: antecipa o que o Dheiver precisa.
-Foco: documentos, planilhas, emails, agendamentos e pesquisa.
+Defina a identidade (nome, cargo, jeito) com `/soul`:
+```
+/soul set Você é a Aria, assistente de escritório do Dheiver. Responde sempre em pt-BR, profissional e proativa. Foco: documentos, planilhas, emails e agendamentos.
+/soul show
 ```
 
-E regras de trabalho em `MANGABA.md` (na pasta do projeto):
-
-```markdown
-## Idioma
-- Responda SEMPRE em português do Brasil.
-## Estilo
-- Seja direto e objetivo.
+Defina regras de trabalho com `/rules`:
+```
+/rules set Responda sempre em português do Brasil. Seja direto e objetivo.
+/rules show
 ```
 
-Reinicie o gateway e mande `/new` no chat para a nova identidade valer.
+Mande `/new` para a nova identidade valer.
+
+### Parâmetros avançados e segredos pelo chat
+
+`/set` grava qualquer valor — e roteia tokens/chaves automaticamente para o `.env`:
+
+```
+/set model.context_length 65536        # vai para config.yaml
+/set model.base_url http://localhost:11434/v1
+/set TELEGRAM_BOT_TOKEN <token>        # vai para o .env (apague a msg depois!)
+```
+
+> 🔒 Ao enviar um segredo pelo chat, **apague a mensagem** em seguida — o valor fica no histórico do Telegram. Rode `/restart` para aplicar.
 
 ---
 
