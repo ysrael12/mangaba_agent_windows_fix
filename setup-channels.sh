@@ -72,10 +72,10 @@ hr
 say "${B}2) Quais canais você quer ativar?${N}"
 say "   Digite os números separados por espaço (ex: ${C}1 3${N}), ou Enter p/ só Telegram."
 say ""
-say "   ${C}1)${N} Telegram"
-say "   ${C}2)${N} WhatsApp"
-say "   ${C}3)${N} Discord"
-say "   ${C}4)${N} Slack"
+say "   ${C}1)${N} Telegram     ${C}6)${N} Signal       ${C}10)${N} DingTalk"
+say "   ${C}2)${N} WhatsApp     ${C}7)${N} Matrix       ${C}11)${N} Feishu/Lark"
+say "   ${C}3)${N} Discord      ${C}8)${N} Mattermost   ${C}12)${N} WeCom"
+say "   ${C}4)${N} Slack        ${C}9)${N} SMS (Twilio) ${C}13)${N} WeChat"
 say "   ${C}5)${N} Email"
 say ""
 CHOICE="$(ask '➜ Canais:')"
@@ -199,6 +199,97 @@ configure_email() {
   ok "Email configurado (ajuste os hosts no .env se não for Gmail)."
 }
 
+configure_signal() {
+  say "${B}🔒 Signal${N} — via signal-cli-rest-api (precisa do serviço rodando)"
+  local url num users
+  url="$(ask 'URL do signal-cli REST (ex: http://localhost:8080):')"
+  num="$(ask 'Número da conta Signal (ex: +5571999999999):')"
+  users="$(ask 'Números permitidos (vírgula):')"
+  [ -n "$url" ]   && set_env SIGNAL_HTTP_URL "$url"
+  [ -n "$num" ]   && set_env SIGNAL_ACCOUNT "$num"
+  [ -n "$users" ] && set_env SIGNAL_ALLOWED_USERS "$users"
+  ok "Signal configurado."
+}
+configure_matrix() {
+  say "${B}🌐 Matrix${N} — bot user + access token"
+  local hs uid tk users
+  hs="$(ask 'Homeserver (ex: https://matrix.org):')"
+  uid="$(ask 'User ID do bot (ex: @mybot:matrix.org):')"
+  tk="$(ask 'Access token:')"
+  users="$(ask 'Usuários permitidos (vírgula):')"
+  [ -n "$hs" ]    && set_env MATRIX_HOMESERVER "$hs"
+  [ -n "$uid" ]   && set_env MATRIX_USER_ID "$uid"
+  [ -n "$tk" ]    && set_env MATRIX_ACCESS_TOKEN "$tk"
+  [ -n "$users" ] && set_env MATRIX_ALLOWED_USERS "$users"
+  ok "Matrix configurado."
+}
+configure_mattermost() {
+  say "${B}💬 Mattermost${N} — URL + bot token"
+  local url tk users
+  url="$(ask 'URL do servidor (ex: https://mm.suaempresa.com):')"
+  tk="$(ask 'Bot token:')"
+  users="$(ask 'Usuários permitidos (vírgula):')"
+  [ -n "$url" ]   && set_env MATTERMOST_URL "$url"
+  [ -n "$tk" ]    && set_env MATTERMOST_TOKEN "$tk"
+  [ -n "$users" ] && set_env MATTERMOST_ALLOWED_USERS "$users"
+  ok "Mattermost configurado."
+}
+configure_sms() {
+  say "${B}📱 SMS${N} — via Twilio"
+  local sid tok num users
+  sid="$(ask 'Twilio Account SID:')"
+  tok="$(ask 'Twilio Auth Token:')"
+  num="$(ask 'Número Twilio (ex: +15551234567):')"
+  users="$(ask 'Números permitidos (vírgula):')"
+  [ -n "$sid" ]   && set_env TWILIO_ACCOUNT_SID "$sid"
+  [ -n "$tok" ]   && set_env TWILIO_AUTH_TOKEN "$tok"
+  [ -n "$num" ]   && set_env TWILIO_PHONE_NUMBER "$num"
+  [ -n "$users" ] && set_env SMS_ALLOWED_USERS "$users"
+  ok "SMS (Twilio) configurado."
+}
+configure_dingtalk() {
+  say "${B}🟦 DingTalk${N} — client id + secret"
+  local cid sec users
+  cid="$(ask 'Client ID:')"
+  sec="$(ask 'Client Secret:')"
+  users="$(ask 'Usuários permitidos (vírgula):')"
+  [ -n "$cid" ]   && set_env DINGTALK_CLIENT_ID "$cid"
+  [ -n "$sec" ]   && set_env DINGTALK_CLIENT_SECRET "$sec"
+  [ -n "$users" ] && set_env DINGTALK_ALLOWED_USERS "$users"
+  ok "DingTalk configurado."
+}
+configure_feishu() {
+  say "${B}🟩 Feishu/Lark${N} — app id + secret"
+  local aid sec users
+  aid="$(ask 'App ID:')"
+  sec="$(ask 'App Secret:')"
+  users="$(ask 'Usuários permitidos (vírgula):')"
+  [ -n "$aid" ]   && set_env FEISHU_APP_ID "$aid"
+  [ -n "$sec" ]   && set_env FEISHU_APP_SECRET "$sec"
+  [ -n "$users" ] && set_env FEISHU_ALLOWED_USERS "$users"
+  ok "Feishu/Lark configurado."
+}
+configure_wecom() {
+  say "${B}🟧 WeCom${N} — bot id + secret"
+  local bid sec
+  bid="$(ask 'Bot ID:')"
+  sec="$(ask 'Secret:')"
+  [ -n "$bid" ] && set_env WECOM_BOT_ID "$bid"
+  [ -n "$sec" ] && set_env WECOM_SECRET "$sec"
+  ok "WeCom configurado."
+}
+configure_wechat() {
+  say "${B}🟢 WeChat${N} — account id + token"
+  local aid tk users
+  aid="$(ask 'Account ID:')"
+  tk="$(ask 'Token:')"
+  users="$(ask 'Usuários permitidos (vírgula):')"
+  [ -n "$aid" ]   && set_env WEIXIN_ACCOUNT_ID "$aid"
+  [ -n "$tk" ]    && set_env WEIXIN_TOKEN "$tk"
+  [ -n "$users" ] && set_env WEIXIN_ALLOWED_USERS "$users"
+  ok "WeChat configurado."
+}
+
 for n in $CHOICE; do
   case "$n" in
     1) configure_telegram ;;
@@ -206,6 +297,14 @@ for n in $CHOICE; do
     3) configure_discord ;;
     4) configure_slack ;;
     5) configure_email ;;
+    6) configure_signal ;;
+    7) configure_matrix ;;
+    8) configure_mattermost ;;
+    9) configure_sms ;;
+    10) configure_dingtalk ;;
+    11) configure_feishu ;;
+    12) configure_wecom ;;
+    13) configure_wechat ;;
     *) warn "Opção '$n' ignorada." ;;
   esac
   echo ""
