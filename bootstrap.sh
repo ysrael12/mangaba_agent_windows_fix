@@ -114,7 +114,7 @@ ok "Mangaba instalado no venv."
 # extras úteis: busca web grátis (DuckDuckGo) + leitura de PDF/DOCX —
 # fazem 'pesquise…' e 'resuma este PDF' funcionarem sem chave de API.
 echo "  instalando extras (busca web grátis + PDF)..."
-uv pip install ddgs pypdf pdfplumber python-docx openpyxl >/dev/null 2>&1 \
+uv pip install ddgs pypdf pdfplumber python-docx openpyxl "mcp==1.26.0" >/dev/null 2>&1 \
   && ok "Extras instalados (ddgs, pypdf, pdfplumber, docx, xlsx)." \
   || warn "Alguns extras falharam (siga mesmo assim)."
 
