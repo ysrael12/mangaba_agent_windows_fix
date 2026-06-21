@@ -20,18 +20,16 @@ No `~/.mangaba/config.yaml`:
 
 ```yaml
 quick_commands:
-  disco:
-    type: exec
-    command: df -h
-  agora:
-    type: exec
-    command: date "+%d/%m/%Y %H:%M:%S"
-  backup:
-    type: exec
-    command: tar czf ~/backup.tgz ~/projetos && echo "backup ok"
+  disco:        { type: exec, command: df -h }
+  agora:        { type: exec, command: date "+%d/%m/%Y %H:%M:%S" }
+  tempo-ativo:  { type: exec, command: uptime }
+  ip:           { type: exec, command: curl -s ifconfig.me || echo "sem internet" }
+  memoria:      { type: exec, command: top -l 1 | head -10 }
+  ollama:       { type: exec, command: ollama list }
+  backup:       { type: exec, command: tar czf ~/backup.tgz ~/projetos && echo "backup ok" }
 ```
 
-No canal: `/disco`, `/agora`, `/backup`. Reinicie o gateway após editar.
+No canal: `/disco`, `/agora`, `/ip`, `/ollama`, `/backup`… Reinicie o gateway após editar.
 
 > Ideal para: status de sistema, relatórios fixos, scripts utilitários, qualquer coisa repetível.
 
@@ -55,10 +53,16 @@ mangaba cron create --schedule "0 8 * * *" \
 Skills trazem um **procedimento escrito**. Em vez de depender da "inteligência" do modelo para planejar, ele segue os passos — o que deixa **até modelos pequenos** muito mais confiáveis em tarefas média/alta.
 
 ```
-/skills list                 # ver as 89 disponíveis
+/skills list                 # ver as habilidades disponíveis
 /skills research             # instalar a de pesquisa
 # depois, no chat:
 use a skill de pesquisa para investigar <tema> e me dar um resumo com fontes
+```
+
+**Exemplo incluído:** a skill `resumo-estruturado` (categoria *productivity*) guia o modelo a resumir um PDF/texto num formato fixo e confiável — ótimo para ver como uma skill deixa até modelos pequenos previsíveis. No chat:
+
+```
+use a skill resumo-estruturado neste arquivo: relatorio.pdf
 ```
 
 > Ideal para: pesquisa, data-science, devops, email, diagramas — tarefas de média/alta complexidade.
