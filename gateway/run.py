@@ -7943,6 +7943,25 @@ class GatewayRunner:
             source.chat_id or "unknown", _msg_preview,
         )
 
+        # --- Atalho de intenção (pré-LLM): conectar Google via Composio ---
+        # Modelos locais pequenos não orquestram esse fluxo de forma confiável,
+        # então reconhecemos a frase aqui e executamos o passo determinístico.
+        _txt_low = (event.text or "").lower()
+        if "composio" in _txt_low and any(w in _txt_low for w in ("conect", "google", "gmail", "ligar", "integr")):
+            import re as _re
+            m = _re.search(r"\b(ak_[A-Za-z0-9_\-]{8,}|comp_[A-Za-z0-9_\-]{8,})\b", event.text or "")
+            inline_key = m.group(1) if m else ""
+            _composio_args = f"composio {inline_key} gmail".replace("  ", " ").strip()
+
+            class _FakeEv:
+                def __init__(self, a, src): self._a = a; self.source = src
+                def get_command_args(self): return self._a
+            try:
+                return await self._handle_mcp_command(_FakeEv(_composio_args, source))
+            except Exception as _exc:
+                logger.debug("composio intent shortcut failed: %s", _exc)
+                # cai no fluxo normal se algo der errado
+
         # Get or create session
         # Topic-mode DMs: rewrite a stale/foreign thread_id to the user's
         # last-active topic so a cross-topic Reply or stripped plain reply
