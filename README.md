@@ -32,6 +32,22 @@ Use qualquer modelo que quiser — [OpenRouter](https://openrouter.ai) (200+ mod
 
 ---
 
+## Telegram em 3 passos (só o token)
+
+O caminho mais simples: clonar, rodar **um** script e colar o token. O resto — pré-requisitos, modelo local (Ollama) e seu user ID — é automático.
+
+```bash
+git clone https://github.com/dheiver2/mangaba-agent.git
+cd mangaba-agent
+./telegram.sh
+```
+
+1. O script instala **tudo** (pré-requisitos, Python, Ollama + modelo).
+2. Pede **só o token** do [@BotFather](https://t.me/BotFather) (`/newbot`).
+3. Você manda uma mensagem ao bot, ele **detecta seu ID sozinho** e sobe — pronto, é só conversar no Telegram.
+
+---
+
 ## Instalação em 1 Comando (do zero ao bot no ar)
 
 Para quem quer **clonar e ter tudo funcionando** — pré-requisitos, modelo local (Ollama) e canais de mensagem — sem configurar nada na mão:

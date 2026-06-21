@@ -157,6 +157,13 @@ PY
 ok "Modelo apontado para Ollama local."
 
 # =============================================================================
+# Quando chamado por outro script (ex: telegram.sh), pula o configurador
+# interativo de canais — quem chamou cuida do canal.
+if [ "${BOOTSTRAP_NO_CHANNELS:-false}" = "true" ]; then
+  ok "Instalação base concluída."
+  exit 0
+fi
+
 step "5/5  Canais + gateway"
 echo "  Abrindo o configurador de canais..."
 exec ./setup-channels.sh
