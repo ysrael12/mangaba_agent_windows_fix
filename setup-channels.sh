@@ -143,8 +143,18 @@ configure_discord() {
   say "${B}🎮 Discord${N} — token do Developer Portal"
   local tk uid
   tk="$(ask 'Bot token:')"
-  uid="$(ask 'Seu user ID (DISCORD_ALLOWED_USERS):')"
-  [ -n "$tk" ]  && set_env DISCORD_BOT_TOKEN "$tk"
+  if [ -n "$tk" ]; then
+    set_env DISCORD_BOT_TOKEN "$tk"
+    # valida o token (retorna os dados do PRÓPRIO bot, confirmando que funciona)
+    local botname
+    botname="$(curl -s -m 8 -H "Authorization: Bot $tk" "https://discord.com/api/v10/users/@me" \
+                 | grep -oE '"username":"[^"]*"' | head -1 | sed -E 's/.*:"(.*)"/\1/')"
+    [ -n "$botname" ] && ok "Token válido — bot: $botname" || warn "Não validei o token (cheque se está correto)."
+  fi
+  # O ID humano no Discord não vem por REST simples — guia de cópia em 1 clique:
+  say "  ${C}Para pegar SEU ID:${N} Configurações → Avançado → ative ${B}Modo de Desenvolvedor${N},"
+  say "  depois clique com botão direito no seu nome → ${B}Copiar ID do Usuário${N}."
+  uid="$(ask 'Cole seu user ID (DISCORD_ALLOWED_USERS):')"
   [ -n "$uid" ] && set_env DISCORD_ALLOWED_USERS "$uid"
   ok "Discord configurado."
 }
@@ -153,9 +163,25 @@ configure_slack() {
   local bt at uid
   bt="$(ask 'Bot token (xoxb-...):')"
   at="$(ask 'App token (xapp-...):')"
-  uid="$(ask 'Seu user ID (SLACK_ALLOWED_USERS):')"
-  [ -n "$bt" ]  && set_env SLACK_BOT_TOKEN "$bt"
-  [ -n "$at" ]  && set_env SLACK_APP_TOKEN "$at"
+  [ -n "$bt" ] && set_env SLACK_BOT_TOKEN "$bt"
+  [ -n "$at" ] && set_env SLACK_APP_TOKEN "$at"
+  if [ -n "$bt" ]; then
+    # auth.test valida o token e confirma o workspace
+    local team
+    team="$(curl -s -m 8 -H "Authorization: Bearer $bt" "https://slack.com/api/auth.test" \
+              | grep -oE '"team":"[^"]*"' | head -1 | sed -E 's/.*:"(.*)"/\1/')"
+    [ -n "$team" ] && ok "Token válido — workspace: $team" || warn "Token não validou (cheque os escopos)."
+    # tenta achar SEU id pelo e-mail (precisa do escopo users:read.email)
+    local email mail_id
+    email="$(ask 'Seu e-mail do Slack (Enter p/ pular auto-detecção):')"
+    if [ -n "$email" ]; then
+      mail_id="$(curl -s -m 8 -H "Authorization: Bearer $bt" \
+                  "https://slack.com/api/users.lookupByEmail?email=${email}" \
+                  | grep -oE '"id":"[^"]*"' | head -1 | sed -E 's/.*:"(.*)"/\1/')"
+      [ -n "$mail_id" ] && { uid="$mail_id"; ok "ID detectado: $uid"; }
+    fi
+  fi
+  [ -z "${uid:-}" ] && uid="$(ask 'Seu user ID (SLACK_ALLOWED_USERS):')"
   [ -n "$uid" ] && set_env SLACK_ALLOWED_USERS "$uid"
   ok "Slack configurado."
 }
