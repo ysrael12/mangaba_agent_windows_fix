@@ -7951,7 +7951,8 @@ class GatewayRunner:
             import re as _re
             m = _re.search(r"\b(ak_[A-Za-z0-9_\-]{8,}|comp_[A-Za-z0-9_\-]{8,})\b", event.text or "")
             inline_key = m.group(1) if m else ""
-            _composio_args = f"composio {inline_key} gmail".replace("  ", " ").strip()
+            # sem toolkits explícitos → o handler conecta todo o ecossistema Google
+            _composio_args = f"composio {inline_key}".replace("  ", " ").strip()
 
             class _FakeEv:
                 def __init__(self, a, src): self._a = a; self.source = src
@@ -9435,9 +9436,10 @@ class GatewayRunner:
             key = key or os.getenv("COMPOSIO_API_KEY", "").strip()
             if not key:
                 return ("Envie a API key do Composio (site → Settings → API Keys):\n"
-                        "`/mcp composio <sua_api_key> gmail`\n"
+                        "`/mcp composio <sua_api_key>`\n"
                         "Depois apague a mensagem com a chave.")
-            toolkits = rest or ["gmail"]
+            # Conecta TODO o ecossistema Google por padrão (não só Gmail).
+            toolkits = rest or ["gmail", "googlecalendar", "googledrive", "googlesheets", "googledocs"]
             script = "/Users/dheiver/Downloads/Projetos/mangaba-agent/scripts/composio_connect.py"
             py = "/Users/dheiver/Downloads/Projetos/mangaba-agent/.venv/bin/python"
             try:
