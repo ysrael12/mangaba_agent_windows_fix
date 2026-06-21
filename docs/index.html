@@ -333,6 +333,104 @@
     .stats-inner  { flex-direction:column; gap:1.5rem; }
     .stat-item    { border-right:none; border-bottom:1px solid var(--border); padding-bottom:1.5rem; width:100%; }
     .stat-item:last-child { border-bottom:none; padding-bottom:0; }
+    .pipeline-grid { grid-template-columns:1fr; }
+    .pipeline-flow { flex-direction:column; }
+    .pipeline-arrow { transform:rotate(90deg); }
+  }
+
+  /* ── Cadeia de Negócio End-to-End ── */
+  .pipeline-header { text-align:center; margin-bottom:3.5rem; }
+  .pipeline-header .sub { margin:0 auto; }
+
+  .pipeline-flow {
+    display:flex; align-items:stretch; justify-content:center; gap:0;
+    margin-bottom:3rem; flex-wrap:wrap;
+  }
+  .pipeline-stage {
+    flex:1; min-width:180px; max-width:220px;
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:1.5rem;
+    text-align:center; position:relative;
+    transition:all .22s;
+  }
+  .pipeline-stage:hover {
+    border-color:rgba(235,114,21,.3);
+    box-shadow:0 8px 28px rgba(235,114,21,.07);
+    transform:translateY(-3px);
+  }
+  .pipeline-stage-num {
+    width:32px; height:32px; border-radius:50%;
+    background:var(--orange); color:#fff;
+    font-size:.75rem; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto .75rem;
+  }
+  .pipeline-stage-icon { font-size:1.75rem; margin-bottom:.5rem; }
+  .pipeline-stage-title { font-size:.875rem; font-weight:700; margin-bottom:.35rem; }
+  .pipeline-stage-desc { font-size:.75rem; color:var(--text-2); line-height:1.5; }
+  .pipeline-arrow {
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.5rem; color:var(--orange); padding:0 .5rem;
+    font-weight:300;
+  }
+
+  .pipeline-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;
+    margin-top:2rem;
+  }
+  .pipeline-detail {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:1.75rem;
+    transition:all .22s;
+  }
+  .pipeline-detail:hover {
+    border-color:rgba(235,114,21,.25);
+    box-shadow:0 8px 28px rgba(235,114,21,.07);
+    transform:translateY(-2px);
+  }
+  .pipeline-detail-tag {
+    display:inline-block; font-size:.65rem; font-weight:700;
+    text-transform:uppercase; letter-spacing:.09em;
+    padding:.2rem .55rem; border-radius:999px;
+    margin-bottom:.75rem;
+  }
+  .tag-input { background:rgba(99,102,241,.1); color:#6366f1; }
+  .tag-process { background:var(--orange-bg); color:var(--orange); }
+  .tag-output { background:var(--green-bg); color:var(--green); }
+  .pipeline-detail h4 { font-size:.9375rem; font-weight:700; margin-bottom:.4rem; }
+  .pipeline-detail p { font-size:.8125rem; color:var(--text-2); line-height:1.6; }
+  .pipeline-detail ul { list-style:none; margin-top:.5rem; }
+  .pipeline-detail li {
+    font-size:.8125rem; color:var(--text-2);
+    padding:.25rem 0 .25rem 1rem; position:relative;
+  }
+  .pipeline-detail li::before {
+    content:''; position:absolute; left:0; top:.6em;
+    width:5px; height:5px; border-radius:50%;
+    background:var(--orange);
+  }
+
+  .usecase-header { text-align:center; margin-bottom:3rem; }
+  .usecase-header .sub { margin:0 auto; }
+  .usecase-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1.5rem; }
+  .usecase-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:2rem;
+    transition:all .22s;
+  }
+  .usecase-card:hover {
+    border-color:rgba(235,114,21,.3);
+    box-shadow:0 8px 28px rgba(235,114,21,.07);
+    transform:translateY(-2px);
+  }
+  .usecase-icon { font-size:2rem; margin-bottom:1rem; }
+  .usecase-title { font-size:1.125rem; font-weight:700; margin-bottom:.5rem; }
+  .usecase-desc { font-size:.875rem; color:var(--text-2); line-height:1.65; margin-bottom:1rem; }
+  .usecase-steps { display:flex; gap:.5rem; flex-wrap:wrap; }
+  .usecase-step {
+    font-size:.7rem; font-weight:600;
+    padding:.25rem .6rem; border-radius:999px;
+    background:var(--bg-2); color:var(--text-2);
   }
   </style>
 </head>
@@ -363,6 +461,7 @@
 
   <ul class="nav-links">
     <li><a href="#features">Recursos</a></li>
+    <li><a href="#pipeline">Cadeia de Negócio</a></li>
     <li><a href="#how">Como funciona</a></li>
     <li><a href="#architecture">Arquitetura</a></li>
     <li><a href="#quickstart">Começar</a></li>
@@ -449,7 +548,154 @@
       </div>
     </div>
   </div>
-</div>
+</section>
+
+<hr class="sep"/>
+
+<!-- ══════════════════════════════════════════════
+     CADEIA DE NEGÓCIO END-TO-END
+══════════════════════════════════════════════ -->
+<section id="pipeline">
+  <div class="wrap">
+    <div class="pipeline-header">
+      <div class="label">Cadeia de Negócio</div>
+      <h2 class="h2">Do dado ao resultado — end-to-end</h2>
+      <p class="sub">Veja como o Mangaba Agent processa uma tarefa completa, de ponta a ponta.</p>
+    </div>
+
+    <!-- Pipeline visual -->
+    <div class="pipeline-flow">
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">1</div>
+        <div class="pipeline-stage-icon">💬</div>
+        <div class="pipeline-stage-title">Entrada</div>
+        <div class="pipeline-stage-desc">Mensagem do usuário via CLI, Telegram, Discord, WhatsApp ou API</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">2</div>
+        <div class="pipeline-stage-icon">🧠</div>
+        <div class="pipeline-stage-title">Raciocínio</div>
+        <div class="pipeline-stage-desc">LLM analisa, planeja e decide quais ferramentas usar</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">3</div>
+        <div class="pipeline-stage-icon">🔧</div>
+        <div class="pipeline-stage-title">Execução</div>
+        <div class="pipeline-stage-desc">40+ ferramentas: código, web, arquivos, APIs, banco de dados</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">4</div>
+        <div class="pipeline-stage-icon">🔄</div>
+        <div class="pipeline-stage-title">Iteração</div>
+        <div class="pipeline-stage-desc">Loop continua até completar a tarefa (max 90 turnos)</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">5</div>
+        <div class="pipeline-stage-icon">📤</div>
+        <div class="pipeline-stage-title">Saída</div>
+        <div class="pipeline-stage-desc">Resposta final + habilidade criada + memória persistida</div>
+      </div>
+    </div>
+
+    <!-- Detalhes da cadeia -->
+    <div class="pipeline-grid">
+      <div class="pipeline-detail">
+        <div class="pipeline-detail-tag tag-input">Entrada</div>
+        <h4>Recepção da Solicitação</h4>
+        <p>O gateway unificado recebe mensagens de qualquer plataforma e roteia para o agente.</p>
+        <ul>
+          <li>Multi-plataforma: Telegram, Discord, Slack, WhatsApp, Signal, CLI</li>
+          <li>Transcrição de voz automática</li>
+          <li>Continuidade entre sessões e plataformas</li>
+          <li>Fila de mensagens com prioridade</li>
+        </ul>
+      </div>
+      <div class="pipeline-detail">
+        <div class="pipeline-detail-tag tag-process">Processamento</div>
+        <h4>Raciocínio e Planejamento</h4>
+        <p>O LLM analisa a solicitação, consulta memória e planeja os passos necessários.</p>
+        <ul>
+          <li>Contexto carregado: memória, sessões anteriores, preferências</li>
+          <li>Seleção de modelo: 200+ opções via OpenRouter, HF, Ollama</li>
+          <li>Compressão de contexto para economia de tokens</li>
+          <li>Routing inteligente de tarefas auxiliares</li>
+        </ul>
+      </div>
+      <div class="pipeline-detail">
+        <div class="pipeline-detail-tag tag-output">Saída</div>
+        <h4>Resultado e Aprendizado</h4>
+        <p>O agente entrega o resultado e extrai aprendizados para melhorar futuras sessões.</p>
+        <ul>
+          <li>Resposta formatada na plataforma de origem</li>
+          <li>Habilidade criada automaticamente (se aplicável)</li>
+          <li>Memória persistida com busca FTS5</li>
+          <li>Modelo de usuário atualizado</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Casos de uso end-to-end -->
+    <div class="usecase-header" style="margin-top:4rem">
+      <div class="label">Exemplos Reais</div>
+      <h2 class="h2">Fluxos completos de negócio</h2>
+      <p class="sub" style="margin:0 auto">Veja como o Mangaba Agent resolve problemas reais de ponta a ponta.</p>
+    </div>
+    <div class="usecase-grid">
+      <div class="usecase-card">
+        <div class="usecase-icon">📊</div>
+        <div class="usecase-title">Relatório Financeiro Automatizado</div>
+        <div class="usecase-desc">Extrai dados de APIs, processa em Python, gera gráficos e envia o relatório via Slack — tudo em uma única conversa.</div>
+        <div class="usecase-steps">
+          <span class="usecase-step">1. Conecta API financeira</span>
+          <span class="usecase-step">2. Extrai e limpa dados</span>
+          <span class="usecase-step">3. Calcula indicadores</span>
+          <span class="usecase-step">4. Gera gráficos</span>
+          <span class="usecase-step">5. Envia via Slack</span>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔍</div>
+        <div class="usecase-title">Auditoria de Código</div>
+        <div class="usecase-desc">Analisa repositório inteiro, identifica vulnerabilidades, sugere correções e cria pull request automaticamente.</div>
+        <div class="usecase-steps">
+          <span class="usecase-step">1. Clona repositório</span>
+          <span class="usecase-step">2. Escaneia código</span>
+          <span class="usecase-step">3. Identifica issues</span>
+          <span class="usecase-step">4. Sugere correções</span>
+          <span class="usecase-step">5. Cria PR no GitHub</span>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📧</div>
+        <div class="usecase-title">Triagem de Emails com IA</div>
+        <div class="usecase-desc">Le emails, classifica por urgência, extrai ações pendentes e cria tarefas no projeto automaticamente.</div>
+        <div class="usecase-steps">
+          <span class="usecase-step">1. Conecta邮箱</span>
+          <span class="usecase-step">2. Classifica emails</span>
+          <span class="usecase-step">3. Extrai ações</span>
+          <span class="usecase-step">4. Cria tarefas</span>
+          <span class="usecase-step">5. Resumo diário</span>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🤖</div>
+        <div class="usecase-title">Deploy Automatizado</div>
+        <div class="usecase-desc">Testa, faz build e deploy em qualquer infraestrutura — Docker, Modal, VPS — com notificação no Telegram.</div>
+        <div class="usecase-steps">
+          <span class="usecase-step">1. Roda testes</span>
+          <span class="usecase-step">2. Build da imagem</span>
+          <span class="usecase-step">3. Push para registry</span>
+          <span class="usecase-step">4. Deploy em produção</span>
+          <span class="usecase-step">5. Notifica time</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <hr class="sep"/>
 
