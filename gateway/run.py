@@ -9296,6 +9296,16 @@ class GatewayRunner:
         """
         arg = (event.get_command_args() or "").strip().lower()
 
+        confiavel = (
+            "⚙️ *CONFIÁVEIS* (independem do modelo — rodam igual em qualquer um)\n"
+            "Três formas de garantir que a tarefa funcione mesmo com modelo pequeno:\n"
+            "• *Comando determinístico* — `/disco`, `/agora` (rodam um script, sem LLM). "
+            "Crie os seus em `quick_commands` no config.\n"
+            "• *Cron script-only* — agendamento que entrega a saída de um script "
+            "direto, sem passar pelo modelo (`no_agent`).\n"
+            "• *Habilidades (skills)* — dão um passo-a-passo que guia o modelo, "
+            "deixando até os pequenos mais confiáveis. Veja `/skills list`."
+        )
         baixa = (
             "🟢 *BAIXA complexidade* (1 ação, resposta direta)\n"
             "• `resuma este texto: <cole o texto>`\n"
@@ -9324,10 +9334,13 @@ class GatewayRunner:
             "• `monte um kanban do projeto com tarefas e me atualize o progresso`\n"
             "• `/background <tarefa longa>` — roda em segundo plano\n"
             "• `/cron add 0 18 * * 5 :: gere o relatório semanal e me envie`\n"
-            "⚠️ Tarefas de alta complexidade rendem muito mais com modelo na "
-            "nuvem (`/model openrouter/...`); o modelo local pequeno se atrapalha."
+            "💡 Para rodar bem em *qualquer* modelo, quebre em sub-tarefas, use "
+            "uma *skill* que guie os passos, ou um *comando determinístico* "
+            "(veja `/exemplos confiavel`). Modelos maiores fazem em um só pedido."
         )
 
+        if arg in {"confiavel", "confiável", "deterministico", "0"}:
+            return confiavel
         if arg in {"baixa", "low", "1"}:
             return baixa
         if arg in {"media", "média", "medium", "2"}:
@@ -9337,8 +9350,8 @@ class GatewayRunner:
 
         return (
             "🧰 *Catálogo de tarefas* — o que pedir ao agente nos canais.\n"
-            "Filtre com `/exemplos baixa`, `/exemplos media` ou `/exemplos alta`.\n\n"
-            f"{baixa}\n\n{media}\n\n{alta}\n\n"
+            "Filtre: `/exemplos confiavel|baixa|media|alta`.\n\n"
+            f"{confiavel}\n\n{baixa}\n\n{media}\n\n{alta}\n\n"
             "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
         )
 
