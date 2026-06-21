@@ -153,9 +153,37 @@ Depois, no próprio canal:
 | `/cron list` · `/cron remove <id>` · `/cron pause <id>` | Gerenciar agendamentos |
 | `/personality` · `/goal` · `/reasoning` | Ajustar comportamento |
 | `/exemplos [baixa\|media\|alta]` | Catálogo de tarefas por complexidade |
+| `/mcp list` · `/mcp add <nome> <url>` · `/mcp remove <nome>` | Conectar servidores MCP |
+| `/mcp composio <api_key> gmail` | Conectar Google (hosted, sem Google Cloud) |
 | `/new` · `/whoami` · `/help` | Sessão, acesso e ajuda |
 
-📖 **Tutorial completo:** [Criar e configurar agentes pelos canais](https://dheiver2.github.io/mangaba-agent/docs/guides/criar-agente-pelos-canais)
+📖 **Tutoriais:** [Criar agentes pelos canais](https://dheiver2.github.io/mangaba-agent/docs/guides/criar-agente-pelos-canais) · [Tarefas por complexidade](https://dheiver2.github.io/mangaba-agent/docs/guides/catalogo-de-tarefas) · [Tarefas em qualquer modelo](https://dheiver2.github.io/mangaba-agent/docs/guides/tarefas-independentes-de-modelo)
+
+---
+
+## Modelo local: escolha pela sua RAM
+
+O agente exige **≥64K de contexto nativo** para usar ferramentas. Isso **elimina o qwen2.5** (7B/14B, só 32K). Recomendado por RAM:
+
+| RAM | Modelo | Contexto | Nota |
+|---|---|---|---|
+| 8 GB | `qwen3:4b` | nativo grande | leve |
+| 16 GB | **`gemma4:e4b`** (gemma 3n) | 256K | ~3.4 GB a 64K, 100% GPU — validado |
+| 32 GB+ | `llama3.1:8b` / `qwen3:8b` | 128K | mais capaz |
+
+O `bootstrap.sh` já usa `gemma4:e4b` por padrão. 📖 [Guia de modelo local](https://dheiver2.github.io/mangaba-agent/docs/guides/local-llm-on-mac).
+
+---
+
+## Ecossistema Google e Email
+
+| Caminho | O que cobre | Setup |
+|---|---|---|
+| **Composio (hosted)** | Gmail, Calendar, Drive, Sheets | 1 clique no site + `/mcp composio <key>` — sem Google Cloud |
+| **Workspace MCP self-host** | Tudo (72 ferramentas) | seu app OAuth (Google Cloud 1x) — privado |
+| **Email (IMAP/SMTP)** | Só Gmail | Senha de App — sem Google Cloud, 100% local |
+
+📖 [Google Workspace via MCP](https://dheiver2.github.io/mangaba-agent/docs/guides/google-workspace-mcp). Peça em linguagem natural ("conecte meu google pelo composio") ou use o comando direto.
 
 ---
 
