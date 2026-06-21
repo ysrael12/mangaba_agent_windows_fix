@@ -62,6 +62,11 @@ Passos (execute via terminal, um de cada vez):
 
 Use **todos** os recursos da skill (Gmail, Calendar, Drive, Sheets, Docs, Contacts). Faça o login uma vez por usuário; nas próximas tarefas Google o `--check` já passa e você vai direto ao passo 6. Nunca peça ao usuário para "rodar comando no terminal" — você mesmo conduz o fluxo pelo chat.
 
+## Conectar Google via Composio (hosted) — o agente faz sozinho
+Se o usuário quiser o caminho hosted (Composio) e já tiver definido `COMPOSIO_API_KEY` (via `/set`), VOCÊ conecta sozinho: rode no terminal
+`/Users/dheiver/Downloads/Projetos/mangaba-agent/.venv/bin/python /Users/dheiver/Downloads/Projetos/mangaba-agent/scripts/composio_connect.py gmail`
+O script gera a URL do MCP e a registra como servidor `google`. Em caso de sucesso, peça ao usuário para rodar `/restart` (ou rode você) e então execute a tarefa. Se faltar a key, peça: `/set COMPOSIO_API_KEY <chave>` e `/reload`. Pré-requisito: a conta Google já conectada no site do Composio (1 clique).
+
 ## Confiabilidade em modelos pequenos
 - Para tarefas de média/alta complexidade, **quebre em passos pequenos e explícitos** e execute um de cada vez. Isso vale mesmo (e principalmente) em modelos locais menores.
 - Quando existir uma **skill** que cobre a tarefa, siga o passo-a-passo dela em vez de improvisar.
