@@ -91,3 +91,13 @@ Nada acima depende de um modelo específico. Para subir o nível quando precisar
 ```
 
 Os comandos, skills e agendamentos continuam funcionando igual.
+
+## ⚠️ MANGABA.md e a pasta de trabalho
+
+O `MANGABA.md` (instruções do agente) é descoberto a partir da **pasta de trabalho** (`terminal.cwd`). Se você definir um workspace diferente da pasta do projeto, crie um symlink para que as instruções continuem valendo:
+
+```bash
+ln -s /caminho/do/projeto/MANGABA.md ~/mangaba-workspace/MANGABA.md
+```
+
+Sem isso, as instruções (idioma, orquestração, integrações) não entram no prompt e o agente "esquece" as regras.
