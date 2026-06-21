@@ -44,12 +44,20 @@ def _call(func, **kw):
     ns = SimpleNamespace(**{a: None for a in _ATTRS})
     for k, v in kw.items():
         setattr(ns, k, v)
-    buf = io.StringIO()
+    buf, errbuf = io.StringIO(), io.StringIO()
     try:
-        with contextlib.redirect_stdout(buf):
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(errbuf):
             func(ns)
-    except SystemExit as e:  # alguns caminhos chamam sys.exit em erro
-        return json.dumps({"error": f"falha: {e}"}, ensure_ascii=False)
+    except SystemExit:
+        # _ensure_authenticated() e afins chamam sys.exit ao faltar login
+        msg = (buf.getvalue() + errbuf.getvalue()).strip()
+        if "authenticat" in msg.lower() or not msg:
+            return json.dumps({
+                "error": "not_authenticated",
+                "message": "Conta Google não conectada. Conduza o login pelo "
+                           "canal: setup.py --check / --auth-url / --auth-code.",
+            }, ensure_ascii=False)
+        return json.dumps({"error": msg}, ensure_ascii=False)
     except Exception as e:
         return json.dumps({"error": str(e)}, ensure_ascii=False)
     out = buf.getvalue().strip()
