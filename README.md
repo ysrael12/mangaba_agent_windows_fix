@@ -1,8 +1,8 @@
 <div align="center">
   <img src="assets/mangaba-logo.svg" alt="Mangaba AI" width="140"/>
 
-  [![Mangaba AI](https://img.shields.io/badge/Mangaba-AI-F97518?style=for-the-badge)](https://www.mangaba.ia.br)
-  [![Site](https://img.shields.io/badge/mangaba.ia.br-1E0D01?style=for-the-badge)](https://www.mangaba.ia.br)
+  [![Mangaba AI](https://img.shields.io/badge/Mangaba-AI-F97518?style=for-the-badge)](https://mangaba-agent.online)
+  [![Site](https://img.shields.io/badge/mangaba--agent.online-1E0D01?style=for-the-badge)](https://mangaba-agent.online)
 </div>
 
 <p align="center">
@@ -137,6 +137,20 @@ Você configura o agente **sem voltar ao terminal** — direto pelo chat. Ative 
 gateway:
   expose_admin_commands: true
 ```
+
+### Fale naturalmente — o agente monta o workflow
+
+Você **não precisa decorar comandos**. Descreva o objetivo e o agente **escolhe as ferramentas e skills** e executa os passos sozinho (planeja → executa → entrega no chat):
+
+```
+pesquise as 3 maiores novidades de IA desta semana, resuma cada uma em 2 linhas e salve em novidades.md
+me lembre todo dia às 9h de revisar a agenda
+resuma este PDF   (com o arquivo anexado)
+```
+
+A busca web já funciona **grátis** (DuckDuckGo, sem chave). Os comandos `/` abaixo são atalhos opcionais para configuração rápida.
+
+### Comandos de configuração no canal
 
 Depois, no próprio canal:
 
