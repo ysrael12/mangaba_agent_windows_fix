@@ -238,3 +238,44 @@ MANGABA_STREAM_READ_TIMEOUT=1800
 | API call (non-streaming) | 1800s | No change needed | `MANGABA_API_TIMEOUT` |
 
 The stream read timeout is the one most likely to cause issues — it's the socket-level deadline for receiving the next chunk of data. During prefill on large contexts, local models may produce no output for minutes while processing the prompt. The auto-detection handles this transparently.
+
+## Escolha o tamanho do modelo pela sua RAM (importante)
+
+O Mangaba exige contexto grande. Em Macs de **16 GB**, um modelo **14B** com 32K de contexto ocupa ~15 GB e **derrama para a CPU** (fica lento), ou carrega com contexto reduzido (4096), o que **trunca o system prompt** — sintomas típicos: respostas no idioma errado e conteúdo genérico/placeholder.
+
+Regra prática (unified memory):
+
+| RAM | Modelo recomendado | Observação |
+|-----|--------------------|------------|
+| 8 GB | 3–4B (ex: `qwen3:4b`) | rápido, cabe na GPU |
+| 16 GB | **7–8B** (ex: `qwen2.5:7b-instruct`) | melhor equilíbrio; 14B derrama p/ CPU |
+| 32 GB+ | 14B | confortável |
+
+**Um 7B inteiro na GPU, com o prompt íntegro, rende melhor que um 14B truncado/lento.**
+
+### Cravar o contexto no modelo (evita o carregamento em 4096)
+
+Para garantir que o modelo **sempre** carregue com o contexto certo — em vez de o servidor escolher 4096 e truncar o system prompt — asse o `num_ctx` no próprio modelo via Modelfile:
+
+```bash
+cat > Modelfile << 'MF'
+FROM qwen2.5:7b-instruct
+PARAMETER num_ctx 32768
+PARAMETER temperature 0.6
+MF
+ollama create mangaba-7b -f Modelfile
+```
+
+No `~/.mangaba/config.yaml`:
+
+```yaml
+model:
+  default: mangaba-7b
+  provider: ollama
+  base_url: http://localhost:11434/v1
+  api_key: ollama
+  context_length: 65536     # satisfaz o mínimo do Mangaba
+  ollama_num_ctx: 32768     # contexto real do modelo
+```
+
+Confirme com `ollama ps` — a coluna `CONTEXT` deve mostrar `32768` e `PROCESSOR` `100% GPU`.
