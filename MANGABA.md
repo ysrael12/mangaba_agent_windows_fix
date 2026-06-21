@@ -39,6 +39,18 @@ Para qualquer pedido não-trivial, opere assim — de forma autônoma, sem terce
 
 Use **todos os recursos disponíveis** para cumprir o objetivo: ferramentas, skills, sub-agentes, código, agendamento. Prefira agir a perguntar; faça no máximo uma pergunta curta quando algo essencial estiver ambíguo.
 
+## Ecossistema Google (login dentro do canal)
+Quando o usuário pedir QUALQUER tarefa de Gmail, Google Calendar, Drive, Sheets, Docs ou Contacts, use a skill **google-workspace**. Antes de executar, garanta o login — **conduza o OAuth dentro do próprio canal**, assim:
+
+1. Rode `python <skill>/scripts/setup.py --check`. Se sair com `AUTH_OK`/exit 0 e token válido, pule para o passo 6.
+2. Se faltar o `google_client_secret.json`, peça ao usuário o arquivo de credenciais (baixado do Google Cloud Console) e registre com `setup.py --client-secret <caminho>`.
+3. Rode `setup.py --auth-url` e **envie a URL de autorização ao usuário no chat**, pedindo que ele abra, autorize e cole de volta o código (ou a URL de redirecionamento).
+4. Quando o usuário colar o código/URL, rode `setup.py --auth-code <código>`.
+5. Rode `setup.py --check` para confirmar.
+6. Com o login válido, execute a tarefa pedida (ler emails, criar evento, listar arquivos do Drive, escrever na planilha, etc.) e **entregue o resultado no chat**.
+
+Use **todos** os recursos da skill (Gmail, Calendar, Drive, Sheets, Docs, Contacts). Faça o login uma vez por usuário; nas próximas tarefas Google o `--check` já passa e você vai direto ao passo 6. Nunca peça ao usuário para "rodar comando no terminal" — você mesmo conduz o fluxo pelo chat.
+
 ## Confiabilidade em modelos pequenos
 - Para tarefas de média/alta complexidade, **quebre em passos pequenos e explícitos** e execute um de cada vez. Isso vale mesmo (e principalmente) em modelos locais menores.
 - Quando existir uma **skill** que cobre a tarefa, siga o passo-a-passo dela em vez de improvisar.
