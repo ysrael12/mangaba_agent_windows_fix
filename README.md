@@ -44,7 +44,7 @@ cd mangaba-agent
 
 O [`bootstrap.sh`](bootstrap.sh) faz, em sequência:
 
-1. **Pré-requisitos do sistema** — Homebrew (se faltar), git, Node.js, ripgrep, ffmpeg (macOS via `brew`, Linux via `apt`).
+1. **Pré-requisitos do sistema** — Homebrew (se faltar), Xcode Command Line Tools (macOS), build tools (Linux: `build-essential`, `python3-dev`, `libffi-dev`), git, Node.js, ripgrep, ffmpeg. As dependências extras (incluindo **Playwright/Chromium** para as ferramentas de navegador) são instaladas via `scripts/install.sh --ensure`. Pule o navegador com `SKIP_BROWSER=true ./bootstrap.sh`.
 2. **Ambiente Python** — instala `uv`, cria o `.venv` e instala o pacote.
 3. **Ollama + modelo local** — instala o Ollama, sobe o servidor e baixa o modelo (`qwen2.5:7b-instruct` por padrão).
 4. **Config do modelo** — aponta `~/.mangaba/config.yaml` para o Ollama local.

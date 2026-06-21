@@ -29,15 +29,22 @@ have() { command -v "$1" >/dev/null 2>&1; }
 
 OS="$(uname -s)"
 MODEL="${MANGABA_MODEL:-qwen2.5:7b-instruct}"   # override: MANGABA_MODEL=... ./bootstrap.sh
+SKIP_BROWSER="${SKIP_BROWSER:-false}"           # SKIP_BROWSER=true pula o Chromium/Playwright (download pesado)
 
 # =============================================================================
 step "1/5  Pré-requisitos do sistema"
 
+# --- ferramentas de compilação (necessárias p/ algumas deps Python) ----------
 if [ "$OS" = "Darwin" ]; then
+  if ! xcode-select -p >/dev/null 2>&1; then
+    warn "Xcode Command Line Tools ausentes — disparando instalação (pode abrir um popup)..."
+    xcode-select --install 2>/dev/null || true
+    warn "Se um popup apareceu, conclua a instalação do CLT e rode ./bootstrap.sh de novo."
+  fi
+  ok "Xcode Command Line Tools ok."
   if ! have brew; then
     warn "Homebrew não encontrado — instalando..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    # garante o brew no PATH (Apple Silicon vs Intel)
     [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
     [ -x /usr/local/bin/brew ]    && eval "$(/usr/local/bin/brew shellenv)"
   fi
@@ -51,10 +58,22 @@ if [ "$OS" = "Darwin" ]; then
   done
 elif [ "$OS" = "Linux" ] && have apt-get; then
   sudo apt-get update -y
-  sudo apt-get install -y git nodejs ripgrep ffmpeg curl || warn "Alguns pacotes apt falharam."
-  ok "Pacotes de sistema instalados (apt)."
+  # inclui build tools (build-essential, python3-dev, libffi-dev) p/ compilar deps Python
+  sudo apt-get install -y git nodejs npm ripgrep ffmpeg curl \
+       build-essential python3-dev libffi-dev || warn "Alguns pacotes apt falharam."
+  ok "Pacotes de sistema + build tools instalados (apt)."
 else
   warn "SO não reconhecido para auto-instalação ($OS). Garanta git/node/ripgrep/ffmpeg manualmente."
+fi
+
+# --- delega ao instalador oficial as deps extras (node bridges + browser) ----
+# O modo --ensure NÃO clona nem recria venv: só instala dependências testadas.
+if [ -f scripts/install.sh ]; then
+  echo "  garantindo dependências extras via instalador oficial (--ensure)..."
+  ENSURE_LIST="node,ripgrep,ffmpeg"
+  [ "$SKIP_BROWSER" = "true" ] || ENSURE_LIST="node,browser,ripgrep,ffmpeg"
+  bash scripts/install.sh --ensure "$ENSURE_LIST" || warn "Algumas deps extras falharam (siga mesmo assim)."
+  ok "Dependências extras verificadas (browser/Playwright incluído salvo SKIP_BROWSER=true)."
 fi
 
 # =============================================================================
