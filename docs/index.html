@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Mangaba Agent — O Agente de IA Auto-Aperfeiçoável</title>
-  <meta name="description" content="O agente de IA auto-aperfeiçoável feito para evoluir com você. Loop de aprendizado embutido, 40+ ferramentas, multi-plataforma."/>
+  <title>Mangaba Agent — O Agente de IA que Aprende com Você</title>
+  <meta name="description" content="O agente de IA que aprende com você. Cria habilidades, melhora com o tempo e resolve tarefas complexas automaticamente."/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3C/svg%3E"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -28,9 +28,9 @@
     <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
   </a>
   <ul class="nav-links">
-    <li><a href="features.html">Recursos</a></li>
-    <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-    <li><a href="architecture.html">Arquitetura</a></li>
+    <li><a href="features.html">O que eu faço</a></li>
+    <li><a href="business-chain.html">Como Funciona</a></li>
+    <li><a href="architecture.html">Por Dentro</a></li>
     <li><a href="quickstart.html">Começar</a></li>
   </ul>
   <div class="nav-right">
@@ -39,200 +39,293 @@
       <svg id="i-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
     </button>
     <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" target="_blank">GitHub</a>
-    <a href="https://dheiver2.github.io/mangaba-agent/docs/" class="btn btn-primary" target="_blank">Docs</a>
+    <a href="quickstart.html" class="btn btn-primary">Começar Agora</a>
   </div>
 </nav>
 
 <!-- HERO -->
-<section class="hero" style="min-height:100vh;display:flex;align-items:center;padding:8rem 0 5rem;position:relative;overflow:hidden;background:radial-gradient(ellipse 90% 80% at 55% 40%,var(--bg-hero) 0%,var(--bg) 65%)">
+<section style="min-height:100vh;display:flex;align-items:center;padding:8rem 0 5rem;background:radial-gradient(ellipse 90% 80% at 55% 40%,var(--bg-hero) 0%,var(--bg) 65%)">
   <div class="wrap">
-    <div class="hero-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:center">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4.5rem;align-items:center">
       <div>
         <div class="rise" style="display:flex;align-items:center;gap:.625rem;margin-bottom:1.625rem">
-          <span class="pill"><span class="dot-live"></span>Open Source · MIT License</span>
+          <span class="pill"><span class="dot-live"></span>100% Gratuito e Open Source</span>
         </div>
         <h1 class="rise d1" style="font-size:clamp(2.375rem,5vw,4.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.07;margin-bottom:1.375rem">
-          O agente de IA<br/><span style="color:var(--orange)">auto-aperfeiçoável</span>
+          Ei, eu sou o<br/><span style="color:var(--orange)">Mangaba Agent!</span>
         </h1>
-        <p class="hero-sub rise d2" style="font-size:1.0625rem;color:var(--text-2);line-height:1.75;max-width:460px;margin-bottom:2rem">
-          Feito para evoluir com você. Cria habilidades a partir de experiências,
-          se melhora durante o uso, persiste conhecimento entre sessões e constrói
-          um modelo profundo de quem você é ao longo do tempo.
+        <p class="rise d2" style="font-size:1.125rem;color:var(--text-2);line-height:1.8;max-width:480px;margin-bottom:2rem">
+          Sou um assistente de IA que <strong style="color:var(--text-1)">aprende com você</strong>. 
+          Cada tarefa que eu resolvo, eu fico melhor. Cada conversa que temos, eu entendo mais 
+          sobre como você gosta de trabalhar. E o melhor: <strong style="color:var(--text-1)">sou completamente gratuito</strong>.
         </p>
-        <div class="hero-cta rise d3" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.875rem">
-          <a href="quickstart.html" class="btn btn-primary">Instalar agora</a>
-          <a href="features.html" class="link-arr">Ver recursos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <div class="rise d3" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:.875rem">
+          <a href="quickstart.html" class="btn btn-primary" style="font-size:1rem;padding:.875rem 2rem">🚀 Começar Agora — É Grátis</a>
+          <a href="#o-que-e" class="link-arr">O que eu faço? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
         </div>
-        <p class="hero-trust rise d3" style="font-size:.8125rem;color:var(--text-3)">Rode em VPS de $5, cluster GPU, ou infraestrutura serverless.</p>
+        <p class="rise d3" style="font-size:.8125rem;color:var(--text-3)">Não precisa de cartão de crédito. Não precisa de servidor. É só instalar e conversar.</p>
       </div>
-      <div class="hero-right rise d2" style="position:relative">
+      <div class="rise d2" style="position:relative">
         <div style="background:var(--card);border-radius:var(--radius-xl);overflow:hidden;border:1px solid var(--border);box-shadow:0 20px 60px rgba(28,25,23,.12);padding:2rem">
+          <div style="font-size:.75rem;font-weight:700;color:var(--orange);margin-bottom:1rem;text-transform:uppercase;letter-spacing:.1em">Exemplo de conversa</div>
           <div class="code-block">
-<span class="comment"># Instalação em uma linha</span><br/>
-<span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
-&nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span><br/><br/>
-<span class="comment"># Iniciar conversa</span><br/>
-<span class="function">mangaba</span><br/><br/>
-<span class="comment"># Trocar de modelo</span><br/>
-<span class="function">mangaba</span> <span class="string">model set openrouter/claude-sonnet-4</span><br/><br/>
-<span class="comment"># Agendar automação</span><br/>
-<span class="function">mangaba</span> <span class="string">cron add "0 9 * * *" "resumo dos emails"</span>
+<span style="color:#60a5fa">Você:</span> <span class="string">"Organiza meus arquivos por data"</span>
+
+<span style="color:#34d399">Mangaba:</span> Vou criar um script para organizar 
+seus arquivos. Deixa comigo!
+
+<span style="color:#6b7280">→ Criando script Python...</span>
+<span style="color:#6b7280">→ Executando organização...</span>
+<span style="color:#6b7280">→ 47 arquivos organizados!</span>
+
+<span style="color:#34d399">Mangaba:</span> Pronto! Organizei 47 arquivos 
+em 12 pastas por data. Criei uma habilidade 
+para fazer isso automaticamente agora. 
+Quer que eu faça isso toda sexta-feira?
           </div>
         </div>
-        <div class="fc fc-1"><span class="fc-dot" style="background:#EB7215"></span>40+ Ferramentas</div>
-        <div class="fc fc-2"><span class="fc-dot" style="background:#5A8A3A"></span>Multi-plataforma</div>
-        <div class="fc fc-3"><span class="fc-dot" style="background:#6366f1"></span>Auto-aperfeiçoável</div>
-        <div class="fc fc-4"><span class="fc-dot" style="background:#EB7215;opacity:.6"></span>200+ Modelos</div>
+        <div class="fc fc-1"><span class="fc-dot" style="background:#EB7215"></span>Aprendo com cada tarefa</div>
+        <div class="fc fc-2"><span class="fc-dot" style="background:#5A8A3A"></span>Trabalho no Telegram</div>
+        <div class="fc fc-3"><span class="fc-dot" style="background:#6366f1"></span>Sou 100% gratuito</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
+<!-- O QUE É -->
+<section id="o-que-e">
   <div class="wrap">
-    <div class="stats-inner">
-      <div class="stat-item">
-        <div class="stat-value"><span>40+</span></div>
-        <div class="stat-label">Ferramentas integradas</div>
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Entenda</div>
+      <h2 class="h2">O que é o Mangaba Agent?</h2>
+      <p class="sub" style="margin:0 auto;max-width:650px">
+        Pense em mim como um <strong>assistentepessoal inteligente</strong> que mora no seu computador, 
+        no seu celular ou em qualquer lugar. Eu resolvo tarefas para você — desde organizar arquivos 
+        até criar sites completos.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card" style="border-top:3px solid var(--orange)">
+        <div class="card-icon">💬</div>
+        <div class="card-title">Você fala comigo</div>
+        <div class="card-desc">
+          Pode ser pelo <strong>terminal</strong> (linha de comando), pelo <strong>Telegram</strong>, 
+          <strong>Discord</strong>, <strong>WhatsApp</strong> ou qualquer outro app. 
+          É só me mandar uma mensagem como faria com um colega de trabalho.
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value"><span>200+</span></div>
-        <div class="stat-label">Modelos suportados</div>
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Eu penso e resolvo</div>
+        <div class="card-desc">
+          Eu uso <strong>Inteligência Artificial</strong> para entender o que você quer, 
+          planejar os passos e executar. Tenho mais de <strong>40 ferramentas</strong> — 
+          como um canivete suíço digital.
+        </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value"><span>6</span></div>
-        <div class="stat-label">Plataformas de chat</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value"><span>7</span></div>
-        <div class="stat-label">Backends de terminal</div>
+      <div class="card" style="border-top:3px solid #6366f1">
+        <div class="card-icon">📚</div>
+        <div class="card-title">Eu aprendo e evoluo</div>
+        <div class="card-desc">
+          Diferente de outros assistentes, eu <strong>lembro</strong> das nossas conversas, 
+          <strong>crio habilidades</strong> automaticamente e <strong>melhoro</strong> com cada 
+          tarefa que resolvo para você.
+        </div>
       </div>
     </div>
   </div>
-</div>
+</section>
 
 <hr class="sep"/>
 
-<!-- FEATURES RESUMO -->
+<!-- EXEMPLOS PRÁTICOS -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Recursos</div>
-      <h2 class="h2">Tudo que você precisa em um agente</h2>
-      <p class="sub" style="margin:0 auto">Do terminal ao Telegram, de scripts a automações — um único agente para tudo.</p>
+      <div class="label">Exemplos Reais</div>
+      <h2 class="h2">O que eu consigo fazer?</h2>
+      <p class="sub" style="margin:0 auto">Aqui vão alguns exemplos do que posso resolver para você:</p>
     </div>
-    <div class="grid-3">
+
+    <div class="grid-2">
       <div class="card">
-        <div class="card-icon">🧠</div>
-        <div class="card-title">Loop de Aprendizado</div>
-        <div class="card-desc">Cria habilidades automaticamente após tarefas complexas. As melhora durante o uso.</div>
-      </div>
-      <div class="card">
-        <div class="card-icon">💬</div>
-        <div class="card-title">Multi-Plataforma</div>
-        <div class="card-desc">Telegram, Discord, Slack, WhatsApp, Signal e CLI — tudo de um único processo.</div>
-      </div>
-      <div class="card">
-        <div class="card-icon">🔧</div>
-        <div class="card-title">40+ Ferramentas</div>
-        <div class="card-desc">Código, web, arquivos, APIs, banco de dados, mídia, comunicação.</div>
-      </div>
-      <div class="card">
-        <div class="card-icon">⏰</div>
-        <div class="card-title">Automações Agendadas</div>
-        <div class="card-desc">Cron integrado com entrega em qualquer plataforma.</div>
-      </div>
-      <div class="card">
-        <div class="card-icon">🤖</div>
-        <div class="card-title">Sub-Agentes</div>
-        <div class="card-desc">Spawn de sub-agentes isolados para fluxos paralelos.</div>
+        <div class="card-icon">📁</div>
+        <div class="card-title">Organizar Arquivos</div>
+        <div class="card-desc" style="margin-bottom:1rem">
+          <strong>Você diz:</strong> <em>"Organiza minhas fotos por mês"</em><br><br>
+          <strong>Eu faço:</strong> Crio um script que separa todas as suas fotos em pastas 
+          organizadas por data. E se você pedir de novo, eu já sei como fazer!
+        </div>
+        <span style="font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;background:var(--orange-bg);color:var(--orange)">Python + Sistema de Arquivos</span>
       </div>
       <div class="card">
         <div class="card-icon">🌐</div>
-        <div class="card-title">Roda em Qualquer Lugar</div>
-        <div class="card-desc">Local, Docker, SSH, Modal, Daytona, Vercel Sandbox, Singularity.</div>
+        <div class="card-title">Pesquisar na Web</div>
+        <div class="card-desc" style="margin-bottom:1rem">
+          <strong>Você diz:</strong> <em>"Quais as últimas notícias sobre IA?"</em><br><br>
+          <strong>Eu faço:</strong> Busco na web, leio os artigos e te dou um resumo 
+          organizado com os pontos mais importantes.
+        </div>
+        <span style="font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;background:var(--orange-bg);color:var(--orange)">Web Scraping + Resumo</span>
       </div>
-    </div>
-    <div style="text-align:center;margin-top:2rem">
-      <a href="features.html" class="btn btn-ghost">Ver todos os recursos →</a>
+      <div class="card">
+        <div class="card-icon">💻</div>
+        <div class="card-title">Escrever Código</div>
+        <div class="card-desc" style="margin-bottom:1rem">
+          <strong>Você diz:</strong> <em>"Crie um site para minha loja"</em><br><br>
+          <strong>Eu faço:</strong> Escrevo o código HTML, CSS e JavaScript. Testo tudo 
+          e te entrego o site pronto para colocar no ar.
+        </div>
+        <span style="font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;background:var(--orange-bg);color:var(--orange)">HTML + CSS + JavaScript</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Analisar Dados</div>
+        <div class="card-desc" style="margin-bottom:1rem">
+          <strong>Você diz:</strong> <em>"Analisa minhas vendas do mês"</em><br><br>
+          <strong>Eu faço:</strong> Processo seus dados, encontro padrões, crio gráficos 
+          e te mostro o que está funcionando (e o que não está).
+        </div>
+        <span style="font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;background:var(--orange-bg);color:var(--orange)">Python + Análise de Dados</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">Automatizar Tarefas</div>
+        <div class="card-desc" style="margin-bottom:1rem">
+          <strong>Você diz:</strong> <em>"Me manda um resumo todo dia às 9h"</em><br><br>
+          <strong>Eu faço:</strong> Configuro um agendador que roda automaticamente 
+          e te envia o resumo no Telegram ou email sem você precisar pedir.
+        </div>
+        <span style="font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;background:var(--orange-bg);color:var(--orange)">Cron + Automação</span>
+      </div>
+      <div class="card">
+        <div class="card-icon">📱</div>
+        <div class="card-title">Trabalhar em Qualquer Lugar</div>
+        <div class="card-desc" style="margin-bottom:1rem">
+          <strong>Você diz:</strong> <em>"Pode rodar isso no meu servidor?"</em><br><br>
+          <strong>Eu faço:</strong> Conecto no seu servidor via SSH ou Docker e executo 
+          tudo de lá. Você me controla pelo celular, pelo notebook, onde quiser.
+        </div>
+        <span style="font-size:.7rem;font-weight:600;padding:.25rem .6rem;border-radius:999px;background:var(--orange-bg);color:var(--orange)">Docker + SSH + Cloud</span>
+      </div>
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- CADEIA DE NEGÓCIO RESUMO -->
+<!-- DIFERENCIAIS -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Cadeia de Negócio</div>
-      <h2 class="h2">Do dado ao resultado — end-to-end</h2>
-      <p class="sub" style="margin:0 auto">Veja como o Mangaba Agent processa uma tarefa completa.</p>
+      <div class="label">Por que eu?</div>
+      <h2 class="h2">O que me torna diferente?</h2>
+      <p class="sub" style="margin:0 auto">Existem vários assistentes de IA. Por que escolher o Mangaba Agent?</p>
     </div>
+
+    <div class="grid-2">
+      <div class="detail-card">
+        <h3>🧠 Eu Aprendo com Você</h3>
+        <p>
+          Enquanto outros assistentes "esquecem" tudo na próxima conversa, eu <strong>lembro</strong> 
+          do que fizemos. Se você pede para organizar arquivos pela terceira vez, eu já sei como 
+          você gosta. E se eu resolver algo difícil, eu salvo como uma <strong>habilidade</strong> 
+          para usar de novo.
+        </p>
+        <ul>
+          <li>Lembro das nossas conversas anteriores</li>
+          <li>Crio habilidades automaticamente</li>
+          <li>Aprendo suas preferências</li>
+          <li>Melhoro a cada uso</li>
+        </ul>
+      </div>
+      <div class="detail-card">
+        <h3>💰 Sou 100% Gratuito</h3>
+        <p>
+          Não cobro nada. Sou <strong>open source</strong> (código aberto), então qualquer pessoa 
+          pode usar, modificar e distribuir. Você só precisa de uma chave de API de algum provedor 
+          de IA (como OpenRouter que tem plano gratuito), e pronto.
+        </p>
+        <ul>
+          <li>Sem mensalidade</li>
+          <li>Sem limite de uso</li>
+          <li>Sem pegadinhas</li>
+          <li>Código aberto (MIT License)</li>
+        </ul>
+      </div>
+      <div class="detail-card">
+        <h3>📱 Funciona em Qualquer Lugar</h3>
+        <p>
+          Não fico preso no seu computador. Posso rodar em um <strong>servidor na nuvem</strong>, 
+          em um <strong>celular pelo Telegram</strong>, em um <strong>Docker</strong> ou até em um 
+          <strong>computador antigo</strong>. Você me controla de onde estiver.
+        </p>
+        <ul>
+          <li>Terminal (linha de comando)</li>
+          <li>Telegram, Discord, WhatsApp</li>
+          <li>Servidores e nuvem</li>
+          <li>Docker e containers</li>
+        </ul>
+      </div>
+      <div class="detail-card">
+        <h3>🔌 Não Fico Preso a Ninguém</h3>
+        <p>
+          Posso usar <strong>qualquer modelo de IA</strong> — Claude, GPT, Gemini, Llama, 
+          ou qualquer outro. É só trocar com um comando. Sem lock-in, sem dependência.
+        </p>
+        <ul>
+          <li>200+ modelos disponíveis</li>
+          <li>Troco com um comando</li>
+          <li>Posso rodar modelos locais</li>
+          <li>Sem vendor lock-in</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep"/>
+
+<!-- COMO COMEÇAR -->
+<section>
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Próximo Passo</div>
+      <h2 class="h2">Comece em 3 passos simples</h2>
+      <p class="sub" style="margin:0 auto">Não precisa ser programador. É só copiar e colar.</p>
+    </div>
+
     <div class="pipeline-flow">
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">1</div>
-        <div class="pipeline-stage-icon">💬</div>
-        <div class="pipeline-stage-title">Entrada</div>
-        <div class="pipeline-stage-desc">Mensagem via CLI, Telegram, Discord</div>
+        <div class="pipeline-stage-icon">📋</div>
+        <div class="pipeline-stage-title">Copie o comando</div>
+        <div class="pipeline-stage-desc">Um único comando para instalar tudo</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">2</div>
-        <div class="pipeline-stage-icon">🧠</div>
-        <div class="pipeline-stage-title">Raciocínio</div>
-        <div class="pipeline-stage-desc">LLM analisa e planeja</div>
+        <div class="pipeline-stage-icon">粘</div>
+        <div class="pipeline-stage-title">Cole no terminal</div>
+        <div class="pipeline-stage-desc">Abra o terminal e cole</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">3</div>
-        <div class="pipeline-stage-icon">🔧</div>
-        <div class="pipeline-stage-title">Execução</div>
-        <div class="pipeline-stage-desc">40+ ferramentas</div>
-      </div>
-      <div class="pipeline-arrow">→</div>
-      <div class="pipeline-stage">
-        <div class="pipeline-stage-num">4</div>
-        <div class="pipeline-stage-icon">📤</div>
-        <div class="pipeline-stage-title">Saída</div>
-        <div class="pipeline-stage-desc">Resultado + aprendizado</div>
+        <div class="pipeline-stage-icon">💬</div>
+        <div class="pipeline-stage-title">Comece a conversar</div>
+        <div class="pipeline-stage-desc">É só mandar uma mensagem!</div>
       </div>
     </div>
-    <div style="text-align:center;margin-top:2rem">
-      <a href="business-chain.html" class="btn btn-ghost">Ver fluxo completo →</a>
-    </div>
-  </div>
-</section>
 
-<hr class="sep"/>
+    <div class="code-block" style="max-width:700px;margin:2rem auto 0;text-align:center;font-size:1rem">
+<span class="comment"># Copie e cole este comando no seu terminal:</span><br><br>
+<span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span>
+    </div>
 
-<!-- QUICKSTART RESUMO -->
-<section>
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Comece Agora</div>
-      <h2 class="h2">Instalação em uma linha</h2>
-      <p class="sub" style="margin:0 auto">Uma linha no terminal e você está pronto.</p>
-    </div>
-    <div class="grid-2">
-      <div class="detail-card">
-        <h3>🐧 Linux, macOS, WSL2</h3>
-        <div class="code-block" style="margin-top:1rem">
-<span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
-&nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span>
-        </div>
-      </div>
-      <div class="detail-card">
-        <h3>🪟 Windows (PowerShell)</h3>
-        <div class="code-block" style="margin-top:1rem">
-<span class="keyword">iex</span> (irm https://raw.githubusercontent.com/<br/>
-&nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.ps1)
-        </div>
-      </div>
-    </div>
     <div style="text-align:center;margin-top:2rem">
-      <a href="quickstart.html" class="btn btn-primary">Ver guia completo →</a>
+      <a href="quickstart.html" class="btn btn-primary" style="font-size:1rem;padding:.875rem 2rem">Ver Guia Completo com Screenshots →</a>
     </div>
   </div>
 </section>
@@ -240,12 +333,12 @@
 <!-- CTA FINAL -->
 <div class="footer-cta">
   <div class="wrap" style="max-width:680px">
-    <div class="label">Open Source</div>
-    <h2 class="h2">Pronto para evoluir com você?</h2>
-    <p class="sub">O Mangaba Agent é gratuito e open source. Comece hoje.</p>
+    <div class="label">Bora?</div>
+    <h2 class="h2">Pronto para ter um assistente inteligente?</h2>
+    <p class="sub">Junte-se a milhares de pessoas que já estão usando o Mangaba Agent no dia a dia.</p>
     <div style="display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
-      <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-primary">Ver no GitHub</a>
-      <a href="quickstart.html" class="btn btn-ghost">Começar agora</a>
+      <a href="quickstart.html" class="btn btn-primary" style="font-size:1rem;padding:.875rem 2rem">🚀 Começar Agora — É Grátis</a>
+      <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-ghost" style="font-size:1rem;padding:.875rem 2rem">Ver no GitHub</a>
     </div>
   </div>
 </div>
@@ -259,36 +352,35 @@
           <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="40" r="21" fill="url(#fn)"/><path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/></svg>
           <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
         </div>
-        <p>O agente de IA auto-aperfeiçoável feito para evoluir com você.</p>
+        <p>Um assistente de IA que aprende com você e resolve tarefas do dia a dia.</p>
       </div>
       <div class="foot-col">
-        <h4>Projeto</h4>
+        <h4>Aprender</h4>
         <ul>
-          <li><a href="https://github.com/dheiver2/mangaba-agent">GitHub</a></li>
+          <li><a href="features.html">O que eu faço</a></li>
+          <li><a href="business-chain.html">Como funciona</a></li>
+          <li><a href="architecture.html">Por dentro</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Começar</h4>
+        <ul>
+          <li><a href="quickstart.html">Instalação</a></li>
           <li><a href="https://dheiver2.github.io/mangaba-agent/docs/">Documentação</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença MIT</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h4>Páginas</h4>
-        <ul>
-          <li><a href="features.html">Recursos</a></li>
-          <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-          <li><a href="architecture.html">Arquitetura</a></li>
-          <li><a href="quickstart.html">Começar</a></li>
-        </ul>
-      </div>
-      <div class="foot-col">
-        <h4>Comunidade</h4>
+        <h4>Ajuda</h4>
         <ul>
           <li><a href="https://discord.gg/dheiver2">Discord</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Discussions</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Issues</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Reportar Bug</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Tirar Dúvidas</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>Feito no Brasil · MIT License</span>
+      <span>Feito no Brasil com 💛 · MIT License</span>
       <span>&copy; 2026 Mangaba Agent</span>
     </div>
   </div>

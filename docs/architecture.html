@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Arquitetura — Mangaba Agent</title>
-  <meta name="description" content="Arquitetura técnica do Mangaba Agent: núcleo, ferramentas, gateway, plugins e sistema de memória."/>
+  <title>Por Dentro — Mangaba Agent</title>
+  <meta name="description" content="Como o Mangaba Agent é construído por dentro."/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3C/svg%3E"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -29,9 +29,9 @@
   </a>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
-    <li><a href="features.html">Recursos</a></li>
-    <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-    <li><a href="architecture.html" class="active">Arquitetura</a></li>
+    <li><a href="features.html">O que eu faço</a></li>
+    <li><a href="business-chain.html">Como Funciona</a></li>
+    <li><a href="architecture.html" class="active">Por Dentro</a></li>
     <li><a href="quickstart.html">Começar</a></li>
   </ul>
   <div class="nav-right">
@@ -46,9 +46,12 @@
 <!-- HEADER -->
 <section class="page-header">
   <div class="wrap">
-    <div class="label">Arquitetura</div>
-    <h1 class="h2">Construído para escalar</h1>
-    <p class="sub" style="margin:0 auto">Modular, extensível e pronto para produção.</p>
+    <div class="label">Por Dentro</div>
+    <h1 class="h2">Como o Mangaba Agent é feito</h1>
+    <p class="sub" style="margin:0 auto;max-width:650px">
+      Vou te mostrar os "órgãos" que me fazem funcionar. É como abrir um carro 
+      para ver o motor — mas sem precisar de chave de fenda.
+    </p>
   </div>
 </section>
 
@@ -57,30 +60,45 @@
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Visão Geral</div>
-      <h2 class="h2">Componentes do Sistema</h2>
-      <p class="sub" style="margin:0 auto">Cada componente é independente, testável e substituível.</p>
+      <h2 class="h2">Os 4 pilares do Mangaba</h2>
+      <p class="sub" style="margin:0 auto">
+        Tudo que eu faço depende de 4 partes que trabalham juntas. 
+        É como um corpo humano: cérebro, mãos, boca e memória.
+      </p>
     </div>
 
     <div class="grid-4">
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">🧠</div>
         <h3 style="margin-bottom:.3rem">Núcleo</h3>
-        <p style="font-size:.8125rem">AIAgent — loop de conversação com orquestração de ferramentas</p>
+        <p style="font-size:.8125rem">
+          É o meu <strong>cérebro</strong>. Decide o que fazer, 
+          quando fazer e como fazer. Controla tudo.
+        </p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">🔧</div>
         <h3 style="margin-bottom:.3rem">Ferramentas</h3>
-        <p style="font-size:.8125rem">Registry + Toolsets — 40+ ferramentas organizadas por plataforma</p>
+        <p style="font-size:.8125rem">
+          São as minhas <strong>mãos</strong>. Com elas eu leio, escrevo, 
+          executo código, acesso a internet.
+        </p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">🌐</div>
         <h3 style="margin-bottom:.3rem">Gateway</h3>
-        <p style="font-size:.8125rem">Multi-plataforma — adaptadores para Telegram, Discord, Slack...</p>
+        <p style="font-size:.8125rem">
+          É a minha <strong>boca</strong>. Recebo e envio mensagens 
+          por qualquer plataforma.
+        </p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">🔌</div>
         <h3 style="margin-bottom:.3rem">Plugins</h3>
-        <p style="font-size:.8125rem">Sistema extensível — memória, provedores, engines de contexto</p>
+        <p style="font-size:.8125rem">
+          São as minhas <strong>extensões</strong>. Posso ganhar 
+          novas capacidades a qualquer momento.
+        </p>
       </div>
     </div>
   </div>
@@ -93,54 +111,76 @@
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Núcleo</div>
-      <h2 class="h2">AIAgent — O Coração do Sistema</h2>
-      <p class="sub" style="margin:0 auto">O loop principal de conversação com orquestração de ferramentas.</p>
+      <h2 class="h2">O cérebro: AIAgent</h2>
+      <p class="sub" style="margin:0 auto">
+        É ele que gerencia toda a conversa. Pensa, decide e executa. 
+        É como o "eu" dentro de mim.
+      </p>
     </div>
 
     <div class="grid-2">
       <div class="detail-card">
-        <div class="tag tag-arch">Componente Principal</div>
-        <h3>Loop de Conversação</h3>
-        <p>O AIAger gerencia o ciclo completo de interação com o LLM.</p>
+        <div class="tag tag-arch">O que ele faz</div>
+        <h3>Gerencia a conversa</h3>
+        <p>
+          Quando você me manda uma mensagem, o AIAgent é quem recebe, 
+          analisa e decide o que fazer. Ele controla tudo que acontece 
+          na nossa conversa.
+        </p>
         <ul>
-          <li><strong>max_iterations:</strong> Limite de turnos (padrão: 90)</li>
-          <li><strong>iteration_budget:</strong> Controle de custos por sessão</li>
-          <li><strong>interrupt:</strong> Pausa/cancelamento em tempo real</li>
-          <li><strong>grace_call:</strong> Uma última chance após atingir limite</li>
+          <li><strong>Recebe</strong> sua mensagem</li>
+          <li><strong>Analisa</strong> o que você quer</li>
+          <li><strong>Decide</strong> quais ferramentas usar</li>
+          <li><strong>Executa</strong> as ações necessárias</li>
+          <li><strong>Verifica</strong> se ficou bom</li>
+          <li><strong>Entrega</strong> o resultado</li>
         </ul>
       </div>
       <div class="detail-card">
-        <div class="tag tag-arch">Gerenciamento</div>
-        <h3>Estado e Sessões</h3>
-        <p>Persistência de dados com SQLite e busca full-text.</p>
+        <div class="tag tag-arch">Controle</div>
+        <h3>Segurança e Limites</h3>
+        <p>
+          O AIAgent não é louco — ele tem regras para não fazer 
+          besteira. É como um motorista que obedece o código de trânsito.
+        </p>
         <ul>
-          <li><strong>SessionDB:</strong> Armazenamento de sessões</li>
-          <li><strong>FTS5:</strong> Busca full-text em conversas</li>
-          <li><strong>Compressão:</strong> Otimização de contexto</li>
-          <li><strong>Cache:</strong> Prompt caching para economia</li>
+          <li><strong>Max 90 rodadas:</strong> Não fica em loop infinito</li>
+          <li><strong>Controle de custos:</strong> Não gasta mais do que deve</li>
+          <li><strong>Aprovação:</strong> Pede antes de fazer coisas perigosas</li>
+          <li><strong>Interrupção:</strong> Você pode pausar a qualquer momento</li>
         </ul>
       </div>
     </div>
 
     <div class="code-block" style="max-width:800px;margin:2rem auto 0">
-<span class="comment"># Estrutura do AIAgent</span>
+<span class="comment"># Como o AIAgent funciona (simplificado)</span>
+
 <span class="keyword">class</span> <span class="function">AIAgent</span>:
-    <span class="keyword">def</span> <span class="function">__init__</span>(self,
-        base_url: str = None,
-        api_key: str = None,
-        provider: str = None,
-        model: str = <span class="string">""</span>,
-        max_iterations: int = <span class="string">90</span>,
-        enabled_toolsets: list = None,
-        session_id: str = None,
-        <span class="comment"># ... 60+ parâmetros</span>
-    ): ...
+    <span class="keyword">def</span> <span class="function">__init__</span>(self):
+        <span class="comment"># Configurações iniciais</span>
+        self.max_iterations = <span class="string">90</span>  <span class="comment"># Máximo de rodadas</span>
+        self.model = <span class="string">"gpt-4o"</span>     <span class="comment"># Modelo de IA</span>
+        self.tools = []            <span class="comment"># Ferramentas disponíveis</span>
 
-    <span class="keyword">def</span> <span class="function">chat</span>(self, message: str) -> str:
-        <span class="comment"># Interface simples — retorna string</span>
+    <span class="keyword">def</span> <span class="function">conversar</span>(self, mensagem):
+        <span class="comment"># 1. Receber mensagem</span>
+        contexto.append(mensagem)
 
-    <span class="keyword">def</span> <span class="function">run_conversation</span>(self, user_message: str) -> dict:
-        <span class="comment"># Interface completa — retorna dict com resposta + histórico</span>
+        <span class="comment"># 2. Loop principal</span>
+        <span class="keyword">while</span> rodadas < max_iterations:
+            <span class="comment"># Mandar para o modelo de IA</span>
+            resposta = modelo.pensar(contexto)
+
+            <span class="comment"># Se quer usar ferramenta</span>
+            <span class="keyword">if</span> resposta.usar_ferramenta:
+                resultado = executar(resposta.ferramenta)
+                contexto.append(resultado)
+            <span class="keyword">else</span>:
+                <span class="comment"># Resposta final</span>
+                <span class="keyword">return</span> resposta.texto
+
+        <span class="comment"># 3. Aprender com a conversa</span>
+        salvar_habilidades(conversa)
     </div>
   </div>
 </section>
@@ -152,52 +192,67 @@
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Ferramentas</div>
-      <h2 class="h2">Registry + Toolsets</h2>
-      <p class="sub" style="margin:0 auto">Sistema de descoberta automática com organização por plataforma.</p>
+      <h2 class="h2">As mãos: 40+ ferramentas</h2>
+      <p class="sub" style="margin:0 auto">
+        Cada ferramenta é como um "dedo" meu. Juntas, elas me permitem 
+        fazer praticamente qualquer coisa no computador.
+      </p>
     </div>
 
     <div class="grid-2">
       <div class="detail-card">
-        <h3>📋 Registry</h3>
-        <p>Descoberta automática de ferramentas via importação de módulos.</p>
-        <ul>
-          <li>Auto-discovery: qualquer <code>tools/*.py</code> com <code>registry.register()</code></li>
-          <li>Schema collection automática</li>
-          <li>Dispatch e error wrapping</li>
-          <li>Verificação de disponibilidade</li>
-        </ul>
+        <h3>📋 Como elas funcionam</h3>
+        <p>
+          Cada ferramenta tem um "cardápio" que diz o que ela faz e 
+          como usar. O AIAgent lê esse cardápio e decide qual usar.
+        </p>
+        <div class="code-block" style="margin-top:1rem">
+<span class="comment"># Exemplo: cardápio da ferramenta "ler_arquivo"</span>
+{
+  <span class="string">"nome"</span>: <span class="string">"ler_arquivo"</span>,
+  <span class="string">"descrição"</span>: <span class="string">"Lê o conteúdo de um arquivo"</span>,
+  <span class="string">"como_usar"</span>: {
+    <span class="string">"caminho"</span>: <span class="string">"caminho do arquivo"</span>
+  }
+}
+        </div>
       </div>
       <div class="detail-card">
-        <h3>📦 Toolsets</h3>
-        <p>Ferramentas organizadas em conjuntos por plataforma.</p>
+        <h3>📦 Organização</h3>
+        <p>
+          As ferramentas são organizadas em grupos (toolsets). 
+          Cada grupo tem ferramentas para uma finalidade diferente.
+        </p>
         <ul>
-          <li><code>messaging</code> — para Telegram, Discord, Slack</li>
-          <li><code>terminal</code> — execução de código</li>
-          <li><code>web</code> — navegação e busca</li>
-          <li><code>memory</code> — gerenciamento de memória</li>
+          <li><strong>messaging:</strong> Enviar mensagens (Telegram, Discord...)</li>
+          <li><strong>terminal:</strong> Rodar código (Python, Bash...)</li>
+          <li><strong>web:</strong> Acessar a internet (buscar, ler páginas)</li>
+          <li><strong>file:</strong> Gerenciar arquivos (ler, escrever, mover)</li>
+          <li><strong>memory:</strong> Gerenciar memória (buscar, salvar)</li>
+          <li><strong>todo:</strong> Gerenciar tarefas (criar, listar, completar)</li>
         </ul>
       </div>
     </div>
 
     <div class="detail-card" style="margin-top:2rem;max-width:800px;margin-left:auto;margin-right:auto">
-      <h3>📁 Estrutura de Diretórios</h3>
-      <div class="code-block" style="margin-top:1rem">
+      <h3>📁 Estrutura de Pastas</h3>
+      <p style="margin-bottom:1rem">
+        É assim que os arquivos estão organizados no meu "corpo":
+      </p>
+      <div class="code-block">
 mangaba-agent/
-├── agent/              <span class="comment"># Lógica central do agente</span>
-├── mangaba_cli/        <span class="comment"># Interface de linha de comando</span>
-├── skills/             <span class="comment"># Habilidades criadas e curadas</span>
-├── tools/              <span class="comment"># 40+ ferramentas integradas</span>
-│   └── environments/   <span class="comment"># Backends de terminal</span>
-├── gateway/            <span class="comment"># Integrações com plataformas</span>
-│   └── platforms/      <span class="comment"># Adaptadores por plataforma</span>
-├── plugins/            <span class="comment"># Framework de extensibilidade</span>
+├── agent/              <span class="comment"># 🧠 O cérebro (AIAgent)</span>
+├── tools/              <span class="comment"># 🔧 As mãos (40+ ferramentas)</span>
+│   └── environments/   <span class="comment"># Onde rodo código (local, Docker...)</span>
+├── gateway/            <span class="comment"># 🌐 A boca (comunicação)</span>
+│   └── platforms/      <span class="comment"># Adaptadores (Telegram, Discord...)</span>
+├── plugins/            <span class="comment"># 🔌 Extensões</span>
 │   ├── memory/         <span class="comment"># Provedores de memória</span>
-│   ├── model-providers/<span class="comment"># Provedores de LLM</span>
-│   └── context_engine/ <span class="comment"># Engines de contexto</span>
-├── providers/          <span class="comment"># Adaptadores de LLM</span>
-├── cron/               <span class="comment"># Agendador de tarefas</span>
-├── tests/              <span class="comment"># Suite de testes (~17k testes)</span>
-└── website/            <span class="comment"># Documentação Docusaurus</span>
+│   ├── model-providers/<span class="comment"># Provedores de IA</span>
+│   └── context_engine/ <span class="comment"># Gerenciamento de contexto</span>
+├── skills/             <span class="comment"># Habilidades que aprendi</span>
+├── mangaba_cli/        <span class="comment"># Interface de linha de comando</span>
+└── tests/              <span class="comment"># Testes (17k+ testes!)</span>
       </div>
     </div>
   </div>
@@ -210,47 +265,65 @@ mangaba-agent/
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Gateway</div>
-      <h2 class="h2">Multi-Plataforma</h2>
-      <p class="sub" style="margin:0 auto">Adaptadores para cada plataforma de comunicação.</p>
+      <h2 class="h2">A boca: comunicação multi-plataforma</h2>
+      <p class="sub" style="margin:0 auto">
+        É o componente que me permite conversar com você por qualquer lugar. 
+        É como um tradutor que fala todas as "línguas" das plataformas.
+      </p>
     </div>
 
     <div class="grid-3">
       <div class="detail-card">
         <h3>💬 Chat Platforms</h3>
+        <p style="font-size:.875rem;margin-bottom:1rem">
+          Apps de mensagem que eu suporto:
+        </p>
         <ul>
-          <li>Telegram Bot API</li>
-          <li>Discord Bot</li>
-          <li>Slack App</li>
-          <li>WhatsApp (via Baileys)</li>
-          <li>Signal (via signal-cli)</li>
-          <li>Matrix</li>
-          <li>Mattermost</li>
+          <li><strong>Telegram</strong> — Bot oficial</li>
+          <li><strong>Discord</strong> — Bot para servidores</li>
+          <li><strong>Slack</strong> — Para empresas</li>
+          <li><strong>WhatsApp</strong> — Via Baileys</li>
+          <li><strong>Signal</strong> — Via signal-cli</li>
+          <li><strong>Matrix</strong> — Aberto e descentralizado</li>
         </ul>
       </div>
       <div class="detail-card">
         <h3>📧 Outros Canais</h3>
+        <p style="font-size:.875rem;margin-bottom:1rem">
+          Outras formas de me mandar mensagem:
+        </p>
         <ul>
-          <li>Email (IMAP/SMTP)</li>
-          <li>SMS (Twilio)</li>
-          <li>Webhook HTTP</li>
-          <li>API Server REST</li>
-          <li>Home Assistant</li>
-          <li>QQ Bot</li>
-          <li>Feishu/DingTalk</li>
+          <li><strong>Email</strong> — Receber e enviar emails</li>
+          <li><strong>SMS</strong> — Mensagens de texto</li>
+          <li><strong>Webhook</strong> — Para integrações</li>
+          <li><strong>API REST</strong> — Para programadores</li>
+          <li><strong>Home Assistant</strong> — Para casas inteligentes</li>
+          <li><strong>Terminal</strong> — Direto no computador</li>
         </ul>
       </div>
       <div class="detail-card">
         <h3>⚙️ Funcionalidades</h3>
+        <p style="font-size:.875rem;margin-bottom:1rem">
+          O que o Gateway faz nos bastidores:
+        </p>
         <ul>
-          <li>Transcrição de voz</li>
-          <li>Continuidade entre sessões</li>
-          <li>Múltiplos usuários</li>
-          <li>Comandos especiais</li>
-          <li>Aprovação de ações</li>
-          <li>Rate limiting</li>
-          <li>Audit log</li>
+          <li><strong>Transcrição:</strong> Áudio vira texto</li>
+          <li><strong>Continuidade:</strong> Conversa continua depois</li>
+          <li><strong>Múltiplos usuários:</strong> Atende vários</li>
+          <li><strong>Comandos:</strong> /help, /start, etc.</li>
+          <li><strong>Aprovação:</strong> Pede antes de agir</li>
+          <li><strong>Proteção:</strong> Não aceita abuso</li>
         </ul>
       </div>
+    </div>
+
+    <div class="detail-card" style="margin-top:2rem;max-width:700px;margin-left:auto;margin-right:auto;text-align:center">
+      <h3>🔄 Tudo conectado</h3>
+      <p>
+        O mais legal: se você mandar uma mensagem pelo Telegram e 
+        continuar pelo Discord, eu lembro de tudo. A conversa continua 
+        <strong>em qualquer lugar</strong>.
+      </p>
     </div>
   </div>
 </section>
@@ -262,65 +335,82 @@ mangaba-agent/
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Plugins</div>
-      <h2 class="h2">Sistema Extensível</h2>
-      <p class="sub" style="margin:0 auto">Expanda o agente com novos provedores, memória e capacidades.</p>
+      <h2 class="h2">Extensões: ganhe novas capacidades</h2>
+      <p class="sub" style="margin:0 auto">
+        Plugins são como "próteses" que me dão novas habilidades. 
+        É como upgrade de videogame — novos poderes sem mudar o jogo.
+      </p>
     </div>
 
     <div class="grid-3">
       <div class="detail-card">
-        <div class="tag tag-process">Provedores de Memória</div>
-        <h3>Memory Providers</h3>
-        <p>Backends de memória persistentes para o agente.</p>
+        <div class="tag tag-process">Memória</div>
+        <h3>Onde guardo o que aprendo</h3>
+        <p style="font-size:.875rem">
+          Provedores de memória são onde eu guardo tudo que aprendo. 
+          Cada um tem um jeito diferente de funcionar.
+        </p>
         <ul>
-          <li>Honcho — modelagem de usuário</li>
-          <li>Mem0 — memória semântica</li>
-          <li>Supermemory — recall inteligente</li>
-          <li>Personalizado via ABC</li>
+          <li><strong>Honcho:</strong> Lembra como você é</li>
+          <li><strong>Mem0:</strong> Guarda por conceitos</li>
+          <li><strong>Supermemory:</strong> Lembra inteligentemente</li>
         </ul>
       </div>
       <div class="detail-card">
-        <div class="tag tag-input">Provedores de LLM</div>
-        <h3>Model Providers</h3>
-        <p>Adaptadores para cada provedor de modelos.</p>
+        <div class="tag tag-input">Inteligência</div>
+        <h3>De onde vem minha IA</h3>
+        <p style="font-size:.875rem">
+          Provedores de LLM são os "cérebros" que eu uso para pensar. 
+          Você pode trocar o cérebro a qualquer momento.
+        </p>
         <ul>
-          <li>OpenRouter, OpenAI, Anthropic</li>
-          <li>HuggingFace, NVIDIA, Ollama</li>
-          <li>Qualquer API OpenAI-compatível</li>
-          <li>Override via user plugins</li>
+          <li><strong>OpenRouter:</strong> 200+ modelos</li>
+          <li><strong>OpenAI:</strong> GPT-4o, GPT-4.1</li>
+          <li><strong>Ollama:</strong> Roda no seu PC</li>
         </ul>
       </div>
       <div class="detail-card">
-        <div class="tag tag-output">Engines de Contexto</div>
-        <h3>Context Engines</h3>
-        <p>Gerenciamento inteligente de contexto.</p>
+        <div class="tag tag-output">Contexto</div>
+        <h3>Como lembro da conversa</h3>
+        <p style="font-size:.875rem">
+          Engines de contexto gerenciam o que eu lembro da conversa 
+          atual. É como um "bloco de notas" inteligente.
+        </p>
         <ul>
-          <li>Compressão de conversas</li>
-          <li>Sumarização automática</li>
-          <li>Retrieval Augmented Generation</li>
-          <li>Cache de prompts</li>
+          <li><strong>Compressão:</strong> Resume conversas longas</li>
+          <li><strong>Cache:</strong> Guarda respostas prontas</li>
+          <li><strong>RAG:</strong> Busca em documentos</li>
         </ul>
       </div>
     </div>
 
     <div class="detail-card" style="margin-top:2rem;max-width:700px;margin-left:auto;margin-right:auto">
-      <h3>🔌 Como Criar um Plugin</h3>
-      <div class="code-block" style="margin-top:1rem">
-<span class="comment"># ~/.mangaba/plugins/meu-plugin/plugin.yaml</span>
+      <h3>🔌 Como criar um plugin</h3>
+      <p style="margin-bottom:1rem;font-size:.875rem">
+        Se você quiser me dar uma nova capacidade, é simples:
+      </p>
+      <div class="code-block">
+<span class="comment"># 1. Criar uma pasta para o plugin</span>
+~/.mangaba/plugins/meu-plugin/
+
+<span class="comment"># 2. Criar plugin.yaml</span>
 name: meu-plugin
 kind: model-provider
-version: 1.0.0
 description: Meu provedor personalizado
 
-<span class="comment"># ~/.mangaba/plugins/meu-plugin/__init__.py</span>
+<span class="comment"># 3. Criar __init__.py</span>
 <span class="keyword">from</span> providers <span class="keyword">import</span> register_provider
 <span class="keyword">from</span> providers.base <span class="keyword">import</span> ProviderProfile
 
 profile = ProviderProfile(
     name=<span class="string">"meu-provider"</span>,
-    env_vars=(<span class="string">"MEU_API_KEY"</span>,),
+    env_vars=(<span class="string">"MINHA_API_KEY"</span>,),
     base_url=<span class="string">"https://api.meuprovedor.com/v1"</span>,
 )
 register_provider(profile)
+
+<span class="comment"># 4. Reiniciar o Mangaba</span>
+<span class="comment"># Pronto! Agora tenho uma nova capacidade!</span>
       </div>
     </div>
   </div>
@@ -333,39 +423,49 @@ register_provider(profile)
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Segurança</div>
-      <h2 class="h2">Isolamento e Controle</h2>
-      <p class="sub" style="margin:0 auto">Cada execução é monitorada, isolada e auditada.</p>
+      <h2 class="h2">Proteção e Controle</h2>
+      <p class="sub" style="margin:0 auto">
+        Eu não sou um agente selvagem. Tenho regras, limites e proteções 
+        para não fazer besteira.
+      </p>
     </div>
 
     <div class="grid-3">
       <div class="detail-card">
-        <h3>🔒 Sandbox</h3>
-        <p>Execução isolada com Docker ou processos separados.</p>
+        <h3>🔒 Sanduíche (Sandbox)</h3>
+        <p style="font-size:.875rem">
+          Quando eu rodo código, é numa "jaula" isolada. É como um 
+          aquário — eu nadó, mas não fujo.
+        </p>
         <ul>
-          <li>Containers isolados</li>
-          <li>Timeout configurável</li>
-          <li>Limites de recursos</li>
-          <li>Cleanup automático</li>
+          <li><strong>Isolamento:</strong> Não afeto o sistema</li>
+          <li><strong>Tempo limite:</strong> Não fico preso para sempre</li>
+          <li><strong>Recursos:</strong> Não uso mais que devia</li>
+          <li><strong>Limpeza:</strong> Tudo é apagado depois</li>
         </ul>
       </div>
       <div class="detail-card">
         <h3>🛡️ Permissões</h3>
-        <p>Controle granular de acesso a ferramentas e ações.</p>
+        <p style="font-size:.875rem">
+          Nem tudo eu posso fazer. Algumas coisas preciso de permissão.
+        </p>
         <ul>
-          <li>Aprovação para ações destrutivas</li>
-          <li>Whitelist de ferramentas</li>
-          <li>Rate limiting por usuário</li>
-          <li>Audit log completo</li>
+          <li><strong>Aprovação:</strong> Pergunto antes de deletar</li>
+          <li><strong>Whitelist:</strong> Só uso ferramentas autorizadas</li>
+          <li><strong>Limite:</strong> Não faço mais de X por hora</li>
+          <li><strong>Log:</strong> Tudo fica registrado</li>
         </ul>
       </div>
       <div class="detail-card">
         <h3>🔑 Credenciais</h3>
-        <p>Gerenciamento seguro de tokens e chaves de API.</p>
+        <p style="font-size:.875rem">
+          Suas senhas e chaves ficam seguras. Nunca ficam expostas.
+        </p>
         <ul>
-          <li>Armazenamento em .env</li>
-          <li>Nunca em código ou logs</li>
-          <li>Pool de credenciais</li>
-          <li>Refresh automático</li>
+          <li><strong>Arquivo .env:</strong> Guardado com segurança</li>
+          <li><strong>Nunca em código:</strong> Não escrevo senhas</li>
+          <li><strong>Pool:</strong> Uso a chave certa na hora certa</li>
+          <li><strong>Refresh:</strong> Atualizo chaves expiradas</li>
         </ul>
       </div>
     </div>
@@ -376,7 +476,7 @@ register_provider(profile)
 <div class="footer-cta">
   <div class="wrap" style="max-width:680px">
     <div class="label">Próximo passo</div>
-    <h2 class="h2">Comece a usar agora</h2>
+    <h2 class="h2">Quer me testar?</h2>
     <p class="sub">Instale em uma linha e comece a conversar em minutos.</p>
     <a href="quickstart.html" class="btn btn-primary" style="margin-top:2rem">Ver Guia Rápido →</a>
   </div>
@@ -391,36 +491,35 @@ register_provider(profile)
           <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="40" r="21" fill="url(#fn)"/><path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/></svg>
           <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
         </div>
-        <p>O agente de IA auto-aperfeiçoável feito para evoluir com você.</p>
+        <p>Um assistente de IA que aprende com você e resolve tarefas do dia a dia.</p>
       </div>
       <div class="foot-col">
-        <h4>Projeto</h4>
+        <h4>Aprender</h4>
         <ul>
-          <li><a href="https://github.com/dheiver2/mangaba-agent">GitHub</a></li>
+          <li><a href="features.html">O que eu faço</a></li>
+          <li><a href="business-chain.html">Como funciona</a></li>
+          <li><a href="architecture.html">Por dentro</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Começar</h4>
+        <ul>
+          <li><a href="quickstart.html">Instalação</a></li>
           <li><a href="https://dheiver2.github.io/mangaba-agent/docs/">Documentação</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença MIT</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h4>Páginas</h4>
-        <ul>
-          <li><a href="features.html">Recursos</a></li>
-          <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-          <li><a href="architecture.html">Arquitetura</a></li>
-          <li><a href="quickstart.html">Começar</a></li>
-        </ul>
-      </div>
-      <div class="foot-col">
-        <h4>Comunidade</h4>
+        <h4>Ajuda</h4>
         <ul>
           <li><a href="https://discord.gg/dheiver2">Discord</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Discussions</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Issues</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Reportar Bug</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Tirar Dúvidas</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>Feito no Brasil · MIT License</span>
+      <span>Feito no Brasil com 💛 · MIT License</span>
       <span>&copy; 2026 Mangaba Agent</span>
     </div>
   </div>

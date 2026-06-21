@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Cadeia de Negócio — Mangaba Agent</title>
-  <meta name="description" content="Fluxo completo end-to-end do Mangaba Agent: da entrada da mensagem ao resultado final e aprendizado contínuo."/>
+  <title>Como Funciona — Mangaba Agent</title>
+  <meta name="description" content="Como o Mangaba Agent processa suas tarefas do início ao fim."/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3C/svg%3E"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -29,9 +29,9 @@
   </a>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
-    <li><a href="features.html">Recursos</a></li>
-    <li><a href="business-chain.html" class="active">Cadeia de Negócio</a></li>
-    <li><a href="architecture.html">Arquitetura</a></li>
+    <li><a href="features.html">O que eu faço</a></li>
+    <li><a href="business-chain.html" class="active">Como Funciona</a></li>
+    <li><a href="architecture.html">Por Dentro</a></li>
     <li><a href="quickstart.html">Começar</a></li>
   </ul>
   <div class="nav-right">
@@ -46,215 +46,284 @@
 <!-- HEADER -->
 <section class="page-header">
   <div class="wrap">
-    <div class="label">Cadeia de Negócio</div>
-    <h1 class="h2">Fluxo Completo End-to-End</h1>
-    <p class="sub" style="margin:0 auto">Do dado ao resultado — veja como o Mangaba Agent processa uma tarefa completa de ponta a ponta.</p>
+    <div class="label">Como Funciona</div>
+    <h1 class="h2">Do pedido ao resultado</h1>
+    <p class="sub" style="margin:0 auto;max-width:650px">
+      Vou te explicar como uma tarefa viaja do momento em que você pede até 
+      eu te entregar o resultado. É como acompanhar uma encomenda pelo rastreio.
+    </p>
   </div>
 </section>
 
-<!-- PIPELINE VISUAL -->
+<!-- VISÃO GERAL DO FLUXO -->
 <section style="padding-top:3rem">
   <div class="wrap">
-    <div class="pipeline-flow">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Passo a passo</div>
+      <h2 class="h2">As 5 etapas do fluxo</h2>
+      <p class="sub" style="margin:0 auto">
+        Cada tarefa que você me pede passa por 5 etapas. É como uma fábrica: 
+        entra matéria-prima, sai produto pronto.
+      </p>
+    </div>
+
+    <div class="pipeline-flow" style="margin-bottom:3rem">
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">1</div>
         <div class="pipeline-stage-icon">💬</div>
-        <div class="pipeline-stage-title">Entrada</div>
-        <div class="pipeline-stage-desc">Mensagem do usuário via CLI, Telegram, Discord, WhatsApp ou API</div>
+        <div class="pipeline-stage-title">Você pede</div>
+        <div class="pipeline-stage-desc">Mensagem chega por qualquer plataforma</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">2</div>
         <div class="pipeline-stage-icon">🧠</div>
-        <div class="pipeline-stage-title">Raciocínio</div>
-        <div class="pipeline-stage-desc">LLM analisa, planeja e decide quais ferramentas usar</div>
+        <div class="pipeline-stage-title">Eu penso</div>
+        <div class="pipeline-stage-desc">IA analisa e planeja os passos</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">3</div>
         <div class="pipeline-stage-icon">🔧</div>
-        <div class="pipeline-stage-title">Execução</div>
-        <div class="pipeline-stage-desc">40+ ferramentas: código, web, arquivos, APIs, banco de dados</div>
+        <div class="pipeline-stage-title">Eu faço</div>
+        <div class="pipeline-stage-desc">Executo com minhas ferramentas</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">4</div>
         <div class="pipeline-stage-icon">🔄</div>
-        <div class="pipeline-stage-title">Iteração</div>
-        <div class="pipeline-stage-desc">Loop continua até completar a tarefa (max 90 turnos)</div>
+        <div class="pipeline-stage-title">Eu verifico</div>
+        <div class="pipeline-stage-desc">Checo se ficou bom, refino se precisar</div>
       </div>
       <div class="pipeline-arrow">→</div>
       <div class="pipeline-stage">
         <div class="pipeline-stage-num">5</div>
         <div class="pipeline-stage-icon">📤</div>
-        <div class="pipeline-stage-title">Saída</div>
-        <div class="pipeline-stage-desc">Resposta final + habilidade criada + memória persistida</div>
+        <div class="pipeline-stage-title">Você recebe</div>
+        <div class="pipeline-stage-desc">Resposta + aprendizado guardado</div>
       </div>
     </div>
   </div>
 </section>
+
+<hr class="sep"/>
 
 <!-- DETALHAMENTO POR ETAPA -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Detalhamento</div>
-      <h2 class="h2">Cada etapa do fluxo</h2>
-      <p class="sub" style="margin:0 auto">Entenda profundamente o que acontece em cada fase do processamento.</p>
+      <h2 class="h2">O que acontece em cada etapa</h2>
     </div>
 
-    <div class="grid-2" style="margin-bottom:2rem">
-      <div class="detail-card">
-        <div class="tag tag-input">Etapa 1 — Entrada</div>
-        <h3>Recepção da Solicitação</h3>
-        <p>O gateway unificado recebe mensagens de qualquer plataforma e roteia para o agente correto.</p>
-        <ul>
-          <li><strong>Multi-plataforma:</strong> Telegram, Discord, Slack, WhatsApp, Signal, CLI, API REST</li>
-          <li><strong>Transcrição de voz:</strong> Mensagens de voz são transcritas automaticamente</li>
-          <li><strong>Continuidade:</strong> Sessões persistem entre plataformas e dispositivos</li>
-          <li><strong>Fila inteligente:</strong> Mensagens com prioridade e controle de concorrência</li>
-          <li><strong>Rate limiting:</strong> Proteção contra abuso e controle de custos</li>
-        </ul>
+    <!-- ETAPA 1 -->
+    <div class="detail-card" style="margin-bottom:2rem">
+      <div class="tag tag-input">Etapa 1 — Entrada</div>
+      <h3>Como minha mensagem chega até você?</h3>
+      <p style="margin-bottom:1rem">
+        Quando você me manda uma mensagem — seja pelo Telegram, Discord, terminal 
+        ou qualquer outro lugar — ela chega num lugar só: o <strong>Gateway</strong>. 
+        É como um correio que recebe cartas de todo mundo e entrega no endereço certo.
+      </p>
+      <div class="code-block" style="font-size:.8125rem">
+<span style="color:#60a5fa">Você (pelo Telegram):</span> <span class="string">"Organiza meus downloads"</span>
+
+<span class="comment"># O que acontece nos bastidores:</span>
+<span class="comment"># 1. Telegram recebe sua mensagem</span>
+<span class="comment"># 2. Gateway identifica que é você</span>
+<span class="comment"># 3. Gateway cria uma sessão para você</span>
+<span class="comment"># 4. Sessão envia para o agente processar</span>
       </div>
-      <div class="detail-card">
-        <div class="tag tag-process">Etapa 2 — Raciocínio</div>
-        <h3>Análise e Planejamento</h3>
-        <p>O LLM analisa a solicitação, consulta memória contextual e planeja os passos necessários.</p>
-        <ul>
-          <li><strong>Contexto carregado:</strong> Memória, sessões anteriores, preferências do usuário</li>
-          <li><strong>Seleção de modelo:</strong> 200+ opções via OpenRouter, HuggingFace, Ollama</li>
-          <li><strong>Compressão:</strong> Otimização de contexto para economia de tokens</li>
-          <li><strong>Routing:</strong> Tarefas auxiliares roteadas para modelos especializados</li>
-          <li><strong>Cache:</strong> Prompt caching para reduzir custos em conversas longas</li>
-        </ul>
-      </div>
+      <p style="margin-top:1rem;font-size:.875rem;color:var(--text-3)">
+        <strong>Detalhe:</strong> Se você mandar uma mensagem de voz, ela é 
+        automaticamente transcrita para texto. E se você continuar a conversa 
+        amanhã, eu lembro de tudo que falamos.
+      </p>
     </div>
 
-    <div class="grid-2" style="margin-bottom:2rem">
-      <div class="detail-card">
-        <div class="tag tag-process">Etapa 3 — Execução</div>
-        <h3>Uso de Ferramentas</h3>
-        <p>O agente seleciona e executa as ferramentas necessárias para completar a tarefa.</p>
-        <ul>
-          <li><strong>Código:</strong> Python, Bash, Node.js com execução isolada</li>
-          <li><strong>Web:</strong> Navegação, scraping, busca, download de conteúdo</li>
-          <li><strong>Arquivos:</strong> Leitura, escrita, edição, busca em diretórios</li>
-          <li><strong>APIs:</strong> REST, GraphQL, webhooks com autenticação</li>
-          <li><strong>Banco de dados:</strong> SQLite, PostgreSQL, Redis</li>
-          <li><strong>Mídia:</strong> Processamento de imagem, áudio e vídeo</li>
-        </ul>
+    <!-- ETAPA 2 -->
+    <div class="detail-card" style="margin-bottom:2rem">
+      <div class="tag tag-process">Etapa 2 — Raciocínio</div>
+      <h3>Como eu "penso" na sua tarefa?</h3>
+      <p style="margin-bottom:1rem">
+        É aqui que entra a <strong>Inteligência Artificial</strong>. Eu envio sua 
+        mensagem para um modelo de IA (como GPT, Claude ou outros) e peço para ele 
+        pensar: "O que esse usuário quer? Quais ferramentas eu preciso usar?"
+      </p>
+      <div class="code-block" style="font-size:.8125rem">
+<span class="comment"># O modelo de IA recebe:</span>
+{
+  <span class="string">"mensagem"</span>: <span class="string">"Organiza meus downloads"</span>,
+  <span class="string">"memoria"</span>: <span class="string">"Na última vez, o usuário separou por: Imagens, Documentos"</span>,
+  <span class="string">"ferramentas"</span>: [<span class="string">"ler_arquivos"</span>, <span class="string">"mover_arquivos"</span>, <span class="string">"criar_pasta"</span>]
+}
+
+<span class="comment"># O modelo responde:</span>
+<span class="comment"># "Vou usar: ler_arquivos → criar_pasta → mover_arquivos"</span>
+<span class="comment"># "Primeiro preciso saber onde está a pasta Downloads"</span>
       </div>
-      <div class="detail-card">
-        <div class="tag tag-process">Etapa 4 — Iteração</div>
-        <h3>Loop de Refinamento</h3>
-        <p>O agente itera entre raciocínio e execução até completar a tarefa com sucesso.</p>
-        <ul>
-          <li><strong>Max 90 turnos:</strong> Limite configurável por sessão</li>
-          <li><strong>Detecção de erro:</strong> Retry automático com backoff exponencial</li>
-          <li><strong>Aprovação:</strong> Pausa para confirmação em ações destrutivas</li>
-          <li><strong>Orçamento:</strong> Controle de custos por sessão e por tarefa</li>
-          <li><strong>Interrupção:</strong> Usuário pode pausar ou cancelar a qualquer momento</li>
-        </ul>
-      </div>
+      <p style="margin-top:1rem;font-size:.875rem;color:var(--text-3)">
+        <strong>Detalhe:</strong> O modelo também consulta minha memória — ele sabe 
+        que na última vez você organizou de um jeito específico. E se a tarefa for 
+        complexa, ele pode usar vários modelos diferentes ao mesmo tempo!
+      </p>
     </div>
 
-    <div class="detail-card" style="max-width:700px;margin:0 auto">
+    <!-- ETAPA 3 -->
+    <div class="detail-card" style="margin-bottom:2rem">
+      <div class="tag tag-process">Etapa 3 — Execução</div>
+      <h3>Como eu executo as tarefas?</h3>
+      <p style="margin-bottom:1rem">
+        Aqui eu saio do papel e faço as coisas de verdade. Eu tenho mais de 40 
+        ferramentas — cada uma é como uma "aptidão" que eu uso para resolver 
+        seu problema.
+      </p>
+      <div class="code-block" style="font-size:.8125rem">
+<span class="comment"># Para organizar downloads, eu faço:</span>
+
+<span class="comment"># Passo 1: Ler os arquivos da pasta Downloads</span>
+<span class="function">ler_arquivos</span>(<span class="string">"/Users/seu-nome/Downloads"</span>)
+
+<span class="comment"># Passo 2: Criar pastas organizadas</span>
+<span class="function">criar_pasta</span>(<span class="string">"/Users/seu-nome/Downloads/Imagens"</span>)
+<span class="function">criar_pasta</span>(<span class="string">"/Users/seu-nome/Downloads/Documentos"</span>)
+<span class="function">criar_pasta</span>(<span class="string">"/Users/seu-nome/Downloads/Videos"</span>)
+
+<span class="comment"># Passo 3: Mover cada arquivo para a pasta certa</span>
+<span class="function">mover_arquivo</span>(<span class="string">"foto.jpg"</span> → <span class="string">"Imagens/"</span>)
+<span class="function">mover_arquivo</span>(<span class="string">"relatorio.pdf"</span> → <span class="string">"Documentos/"</span>)
+<span class="function">mover_arquivo</span>(<span class="string">"video.mp4"</span> → <span class="string">"Videos/"</span>)
+      </div>
+      <p style="margin-top:1rem;font-size:.875rem;color:var(--text-3)">
+        <strong>Detalhe:</strong> Cada ferramenta tem uma verificação de segurança. 
+        Se algo der errado, eu paro e pergunto para você antes de continuar. 
+        E tudo que eu faço fica registrado num log.
+      </p>
+    </div>
+
+    <!-- ETAPA 4 -->
+    <div class="detail-card" style="margin-bottom:2rem">
+      <div class="tag tag-process">Etapa 4 — Verificação</div>
+      <h3>Como eu verifico se ficou bom?</h3>
+      <p style="margin-bottom:1rem">
+        Eu não entrego um trabalho pela metade. Depois de executar, eu verifico 
+        se tudo ficou certo. Se precisar de ajustes, eu mesmo faço — sem você 
+        precisar pedir de novo.
+      </p>
+      <div class="code-block" style="font-size:.8125rem">
+<span class="comment"># Depois de organizar, eu verifico:</span>
+<span class="comment"># ✅ Todos os arquivos foram movidos?</span>
+<span class="comment"># ✅ Algum arquivo ficou perdido?</span>
+<span class="comment"># ✅ As pastas foram criadas corretamente?</span>
+
+<span class="comment"># Se algo deu errado, eu mesmo corrijo:</span>
+<span class="function">ler_arquivos</span>(<span class="string">"/Users/seu-nome/Downloads"</span>)
+<span class="comment"># → Ah, sobrou 1 arquivo. Vou mover ele também.</span>
+<span class="function">mover_arquivo</span>(<span class="string">"apresentacao.pptx"</span> → <span class="string">"Documentos/"</span>)
+
+<span class="comment"># Máximo de 90 rodadas de verificação</span>
+<span class="comment"># (para não ficar em loop infinito)</span>
+      </div>
+      <p style="margin-top:1rem;font-size:.875rem;color:var(--text-3)">
+        <strong>Detalhe:</strong> Se a tarefa for perigosa (tipo deletar arquivos), 
+        eu pauso e pergunto: "Tem certeza?". Só continuo quando você aprovar.
+      </p>
+    </div>
+
+    <!-- ETAPA 5 -->
+    <div class="detail-card" style="margin-bottom:2rem">
       <div class="tag tag-output">Etapa 5 — Saída</div>
-      <h3>Resultado e Aprendizado</h3>
-      <p>O agente entrega o resultado e extrai aprendizados para melhorar futuras sessões.</p>
-      <ul>
-        <li><strong>Resposta formatada:</strong> Markdown, código, tabelas — na plataforma de origem</li>
-        <li><strong>Habilidades criadas:</strong> Soluções complexas são salvas como reutilizáveis</li>
-        <li><strong>Memória persistida:</strong> Busca FTS5 de sessões com sumarização por LLM</li>
-        <li><strong>Modelo de usuário:</strong> Preferências e contexto atualizados automaticamente</li>
-        <li><strong>Métricas:</strong> Tokens usados, tempo de resposta, ferramentas chamadas</li>
-      </ul>
+      <h3>O que eu entrego para você?</h3>
+      <p style="margin-bottom:1rem">
+        Não é só a resposta que eu entrego. Eu também guardo o que aprendi para 
+        nas próximas vezes fazer melhor. É como se eu tivesse um "caderno de 
+        anotações" que sempre fica atualizado.
+      </p>
+      <div class="code-block" style="font-size:.8125rem">
+<span style="color:#34d399">Mangaba:</span> <span class="string">"Pronto! Organizei seus downloads em 3 pastas: 
+Imagens (12 arquivos), Documentos (8 arquivos) 
+e Videos (3 arquivos). Ficou tudo no lugar!"</span>
+
+<span class="comment"># Nos bastidores, eu também:</span>
+<span class="comment"># 🧠 Salvei como "habilidade": organizar downloads</span>
+<span class="comment"># 📝 Guardei na memória: "Usuário gosta de separar por tipo"</span>
+<span class="comment"># 📊 Registrei: "Usei 3 ferramentas, 2 rodadas"</span>
+      </div>
+      <p style="margin-top:1rem;font-size:.875rem;color:var(--text-3)">
+        <strong>Detalhe:</strong> Na próxima vez que você pedir para organizar, 
+        eu já vou saber exatamente como você gosta — e faço mais rápido!
+      </p>
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- CASOS DE USO -->
+<!-- CASOS DE USO REAIS -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Casos de Uso</div>
-      <h2 class="h2">Fluxos completos de negócio</h2>
-      <p class="sub" style="margin:0 auto">Veja como o Mangaba Agent resolve problemas reais de ponta a ponta.</p>
+      <div class="label">Exemplos Reais</div>
+      <h2 class="h2">Veja o fluxo funcionando</h2>
+      <p class="sub" style="margin:0 auto">
+        Cada tarefa que você me pede passa pelo mesmo fluxo. Veja como fica 
+        na prática:
+      </p>
     </div>
 
     <div class="grid-2">
       <div class="card">
         <div class="card-icon">📊</div>
-        <div class="card-title">Relatório Financeiro Automatizado</div>
-        <div class="card-desc" style="margin-bottom:1rem">Extrai dados de APIs, processa em Python, gera gráficos e envia o relatório via Slack — tudo em uma única conversa.</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">1. Conecta API</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">2. Extrai dados</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">3. Calcula KPIs</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">4. Gera gráficos</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">5. Envia Slack</span>
+        <div class="card-title">Relatório de Vendas</div>
+        <div class="card-desc">
+          <strong>Você pede:</strong> "Gera um relatório das minhas vendas do mês"<br><br>
+          <strong>O que eu faço:</strong><br>
+          1. Conecto na sua planilha<br>
+          2. Leio os dados<br>
+          3. Calculo os totais<br>
+          4. Gero gráficos bonitos<br>
+          5. Crio o relatório em PDF<br>
+          6. Te mando o arquivo pronto
         </div>
       </div>
-
       <div class="card">
         <div class="card-icon">🔍</div>
         <div class="card-title">Auditoria de Código</div>
-        <div class="card-desc" style="margin-bottom:1rem">Analisa repositório inteiro, identifica vulnerabilidades, sugere correções e cria pull request automaticamente.</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">1. Clona repo</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">2. Escaneia código</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">3. Identifica issues</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">4. Cria PR</span>
+        <div class="card-desc">
+          <strong>Você pede:</strong> "Verifica se tem erros no meu site"<br><br>
+          <strong>O que eu faço:</strong><br>
+          1. Baixo o código do GitHub<br>
+          2. Escaneio tudo procurando erros<br>
+          3. Encontro 3 vulnerabilidades<br>
+          4. Corrijo cada uma<br>
+          5. Crio um Pull Request<br>
+          6. Te mando o link do PR
         </div>
       </div>
-
       <div class="card">
         <div class="card-icon">📧</div>
-        <div class="card-title">Triagem de Emails com IA</div>
-        <div class="card-desc" style="margin-bottom:1rem">Le emails, classifica por urgência, extrai ações pendentes e cria tarefas no projeto automaticamente.</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">1. Conecta email</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">2. Classifica</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">3. Extrai ações</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">4. Cria tarefas</span>
+        <div class="card-title">Triagem de Emails</div>
+        <div class="card-desc">
+          <strong>Você pede:</strong> "Organiza meus emails por urgência"<br><br>
+          <strong>O que eu faço:</strong><br>
+          1. Leio todos os emails<br>
+          2. Classifico por urgência<br>
+          3. Extraio ações pendentes<br>
+          4. Crio tarefas no seu projeto<br>
+          5. Te mando um resumo
         </div>
       </div>
-
       <div class="card">
         <div class="card-icon">🤖</div>
-        <div class="card-title">Deploy Automatizado</div>
-        <div class="card-desc" style="margin-bottom:1rem">Testa, faz build e deploy em qualquer infraestrutura — Docker, Modal, VPS — com notificação no Telegram.</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">1. Roda testes</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">2. Build imagem</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">3. Push registry</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">4. Deploy</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-icon">📝</div>
-        <div class="card-title">Documentação Automática</div>
-        <div class="card-desc" style="margin-bottom:1rem">Analisa código fonte, gera documentação técnica completa e publica no GitHub Pages automaticamente.</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">1. Analisa código</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">2. Gera docs</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">3. Valida</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">4. Publica</span>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-icon">🔄</div>
-        <div class="card-title">Backup e Sincronização</div>
-        <div class="card-desc" style="margin-bottom:1rem">Realiza backups automáticos de dados, sincroniza entre serviços e mantém histórico versionado.</div>
-        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">1. Coleta dados</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">2. Compacta</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">3. Envia storage</span>
-          <span style="font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:999px;background:var(--bg-2);color:var(--text-2)">4. Notifica</span>
+        <div class="card-title">Deploy Automático</div>
+        <div class="card-desc">
+          <strong>Você pede:</strong> "Publica a nova versão do site"<br><br>
+          <strong>O que eu faço:</strong><br>
+          1. Rodo todos os testes<br>
+          2. Faz o build da aplicação<br>
+          3. Subo no servidor<br>
+          4. Verifico se está funcionando<br>
+          5. Te notifico no Telegram
         </div>
       </div>
     </div>
@@ -263,62 +332,60 @@
 
 <hr class="sep"/>
 
-<!-- FLUXO TÉCNICO -->
+<!-- FLUXO TÉCNICO SIMPLIFICADO -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Fluxo Técnico</div>
-      <h2 class="h2">Detalhamento do loop principal</h2>
-      <p class="sub" style="margin:0 auto">O coração do Mangaba Agent — o loop de conversação com ferramentas.</p>
+      <div class="label">Para quem quer saber mais</div>
+      <h2 class="h2">Como funciona por baixo dos panos</h2>
+      <p class="sub" style="margin:0 auto">
+        Se você é programador e quer entender o código, aqui vai uma visão técnica 
+        (mas continue simples):
+      </p>
     </div>
 
     <div class="code-block" style="max-width:800px;margin:0 auto">
 <span class="comment"># Loop principal do Mangaba Agent (simplificado)</span>
 
-<span class="keyword">while</span> api_call_count < max_iterations:
-    <span class="comment"># 1. Enviar mensagem para o LLM</span>
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        tools=tool_schemas
+<span class="keyword">while</span> eu_nao_terminei:
+    <span class="comment"># 1. Enviar mensagem para o modelo de IA</span>
+    resposta = modelo_enviar(
+        mensagem=<span class="string">"O usuário pediu: organizar downloads"</span>,
+        ferramentas=[<span class="string">"ler"</span>, <span class="string">"mover"</span>, <span class="string">"criar"</span>]
     )
 
-    <span class="comment"># 2. Se o LLM quer usar ferramentas</span>
-    <span class="keyword">if</span> response.tool_calls:
-        <span class="keyword">for</span> tool_call <span class="keyword">in</span> response.tool_calls:
-            <span class="comment"># 3. Executar ferramenta</span>
-            result = <span class="function">handle_function_call</span>(
-                tool_call.name,
-                tool_call.args
-            )
-            <span class="comment"># 4. Adicionar resultado ao contexto</span>
-            messages.append(tool_result_message(result))
-        api_call_count += 1
+    <span class="comment"># 2. Se a IA quer usar uma ferramenta</span>
+    <span class="keyword">if</span> resposta.quer_usar_ferramenta:
+        resultado = <span class="function">executar_ferramenta</span>(
+            ferramenta=resposta.ferramenta,
+            argumentos=resposta.argumentos
+        )
+        <span class="comment"># 3. Mandar o resultado de volta para a IA</span>
+        contexto.append(resultado)
     <span class="keyword">else</span>:
-        <span class="comment"># 5. Resposta final do LLM</span>
-        <span class="keyword">return</span> response.content
+        <span class="comment"># 4. A IA deu a resposta final</span>
+        <span class="keyword">return</span> resposta.texto
 
-<span class="comment"># 6. Aprendizado: extrair habilidades se aplicável</span>
-<span class="function">extract_skills_from_session</span>(session_data)
-<span class="function">update_user_model</span>(user_preferences)
-<span class="function">persist_memory</span>(conversation_summary)
+<span class="comment"># 5. Aprendizado: extrair habilidades</span>
+<span class="function">salvar_habilidade</span>(o_que_aprendi)
+<span class="function">atualizar_memoria</span>(preferencias_do_usuario)
     </div>
 
     <div class="grid-3" style="margin-top:3rem">
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">📨</div>
         <h3 style="margin-bottom:.3rem">Mensagens</h3>
-        <p style="font-size:.8125rem">Formato OpenAI: system, user, assistant, tool</p>
+        <p style="font-size:.8125rem">Formato padronizado: quem fala, o que diz, o que fez</p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">⚙️</div>
         <h3 style="margin-bottom:.3rem">Ferramentas</h3>
-        <p style="font-size:.8125rem">JSON Schema para cada ferramenta disponível</p>
+        <p style="font-size:.8125rem">Cada uma com instruções de como usar</p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">💾</div>
-        <h3 style="margin-bottom:.3rem">Estado</h3>
-        <p style="font-size:.8125rem">SQLite com FTS5 para busca e persistência</p>
+        <h3 style="margin-bottom:.3rem">Memória</h3>
+        <p style="font-size:.8125rem">Guarda tudo que aprendeu para reusar</p>
       </div>
     </div>
   </div>
@@ -327,10 +394,10 @@
 <!-- CTA -->
 <div class="footer-cta">
   <div class="wrap" style="max-width:680px">
-    <div class="label">Próximo passo</div>
-    <h2 class="h2">Veja os recursos completos</h2>
-    <p class="sub">Explore todas as funcionalidades do Mangaba Agent em detalhes.</p>
-    <a href="features.html" class="btn btn-primary" style="margin-top:2rem">Ver Recursos →</a>
+    <div class="label">Curioso?</div>
+    <h2 class="h2">Quer ver a arquitetura completa?</h2>
+    <p class="sub">Veja todos os componentes que fazem isso funcionar.</p>
+    <a href="architecture.html" class="btn btn-primary" style="margin-top:2rem">Ver Por Dentro →</a>
   </div>
 </div>
 
@@ -343,36 +410,35 @@
           <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="40" r="21" fill="url(#fn)"/><path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/></svg>
           <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
         </div>
-        <p>O agente de IA auto-aperfeiçoável feito para evoluir com você.</p>
+        <p>Um assistente de IA que aprende com você e resolve tarefas do dia a dia.</p>
       </div>
       <div class="foot-col">
-        <h4>Projeto</h4>
+        <h4>Aprender</h4>
         <ul>
-          <li><a href="https://github.com/dheiver2/mangaba-agent">GitHub</a></li>
+          <li><a href="features.html">O que eu faço</a></li>
+          <li><a href="business-chain.html">Como funciona</a></li>
+          <li><a href="architecture.html">Por dentro</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Começar</h4>
+        <ul>
+          <li><a href="quickstart.html">Instalação</a></li>
           <li><a href="https://dheiver2.github.io/mangaba-agent/docs/">Documentação</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença MIT</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h4>Páginas</h4>
-        <ul>
-          <li><a href="features.html">Recursos</a></li>
-          <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-          <li><a href="architecture.html">Arquitetura</a></li>
-          <li><a href="quickstart.html">Começar</a></li>
-        </ul>
-      </div>
-      <div class="foot-col">
-        <h4>Comunidade</h4>
+        <h4>Ajuda</h4>
         <ul>
           <li><a href="https://discord.gg/dheiver2">Discord</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Discussions</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Issues</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Reportar Bug</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Tirar Dúvidas</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>Feito no Brasil · MIT License</span>
+      <span>Feito no Brasil com 💛 · MIT License</span>
       <span>&copy; 2026 Mangaba Agent</span>
     </div>
   </div>

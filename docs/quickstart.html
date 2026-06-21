@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Começar — Mangaba Agent</title>
-  <meta name="description" content="Guia rápido de instalação e configuração do Mangaba Agent. Comece a usar em minutos."/>
+  <meta name="description" content="Guia passo a passo para instalar e começar a usar o Mangaba Agent."/>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='fg' cx='30%25' cy='25%25' r='70%25'%3E%3Cstop offset='0%25' stop-color='%23FFDA3D'/%3E%3Cstop offset='45%25' stop-color='%23EB7215'/%3E%3Cstop offset='100%25' stop-color='%23C45E0A'/%3E%3C/radialGradient%3E%3ClinearGradient id='lg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%239BCE6A'/%3E%3Cstop offset='100%25' stop-color='%234A7A2E'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='32' cy='40' r='21' fill='url(%23fg)'/%3E%3Cpath d='M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z' fill='url(%23lg)'/%3E%3C/svg%3E"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -29,9 +29,9 @@
   </a>
   <ul class="nav-links">
     <li><a href="index.html">Home</a></li>
-    <li><a href="features.html">Recursos</a></li>
-    <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-    <li><a href="architecture.html">Arquitetura</a></li>
+    <li><a href="features.html">O que eu faço</a></li>
+    <li><a href="business-chain.html">Como Funciona</a></li>
+    <li><a href="architecture.html">Por Dentro</a></li>
     <li><a href="quickstart.html" class="active">Começar</a></li>
   </ul>
   <div class="nav-right">
@@ -47,119 +47,251 @@
 <section class="page-header">
   <div class="wrap">
     <div class="label">Guia Rápido</div>
-    <h1 class="h2">Comece em minutos</h1>
-    <p class="sub" style="margin:0 auto">Uma linha no terminal e você está pronto.</p>
+    <h1 class="h2">Vamos começar?</h1>
+    <p class="sub" style="margin:0 auto;max-width:650px">
+      Em 5 minutos você vai ter o Mangaba Agent rodando no seu computador. 
+      É mais fácil do que parece — eu te guio em cada passo.
+    </p>
   </div>
 </section>
 
-<!-- INSTALAÇÃO -->
+<!-- VISÃO GERAL -->
+<section style="padding-top:2rem">
+  <div class="wrap">
+    <div style="text-align:center;margin-bottom:3rem">
+      <div class="label">Resumo</div>
+      <h2 class="h2">O que vamos fazer</h2>
+      <p class="sub" style="margin:0 auto">
+        São 5 passos simples. É como montar umIKEA — mas mais fácil, 
+        porque eu te explico cada peça.
+      </p>
+    </div>
+
+    <div class="pipeline-flow" style="margin-bottom:2rem">
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">1</div>
+        <div class="pipeline-stage-icon">📦</div>
+        <div class="pipeline-stage-title">Baixar</div>
+        <div class="pipeline-stage-desc">Um comando no terminal</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">2</div>
+        <div class="pipeline-stage-icon">⚙️</div>
+        <div class="pipeline-stage-title">Configurar</div>
+        <div class="pipeline-stage-desc">Escolher modelo e chaves</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">3</div>
+        <div class="pipeline-stage-icon">💬</div>
+        <div class="pipeline-stage-title">Conversar</div>
+        <div class="pipeline-stage-desc">Primeira mensagem</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">4</div>
+        <div class="pipeline-stage-icon">🔧</div>
+        <div class="pipeline-stage-title">Personalizar</div>
+        <div class="pipeline-stage-desc">Ajustar do seu jeito</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="pipeline-stage-num">5</div>
+        <div class="pipeline-stage-icon">🚀</div>
+        <div class="pipeline-stage-title">Evoluir</div>
+        <div class="pipeline-stage-desc">Aprender e crescer</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep"/>
+
+<!-- PASSO 1: INSTALAÇÃO -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Passo 1</div>
-      <h2 class="h2">Instalação</h2>
-      <p class="sub" style="margin:0 auto">Escolha seu sistema operacional e execute o comando.</p>
+      <h2 class="h2">Baixar e Instalar</h2>
+      <p class="sub" style="margin:0 auto">
+        É um comando só. Ele faz tudo automaticamente: baixa, instala e configura.
+      </p>
     </div>
 
     <div class="grid-2">
       <div class="detail-card">
         <h3>🐧 Linux, macOS, WSL2, Termux</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          Copie e cole este comando no seu terminal:
+        </p>
         <div class="code-block" style="margin-top:1rem">
 <span class="keyword">curl</span> -fsSL https://raw.githubusercontent.com/<br/>
 &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.sh | <span class="keyword">bash</span>
         </div>
-        <p style="font-size:.8125rem;color:var(--text-2);margin-top:1rem">Funciona em qualquer Unix-like. Instala uv, Python 3.11, Node.js e dependências.</p>
+        <p style="font-size:.8125rem;color:var(--text-2);margin-top:1rem">
+          <strong>O que esse comando faz:</strong><br>
+          1. Baixa o instalador<br>
+          2. Instala Python 3.11<br>
+          3. Instala Node.js<br>
+          4. Instala todas as dependências<br>
+          5. Configura tudo automaticamente
+        </p>
       </div>
       <div class="detail-card">
         <h3>🪟 Windows (PowerShell)</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          Abra o PowerShell como administrador e cole:
+        </p>
         <div class="code-block" style="margin-top:1rem">
 <span class="keyword">iex</span> (irm https://raw.githubusercontent.com/<br/>
 &nbsp;&nbsp;dheiver2/mangaba-agent/main/scripts/install.ps1)
         </div>
-        <p style="font-size:.8125rem;color:var(--text-2);margin-top:1rem">Beta. Inclui Git Bash portátil. Para melhor experiência, use WSL2.</p>
+        <p style="font-size:.8125rem;color:var(--text-2);margin-top:1rem">
+          <strong>Dica:</strong> Para melhor experiência, use WSL2 
+          (Windows Subsystem for Linux). É como ter Linux dentro do Windows.
+        </p>
       </div>
+    </div>
+
+    <div class="detail-card" style="margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto;text-align:center;background:linear-gradient(135deg,var(--card) 0%,rgba(74,122,46,.05) 100%)">
+      <h3>✅ Verifique se funcionou</h3>
+      <p style="font-size:.875rem">
+        Abra um <strong>novo terminal</strong> e digite:
+      </p>
+      <div class="code-block" style="margin-top:1rem">
+<span class="function">mangaba</span> <span class="string">--version</span>
+      </div>
+      <p style="font-size:.8125rem;color:var(--text-3);margin-top:.75rem">
+        Se aparecer a versão, tudo certo! Se não, feche e abra o terminal novamente.
+      </p>
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- CONFIGURAÇÃO -->
+<!-- PASSO 2: CONFIGURAÇÃO -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Passo 2</div>
-      <h2 class="h2">Configuração</h2>
-      <p class="sub" style="margin:0 auto">Configure o modelo e as ferramentas.</p>
+      <h2 class="h2">Configurar o Modelo</h2>
+      <p class="sub" style="margin:0 auto">
+        Agora vamos escolher qual "cérebro" usar. É como escolher o motor do carro.
+      </p>
     </div>
 
-    <div class="grid-3">
-      <div class="detail-card" style="text-align:center">
-        <div class="pipeline-stage-num" style="margin:0 auto .75rem">1</div>
-        <h3>Recarregue o shell</h3>
-        <div class="code-block" style="margin-top:.75rem;text-align:left">
-<span class="function">source</span> ~/.bashrc
-<span class="comment"># ou</span>
-<span class="function">source</span> ~/.zshrc
+    <div class="grid-2">
+      <div class="detail-card">
+        <h3>🎯 Opção Rápida (Recomendada)</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          O OpenRouter tem um <strong>plano gratuito</strong> e acesso a 200+ modelos. 
+          É a melhor opção para começar.
+        </p>
+        <div class="code-block" style="margin-top:1rem">
+<span class="comment"># 1. Crie uma conta gratuita em openrouter.ai</span>
+<span class="comment"># 2. Gere uma chave de API</span>
+<span class="comment"># 3. Configure no Mangaba:</span>
+
+<span class="function">mangaba</span> <span class="string">model set openrouter/anthropic/claude-sonnet-4</span>
+
+<span class="comment"># 4. Cole sua chave quando pedir</span>
         </div>
+        <p style="font-size:.8125rem;color:var(--text-2);margin-top:1rem">
+          <strong>Por que OpenRouter?</strong><br>
+          • Plano gratuito disponível<br>
+          • 200+ modelos para escolher<br>
+          • Funciona em qualquer lugar<br>
+          • Sem compromisso
+        </p>
       </div>
-      <div class="detail-card" style="text-align:center">
-        <div class="pipeline-stage-num" style="margin:0 auto .75rem">2</div>
-        <h3>Escolha o modelo</h3>
-        <div class="code-block" style="margin-top:.75rem;text-align:left">
-<span class="function">mangaba</span> <span class="string">model</span>
+      <div class="detail-card">
+        <h3>🔧 Outras Opções</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          Se você já tem uma chave de outro provedor, pode usar:
+        </p>
+        <div class="code-block" style="margin-top:1rem">
+<span class="comment"># OpenAI (GPT-4o)</span>
+<span class="function">mangaba</span> <span class="string">model set openai/gpt-4o</span>
+
+<span class="comment"># HuggingFace (gratuito)</span>
+<span class="function">mangaba</span> <span class="string">model set huggingface/meta-llama/llama-3.3-70b</span>
+
+<span class="comment"># Ollama (roda no seu PC)</span>
+<span class="function">mangaba</span> <span class="string">model set ollama/llama3</span>
         </div>
-        <p style="font-size:.75rem;color:var(--text-3);margin-top:.5rem">200+ opções disponíveis</p>
+        <p style="font-size:.8125rem;color:var(--text-2);margin-top:1rem">
+          <strong>Dica:</strong> Se não tem nenhuma chave, use o OpenRouter 
+          com o plano gratuito. É rápido e sem custo.
+        </p>
       </div>
-      <div class="detail-card" style="text-align:center">
-        <div class="pipeline-stage-num" style="margin:0 auto .75rem">3</div>
-        <h3>Configure ferramentas</h3>
-        <div class="code-block" style="margin-top:.75rem;text-align:left">
-<span class="function">mangaba</span> <span class="string">tools</span>
-        </div>
-        <p style="font-size:.75rem;color:var(--text-3);margin-top:.5rem">Ative/desative por plataforma</p>
-      </div>
+    </div>
+
+    <div class="detail-card" style="margin-top:2rem;max-width:600px;margin-left:auto;margin-right:auto;text-align:center">
+      <h3>💡 Não sabe qual modelo escolher?</h3>
+      <p style="font-size:.875rem">
+        Para <strong>iniciantes</strong>: use <code>openrouter/anthropic/claude-sonnet-4</code> (gratuito).<br>
+        Para <strong>avançados</strong>: use <code>openrouter/openai/gpt-4o</code> (mais potente).<br>
+        Para <strong>offline</strong>: use <code>ollama/llama3</code> (roda no seu PC).
+      </p>
     </div>
   </div>
 </section>
 
 <hr class="sep"/>
 
-<!-- USO -->
+<!-- PASSO 3: PRIMEIRA CONVERSA -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
       <div class="label">Passo 3</div>
       <h2 class="h2">Primeira Conversa</h2>
-      <p class="sub" style="margin:0 auto">Comece a interagir com o agente.</p>
+      <p class="sub" style="margin:0 auto">
+        Agora vamos conversar! É mais fácil do que mandar mensagem no WhatsApp.
+      </p>
     </div>
 
     <div class="code-block" style="max-width:700px;margin:0 auto">
-<span class="comment"># Iniciar conversa interativa</span>
+<span class="comment"># 1. Inicie o Mangaba</span>
 <span class="function">mangaba</span>
 
-<span class="comment"># O agente vai responder — tente:</span>
-<span class="string">"Crie um script Python para organizar meus arquivos por data"</span>
+<span class="comment"># 2. Digite sua primeira mensagem:</span>
+<span class="string">"Oi! Quem é você?"</span>
+
+<span class="comment"># 3. Veja a mágica acontecer!</span>
+
+<span class="comment"># Depois tente pedir algo:</span>
+<span class="string">"Crie um script Python para organizar meus arquivos"</span>
 <span class="string">"Faça um resumo das notícias de hoje"</span>
 <span class="string">"Analise este código e sugira melhorias"</span>
-<span class="string">"Configure um backup automático das minhas fotos"</span>
+<span class="string">"Configure um backup automático"</span>
     </div>
 
     <div class="grid-3" style="margin-top:3rem">
       <div class="detail-card" style="text-align:center">
-        <div style="font-size:2rem;margin-bottom:.5rem">💬</div>
-        <h3>CLI Interativo</h3>
-        <p style="font-size:.8125rem">Terminal completo com autocomplete e histórico</p>
+        <div style="font-size:2rem;margin-bottom:.5rem">💻</div>
+        <h3>Terminal</h3>
+        <p style="font-size:.8125rem">
+          Para quem gosta de linha de comando. 
+          É a forma mais rápida e poderosa.
+        </p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">📱</div>
-        <h3>Telegram Bot</h3>
-        <p style="font-size:.8125rem">Fale com o agente pelo celular</p>
+        <h3>Telegram</h3>
+        <p style="font-size:.8125rem">
+          Para levar o assistente no bolso. 
+          Crie um bot e me mande mensagem.
+        </p>
       </div>
       <div class="detail-card" style="text-align:center">
         <div style="font-size:2rem;margin-bottom:.5rem">🌐</div>
         <h3>API REST</h3>
-        <p style="font-size:.8125rem">Integre em qualquer aplicação</p>
+        <p style="font-size:.8125rem">
+          Para integrar em aplicativos. 
+          Endpoint compatível com OpenAI.
+        </p>
       </div>
     </div>
   </div>
@@ -167,62 +299,70 @@
 
 <hr class="sep"/>
 
-<!-- COMANDOS -->
+<!-- PASSO 4: COMANDOS ÚTEIS -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Comandos</div>
-      <h2 class="h2">Referência Rápida</h2>
-      <p class="sub" style="margin:0 auto">Os comandos mais usados do Mangaba Agent.</p>
+      <div class="label">Passo 4</div>
+      <h2 class="h2">Comandos Úteis</h2>
+      <p class="sub" style="margin:0 auto">
+        Esses comandos vão te ajudar no dia a dia. Guarde este link!
+      </p>
     </div>
 
     <table class="data-table" style="max-width:800px;margin:0 auto">
       <thead>
         <tr>
           <th>Comando</th>
-          <th>Descrição</th>
+          <th>O que faz</th>
+          <th>Quando usar</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td><code>mangaba</code></td>
-          <td>Iniciar conversa interativa</td>
+          <td>Inicia conversa</td>
+          <td>Todo dia</td>
         </tr>
         <tr>
           <td><code>mangaba model</code></td>
-          <td>Escolher provedor e modelo de LLM</td>
+          <td>Troca o modelo de IA</td>
+          <td>Quando quiser outro "cérebro"</td>
         </tr>
         <tr>
           <td><code>mangaba tools</code></td>
-          <td>Configurar quais ferramentas estão habilitadas</td>
+          <td>Configura ferramentas</td>
+          <td>Para ativar/desativar recursos</td>
         </tr>
         <tr>
           <td><code>mangaba config set</code></td>
-          <td>Definir valores individuais de configuração</td>
+          <td>Muda configurações</td>
+          <td>Para personalizar</td>
         </tr>
         <tr>
           <td><code>mangaba gateway</code></td>
-          <td>Iniciar o gateway de mensagens</td>
+          <td>Inicia o gateway</td>
+          <td>Para Telegram, Discord, etc.</td>
         </tr>
         <tr>
           <td><code>mangaba setup</code></td>
-          <td>Executar assistente de configuração completo</td>
+          <td>Assistente completo</td>
+          <td>Na primeira vez</td>
         </tr>
         <tr>
           <td><code>mangaba update</code></td>
-          <td>Atualizar para versão mais recente</td>
+          <td>Atualiza tudo</td>
+          <td>Quando sair versão nova</td>
         </tr>
         <tr>
           <td><code>mangaba doctor</code></td>
-          <td>Diagnosticar problemas na instalação</td>
-        </tr>
-        <tr>
-          <td><code>mangaba cron list</code></td>
-          <td>Listar automações agendadas</td>
+          <td>Diagnostica problemas</td>
+          <td>Quando algo não funciona</td>
         </tr>
         <tr>
           <td><code>mangaba logs</code></td>
-          <td>Visualizar logs do agente</td>
+          <td>Mostra logs</td>
+          <td>Para debugar</td>
         </tr>
       </tbody>
     </table>
@@ -231,88 +371,54 @@
 
 <hr class="sep"/>
 
-<!-- CONFIGURAÇÃO AVANÇADA -->
+<!-- PASSO 5: TROUBLESHOOTING -->
 <section>
   <div class="wrap">
     <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Avançado</div>
-      <h2 class="h2">Configuração Completa</h2>
-      <p class="sub" style="margin:0 auto">Personalize o agente para seu caso de uso.</p>
+      <div class="label">Se der problema</div>
+      <h2 class="h2">Não funciona? Veja aqui</h2>
+      <p class="sub" style="margin:0 auto">
+        Calma, tudo tem solução. Veja os problemas mais comuns:
+      </p>
     </div>
 
     <div class="grid-2">
       <div class="detail-card">
-        <h3>📄 Arquivo de Configuração</h3>
-        <p>Edite <code>~/.mangaba/config.yaml</code> para configurações avançadas.</p>
-        <div class="code-block" style="margin-top:1rem">
-<span class="comment"># ~/.mangaba/config.yaml</span>
-model: <span class="string">openrouter/anthropic/claude-sonnet-4</span>
-theme: <span class="string">dark</span>
-language: <span class="string">pt-BR</span>
-
-gateway:
-  telegram:
-    token: <span class="string">SEU_TOKEN</span>
-
-terminal:
-  backend: <span class="string">docker</span>
-  timeout: <span class="string">180</span>
-        </div>
-      </div>
-      <div class="detail-card">
-        <h3>🔑 Variáveis de Ambiente</h3>
-        <p>Chaves de API ficam em <code>~/.mangaba/.env</code>.</p>
-        <div class="code-block" style="margin-top:1rem">
-<span class="comment"># ~/.mangaba/.env</span>
-OPENROUTER_API_KEY=<span class="string">sk-or-...</span>
-HF_TOKEN=<span class="string">hf_...</span>
-EXA_API_KEY=<span class="string">...</span>
-FAL_KEY=<span class="string">...</span>
-        </div>
-        <p style="font-size:.75rem;color:var(--text-3);margin-top:.75rem">Nunca commite este arquivo no Git!</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<hr class="sep"/>
-
-<!-- TROUBLESHOOTING -->
-<section>
-  <div class="wrap">
-    <div style="text-align:center;margin-bottom:3rem">
-      <div class="label">Solução de Problemas</div>
-      <h2 class="h2">Troubleshooting</h2>
-      <p class="sub" style="margin:0 auto">Problemas comuns e como resolver.</p>
-    </div>
-
-    <div class="grid-2">
-      <div class="detail-card">
-        <h3>🔧 Comando não encontrado</h3>
-        <p>Após a instalação, recarregue o shell:</p>
+        <h3>❌ "Comando não encontrado"</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          Depois de instalar, você precisa <strong>fechar e abrir o terminal</strong> novamente.
+        </p>
         <div class="code-block" style="margin-top:.75rem">
+<span class="comment"># Ou recarregue o shell:</span>
 <span class="function">source</span> ~/.bashrc
-<span class="comment"># ou abra um novo terminal</span>
+<span class="comment"># ou</span>
+<span class="function">source</span> ~/.zshrc
         </div>
       </div>
       <div class="detail-card">
-        <h3>❌ Erro de API Key</h3>
-        <p>Verifique se a chave está configurada:</p>
+        <h3>❌ "API Key inválida"</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          Verifique se sua chave está configurada:
+        </p>
         <div class="code-block" style="margin-top:.75rem">
 <span class="function">mangaba</span> <span class="string">doctor</span>
 <span class="comment"># Mostra status de todas as chaves</span>
         </div>
       </div>
       <div class="detail-card">
-        <h3>🐌 Lentidão</h3>
-        <p>Troque para um modelo mais rápido:</p>
+        <h3>🐌 Muito lento</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          Troque para um modelo mais rápido:
+        </p>
         <div class="code-block" style="margin-top:.75rem">
 <span class="function">mangaba</span> <span class="string">model set openrouter/meta-llama/llama-3.3-70b</span>
         </div>
       </div>
       <div class="detail-card">
-        <h3>📞 Suporte</h3>
-        <p>Precisa de ajuda?</p>
+        <h3>📞 Precisa de ajuda?</h3>
+        <p style="margin-bottom:1rem;font-size:.875rem">
+          A comunidade pode te ajudar:
+        </p>
         <ul>
           <li><a href="https://discord.gg/dheiver2" style="color:var(--orange)">Discord</a> — comunidade ativa</li>
           <li><a href="https://github.com/dheiver2/mangaba-agent/issues" style="color:var(--orange)">GitHub Issues</a> — reporte bugs</li>
@@ -327,8 +433,8 @@ FAL_KEY=<span class="string">...</span>
 <div class="footer-cta">
   <div class="wrap" style="max-width:680px">
     <div class="label">Pronto?</div>
-    <h2 class="h2">Comece a evoluir com o Mangaba Agent</h2>
-    <p class="sub">Junte-se à comunidade e comece a construir algo extraordinário.</p>
+    <h2 class="h2">Comece a usar agora</h2>
+    <p class="sub">O Mangaba Agent está esperando por você. Bora conversar?</p>
     <div style="display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap">
       <a href="https://github.com/dheiver2/mangaba-agent" class="btn btn-primary">Ver no GitHub</a>
       <a href="https://discord.gg/dheiver2" class="btn btn-ghost">Entrar no Discord</a>
@@ -345,36 +451,35 @@ FAL_KEY=<span class="string">...</span>
           <svg width="24" height="24" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="40" r="21" fill="url(#fn)"/><path d="M33 18 C 22 10 10 8 8 11 C 12 15 22 18 33 20 Z" fill="url(#ln)"/></svg>
           <div class="logo-name"><b>mangaba</b><span>-agent</span></div>
         </div>
-        <p>O agente de IA auto-aperfeiçoável feito para evoluir com você.</p>
+        <p>Um assistente de IA que aprende com você e resolve tarefas do dia a dia.</p>
       </div>
       <div class="foot-col">
-        <h4>Projeto</h4>
+        <h4>Aprender</h4>
         <ul>
-          <li><a href="https://github.com/dheiver2/mangaba-agent">GitHub</a></li>
+          <li><a href="features.html">O que eu faço</a></li>
+          <li><a href="business-chain.html">Como funciona</a></li>
+          <li><a href="architecture.html">Por dentro</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Começar</h4>
+        <ul>
+          <li><a href="quickstart.html">Instalação</a></li>
           <li><a href="https://dheiver2.github.io/mangaba-agent/docs/">Documentação</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença MIT</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/blob/main/LICENSE">Licença</a></li>
         </ul>
       </div>
       <div class="foot-col">
-        <h4>Páginas</h4>
-        <ul>
-          <li><a href="features.html">Recursos</a></li>
-          <li><a href="business-chain.html">Cadeia de Negócio</a></li>
-          <li><a href="architecture.html">Arquitetura</a></li>
-          <li><a href="quickstart.html">Começar</a></li>
-        </ul>
-      </div>
-      <div class="foot-col">
-        <h4>Comunidade</h4>
+        <h4>Ajuda</h4>
         <ul>
           <li><a href="https://discord.gg/dheiver2">Discord</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Discussions</a></li>
-          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Issues</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/issues">Reportar Bug</a></li>
+          <li><a href="https://github.com/dheiver2/mangaba-agent/discussions">Tirar Dúvidas</a></li>
         </ul>
       </div>
     </div>
     <div class="foot-bottom">
-      <span>Feito no Brasil · MIT License</span>
+      <span>Feito no Brasil com 💛 · MIT License</span>
       <span>&copy; 2026 Mangaba Agent</span>
     </div>
   </div>
