@@ -87,10 +87,49 @@ configure_telegram() {
   say "${B}📱 Telegram${N} — token do @BotFather"
   local tk uid
   tk="$(ask 'Bot token:')"
-  uid="$(ask 'Seu user ID (TELEGRAM_ALLOWED_USERS):')"
-  [ -n "$tk" ]  && set_env TELEGRAM_BOT_TOKEN "$tk"
+  [ -n "$tk" ] && set_env TELEGRAM_BOT_TOKEN "$tk"
+
+  # Descobre o user ID automaticamente via API do Telegram (getUpdates).
+  uid=""
+  if [ -n "$tk" ]; then
+    say ""
+    say "${C}Agora abra seu bot no Telegram e mande qualquer mensagem (ex: 'oi').${N}"
+    read -r -p "$(echo -e "${B}Pressione ENTER aqui depois de enviar a mensagem...${N} ")" _
+    say "  Buscando seu ID..."
+    uid="$(detect_telegram_id "$tk")"
+    if [ -n "$uid" ]; then
+      ok "ID detectado automaticamente: ${B}$uid${N}"
+    else
+      warn "Não consegui detectar o ID (você enviou a mensagem ao bot?)."
+      uid="$(ask 'Informe seu user ID manualmente:')"
+    fi
+  fi
+
   [ -n "$uid" ] && { set_env TELEGRAM_ALLOWED_USERS "$uid"; set_env TELEGRAM_HOME_CHANNEL "$uid"; }
   ok "Telegram configurado."
+}
+
+# Consulta getUpdates e extrai o id do último remetente (sem dependências extras).
+detect_telegram_id() {
+  local token="$1" json id
+  json="$(curl -s -m 10 "https://api.telegram.org/bot${token}/getUpdates" 2>/dev/null || true)"
+  [ -z "$json" ] && return 0
+  if have python3; then
+    id="$(printf '%s' "$json" | python3 -c '
+import sys, json
+try:
+    d = json.load(sys.stdin)
+    ids = [m.get("message", {}).get("from", {}).get("id")
+           for m in d.get("result", []) if m.get("message")]
+    ids = [i for i in ids if i]
+    print(ids[-1] if ids else "")
+except Exception:
+    print("")' 2>/dev/null)"
+  else
+    # fallback sem python: pega o primeiro "id" dentro de "from"
+    id="$(printf '%s' "$json" | grep -oE '"from":\{"id":[0-9]+' | grep -oE '[0-9]+$' | tail -1)"
+  fi
+  printf '%s' "$id"
 }
 configure_whatsapp() {
   say "${B}💬 WhatsApp${N} — pareamento via QR depois (rode: mangaba whatsapp)"

@@ -53,6 +53,8 @@ O [`bootstrap.sh`](bootstrap.sh) faz, em sequência:
 > Trocar o modelo baixado: `MANGABA_MODEL=qwen3:4b ./bootstrap.sh`
 > O script é **idempotente** — rode quantas vezes quiser para adicionar canais ou reconfigurar.
 
+> **Telegram sem descobrir o ID manualmente:** ao escolher o Telegram, o `setup-channels.sh` pede só o token, manda você enviar uma mensagem ao bot e **detecta seu user ID automaticamente** via API do Telegram (`getUpdates`). Requisitos: o gateway **não** pode estar rodando ainda (ele consumiria os updates) e a mensagem deve ser recente. Se a detecção falhar, ele pede o ID manualmente como fallback.
+
 ### Só configurar canais (já instalado)
 
 Se o Mangaba já está instalado e você só quer ativar/trocar canais:
