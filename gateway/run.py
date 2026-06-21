@@ -9370,19 +9370,28 @@ class GatewayRunner:
                     "Ex.: `/set model.context_length 65536`\n"
                     "Ex.: `/set TELEGRAM_BOT_TOKEN <token>` (vai pro .env)")
         key, value = parts[0].strip(), parts[1].strip()
-        is_secret = key.upper().endswith(("_API_KEY", "_TOKEN")) or key.upper().startswith("TERMINAL_SSH")
+        # Heurística: CHAVE_MAIÚSCULA sem ponto = variável de ambiente → .env.
+        # (cobre EMAIL_ADDRESS, EMAIL_PASSWORD, tokens, etc.) Chaves com ponto
+        # ou minúsculas (ex: model.context_length) → config.yaml.
+        is_env = ("." not in key) and key == key.upper() and "_" in key or "/" in key
+        is_secret = any(s in key.upper() for s in ("PASSWORD", "TOKEN", "API_KEY", "SECRET", "SSH"))
         try:
             import io, contextlib
-            from mangaba_cli.config import set_config_value
+            from mangaba_cli.config import set_config_value, save_env_value
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
-                set_config_value(key, value)
+                if is_env:
+                    save_env_value(key.upper(), value)
+                else:
+                    set_config_value(key, value)
         except Exception as exc:
             return f"⚠ Erro ao definir `{key}`: {exc}"
         note = ""
         if is_secret:
             note = ("\n🔒 Segredo gravado no `.env`. *Apague esta mensagem do chat* "
-                    "para o valor não ficar no histórico. Rode `/restart` para aplicar.")
+                    "para o valor não ficar no histórico. Rode `/reload` (ou `/restart`) para aplicar.")
+        elif is_env:
+            note = "\nGravado no `.env`. Rode `/reload` para aplicar."
         else:
             note = "\nReinicie a sessão com `/new` (ou `/restart`) para aplicar."
         shown = "••••••" if is_secret else value
