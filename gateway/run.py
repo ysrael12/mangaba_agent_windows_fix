@@ -9405,7 +9405,43 @@ class GatewayRunner:
             ok = _remove_mcp_server(parts[1])
             return f"✓ Removido `{parts[1]}`." if ok else f"`{parts[1]}` não existe."
 
-        return "Uso: `/mcp list` | `/mcp add <nome> <url>` | `/mcp remove <nome>`"
+        if sub == "composio":
+            # Conecta o Composio de forma DETERMINÍSTICA (sem LLM).
+            # Aceita a key inline (/mcp composio <key> [toolkits...]) ou do .env.
+            import os, subprocess, sys as _sys
+            rest = parts[1:]
+            key = ""
+            if rest and (rest[0].startswith("ak_") or rest[0].startswith("ac_") or len(rest[0]) > 20):
+                key = rest[0]; rest = rest[1:]
+            key = key or os.getenv("COMPOSIO_API_KEY", "").strip()
+            if not key:
+                return ("Envie a API key do Composio (site → Settings → API Keys):\n"
+                        "`/mcp composio <sua_api_key> gmail`\n"
+                        "Depois apague a mensagem com a chave.")
+            toolkits = rest or ["gmail"]
+            script = "/Users/dheiver/Downloads/Projetos/mangaba-agent/scripts/composio_connect.py"
+            py = "/Users/dheiver/Downloads/Projetos/mangaba-agent/.venv/bin/python"
+            try:
+                env = dict(os.environ); env["COMPOSIO_API_KEY"] = key
+                proc = subprocess.run([py, script, "--key", key, *toolkits],
+                                      capture_output=True, text=True, timeout=60, env=env)
+                import json as _json
+                out = (proc.stdout or proc.stderr).strip().splitlines()
+                data = {}
+                for line in reversed(out):
+                    try:
+                        data = _json.loads(line); break
+                    except Exception:
+                        continue
+                if data.get("ok"):
+                    return ("✅ Google conectado via Composio! As ferramentas serão "
+                            "carregadas no `/restart`. 🔒 Apague a mensagem com a chave.")
+                return f"⚠ Falha: {data.get('error') or proc.stderr[:200] or 'desconhecida'}"
+            except Exception as exc:
+                return f"⚠ Erro ao conectar Composio: {exc}"
+
+        return ("Uso: `/mcp list` | `/mcp add <nome> <url>` | `/mcp remove <nome>`\n"
+                "Composio: `/mcp composio <api_key> gmail`")
 
     async def _handle_set_command(self, event: MessageEvent) -> str:
         """Handle /set <chave> <valor> — grava no config.yaml ou no .env.
