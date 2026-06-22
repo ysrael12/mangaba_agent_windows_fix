@@ -40,6 +40,7 @@ from typing import List, Optional
 logger = logging.getLogger(__name__)
 
 BASE_CONFIDENCE = 0.40
+PROVISIONAL_CONFIDENCE = 0.30  # auto-extracted, unconfirmed → below injection threshold
 REINFORCE_STEP = 0.15
 MAX_CONFIDENCE = 1.0
 INJECT_MIN_CONFIDENCE = 0.40
@@ -133,8 +134,14 @@ def find_duplicate(instincts: List[Instinct], trigger: str, guidance: str) -> Op
 
 
 def add_instinct(trigger: str, guidance: str, source: str = "manual",
-                 now: Optional[float] = None) -> Instinct:
-    """Add a new instinct, or reinforce an existing near-duplicate."""
+                 now: Optional[float] = None,
+                 confidence: float = BASE_CONFIDENCE) -> Instinct:
+    """Add a new instinct, or reinforce an existing near-duplicate.
+
+    *confidence* is the starting confidence for a brand-new instinct. Use
+    ``PROVISIONAL_CONFIDENCE`` for auto-extracted (unconfirmed) ones so they
+    stay below the injection threshold until reinforced.
+    """
     trigger = (trigger or "").strip()
     guidance = (guidance or "").strip()
     if not trigger or not guidance:
@@ -154,7 +161,7 @@ def add_instinct(trigger: str, guidance: str, source: str = "manual",
     inst = Instinct(
         id=_gen_id(instincts, now),
         trigger=trigger, guidance=guidance,
-        confidence=BASE_CONFIDENCE, uses=1,
+        confidence=max(0.0, min(MAX_CONFIDENCE, confidence)), uses=1,
         created_at=now, updated_at=now, source=source,
     )
     instincts.append(inst)

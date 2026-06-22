@@ -261,6 +261,13 @@ mangaba instincts list               # idem no terminal
 ```
 
 Instintos com ≥85% de confiança e ≥4 usos viram **candidatos a skill** (`/instinct promote`).
+
+**Auto-extração (loop fechado):** no fim de uma conversa, o agente pode ler a sessão
+e propor instintos sozinho — via `/instinct extract` (sob demanda) ou automaticamente
+ativando `instincts.auto_extract: true` no `config.yaml`. Instintos auto-extraídos
+entram como **provisórios** (não injetados) até serem confirmados ou recorrerem — assim
+um modelo auxiliar fraco não polui o prompt.
+
 Inspirado no "Continuous Learning v2" do [ECC](https://github.com/affaan-m/ECC).
 
 ### Memória Persistente

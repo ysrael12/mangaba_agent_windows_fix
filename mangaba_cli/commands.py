@@ -226,7 +226,7 @@ COMMAND_REGISTRY: list[CommandDef] = [
                "Tools & Skills", cli_only=True,
                gateway_config_gate="gateway.expose_admin_commands",
                aliases=("instintos", "instinto"),
-               args_hint="[list|add <gatilho> :: <ação>|forget <id>|promote]"),
+               args_hint="[list|add <gatilho> :: <ação>|extract|forget <id>|promote]"),
     CommandDef("help", "Show available commands", "Info"),
     CommandDef("restart", "Gracefully restart the gateway after draining active runs", "Session",
                gateway_only=True),

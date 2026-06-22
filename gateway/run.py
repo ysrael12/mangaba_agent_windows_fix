@@ -9206,6 +9206,18 @@ class GatewayRunner:
         except Exception:
             pass
 
+        # Auto-extract instincts from the finished session (opt-in, best-effort).
+        # Gated by config `instincts.auto_extract` (default off). Stores
+        # PROVISIONAL instincts that don't inject until reinforced.
+        try:
+            _old_sid = old_entry.session_id if old_entry else None
+            if _old_sid and self._instincts_auto_extract_enabled():
+                _msgs = self._session_db.get_messages(_old_sid)
+                from agent.instinct_extraction import extract_and_store
+                extract_and_store(_msgs, source="auto")
+        except Exception:
+            pass
+
         # Emit session:end hook (session is ending)
         await self.hooks.emit("session:end", {
             "platform": source.platform.value if source.platform else "",
@@ -9401,6 +9413,14 @@ class GatewayRunner:
             "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
         )
 
+    def _instincts_auto_extract_enabled(self) -> bool:
+        """Read instincts.auto_extract from config (default False)."""
+        try:
+            from mangaba_cli.config import load_config as _load_full_config
+            return bool((_load_full_config().get("instincts") or {}).get("auto_extract", False))
+        except Exception:
+            return False
+
     async def _handle_instinct_command(self, event: MessageEvent) -> str:
         """Handle /instinct [list|add <gatilho> :: <ação>|forget <id>|promote].
 
@@ -9464,6 +9484,34 @@ class GatewayRunner:
             return ("🗑️ Instinto removido." if forget(iid)
                     else f"Não encontrei instinto `{iid}`.")
 
+        if sub == "extract":
+            # Run auto-extraction on the CURRENT session on demand.
+            sid = None
+            try:
+                _src = getattr(event, "source", None)
+                if _src is not None:
+                    _entry = self.session_store.get_or_create_session(_src)
+                    sid = getattr(_entry, "session_id", None)
+            except Exception:
+                sid = None
+            if not sid or self._session_db is None:
+                return "Não consegui localizar a sessão atual para extrair instintos."
+            try:
+                msgs = self._session_db.get_messages(sid)
+            except Exception as exc:  # noqa: BLE001
+                return f"⚠ Erro ao ler a sessão: {exc}"
+            from agent.instinct_extraction import extract_and_store
+            stored = extract_and_store(msgs, source="channel-extract")
+            if not stored:
+                return ("Nenhum instinto reutilizável encontrado nesta conversa "
+                        "(ou ela é curta demais).")
+            out = [f"🧠 Extraí {len(stored)} instinto(s) provisório(s) desta conversa:"]
+            for s in stored:
+                out.append(f"• `{s['id']}` — Quando {s['trigger']} → {s['guidance']}")
+            out.append("\n_Provisórios_ (não injetados ainda). Confirme com "
+                       "`/instinct add` o mesmo gatilho, ou eles ativam ao recorrer.")
+            return "\n".join(out)
+
         if sub == "promote":
             cands = promotion_candidates()
             if not cands:
@@ -9477,7 +9525,7 @@ class GatewayRunner:
             return "\n".join(out)
 
         return ("Uso: `/instinct [list | add <gatilho> :: <ação> | "
-                "forget <id> | promote]`")
+                "extract | forget <id> | promote]`")
 
     async def _handle_security_command(self, event: MessageEvent) -> str:
         """Handle /security (ou /scan) nos canais.
