@@ -243,6 +243,26 @@ Habilidade é salva, indexada e melhorada
 Próxima sessão começa mais inteligente
 ```
 
+### 🧠 Instintos (aprendizado independente de modelo)
+
+Skills exigem que o modelo **decida** invocá-las — um modelo local pequeno
+raramente faz isso. **Instintos** resolvem: são regras curtas "quando X → faça Y"
+capturadas de forma **determinística** (sem depender do modelo) e **injetadas
+automaticamente** no prompt de toda sessão. Reforçam confiança a cada repetição.
+
+```bash
+# Ensine em linguagem natural, no próprio canal:
+"lembre disso: quando o cliente pedir nota fiscal, peça o CNPJ antes"
+
+# Ou por comando (canal ou CLI):
+/instinct add ao gerar relatório :: sempre inclua o total no rodapé
+/instinct list                       # ver todos, por confiança
+mangaba instincts list               # idem no terminal
+```
+
+Instintos com ≥85% de confiança e ≥4 usos viram **candidatos a skill** (`/instinct promote`).
+Inspirado no "Continuous Learning v2" do [ECC](https://github.com/affaan-m/ECC).
+
 ### Memória Persistente
 
 - **Busca FTS5** — encontra conversas passadas relevantes instantaneamente

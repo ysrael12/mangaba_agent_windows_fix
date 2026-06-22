@@ -10658,6 +10658,7 @@ _BUILTIN_SUBCOMMANDS = frozenset(
         "send", "sessions", "setup",
         "skills", "slack", "status", "tools", "uninstall", "update",
         "version", "webhook", "whatsapp", "chat", "secrets", "security-scan",
+        "instincts", "instinct",
         # Help-ish invocations — plugin commands not being listed in
         # top-level --help is an acceptable trade-off for skipping an
         # expensive eager import of every bundled plugin module.
@@ -11116,6 +11117,64 @@ def main():
         return cmd_security_scan(args)
 
     secscan_parser.set_defaults(func=_dispatch_security_scan)
+
+    # =========================================================================
+    # instincts command — confidence-scored "when X → do Y" rules that get
+    # auto-injected into the system prompt (ECC-style continuous learning).
+    # =========================================================================
+    instincts_parser = subparsers.add_parser(
+        "instincts",
+        aliases=["instinct"],
+        help="Manage learned instincts (auto-injected prompt rules)",
+        description=(
+            "Instincts are short 'when X → do Y' rules captured deterministically "
+            "(no model needed) and reinforced on repetition. The strongest ones "
+            "are auto-injected into every system prompt, so even a weak local "
+            "model benefits from what worked before."
+        ),
+    )
+    inst_sub = instincts_parser.add_subparsers(dest="instincts_command")
+    inst_sub.add_parser("list", help="List all instincts by confidence")
+    _ia = inst_sub.add_parser("add", help="Add an instinct: <gatilho> :: <ação>")
+    _ia.add_argument("text", nargs="+", help="'<gatilho> :: <ação>'")
+    _if = inst_sub.add_parser("forget", help="Remove an instinct by id")
+    _if.add_argument("id", help="Instinct id (e.g. i123456)")
+    inst_sub.add_parser("promote", help="Show instincts strong enough to become skills")
+
+    def _dispatch_instincts(args):  # noqa: ANN001
+        from agent import instincts as _inst
+        cmd = getattr(args, "instincts_command", None) or "list"
+        if cmd == "add":
+            raw = " ".join(args.text)
+            if "::" not in raw:
+                print("Uso: mangaba instincts add '<gatilho> :: <ação>'")
+                return 1
+            trig, guid = raw.split("::", 1)
+            try:
+                i = _inst.add_instinct(trig.strip(), guid.strip(), source="cli")
+            except ValueError as e:
+                print(f"Erro: {e}")
+                return 1
+            print(f"🧠 Instinto {i.id} guardado (confiança {i.confidence:.0%}).")
+            return 0
+        if cmd == "forget":
+            print("Removido." if _inst.forget(args.id) else f"Não achei {args.id}.")
+            return 0
+        if cmd == "promote":
+            for c in _inst.promotion_candidates():
+                print(f"{c.id}  ({c.confidence:.0%}, {c.uses}×)  Quando {c.trigger} → {c.guidance}")
+            return 0
+        # list
+        items = _inst.load_instincts()
+        if not items:
+            print("Nenhum instinto. Adicione com: mangaba instincts add '<gatilho> :: <ação>'")
+            return 0
+        items.sort(key=lambda i: (i.confidence, i.uses), reverse=True)
+        for i in items:
+            print(f"{i.id}  {i.confidence:5.0%}  {i.uses:>3}×  Quando {i.trigger} → {i.guidance}")
+        return 0
+
+    instincts_parser.set_defaults(func=_dispatch_instincts)
 
     # =========================================================================
     # migrate command

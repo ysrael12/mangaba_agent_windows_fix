@@ -1460,6 +1460,16 @@ def build_context_files_prompt(cwd: Optional[str] = None, skip_soul: bool = Fals
         if soul_content:
             sections.append(soul_content)
 
+    # Learned instincts (confidence-scored "when X → do Y" rules). Global,
+    # like SOUL.md. Best-effort: never let a store problem break the prompt.
+    try:
+        from agent.instincts import render_block as _instincts_block
+        block = _instincts_block()
+        if block:
+            sections.append(block)
+    except Exception:  # noqa: BLE001 — instincts are optional enrichment
+        pass
+
     if not sections:
         return ""
     return "# Project Context\n\nThe following project context files have been loaded and should be followed:\n\n" + "\n".join(sections)

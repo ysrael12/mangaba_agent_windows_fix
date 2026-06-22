@@ -7280,6 +7280,9 @@ class GatewayRunner:
         if canonical in ("security", "scan"):
             return await self._handle_security_command(event)
 
+        if canonical in ("instinct", "instintos", "instinto"):
+            return await self._handle_instinct_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -7965,6 +7968,23 @@ class GatewayRunner:
             except Exception as _exc:
                 logger.debug("composio intent shortcut failed: %s", _exc)
                 # cai no fluxo normal se algo der errado
+
+        # --- Captura de instinto (pré-LLM, determinística) ---
+        # "lembre disso: quando o cliente pedir X, faça Y" → grava sem depender
+        # do modelo. O instinto é injetado no prompt das próximas sessões.
+        try:
+            from agent.instincts import parse_capture, add_instinct
+            _cap = parse_capture(event.text or "")
+            if _cap:
+                _trigger, _guidance = _cap
+                _inst = add_instinct(_trigger, _guidance, source="channel")
+                return (f"🧠 Instinto guardado (confiança {_inst.confidence:.0%}, "
+                        f"id `{_inst.id}`):\n"
+                        f"• Quando *{_inst.trigger}* → {_inst.guidance}\n\n"
+                        f"Vou aplicar isso automaticamente daqui pra frente. "
+                        f"Use `/instinct list` para ver todos.")
+        except Exception as _exc:  # noqa: BLE001
+            logger.debug("instinct capture shortcut failed: %s", _exc)
 
         # Get or create session
         # Topic-mode DMs: rewrite a stale/foreign thread_id to the user's
@@ -9380,6 +9400,84 @@ class GatewayRunner:
             f"{confiavel}\n\n{baixa}\n\n{media}\n\n{alta}\n\n"
             "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
         )
+
+    async def _handle_instinct_command(self, event: MessageEvent) -> str:
+        """Handle /instinct [list|add <gatilho> :: <ação>|forget <id>|promote].
+
+        Instintos = regras curtas "quando X → faça Y" com score de confiança,
+        injetadas automaticamente no prompt. Gated por
+        ``gateway.expose_admin_commands``.
+        """
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split(maxsplit=1)
+        sub = parts[0].lower() if parts else "list"
+        rest = parts[1] if len(parts) > 1 else ""
+        try:
+            from agent.instincts import (
+                load_instincts, add_instinct, forget, promotion_candidates,
+            )
+        except Exception as exc:  # noqa: BLE001
+            return f"⚠ Erro ao carregar instintos: {exc}"
+
+        if sub == "list":
+            items = load_instincts()
+            if not items:
+                return ("Nenhum instinto ainda. Ensine um:\n"
+                        "`/instinct add quando o cliente pedir nota fiscal :: peça CNPJ primeiro`\n"
+                        "Ou em linguagem natural: _\"lembre disso: quando ...\"_")
+            items.sort(key=lambda i: (i.confidence, i.uses), reverse=True)
+            out = ["🧠 *Instintos aprendidos*"]
+            for i in items:
+                star = "★" if i.confidence >= 0.85 else "•"
+                out.append(f"{star} `{i.id}` ({i.confidence:.0%}, {i.uses}×) "
+                           f"— Quando {i.trigger} → {i.guidance}")
+            cands = promotion_candidates()
+            if cands:
+                out.append("")
+                out.append("💡 Fortes o bastante para virar skill: "
+                           + ", ".join(f"`{c.id}`" for c in cands))
+            return "\n".join(out)
+
+        if sub == "add":
+            if "::" in rest:
+                trigger, guidance = rest.split("::", 1)
+            else:
+                # tolerate "quando X, faça Y"
+                from agent.instincts import _WHEN_THEN
+                m = _WHEN_THEN.match(rest)
+                if m:
+                    trigger, guidance = m.group("trigger"), m.group("guidance")
+                else:
+                    return ("Uso: `/instinct add <gatilho> :: <ação>`\n"
+                            "Ex.: `/instinct add ao gerar relatório :: sempre inclua o total no rodapé`")
+            try:
+                inst = add_instinct(trigger.strip(), guidance.strip(), source="channel")
+            except ValueError as exc:
+                return f"⚠ {exc}"
+            return (f"🧠 Instinto guardado (`{inst.id}`, confiança {inst.confidence:.0%}).\n"
+                    f"Quando *{inst.trigger}* → {inst.guidance}")
+
+        if sub in ("forget", "remove", "rm"):
+            iid = rest.strip().strip("`")
+            if not iid:
+                return "Uso: `/instinct forget <id>`"
+            return ("🗑️ Instinto removido." if forget(iid)
+                    else f"Não encontrei instinto `{iid}`.")
+
+        if sub == "promote":
+            cands = promotion_candidates()
+            if not cands:
+                return ("Nenhum instinto pronto para promover ainda "
+                        f"(precisa de ≥85% confiança e ≥4 usos).")
+            out = ["💡 *Candidatos a virar skill:*"]
+            for c in cands:
+                out.append(f"• `{c.id}` — Quando {c.trigger} → {c.guidance}")
+            out.append("\nPeça: _\"transforme o instinto `<id>` numa skill\"_ "
+                       "ou crie a skill manualmente.")
+            return "\n".join(out)
+
+        return ("Uso: `/instinct [list | add <gatilho> :: <ação> | "
+                "forget <id> | promote]`")
 
     async def _handle_security_command(self, event: MessageEvent) -> str:
         """Handle /security (ou /scan) nos canais.
