@@ -353,6 +353,17 @@ resultados = await asyncio.gather(
 )
 ```
 
+### Papéis especializados (skills de escopo estreito)
+
+Modelos pequenos erram menos quando a tarefa é **estreita e com checklist fixo**.
+Por isso há skills de "papel" — sub-agentes especializados que seguem um
+procedimento curto em vez de improvisar:
+
+- **`revisor-de-resposta`** — revisa um rascunho antes de enviar ao cliente (tom, completude, vazamento de dados).
+- **`triagem-e-roteamento`** — classifica o pedido por complexidade e escolhe o caminho (resposta direta, skill, script ou sub-agente).
+
+Use por linguagem natural (_"revise antes de mandar"_, _"faça a triagem disso"_) ou liste com `/skills list`.
+
 ---
 
 ## Automações Agendadas
