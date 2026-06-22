@@ -169,7 +169,22 @@ Depois, no próprio canal:
 | `/exemplos [baixa\|media\|alta]` | Catálogo de tarefas por complexidade |
 | `/mcp list` · `/mcp add <nome> <url>` · `/mcp remove <nome>` | Conectar servidores MCP |
 | `/mcp composio <api_key> gmail` | Conectar Google (hosted, sem Google Cloud) |
+| `/security` (ou `/scan`) | Varredura de segurança: segredos vazados, `.env`, MCP/hooks |
 | `/new` · `/whoami` · `/help` | Sessão, acesso e ajuda |
+
+### 🛡️ Scan de segurança (anti-vazamento de segredos)
+
+Varre a sua instalação atrás de risco que você mesmo pode ter criado — chaves/tokens
+em arquivos **rastreados pelo git**, `.env` com permissão aberta, servidores MCP em
+`http://` e shell perigoso em hooks. Pelo canal use `/security`; no terminal:
+
+```bash
+mangaba security-scan              # relatório priorizado (CRITICAL→LOW)
+mangaba security-scan --install-hook   # bloqueia commits que vazariam segredos
+```
+
+O hook roda `mangaba security-scan --staged --quiet` no pre-commit e **aborta o commit**
+se encontrar segredo. Inspirado no AgentShield do [ECC](https://github.com/affaan-m/ECC).
 
 📖 **Tutoriais:** [Criar agentes pelos canais](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/criar-agente-pelos-canais.md) · [Tarefas por complexidade](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/catalogo-de-tarefas.md) · [Tarefas em qualquer modelo](https://github.com/dheiver2/mangaba-agent/blob/main/website/docs/guides/tarefas-independentes-de-modelo.md)
 

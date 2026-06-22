@@ -10657,7 +10657,7 @@ _BUILTIN_SUBCOMMANDS = frozenset(
         "model", "pairing", "plugins", "portal", "postinstall", "profile", "proxy",
         "send", "sessions", "setup",
         "skills", "slack", "status", "tools", "uninstall", "update",
-        "version", "webhook", "whatsapp", "chat", "secrets",
+        "version", "webhook", "whatsapp", "chat", "secrets", "security-scan",
         # Help-ish invocations — plugin commands not being listed in
         # top-level --help is an acceptable trade-off for skipping an
         # expensive eager import of every bundled plugin module.
@@ -11078,6 +11078,44 @@ def main():
         return 0
 
     secrets_parser.set_defaults(func=_dispatch_secrets)
+
+    # =========================================================================
+    # security-scan command — static scan of THIS install for self-inflicted
+    # risk (leaked secrets in tracked files, .env perms, risky MCP/hooks).
+    # =========================================================================
+    secscan_parser = subparsers.add_parser(
+        "security-scan",
+        help="Scan this install for leaked secrets and risky config",
+        description=(
+            "Static security scan inspired by ECC's AgentShield. Detects API "
+            "keys/tokens committed to git-tracked files, world-readable .env, "
+            "plaintext-http MCP servers, and dangerous shell in hooks. "
+            "Exits non-zero on CRITICAL/HIGH findings, so it works as a git "
+            "pre-commit hook: `mangaba security-scan --staged --quiet`."
+        ),
+    )
+    secscan_parser.add_argument(
+        "--staged", action="store_true",
+        help="Only scan files staged for commit (for pre-commit hooks)",
+    )
+    secscan_parser.add_argument(
+        "--quiet", action="store_true",
+        help="Print only blocking findings (compact output for hooks)",
+    )
+    secscan_parser.add_argument(
+        "--all", action="store_true",
+        help="Also scan tests/fixtures/examples (off by default to cut noise)",
+    )
+    secscan_parser.add_argument(
+        "--install-hook", action="store_true",
+        help="Install a git pre-commit hook that runs this scan on staged files",
+    )
+
+    def _dispatch_security_scan(args):  # noqa: ANN001
+        from mangaba_cli.security_scan import cmd_security_scan
+        return cmd_security_scan(args)
+
+    secscan_parser.set_defaults(func=_dispatch_security_scan)
 
     # =========================================================================
     # migrate command

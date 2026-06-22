@@ -7277,6 +7277,9 @@ class GatewayRunner:
         if canonical == "mcp":
             return await self._handle_mcp_command(event)
 
+        if canonical in ("security", "scan"):
+            return await self._handle_security_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -9377,6 +9380,45 @@ class GatewayRunner:
             f"{confiavel}\n\n{baixa}\n\n{media}\n\n{alta}\n\n"
             "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
         )
+
+    async def _handle_security_command(self, event: MessageEvent) -> str:
+        """Handle /security (ou /scan) nos canais.
+
+        Roda o scan estático de segurança (segredos vazados em arquivos
+        rastreados, permissões do .env, MCP/hooks arriscados) e devolve um
+        resumo priorizado. Gated por ``gateway.expose_admin_commands``.
+        """
+        try:
+            from mangaba_cli.security_scan import run_scan, _SEV_ORDER
+        except Exception as exc:
+            return f"⚠ Erro ao carregar o scanner: {exc}"
+        try:
+            findings = run_scan()
+        except Exception as exc:
+            return f"⚠ Falha ao rodar o scan: {exc}"
+
+        if not findings:
+            return "🛡️ *Security scan:* nenhum problema encontrado. ✅"
+
+        from collections import Counter
+        counts = Counter(f.severity for f in findings)
+        emoji = {"CRITICAL": "🔴", "HIGH": "🟠", "MEDIUM": "🟡", "LOW": "🔵"}
+        header = "  ".join(
+            f"{emoji.get(s,'')} {counts[s]} {s}"
+            for s in ("CRITICAL", "HIGH", "MEDIUM", "LOW") if s in counts
+        )
+        out = [f"🛡️ *Security scan* — {header}", ""]
+        # Show up to 12 most-severe findings to keep the message readable.
+        for f in findings[:12]:
+            out.append(f"{emoji.get(f.severity,'')} `{f.location}` — {f.detail}")
+        if len(findings) > 12:
+            out.append(f"… e mais {len(findings) - 12}. Rode "
+                       "`mangaba security-scan` no terminal para o relatório completo.")
+        blocking = [f for f in findings if f.severity in ("CRITICAL", "HIGH")]
+        if blocking:
+            out.append("")
+            out.append("⚠️ *Corrija e REVOGUE* qualquer credencial exposta antes de commitar.")
+        return "\n".join(out)
 
     async def _handle_mcp_command(self, event: MessageEvent) -> str:
         """Handle /mcp [list|add <nome> <url>|remove <nome>] nos canais.
