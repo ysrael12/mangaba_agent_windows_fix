@@ -389,8 +389,15 @@ atender e vender pelo WhatsApp — local, grátis, sem API paga.
 - **`catalogo-produtos`** — catálogo a partir de CSV/JSON; busca e preço **exatos** do arquivo (nunca inventa preço).
 - **`nota-fiscal`** — triagem NF-e/NFS-e/NFC-e, valida CPF/CNPJ e prepara a emissão.
 - **`lgpd-atendimento`** — guarda de privacidade: minimiza coleta, isola dados entre clientes, consentimento.
+- **`followup-cliente`** — **heartbeat proativo**: o agente volta a falar sozinho (PIX não pago em 2h, cliente sumiu). Recuperação de venda automática.
 
 Fale natural: _"gere um PIX de R$ 49,90"_, _"atenda esse cliente"_, _"o que temos no catálogo?"_.
+
+**Follow-up proativo** (o agente inicia a conversa, não só responde):
+```
+/followup add 2h :: Oi! 😊 Vi que o PIX ainda não caiu. Posso te ajudar a finalizar?
+```
+Aceita `30min`, `2h`, `1h30min`, `1 dia`. O gateway entrega no horário; gerencie com `/followup list|cancel` ou `mangaba followups`.
 
 ---
 

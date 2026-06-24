@@ -10658,7 +10658,7 @@ _BUILTIN_SUBCOMMANDS = frozenset(
         "send", "sessions", "setup",
         "skills", "slack", "status", "tools", "uninstall", "update",
         "version", "webhook", "whatsapp", "chat", "secrets", "security-scan",
-        "instincts", "instinct",
+        "instincts", "instinct", "followups", "followup",
         # Help-ish invocations — plugin commands not being listed in
         # top-level --help is an acceptable trade-off for skipping an
         # expensive eager import of every bundled plugin module.
@@ -11175,6 +11175,41 @@ def main():
         return 0
 
     instincts_parser.set_defaults(func=_dispatch_instincts)
+
+    # =========================================================================
+    # followups command — proactive heartbeat (list/cancel from the terminal).
+    # =========================================================================
+    fup_parser = subparsers.add_parser(
+        "followups",
+        aliases=["followup"],
+        help="List or cancel scheduled proactive follow-ups (heartbeat)",
+        description=(
+            "Proactive follow-ups the agent sends on its own (e.g. PIX not paid "
+            "in 2h). Schedule them in-channel with /followup; manage here."
+        ),
+    )
+    fup_sub = fup_parser.add_subparsers(dest="followups_command")
+    fup_sub.add_parser("list", help="List pending follow-ups")
+    _fc = fup_sub.add_parser("cancel", help="Cancel a follow-up by id")
+    _fc.add_argument("id", help="Follow-up id (e.g. f123456)")
+
+    def _dispatch_followups(args):  # noqa: ANN001
+        from agent import followups as _fu
+        import datetime as _dt
+        cmd = getattr(args, "followups_command", None) or "list"
+        if cmd == "cancel":
+            print("Cancelado." if _fu.cancel(args.id) else f"Não achei {args.id}.")
+            return 0
+        items = _fu.list_open()
+        if not items:
+            print("Nenhum follow-up agendado.")
+            return 0
+        for f in items:
+            when = _dt.datetime.fromtimestamp(f.due_at).strftime("%d/%m %H:%M")
+            print(f"{f.id}  {when}  {f.platform}:{f.chat_id}  {f.message[:60]}")
+        return 0
+
+    fup_parser.set_defaults(func=_dispatch_followups)
 
     # =========================================================================
     # migrate command

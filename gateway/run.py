@@ -4156,6 +4156,10 @@ class GatewayRunner:
         # Start background session expiry watcher to finalize expired sessions
         asyncio.create_task(self._session_expiry_watcher())
 
+        # Start the proactive follow-up heartbeat (delivers due follow-ups).
+        # No-op when there are no follow-ups, so it's safe to always run.
+        asyncio.create_task(self._followup_heartbeat_watcher())
+
         # Start background kanban notifier — delivers `completed`, `blocked`,
         # `spawn_auto_blocked`, and `crashed` events to gateway subscribers
         # so human-in-the-loop workflows hear back without polling.
@@ -7283,6 +7287,9 @@ class GatewayRunner:
         if canonical in ("instinct", "instintos", "instinto"):
             return await self._handle_instinct_command(event)
 
+        if canonical in ("followup", "followups", "lembrete"):
+            return await self._handle_followup_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -9412,6 +9419,121 @@ class GatewayRunner:
             f"{confiavel}\n\n{baixa}\n\n{media}\n\n{alta}\n\n"
             "Dica: veja ferramentas com `/tools list` e habilidades com `/skills list`."
         )
+
+    async def _handle_followup_command(self, event: MessageEvent) -> str:
+        """Handle /followup [list | add <quando> :: <mensagem> | cancel <id>].
+
+        Agenda um lembrete proativo na conversa atual (ex.: cliente não pagou o
+        PIX). O heartbeat entrega no horário. Gated por
+        ``gateway.expose_admin_commands``.
+        """
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split(maxsplit=1)
+        sub = parts[0].lower() if parts else "list"
+        rest = parts[1] if len(parts) > 1 else ""
+        try:
+            from agent.followups import (
+                add_followup, list_open, cancel, parse_duration,
+            )
+        except Exception as exc:  # noqa: BLE001
+            return f"⚠ Erro ao carregar follow-ups: {exc}"
+
+        src = getattr(event, "source", None)
+
+        if sub == "list":
+            items = list_open()
+            if not items:
+                return ("Nenhum follow-up agendado. Crie um:\n"
+                        "`/followup add 2h :: Oi! Vi que o PIX ainda não caiu, posso ajudar?`")
+            import datetime as _dt
+            out = ["⏰ *Follow-ups agendados*"]
+            for f in items:
+                when = _dt.datetime.fromtimestamp(f.due_at).strftime("%d/%m %H:%M")
+                out.append(f"• `{f.id}` ({when}) — {f.message[:60]}")
+            return "\n".join(out)
+
+        if sub in ("cancel", "cancelar", "rm"):
+            iid = rest.strip().strip("`")
+            if not iid:
+                return "Uso: `/followup cancel <id>`"
+            return ("🗑️ Follow-up cancelado." if cancel(iid)
+                    else f"Não achei follow-up `{iid}` pendente.")
+
+        if sub == "add":
+            if "::" not in rest:
+                return ("Uso: `/followup add <quando> :: <mensagem>`\n"
+                        "Ex.: `/followup add 2h :: Oi! O PIX ainda não caiu, posso ajudar?`")
+            when_str, message = rest.split("::", 1)
+            delay = parse_duration(when_str)
+            if delay is None:
+                return ("Não entendi o tempo. Use ex.: `2h`, `30min`, `1 dia`.\n"
+                        "Ex.: `/followup add 2h :: sua mensagem`")
+            if src is None or not getattr(src, "chat_id", None):
+                return "Não consegui identificar a conversa atual para agendar."
+            plat = src.platform.value if getattr(src, "platform", None) else ""
+            try:
+                fu = add_followup(
+                    platform=plat, chat_id=str(src.chat_id),
+                    message=message.strip(), delay_seconds=delay,
+                    thread_id=getattr(src, "thread_id", None),
+                )
+            except ValueError as exc:
+                return f"⚠ {exc}"
+            import datetime as _dt
+            when = _dt.datetime.fromtimestamp(fu.due_at).strftime("%d/%m às %H:%M")
+            return (f"⏰ Follow-up agendado (`{fu.id}`) para *{when}*:\n"
+                    f"_{fu.message}_\n\nVou enviar sozinho nesta conversa no horário.")
+
+        return "Uso: `/followup [list | add <quando> :: <mensagem> | cancel <id>]`"
+
+    async def _followup_heartbeat_watcher(self, interval: float = 60.0) -> None:
+        """Periodically deliver due proactive follow-ups.
+
+        Heartbeat do Mangaba: entrega lembretes que o agente/usuário agendou
+        (ex.: cliente não pagou o PIX em 2h). Best-effort — nunca derruba o
+        gateway; no-op quando não há follow-ups.
+        """
+        from gateway.delivery import DeliveryTarget
+        await asyncio.sleep(8)  # let platforms connect first
+        while self._running:
+            try:
+                from agent.followups import due_followups, mark_sent
+                due = due_followups()
+                for fu in due:
+                    try:
+                        plat = self._platform_from_name(fu.platform)
+                        if plat is None:
+                            # Unknown platform → mark sent to avoid hot-looping.
+                            mark_sent(fu.id)
+                            continue
+                        target = DeliveryTarget(
+                            platform=plat, chat_id=fu.chat_id,
+                            thread_id=fu.thread_id, is_explicit=True,
+                        )
+                        await self.delivery_router.deliver(
+                            fu.message, [target],
+                            job_id=fu.id, job_name="followup",
+                        )
+                        mark_sent(fu.id)
+                        logger.info("followup %s delivered to %s:%s",
+                                    fu.id, fu.platform, fu.chat_id)
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning("followup %s delivery failed: %s", fu.id, exc)
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("followup heartbeat tick error: %s", exc)
+            await asyncio.sleep(interval)
+
+    def _platform_from_name(self, name: str):
+        """Resolve a platform name string to the Platform enum, or None."""
+        try:
+            for p in Platform:
+                if p.value == name or p.name.lower() == (name or "").lower():
+                    return p
+        except Exception:
+            return None
+        return None
 
     def _instincts_auto_extract_enabled(self) -> bool:
         """Read instincts.auto_extract from config (default False)."""
