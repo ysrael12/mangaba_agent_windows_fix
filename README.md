@@ -16,10 +16,10 @@
   <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/200%2B_Modelos-OpenRouter-F59E0B?style=for-the-badge" alt="200+ Modelos"></a>
 </p>
 
-**Infraestrutura de IA brasileira para atendimento e vendas no WhatsApp.** O Mangaba transforma um modelo de IA num funcionário que atende clientes, monta pedidos, gera **cobrança PIX válida** e cuida da operação — **rodando local e de graça** (Ollama), sem API paga e sem mandar os dados dos seus clientes para fora. Feito para o Brasil: WhatsApp-first, PIX, nota fiscal e **LGPD por padrão**.
+**A infraestrutura de IA para tornar empresas agênticas.** O Mangaba é a camada que transforma processos da sua empresa em **agentes que executam** — atendem, vendem, operam e decidem — em **qualquer canal**, com **qualquer modelo** (local ou nuvem), conectados às suas ferramentas. Self-host, privado e **seguro por padrão**.
 
 Três coisas que o tornam diferente:
-- **🇧🇷 Vertical brasileiro de verdade** — PIX (código real, não promessa), catálogo, nota fiscal, atendimento e LGPD prontos para um negócio que vive no WhatsApp.
+- **🇧🇷 Vertical brasileiro pronto** — uma empresa vira agêntica de verdade no WhatsApp: PIX (código real, não promessa), catálogo, nota fiscal, atendimento e LGPD.
 - **🆓 Funciona grátis, com modelo local fraco** — recursos determinísticos (instintos, skills de papel, security scan) fazem um modelo local pequeno ser confiável, sem depender de API cara.
 - **🛡️ Seguro por padrão** — varredura anti-vazamento de segredos e conformidade LGPD embutidas.
 

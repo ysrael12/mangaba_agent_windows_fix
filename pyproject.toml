@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mangaba-agent"
 version = "0.14.0"
-description = "Infraestrutura de IA brasileira para atendimento e vendas no WhatsApp — roda local e grátis, com aprendizado contínuo (instintos) e segurança por padrão. Multicanal, multi-modelo, sem lock-in."
+description = "Infraestrutura de IA para tornar empresas agênticas — transforma processos em agentes que executam, em qualquer canal e modelo (local ou nuvem). Self-host, privado e seguro por padrão."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "Dheiver Santos" }]
