@@ -16,11 +16,19 @@
   <a href="https://openrouter.ai"><img src="https://img.shields.io/badge/200%2B_Modelos-OpenRouter-F59E0B?style=for-the-badge" alt="200+ Modelos"></a>
 </p>
 
-**O agente de IA auto-aperfeiçoável feito para evoluir com você.** O único agente com um loop de aprendizado embutido — cria habilidades a partir das experiências, as melhora durante o uso, persiste conhecimento entre sessões e constrói um modelo profundo de quem você é ao longo do tempo. Rode em um VPS de $5, num cluster GPU, ou em infraestrutura serverless que custa quase nada quando ocioso. Não está preso ao seu laptop — fale com ele pelo Telegram enquanto ele trabalha numa VM na nuvem.
+**Infraestrutura de IA brasileira para atendimento e vendas no WhatsApp.** O Mangaba transforma um modelo de IA num funcionário que atende clientes, monta pedidos, gera **cobrança PIX válida** e cuida da operação — **rodando local e de graça** (Ollama), sem API paga e sem mandar os dados dos seus clientes para fora. Feito para o Brasil: WhatsApp-first, PIX, nota fiscal e **LGPD por padrão**.
 
-Use qualquer modelo que quiser — [OpenRouter](https://openrouter.ai) (200+ modelos), [NVIDIA NIM](https://build.nvidia.com) (Nemotron), [Hugging Face](https://huggingface.co), OpenAI, ou seu próprio endpoint. Troque com `mangaba model` — sem mudanças de código, sem lock-in.
+Três coisas que o tornam diferente:
+- **🇧🇷 Vertical brasileiro de verdade** — PIX (código real, não promessa), catálogo, nota fiscal, atendimento e LGPD prontos para um negócio que vive no WhatsApp.
+- **🆓 Funciona grátis, com modelo local fraco** — recursos determinísticos (instintos, skills de papel, security scan) fazem um modelo local pequeno ser confiável, sem depender de API cara.
+- **🛡️ Seguro por padrão** — varredura anti-vazamento de segredos e conformidade LGPD embutidas.
+
+E sem abrir mão de potência: multicanal (Telegram, Discord, Slack, WhatsApp, Signal, CLI), multi-modelo ([OpenRouter](https://openrouter.ai) 200+ modelos, [NVIDIA NIM](https://build.nvidia.com), [Hugging Face](https://huggingface.co), OpenAI, Ollama ou endpoint próprio — troque com `mangaba model`, sem lock-in), aprendizado contínuo, sub-agentes e automações agendadas. Rode num VPS de $5, numa GPU local, ou serverless que hiberna quando ocioso.
 
 <table>
+<tr><td><b>🇧🇷 WhatsApp-Business brasileiro</b></td><td>Cobrança PIX válida (copia-e-cola + QR, código real), catálogo de produtos, triagem de nota fiscal, atendimento ponta a ponta e guarda LGPD — prontos, locais e grátis.</td></tr>
+<tr><td><b>🆓 Confiável em modelo local fraco</b></td><td>Instintos (regras "quando X → faça Y" auto-injetadas), skills de papel com checklist fixo e quick-commands determinísticos — o agente acerta sem depender de modelo caro.</td></tr>
+<tr><td><b>🛡️ Segurança e LGPD por padrão</b></td><td>Varredura anti-vazamento de segredos (segredos em git, .env, MCP/hooks) com hook de pre-commit, e conformidade LGPD no atendimento.</td></tr>
 <tr><td><b>Interface de terminal completa</b></td><td>TUI com edição multilinhas, autocomplete de slash-commands, histórico de conversas, interrupção e redirecionamento, e saída de ferramentas em streaming.</td></tr>
 <tr><td><b>Vive onde você está</b></td><td>Telegram, Discord, Slack, WhatsApp, Signal e CLI — tudo de um único processo gateway. Transcrição de mensagens de voz, continuidade de conversa entre plataformas.</td></tr>
 <tr><td><b>Loop de aprendizado fechado</b></td><td>Memória curada pelo agente com nudges periódicos. Criação autônoma de habilidades após tarefas complexas. Habilidades se auto-melhoram durante o uso. Busca FTS5 de sessões com sumarização por LLM para recall entre sessões.</td></tr>
