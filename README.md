@@ -366,6 +366,26 @@ Use por linguagem natural (_"revise antes de mandar"_, _"faça a triagem disso"_
 
 ---
 
+## 🇧🇷 WhatsApp-Business (vertical brasileiro)
+
+O que **nenhum agente global faz**: ferramentas prontas para um negócio brasileiro
+atender e vender pelo WhatsApp — local, grátis, sem API paga.
+
+- **`pix-cobranca`** — gera **cobrança PIX válida** (copia-e-cola + QR Code) localmente.
+  É código determinístico (BR Code EMV + CRC16), não um chute do modelo:
+  ```bash
+  python skills/whatsapp-business/pix/scripts/pix_payload.py \
+      --key chave@email.com --name "Loja" --city "Sao Paulo" --amount 49.90 --qr pix.png
+  ```
+- **`atendimento-completo`** — fluxo de atendimento de ponta a ponta (saudação → entender → resolver → cobrar → fechar).
+- **`catalogo-produtos`** — catálogo a partir de CSV/JSON; busca e preço **exatos** do arquivo (nunca inventa preço).
+- **`nota-fiscal`** — triagem NF-e/NFS-e/NFC-e, valida CPF/CNPJ e prepara a emissão.
+- **`lgpd-atendimento`** — guarda de privacidade: minimiza coleta, isola dados entre clientes, consentimento.
+
+Fale natural: _"gere um PIX de R$ 49,90"_, _"atenda esse cliente"_, _"o que temos no catálogo?"_.
+
+---
+
 ## Automações Agendadas
 
 ```bash
