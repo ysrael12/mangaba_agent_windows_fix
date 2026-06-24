@@ -7290,6 +7290,9 @@ class GatewayRunner:
         if canonical in ("followup", "followups", "lembrete"):
             return await self._handle_followup_command(event)
 
+        if canonical in ("tarefa", "plano", "task", "resolver"):
+            return await self._handle_tarefa_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -8081,7 +8084,22 @@ class GatewayRunner:
 
         # Build the context prompt to inject
         context_prompt = build_session_context_prompt(context, redact_pii=_redact_pii)
-        
+
+        # Deterministic plan scaffold: when the message is a COMPLEX multi-step
+        # request, decompose it (no LLM) and inject a ready checklist so even a
+        # weak local model just EXECUTES instead of having to plan. Opt-out via
+        # config `orchestration.auto_plan: false`. Best-effort, never blocks.
+        try:
+            if self._auto_plan_enabled():
+                from agent.request_planner import is_complex, decompose, render_agent_scaffold
+                _txt = event.text or ""
+                if is_complex(_txt):
+                    _scaffold = render_agent_scaffold(decompose(_txt))
+                    if _scaffold:
+                        context_prompt = (context_prompt + "\n\n" + _scaffold).strip()
+        except Exception as _exc:  # noqa: BLE001
+            logger.debug("auto-plan scaffold skipped: %s", _exc)
+
         # If the previous session expired and was auto-reset, prepend a notice
         # so the agent knows this is a fresh conversation (not an intentional /reset).
         if getattr(session_entry, 'was_auto_reset', False):
@@ -9534,6 +9552,41 @@ class GatewayRunner:
         except Exception:
             return None
         return None
+
+    def _auto_plan_enabled(self) -> bool:
+        """Read orchestration.auto_plan from config (default True)."""
+        try:
+            from mangaba_cli.config import load_config as _load_full_config
+            cfg = (_load_full_config().get("orchestration") or {})
+            return bool(cfg.get("auto_plan", True))
+        except Exception:
+            return True
+
+    async def _handle_tarefa_command(self, event: MessageEvent) -> str:
+        """Handle /tarefa <pedido> — decompõe um pedido complexo em um plano.
+
+        Mostra o plano numerado (determinístico, sem LLM) no canal. Útil para o
+        usuário ver/ajustar antes de o agente executar. Gated por
+        ``gateway.expose_admin_commands``.
+        """
+        goal = (event.get_command_args() or "").strip()
+        if not goal:
+            return ("Uso: `/tarefa <pedido complexo>`\n"
+                    "Ex.: `/tarefa pesquise o cliente, gere um relatório PDF e me envie`\n"
+                    "Eu quebro em etapas e executo entregando cada resultado no chat.")
+        try:
+            from agent.request_planner import decompose, render_plan
+        except Exception as exc:  # noqa: BLE001
+            return f"⚠ Erro ao planejar: {exc}"
+        steps = decompose(goal)
+        if not steps:
+            return "Não consegui entender o pedido. Pode reformular?"
+        if len(steps) == 1:
+            return (f"Esse pedido é de um passo só — pode mandar direto que eu faço:\n"
+                    f"_{steps[0].text}_")
+        plan = render_plan(steps)
+        return (f"{plan}\n\nResponda *ok* para eu executar, ou ajuste os passos. "
+                f"Entrego o resultado de cada etapa aqui no chat.")
 
     def _instincts_auto_extract_enabled(self) -> bool:
         """Read instincts.auto_extract from config (default False)."""

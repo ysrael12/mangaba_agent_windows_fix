@@ -10658,7 +10658,7 @@ _BUILTIN_SUBCOMMANDS = frozenset(
         "send", "sessions", "setup",
         "skills", "slack", "status", "tools", "uninstall", "update",
         "version", "webhook", "whatsapp", "chat", "secrets", "security-scan",
-        "instincts", "instinct", "followups", "followup",
+        "instincts", "instinct", "followups", "followup", "tarefa", "plano",
         # Help-ish invocations — plugin commands not being listed in
         # top-level --help is an acceptable trade-off for skipping an
         # expensive eager import of every bundled plugin module.
@@ -11210,6 +11210,35 @@ def main():
         return 0
 
     fup_parser.set_defaults(func=_dispatch_followups)
+
+    # =========================================================================
+    # tarefa command — deterministic decomposition of a complex request into a
+    # step-by-step plan (no LLM needed; helps weak local models execute).
+    # =========================================================================
+    tarefa_parser = subparsers.add_parser(
+        "tarefa",
+        aliases=["plano"],
+        help="Decompose a complex request into a step-by-step plan",
+        description=(
+            "Breaks a complex multi-step request into an ordered, skill-tagged "
+            "plan — deterministically, no LLM. The same decomposition is auto-"
+            "injected into the agent prompt in channels so a weak local model "
+            "just executes the checklist."
+        ),
+    )
+    tarefa_parser.add_argument("goal", nargs="+", help="The complex request")
+
+    def _dispatch_tarefa(args):  # noqa: ANN001
+        from agent.request_planner import decompose, render_plan
+        steps = decompose(" ".join(args.goal))
+        if not steps:
+            print("Não consegui entender o pedido.")
+            return 1
+        # Strip channel markdown for terminal readability.
+        print(render_plan(steps).replace("*", ""))
+        return 0
+
+    tarefa_parser.set_defaults(func=_dispatch_tarefa)
 
     # =========================================================================
     # migrate command

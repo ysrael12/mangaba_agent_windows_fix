@@ -158,6 +158,18 @@ resuma este PDF   (com o arquivo anexado)
 
 A busca web já funciona **grátis** (DuckDuckGo, sem chave). Os comandos `/` abaixo são atalhos opcionais para configuração rápida.
 
+### Resolver pedidos complexos pelo canal
+
+Pedido de vários passos? O Mangaba **decompõe sozinho** (determinístico, sem depender do modelo)
+e injeta o plano pronto no contexto do agente — então até um modelo local fraco só executa o checklist.
+
+```
+"pesquise o cliente, gere um relatório PDF, me mande aqui e depois agende um follow-up em 2h"
+```
+→ vira um plano de 4 etapas, cada uma com a skill sugerida, e o agente executa entregando o
+resultado de cada uma no chat. Veja o plano antes com `/tarefa <pedido>` (ou `mangaba tarefa`).
+Desligue a auto-decomposição com `orchestration.auto_plan: false`.
+
 ### Comandos de configuração no canal
 
 Depois, no próprio canal:
@@ -177,6 +189,8 @@ Depois, no próprio canal:
 | `/exemplos [baixa\|media\|alta]` | Catálogo de tarefas por complexidade |
 | `/mcp list` · `/mcp add <nome> <url>` · `/mcp remove <nome>` | Conectar servidores MCP |
 | `/mcp composio <api_key> gmail` | Conectar Google (hosted, sem Google Cloud) |
+| `/tarefa <pedido>` (ou `/plano`) | Decompõe um pedido complexo em plano por etapas e executa |
+| `/followup add 2h :: <msg>` | Agenda follow-up proativo na conversa (heartbeat) |
 | `/security` (ou `/scan`) | Varredura de segurança: segredos vazados, `.env`, MCP/hooks |
 | `/new` · `/whoami` · `/help` | Sessão, acesso e ajuda |
 
