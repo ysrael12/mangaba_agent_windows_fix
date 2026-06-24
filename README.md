@@ -168,7 +168,11 @@ e injeta o plano pronto no contexto do agente — então até um modelo local fr
 ```
 → vira um plano de 4 etapas, cada uma com a skill sugerida, e o agente executa entregando o
 resultado de cada uma no chat. Veja o plano antes com `/tarefa <pedido>` (ou `mangaba tarefa`).
-Desligue a auto-decomposição com `orchestration.auto_plan: false`.
+
+**Adapta-se ao modelo (gemma é o default, mas vale qualquer modelo do gateway):** com
+`orchestration.auto_plan: auto` (padrão), o plano pronto só é injetado quando o modelo é
+**fraco** (ex.: gemma local) — um modelo forte vindo do gateway (Claude, GPT, Gemini…)
+planeja melhor sozinho e não é engessado. Force com `true`/`false` se quiser.
 
 ### Comandos de configuração no canal
 

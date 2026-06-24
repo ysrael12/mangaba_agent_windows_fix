@@ -8090,7 +8090,7 @@ class GatewayRunner:
         # weak local model just EXECUTES instead of having to plan. Opt-out via
         # config `orchestration.auto_plan: false`. Best-effort, never blocks.
         try:
-            if self._auto_plan_enabled():
+            if self._should_inject_plan(source):
                 from agent.request_planner import is_complex, decompose, render_agent_scaffold
                 _txt = event.text or ""
                 if is_complex(_txt):
@@ -9553,14 +9553,42 @@ class GatewayRunner:
             return None
         return None
 
-    def _auto_plan_enabled(self) -> bool:
-        """Read orchestration.auto_plan from config (default True)."""
+    def _active_model_for_source(self, source) -> str:
+        """Best-effort: the model that will run this turn (override or default)."""
+        try:
+            key = self._session_key_for_source(source) if source is not None else None
+            override = (self._session_model_overrides or {}).get(key) if key else None
+            if override:
+                return override if isinstance(override, str) else str(override)
+        except Exception:
+            pass
+        try:
+            return _resolve_gateway_model() or ""
+        except Exception:
+            return ""
+
+    def _should_inject_plan(self, source) -> bool:
+        """Decide whether to inject the deterministic plan scaffold this turn.
+
+        Config ``orchestration.auto_plan``: true (sempre) | false (nunca) |
+        "auto" (default — só para modelos fracos; um modelo forte vindo do
+        gateway planeja melhor sozinho).
+        """
         try:
             from mangaba_cli.config import load_config as _load_full_config
-            cfg = (_load_full_config().get("orchestration") or {})
-            return bool(cfg.get("auto_plan", True))
+            mode = (_load_full_config().get("orchestration") or {}).get("auto_plan", "auto")
         except Exception:
+            mode = "auto"
+        if mode is True or mode == "always":
             return True
+        if mode is False or mode == "off" or mode == "never":
+            return False
+        # "auto": só andaime quando o modelo NÃO é capaz de orquestrar sozinho.
+        try:
+            from agent.model_capability import is_capable_model
+            return not is_capable_model(self._active_model_for_source(source))
+        except Exception:
+            return True  # na dúvida, ajuda
 
     async def _handle_tarefa_command(self, event: MessageEvent) -> str:
         """Handle /tarefa <pedido> — decompõe um pedido complexo em um plano.
