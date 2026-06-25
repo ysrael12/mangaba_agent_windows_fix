@@ -9654,12 +9654,29 @@ class GatewayRunner:
             ok, msg = _fleet.restart_profile(name)
             return msg
 
+        if sub in ("logs", "log"):
+            name = parts[1].strip("`") if len(parts) > 1 else None
+            return _fleet.fleet_logs(name, lines=30)
+
+        if sub in ("broadcast", "aviso"):
+            msg = args_str.split(maxsplit=1)[1].strip() if len(parts) > 1 else ""
+            if not msg:
+                return "Uso: `/fleet broadcast <aviso para todos os operadores>`"
+            try:
+                reached, channels, skipped = _fleet.broadcast(msg)
+            except ValueError as exc:
+                return f"⚠ {exc}"
+            out = f"📢 Aviso enfileirado para {reached} agente(s) / {channels} canal(is)."
+            if skipped:
+                out += f"\nPulados: {', '.join(skipped)}"
+            return out
+
         if sub in ("start", "subir", "stop", "parar"):
             return ("Por segurança, *start/stop* de outros agentes ficam só no "
                     "terminal (`mangaba fleet start|stop <nome>`). Pelo canal você "
-                    "pode `list`, `status` e `restart`.")
+                    "pode `list`, `status`, `restart`, `logs` e `broadcast`.")
 
-        return "Uso: `/fleet [list | status | restart <nome>]`"
+        return "Uso: `/fleet [list | status | restart <nome> | logs [nome] | broadcast <aviso>]`"
 
     async def _handle_tarefa_command(self, event: MessageEvent) -> str:
         """Handle /tarefa <pedido> — decompõe um pedido complexo em um plano.

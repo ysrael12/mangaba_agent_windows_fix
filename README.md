@@ -194,7 +194,7 @@ Depois, no próprio canal:
 | `/exemplos [baixa\|media\|alta]` | Catálogo de tarefas por complexidade |
 | `/mcp list` · `/mcp add <nome> <url>` · `/mcp remove <nome>` | Conectar servidores MCP |
 | `/mcp composio <api_key> gmail` | Conectar Google (hosted, sem Google Cloud) |
-| `/fleet` (ou `/frota`) | Frota de agentes: status de todos + reiniciar pelo canal |
+| `/fleet` (ou `/frota`) | Frota de agentes: status, logs, reiniciar e broadcast pelo canal |
 | `/tarefa <pedido>` (ou `/plano`) | Decompõe um pedido complexo em plano por etapas e executa |
 | `/followup add 2h :: <msg>` | Agenda follow-up proativo na conversa (heartbeat) |
 | `/security` (ou `/scan`) | Varredura de segurança: segredos vazados, `.env`, MCP/hooks |
@@ -389,13 +389,17 @@ Ollama. A frota é gerenciada de um lugar só (e pelo canal):
 
 ```bash
 mangaba profile create empresa1 --description "Padaria — atende e gera PIX"
-mangaba fleet list           # quem está no ar, modelo, pid
+mangaba fleet list                      # quem está no ar, modelo, pid
+mangaba fleet logs empresa1 -n 50       # logs do gateway de um agente
 mangaba fleet restart empresa1
-mangaba fleet stop --all     # (start/stop em massa no terminal)
+mangaba fleet broadcast "manutenção às 22h"   # aviso ao canal-operador de todos
+mangaba fleet stop --all                # (start/stop em massa no terminal)
 ```
-No canal-operador: `/fleet` (status de todos) e `/fleet restart <nome>`. Start/stop de outros
-agentes ficam no terminal por segurança. Isolamento total por agente = **dados de cada empresa
-separados** (exigência de LGPD).
+No canal-operador: `/fleet` (status), `/fleet logs [nome]`, `/fleet restart <nome>` e
+`/fleet broadcast <aviso>`. O **broadcast** atinge só o `home_channel` (canal-operador) de
+cada agente — **nunca os chats de clientes** — e é entregue pelo heartbeat de cada gateway.
+Start/stop de outros agentes ficam no terminal por segurança. Isolamento total por agente =
+**dados de cada empresa separados** (exigência de LGPD).
 
 ### Papéis especializados (skills de escopo estreito)
 

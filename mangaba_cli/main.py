@@ -11262,12 +11262,30 @@ def main():
         _p = fleet_sub.add_parser(_act, help=f"{_act} a profile's gateway")
         _p.add_argument("profile", nargs="?", help="Profile name")
         _p.add_argument("--all", action="store_true", help=f"{_act} every profile")
+    _pl = fleet_sub.add_parser("logs", help="Show gateway logs (one profile or all)")
+    _pl.add_argument("profile", nargs="?", help="Profile name (omit for all)")
+    _pl.add_argument("-n", "--lines", type=int, default=40, help="Lines to show")
+    _pb = fleet_sub.add_parser("broadcast", help="Send an operator notice to every agent's home channel")
+    _pb.add_argument("message", nargs="+", help="The notice text")
 
     def _dispatch_fleet(args):  # noqa: ANN001
         from mangaba_cli import fleet as _fleet
         cmd = getattr(args, "fleet_command", None) or "list"
         if cmd in ("list", "status"):
             print(_fleet.render_fleet(_fleet.collect_fleet()))
+            return 0
+        if cmd == "logs":
+            print(_fleet.fleet_logs(getattr(args, "profile", None),
+                                    lines=getattr(args, "lines", 40)))
+            return 0
+        if cmd == "broadcast":
+            try:
+                reached, channels, skipped = _fleet.broadcast(" ".join(args.message))
+            except ValueError as e:
+                print(f"Erro: {e}")
+                return 1
+            print(f"📢 Aviso enfileirado para {reached} agente(s) / {channels} canal(is)."
+                  + (f" Pulados: {', '.join(skipped)}" if skipped else ""))
             return 0
         action = {"start": _fleet.start_profile, "stop": _fleet.stop_profile,
                   "restart": _fleet.restart_profile}[cmd]

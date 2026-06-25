@@ -12,8 +12,10 @@ do gateway (``terminate_pid``, ``_gateway_run_args_for_profile``), best-effort.
 
 from __future__ import annotations
 
+import json
 import logging
 import subprocess
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Tuple
@@ -134,3 +136,112 @@ def restart_profile(name: str) -> Tuple[bool, str]:
     if start_ok:
         return True, f"🔄 Agente `{name}` reiniciado."
     return False, start_msg
+
+
+# ---------------------------------------------------------------------------
+# Logs agregados
+# ---------------------------------------------------------------------------
+def read_gateway_log(profile_path: Path, lines: int = 40) -> str:
+    """Últimas ``lines`` linhas do gateway.log de um profile (ou aviso)."""
+    log_path = profile_path / "logs" / "gateway.log"
+    if not log_path.exists():
+        return "(sem gateway.log — o agente ainda não rodou)"
+    try:
+        content = log_path.read_text(errors="ignore").splitlines()
+    except OSError as exc:
+        return f"(erro ao ler log: {exc})"
+    tail = content[-max(1, lines):]
+    return "\n".join(tail) if tail else "(log vazio)"
+
+
+def fleet_logs(name: Optional[str] = None, lines: int = 40) -> str:
+    """Logs de um agente específico, ou um resumo curto de todos."""
+    members = collect_fleet()
+    if name:
+        m = find_member(name)
+        if m is None:
+            return f"Agente `{name}` não encontrado."
+        return f"📜 Log de `{m.name}` (últimas {lines}):\n\n{read_gateway_log(m.path, lines)}"
+    # Visão de todos: poucas linhas por agente para não estourar.
+    per = max(1, min(lines, 10))
+    out = []
+    for m in members:
+        dot = "🟢" if m.running else "⚪"
+        out.append(f"{dot} {m.name} — últimas {per} linhas:")
+        out.append(read_gateway_log(m.path, per))
+        out.append("")
+    return "\n".join(out).strip() or "Nenhum agente."
+
+
+# ---------------------------------------------------------------------------
+# Broadcast — aviso de operador para o home_channel de cada agente.
+# Seguro: só atinge o canal-operador (home_channel) configurado, nunca os
+# chats de clientes. Entregue pelo heartbeat de follow-ups de cada gateway.
+# ---------------------------------------------------------------------------
+def _home_channels_for_profile(profile_path: Path) -> List[dict]:
+    """Lê o config.yaml do profile e retorna os home_channel configurados."""
+    cfg_path = profile_path / "config.yaml"
+    if not cfg_path.exists():
+        return []
+    try:
+        import yaml
+        cfg = yaml.safe_load(cfg_path.read_text()) or {}
+    except Exception:  # noqa: BLE001
+        return []
+    out: List[dict] = []
+    platforms = cfg.get("platforms") or {}
+    if isinstance(platforms, dict):
+        for plat_name, pcfg in platforms.items():
+            if not isinstance(pcfg, dict):
+                continue
+            hc = pcfg.get("home_channel")
+            if isinstance(hc, dict) and hc.get("chat_id"):
+                out.append({
+                    "platform": hc.get("platform") or plat_name,
+                    "chat_id": str(hc["chat_id"]),
+                    "thread_id": hc.get("thread_id"),
+                })
+    return out
+
+
+def _enqueue_followup(profile_path: Path, *, platform: str, chat_id: str,
+                      message: str, thread_id: Optional[str] = None) -> None:
+    """Anexa um follow-up imediato ao store do profile (entregue pelo heartbeat)."""
+    store = profile_path / "followups.jsonl"
+    now = time.time()
+    fid = f"f{int(now * 1000) % 1_000_000:06d}"
+    record = {
+        "id": fid, "platform": platform, "chat_id": chat_id,
+        "message": message, "due_at": now, "status": "pending",
+        "thread_id": thread_id, "created_at": now, "context": "fleet-broadcast",
+    }
+    store.parent.mkdir(parents=True, exist_ok=True)
+    with store.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+
+def broadcast(message: str, *, running_only: bool = True) -> Tuple[int, int, List[str]]:
+    """Envia um aviso ao home_channel de cada agente.
+
+    Retorna (nº de agentes atingidos, nº de canais, lista de pulados).
+    """
+    message = (message or "").strip()
+    if not message:
+        raise ValueError("mensagem vazia")
+    note = f"📢 *Aviso da operação:*\n{message}"
+    reached = channels = 0
+    skipped: List[str] = []
+    for m in collect_fleet():
+        if running_only and not m.running:
+            skipped.append(f"{m.name} (parado)")
+            continue
+        homes = _home_channels_for_profile(m.path)
+        if not homes:
+            skipped.append(f"{m.name} (sem home_channel)")
+            continue
+        for hc in homes:
+            _enqueue_followup(m.path, platform=hc["platform"], chat_id=hc["chat_id"],
+                              message=note, thread_id=hc.get("thread_id"))
+            channels += 1
+        reached += 1
+    return reached, channels, skipped
