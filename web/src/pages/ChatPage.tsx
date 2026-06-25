@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Square, RotateCw } from "lucide-react";
-import { MANGABA_BASE_PATH } from "@/lib/api";
+import { MANGABA_BASE_PATH, api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+
+interface ModelOpt {
+  provider: string;
+  model: string;
+}
 
 // ChatGPT-style chat for the dashboard. Talks to the agent over the
 // /api/chat WebSocket (one turn per message, streamed token-by-token).
@@ -39,6 +44,9 @@ export default function ChatPage() {
   const [connected, setConnected] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [models, setModels] = useState<ModelOpt[]>([]);
+  // "" = usar o modelo padrão configurado
+  const [selected, setSelected] = useState<string>("");
 
   const wsRef = useRef<WebSocket | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -141,6 +149,38 @@ export default function ChatPage() {
     };
   }, [connect]);
 
+  // Carrega os modelos disponíveis para o seletor.
+  useEffect(() => {
+    api
+      .getModelOptions()
+      .then((res) => {
+        const flat: ModelOpt[] = [];
+        for (const p of res.providers ?? []) {
+          for (const m of p.models ?? []) {
+            flat.push({ provider: p.slug, model: m });
+          }
+        }
+        setModels(flat);
+        // Pré-seleciona o modelo atual, se estiver na lista.
+        if (res.model) {
+          const match = flat.find((o) => o.model === res.model);
+          if (match) setSelected(`${match.provider}::${match.model}`);
+        }
+      })
+      .catch(() => {
+        /* sem lista de modelos — o chat usa o padrão */
+      });
+  }, []);
+
+  const onModelChange = (value: string) => {
+    setSelected(value);
+    const label = value ? value.split("::")[1] : "modelo padrão";
+    setMessages((prev) => [
+      ...prev,
+      { role: "assistant", content: `🔄 Modelo agora: ${label}`, pending: false },
+    ]);
+  };
+
   const send = () => {
     const text = input.trim();
     if (!text || busy) return;
@@ -156,7 +196,8 @@ export default function ChatPage() {
     ]);
     setInput("");
     setBusy(true);
-    ws.send(JSON.stringify({ message: text }));
+    const [provider, model] = selected ? selected.split("::") : ["", ""];
+    ws.send(JSON.stringify({ message: text, model, provider }));
     setTimeout(scrollToBottom, 0);
   };
 
@@ -186,14 +227,32 @@ export default function ChatPage() {
             {connected ? "Conectado" : "Desconectado"}
           </span>
         </div>
-        {!connected && (
-          <button
-            onClick={() => connect()}
-            className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/40"
-          >
-            <RotateCw className="h-3.5 w-3.5" /> Reconectar
-          </button>
-        )}
+
+        <div className="ml-auto flex items-center gap-2">
+          {models.length > 0 && (
+            <select
+              value={selected}
+              onChange={(e) => onModelChange(e.target.value)}
+              title="Trocar o modelo para testar"
+              className="max-w-[180px] rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="">Modelo padrão</option>
+              {models.map((o) => (
+                <option key={`${o.provider}::${o.model}`} value={`${o.provider}::${o.model}`}>
+                  {o.model}
+                </option>
+              ))}
+            </select>
+          )}
+          {!connected && (
+            <button
+              onClick={() => connect()}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/40"
+            >
+              <RotateCw className="h-3.5 w-3.5" /> Reconectar
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Mensagens */}

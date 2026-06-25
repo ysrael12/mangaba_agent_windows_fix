@@ -3955,8 +3955,12 @@ def _channel_or_close_code(ws: WebSocket) -> Optional[str]:
     return channel if _VALID_CHANNEL_RE.match(channel) else None
 
 
-def _build_chat_agent():
-    """Build an AIAgent for the dashboard chat, mirroring the oneshot/CLI path."""
+def _build_chat_agent(model_override: str = None, provider_override: str = None):
+    """Build an AIAgent for the dashboard chat, mirroring the oneshot/CLI path.
+
+    ``model_override`` / ``provider_override`` let the Chat tab switch models on
+    the fly for testing; when unset, the profile's configured default is used.
+    """
     from mangaba_cli.config import load_config
     from mangaba_cli.runtime_provider import resolve_runtime_provider
     from run_agent import AIAgent
@@ -3964,10 +3968,10 @@ def _build_chat_agent():
     cfg = load_config()
     model_cfg = cfg.get("model") or {}
     effective_model = str(
-        model_cfg.get("default") or model_cfg.get("name") or ""
+        model_override or model_cfg.get("default") or model_cfg.get("name") or ""
     ).strip()
     runtime = resolve_runtime_provider(
-        requested=None, target_model=effective_model or None
+        requested=(provider_override or None), target_model=effective_model or None
     )
     try:
         from mangaba_cli.tools_config import _get_platform_tools
@@ -4009,6 +4013,7 @@ async def chat_ws(ws: WebSocket) -> None:
 
     loop = asyncio.get_event_loop()
     agent = None
+    built_model = None  # qual modelo o agente atual foi construído
     history: List[Dict[str, Any]] = []
 
     try:
@@ -4018,10 +4023,17 @@ async def chat_ws(ws: WebSocket) -> None:
             if not message:
                 continue
 
-            if agent is None:
-                await ws.send_json({"type": "status", "text": "Iniciando o agente…"})
+            model = (data.get("model") or "").strip() or None
+            provider = (data.get("provider") or "").strip() or None
+
+            # (Re)constrói o agente na primeira mensagem ou quando o modelo muda.
+            if agent is None or model != built_model:
+                await ws.send_json({"type": "status", "text": "Carregando modelo…"})
                 try:
-                    agent = await loop.run_in_executor(None, _build_chat_agent)
+                    agent = await loop.run_in_executor(
+                        None, lambda: _build_chat_agent(model, provider)
+                    )
+                    built_model = model
                 except Exception as exc:  # noqa: BLE001
                     _log.exception("chat_ws: build agent failed")
                     await ws.send_json({"type": "error", "text": f"Falha ao iniciar o agente: {exc}"})
