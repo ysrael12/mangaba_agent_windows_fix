@@ -3,7 +3,7 @@ import { useLayoutEffect, useState } from "react";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { cn } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
-import { ChevronDown, ChevronRight, Terminal, Zap, Rocket } from "lucide-react";
+import { ChevronDown, ChevronRight, MousePointerClick, Zap, Rocket } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Primitives
@@ -14,6 +14,15 @@ function Code({ children }: { children: string }) {
     <code className="rounded bg-black/10 dark:bg-white/10 px-1.5 py-0.5 font-mono text-[0.82em]">
       {children}
     </code>
+  );
+}
+
+// Realça o nome de uma aba/botão do dashboard para o leitor localizar na tela.
+function UI({ children }: { children: string }) {
+  return (
+    <span className="rounded border border-border bg-muted px-1.5 py-0.5 text-[0.82em] font-medium text-foreground">
+      {children}
+    </span>
   );
 }
 
@@ -74,634 +83,435 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 // ---------------------------------------------------------------------------
-// Level content
+// Nível 1 — Primeiros passos no dashboard
 // ---------------------------------------------------------------------------
 
 function BasicDocs() {
   return (
     <div className="space-y-4">
-      <Section title="1. Instalação">
-        <Step n={1} title="Instalar via pip">
-          <p>Requer Python 3.10 ou superior.</p>
-          <Block>{`pip install mangaba-agent`}</Block>
-          <p>Ou com pipx (recomendado para instalação global isolada):</p>
-          <Block>{`pipx install mangaba-agent`}</Block>
+      <Tip>
+        Quase tudo no Mangaba é feito clicando no dashboard. O terminal só é
+        necessário uma vez, para instalar e abrir o dashboard — depois disso é
+        tudo pela interface.
+      </Tip>
+
+      <Section title="1. Abrir o dashboard">
+        <Step n={1} title="Instalar (uma única vez, no terminal)">
+          <p>Requer Python 3.10+. Instale o pacote:</p>
+          <Block>{`pipx install mangaba-agent
+# ou:  pip install mangaba-agent`}</Block>
         </Step>
-
-        <Step n={2} title="Verificar a instalação">
-          <Block>{`mangaba --version`}</Block>
-          <p>Deve exibir a versão instalada.</p>
-        </Step>
-      </Section>
-
-      <Section title="2. Configuração inicial">
-        <Step n={1} title="Executar o assistente de configuração">
-          <p>O comando abaixo cria a pasta <Code>~/.mangaba/</Code> e o arquivo <Code>config.yaml</Code> com perguntas guiadas.</p>
-          <Block>{`mangaba init`}</Block>
-        </Step>
-
-        <Step n={2} title="Escolher um modelo de linguagem">
-          <p>Você tem três opções principais:</p>
-          <p><strong>A) Ollama (local, grátis, sem internet)</strong></p>
-          <Block>{`# Instale o Ollama em https://ollama.com
-# Depois baixe um modelo:
-ollama pull llama3.2       # 2 GB — rápido
-ollama pull gemma3         # 3 GB — melhor qualidade
-ollama pull mistral        # 4 GB — equilibrado
-ollama pull deepseek-r1    # 7 GB — raciocínio`}</Block>
-          <p>Após instalar, edite <Code>~/.mangaba/config.yaml</Code>:</p>
-          <Block>{`model: llama3.2
-provider: ollama`}</Block>
-
-          <p className="pt-2"><strong>B) OpenAI (nuvem, pago)</strong></p>
-          <Block>{`# Obtenha sua chave em https://platform.openai.com
-# Salve no Mangaba:
-mangaba env set OPENAI_API_KEY=sk-...`}</Block>
-          <Block>{`model: gpt-4o-mini
-provider: openai`}</Block>
-
-          <p className="pt-2"><strong>C) Anthropic / Claude (nuvem, pago)</strong></p>
-          <Block>{`mangaba env set ANTHROPIC_API_KEY=sk-ant-...`}</Block>
-          <Block>{`model: claude-haiku-4-5-20251001
-provider: anthropic`}</Block>
-        </Step>
-
-        <Tip>Para uso pessoal e aprendizado, recomendamos Ollama + gemma3 — roda 100% local, sem custo e sem enviar dados para servidores externos.</Tip>
-      </Section>
-
-      <Section title="3. Iniciando o gateway">
-        <Step n={1} title="Iniciar o gateway (processo de IA)">
-          <p>O gateway é o processo principal que roda o agente. Ele precisa estar ativo para o agente responder.</p>
-          <Block>{`mangaba gateway start`}</Block>
-          <p>Ou pelo dashboard: barra lateral → <strong>Sistema</strong> → botão <strong>Reiniciar gateway</strong>.</p>
-        </Step>
-
-        <Step n={2} title="Verificar se está rodando">
-          <Block>{`mangaba gateway status`}</Block>
-          <p>Deve exibir <Code>running</Code> e o PID do processo.</p>
-        </Step>
-      </Section>
-
-      <Section title="4. Abrindo o dashboard">
-        <Step n={1} title="Iniciar a interface web">
+        <Step n={2} title="Subir o dashboard">
           <Block>{`mangaba dashboard`}</Block>
-          <p>Abre automaticamente em <Code>http://localhost:9119</Code>.</p>
+          <p>
+            Abre automaticamente em <Code>http://localhost:9119</Code>. O
+            <strong> gateway (o processo da IA) sobe junto automaticamente</strong> —
+            você não precisa iniciá-lo à parte.
+          </p>
         </Step>
-
-        <Step n={2} title="Navegar pelo dashboard">
-          <p>A barra lateral esquerda tem todas as seções:</p>
-          <ul className="list-disc pl-4 space-y-1">
-            <li><strong>Chat</strong> — conversa direta com o agente</li>
-            <li><strong>Sessões</strong> — histórico de todas as conversas</li>
-            <li><strong>Fleet</strong> — gerenciar agentes rodando</li>
-            <li><strong>Configuração</strong> — todos os parâmetros</li>
-            <li><strong>Chaves</strong> — chaves de API</li>
-          </ul>
+        <Step n={3} title="Deixar aberto no navegador">
+          <p>
+            Enquanto o terminal com <Code>mangaba dashboard</Code> estiver
+            rodando, o dashboard fica disponível. Para parar, feche o terminal
+            ou pressione <Code>Ctrl+C</Code>.
+          </p>
         </Step>
       </Section>
 
-      <Section title="5. Primeira conversa">
-        <Step n={1} title="Abrir o chat">
-          <p>Clique em <strong>Chat</strong> na barra lateral.</p>
+      <Section title="2. Conhecer a barra lateral">
+        <Step n={1} title="O que é cada aba">
+          <p>Tudo é acessado pela barra lateral à esquerda:</p>
+          <ul className="list-disc pl-4 space-y-1">
+            <li><UI>Chat</UI> — conversar direto com o agente</li>
+            <li><UI>Sessões</UI> — histórico de todas as conversas</li>
+            <li><UI>Modelos</UI> — escolher o modelo de IA</li>
+            <li><UI>Habilidades</UI> — ligar/desligar capacidades (busca web, GitHub, etc.)</li>
+            <li><UI>Plugins</UI> — instalar extensões</li>
+            <li><UI>Cron</UI> — agendar tarefas automáticas</li>
+            <li><UI>Perfis: multiagentes</UI> — criar e editar agentes</li>
+            <li><UI>Fleet</UI> — ligar/desligar agentes e ver seus canais</li>
+            <li><UI>Kanban</UI> — fila de tarefas para vários agentes</li>
+            <li><UI>Roteamento</UI> — matriz de qual agente usa qual canal</li>
+            <li><UI>Sessões Globais</UI> — conversas de todos os agentes juntas</li>
+            <li><UI>Configuração</UI> — todos os parâmetros</li>
+            <li><UI>Chaves</UI> — tokens e chaves de API</li>
+          </ul>
         </Step>
+        <Step n={2} title="Modo dia/noite e idioma">
+          <p>
+            No rodapé da barra lateral há os botões de tema (sol/lua) e de
+            idioma. O dashboard já vem em português.
+          </p>
+        </Step>
+      </Section>
 
+      <Section title="3. Escolher o modelo de IA">
+        <Step n={1} title="Abrir a aba Modelos">
+          <p>Clique em <UI>Modelos</UI> na barra lateral.</p>
+        </Step>
+        <Step n={2} title="Selecionar o provedor e o modelo">
+          <p>Você tem três caminhos:</p>
+          <ul className="list-disc pl-4 space-y-1">
+            <li><strong>Ollama (local, grátis)</strong> — instale o Ollama em <Code>ollama.com</Code>, baixe um modelo, e ele aparece como opção aqui.</li>
+            <li><strong>OpenAI / Anthropic (nuvem)</strong> — cole a chave na aba <UI>Chaves</UI> e selecione o modelo aqui.</li>
+          </ul>
+          <p>Selecione o modelo desejado e salve. A mudança é aplicada na hora.</p>
+        </Step>
+        <Tip>
+          Para uso local e gratuito, modelos como <Code>qwen2.5:7b-instruct</Code>
+          ou <Code>llama3.2:3b</Code> são leves e rápidos. O Mangaba exige
+          modelos com pelo menos 64k de contexto.
+        </Tip>
+      </Section>
+
+      <Section title="4. Primeira conversa">
+        <Step n={1} title="Abrir o Chat">
+          <p>Clique em <UI>Chat</UI> na barra lateral.</p>
+        </Step>
         <Step n={2} title="Enviar uma mensagem">
-          <p>Digite qualquer mensagem no campo de texto e pressione Enter ou clique em Enviar.</p>
+          <p>Digite e pressione Enter:</p>
           <Block>{`Olá! Quem é você e o que você pode fazer?`}</Block>
+          <p>A resposta aparece em streaming, token a token.</p>
         </Step>
-
-        <Step n={3} title="Aguardar a resposta">
-          <p>O agente processa e responde em tempo real. O streaming mostra cada token conforme é gerado.</p>
-        </Step>
-
-        <Tip>Cada conversa cria uma <strong>sessão</strong> independente com seu próprio contexto e histórico. Você pode ver todas as sessões em <strong>Sessões</strong>.</Tip>
+        <Tip>
+          A primeira resposta de um modelo local pode demorar mais (o modelo é
+          carregado na memória). As seguintes são bem mais rápidas.
+        </Tip>
       </Section>
 
-      <Section title="6. Parando o gateway">
-        <Step n={1} title="Parar o gateway">
-          <Block>{`mangaba gateway stop`}</Block>
-          <p>Ou pelo dashboard: <strong>Sistema</strong> → <strong>Parar gateway</strong>.</p>
+      <Section title="5. Ver o histórico">
+        <Step n={1} title="Abrir Sessões">
+          <p>
+            Clique em <UI>Sessões</UI>. Cada conversa fica salva com data,
+            canal de origem e número de mensagens.
+          </p>
         </Step>
-
-        <Warn>Parar o gateway encerra o agente imediatamente. Sessões ativas serão interrompidas. O histórico fica salvo.</Warn>
-      </Section>
-    </div>
-  );
-}
-
-function MediumDocs() {
-  return (
-    <div className="space-y-4">
-      <Section title="1. Profiles — agentes com personalidades diferentes">
-        <Step n={1} title="Criar um novo profile">
-          <p>Um profile é um agente completamente independente: SOUL próprio, modelo próprio, memória própria.</p>
-          <Block>{`mangaba profile create suporte
-mangaba profile create vendas
-mangaba profile create pesquisa`}</Block>
-          <p>Isso cria pastas em <Code>~/.mangaba/profiles/nome/</Code>.</p>
+        <Step n={2} title="Retomar uma conversa">
+          <p>
+            Clique numa sessão e use <UI>Retomar no Chat</UI> — o agente lembra
+            do contexto completo daquela conversa.
+          </p>
         </Step>
-
-        <Step n={2} title="Editar a personalidade (SOUL.md)">
-          <p>O SOUL.md é o prompt de sistema do agente. Edite em:</p>
-          <Block>{`~/.mangaba/profiles/suporte/SOUL.md`}</Block>
-          <p>Ou pelo dashboard: <strong>Perfis</strong> → card do agente → <strong>Editar SOUL</strong>.</p>
-          <p>Exemplo de SOUL.md para um agente de suporte:</p>
-          <Block>{`# Agente de Suporte Técnico
-
-Você é um especialista em suporte técnico da empresa XPTO.
-Responda sempre em português, de forma objetiva e clara.
-Sempre confirme o problema antes de sugerir soluções.
-Quando não souber a resposta, diga isso honestamente.`}</Block>
-        </Step>
-
-        <Step n={3} title="Configurar o modelo do profile">
-          <p>Cada profile pode usar um modelo diferente. Edite <Code>~/.mangaba/profiles/suporte/config.yaml</Code>:</p>
-          <Block>{`model: gemma3
-provider: ollama`}</Block>
-        </Step>
-
-        <Step n={4} title="Iniciar o profile">
-          <Block>{`mangaba fleet start suporte`}</Block>
-          <p>Ou pelo dashboard: <strong>Fleet</strong> → card do agente → <strong>Subir</strong>.</p>
-        </Step>
-      </Section>
-
-      <Section title="2. Conectar ao Telegram">
-        <Step n={1} title="Criar o bot no Telegram">
-          <p>Abra o Telegram e procure por <Code>@BotFather</Code>. Envie:</p>
-          <Block>{`/newbot`}</Block>
-          <p>Siga as instruções: escolha nome e username do bot. Ao final, você recebe o <strong>token</strong>.</p>
-        </Step>
-
-        <Step n={2} title="Salvar o token no Mangaba">
-          <Block>{`mangaba env set TELEGRAM_BOT_TOKEN=7123456789:AAF...`}</Block>
-          <p>Ou pelo dashboard: <strong>Chaves</strong> → campo <strong>TELEGRAM_BOT_TOKEN</strong>.</p>
-        </Step>
-
-        <Step n={3} title="Habilitar o Telegram no config.yaml">
-          <p>Edite <Code>~/.mangaba/config.yaml</Code>:</p>
-          <Block>{`platforms:
-  telegram:
-    enabled: true
-    home_channel:
-      chat_id: "SEU_CHAT_ID"   # seu chat pessoal como operador
-      name: "Operador"`}</Block>
-          <Tip>Para saber seu chat_id: envie qualquer mensagem para <Code>@userinfobot</Code> no Telegram.</Tip>
-        </Step>
-
-        <Step n={4} title="Reiniciar o gateway">
-          <Block>{`mangaba gateway restart`}</Block>
-          <p>Agora envie uma mensagem para o bot no Telegram — ele deve responder.</p>
-        </Step>
-
-        <Step n={5} title="Adicionar o bot em um grupo (opcional)">
-          <p>Adicione o bot ao grupo normalmente pelo Telegram. Por padrão, cada usuário do grupo tem sua própria sessão de conversa.</p>
-          <Tip>Para que todos no grupo compartilhem a mesma sessão, adicione em <Code>config.yaml</Code>:<br /><Code>group_sessions_per_user: false</Code></Tip>
-        </Step>
-      </Section>
-
-      <Section title="3. Conectar ao Discord">
-        <Step n={1} title="Criar a aplicação no Discord">
-          <p>Acesse <Code>https://discord.com/developers/applications</Code> → <strong>New Application</strong> → dê um nome.</p>
-        </Step>
-
-        <Step n={2} title="Criar o bot e copiar o token">
-          <p>Aba <strong>Bot</strong> → <strong>Add Bot</strong> → <strong>Reset Token</strong> → copie o token.</p>
-          <p>Na mesma aba, ative <strong>Message Content Intent</strong> (obrigatório para ler mensagens).</p>
-        </Step>
-
-        <Step n={3} title="Convidar o bot para o servidor">
-          <p>Aba <strong>OAuth2</strong> → <strong>URL Generator</strong>:</p>
-          <ul className="list-disc pl-4 space-y-1">
-            <li>Scopes: <Code>bot</Code></li>
-            <li>Permissions: <Code>Send Messages</Code>, <Code>Read Message History</Code>, <Code>View Channels</Code></li>
-          </ul>
-          <p>Copie a URL gerada, abra no navegador e convide para o seu servidor.</p>
-        </Step>
-
-        <Step n={4} title="Configurar no Mangaba">
-          <Block>{`mangaba env set DISCORD_BOT_TOKEN=MTI3...`}</Block>
-          <Block>{`platforms:
-  discord:
-    enabled: true
-    home_channel:
-      chat_id: "ID_DO_CANAL"   # ID do canal #operador do seu servidor`}</Block>
-          <Tip>Para obter o ID de um canal no Discord: Configurações → Avançado → Modo Desenvolvedor → clique direito no canal → Copiar ID.</Tip>
-        </Step>
-      </Section>
-
-      <Section title="4. Habilidades (Skills)">
-        <Step n={1} title="Ver habilidades disponíveis">
-          <p>Dashboard → <strong>Habilidades</strong>. São 98+ habilidades pré-instaladas: GitHub, Airtable, Telegram, WhatsApp, ArXiv, buscas web, etc.</p>
-        </Step>
-
-        <Step n={2} title="Ativar uma habilidade">
-          <p>Clique no toggle ao lado da habilidade. Algumas precisam de chave de API — um aviso aparece indicando qual variável configurar.</p>
-        </Step>
-
-        <Step n={3} title="Testar a habilidade no chat">
-          <Block>{`Pesquise no arXiv sobre "large language models" e me dê os 3 artigos mais recentes.`}</Block>
-          <p>O agente vai usar automaticamente a habilidade <Code>arxiv</Code> para buscar os artigos.</p>
-        </Step>
-      </Section>
-
-      <Section title="5. Agendamento com Cron">
-        <Step n={1} title="Criar uma tarefa agendada">
-          <p>Dashboard → <strong>Cron</strong> → <strong>Nova tarefa cron</strong>.</p>
-        </Step>
-
-        <Step n={2} title="Preencher os campos">
-          <ul className="list-disc pl-4 space-y-1">
-            <li><strong>Nome</strong>: ex. "Resumo diário"</li>
-            <li><strong>Prompt</strong>: o que o agente deve fazer (ex. "Faça um resumo das notícias de IA de hoje")</li>
-            <li><strong>Agendamento</strong>: expressão cron — ex. <Code>0 9 * * *</Code> = todo dia às 9h</li>
-            <li><strong>Entregar para</strong>: onde o resultado chega (Telegram, Discord, Slack, etc.)</li>
-          </ul>
-        </Step>
-
-        <Step n={3} title="Referência de expressões cron">
-          <Block>{`┌─ minuto (0-59)
-│ ┌─ hora (0-23)
-│ │ ┌─ dia do mês (1-31)
-│ │ │ ┌─ mês (1-12)
-│ │ │ │ ┌─ dia da semana (0=dom, 6=sab)
-│ │ │ │ │
-0 9 * * *    → todo dia às 09:00
-0 8 * * 1    → toda segunda às 08:00
-*/30 * * * * → a cada 30 minutos
-0 9,18 * * * → às 09:00 e 18:00`}</Block>
-        </Step>
-      </Section>
-
-      <Section title="6. Gerenciando sessões">
-        <Step n={1} title="Ver histórico completo">
-          <p>Dashboard → <strong>Sessões</strong>. Todas as conversas ficam salvas com data, plataforma, contagem de mensagens e preview.</p>
-        </Step>
-
-        <Step n={2} title="Pesquisar no histórico">
-          <p>Use o campo de pesquisa para buscar por conteúdo das mensagens — pesquisa full-text no banco de dados local.</p>
-        </Step>
-
-        <Step n={3} title="Retomar uma sessão no chat">
-          <p>Clique em uma sessão → botão <strong>Retomar no Chat</strong>. O agente lembra do contexto completo.</p>
-        </Step>
-
-        <Step n={4} title="Ver sessões de todos os profiles">
-          <p>Dashboard → <strong>Sessões Globais</strong>. Mostra sessões de todos os agentes da frota em uma única lista.</p>
-        </Step>
-      </Section>
-    </div>
-  );
-}
-
-function AdvancedDocs() {
-  return (
-    <div className="space-y-4">
-      <Section title="1. Dois agentes no mesmo canal">
-        <Step n={1} title="Entender o modelo de isolamento">
-          <p>Cada profile = processo de gateway independente. Para ter dois agentes no mesmo Telegram, você precisa de dois bots (dois tokens diferentes) — cada um em um profile separado.</p>
-        </Step>
-
-        <Step n={2} title="Criar os dois profiles">
-          <Block>{`mangaba profile create suporte
-mangaba profile create vendas`}</Block>
-        </Step>
-
-        <Step n={3} title="Configurar tokens diferentes por profile">
-          <Block>{`# Profile suporte
-echo "TELEGRAM_BOT_TOKEN=<token_bot_suporte>" >> ~/.mangaba/profiles/suporte/.env
-
-# Profile vendas
-echo "TELEGRAM_BOT_TOKEN=<token_bot_vendas>" >> ~/.mangaba/profiles/vendas/.env`}</Block>
-          <p>Ou pelo dashboard: selecione o profile na dropdown → <strong>Chaves</strong>.</p>
-        </Step>
-
-        <Step n={4} title="Habilitar o Telegram em cada profile">
-          <p>Edite <Code>~/.mangaba/profiles/suporte/config.yaml</Code> e <Code>~/.mangaba/profiles/vendas/config.yaml</Code> com suas respectivas configs de plataforma.</p>
-        </Step>
-
-        <Step n={5} title="Iniciar os dois agentes">
-          <Block>{`mangaba fleet start suporte
-mangaba fleet start vendas
-
-# Verificar status
-mangaba fleet list`}</Block>
-          <p>Agora você tem dois bots rodando no mesmo Telegram, com personalidades, memórias e modelos diferentes.</p>
-        </Step>
-
-        <Tip>Use <strong>Fleet → Roteamento</strong> no dashboard para ver a matriz completa de profiles × canais e identificar conflitos de configuração.</Tip>
-      </Section>
-
-      <Section title="2. Kanban multi-worker (somente via CLI)">
-        <Warn>O Kanban ainda não tem interface no dashboard — toda a gestão é feita pela CLI (<Code>mangaba kanban …</Code>). As seções abaixo usam comandos de terminal.</Warn>
-
-        <Step n={1} title="Entender o Kanban de tarefas">
-          <p>O Kanban permite criar tarefas complexas que vários agentes (workers) processam em paralelo. Cada tarefa passa por estados: <strong>triagem → pronto → rodando → bloqueado → concluído</strong>.</p>
-        </Step>
-
-        <Step n={2} title="Inicializar e criar um quadro">
-          <Block>{`# Cria o kanban.db (idempotente)
-mangaba kanban init
-
-# Cria um quadro e ativa
-mangaba kanban boards create dev-tasks
-mangaba kanban boards switch dev-tasks
-
-# Listar quadros
-mangaba kanban boards list`}</Block>
-        </Step>
-
-        <Step n={3} title="Criar tarefas">
-          <p>Descreva a tarefa em linguagem natural — um agente "especificador" detalha a tarefa automaticamente antes da execução.</p>
-          <Block>{`mangaba kanban create "Refatorar o módulo de autenticação e adicionar testes"
-
-# Listar tarefas do quadro ativo
-mangaba kanban list
-
-# Ver detalhes de uma tarefa (comentários + eventos)
-mangaba kanban show <id-da-tarefa>`}</Block>
-        </Step>
-
-        <Step n={4} title="Rodar o swarm de workers">
-          <p>O comando <Code>swarm</Code> sobe múltiplos workers que consomem o quadro em paralelo.</p>
-          <Block>{`# Sobe workers que processam as tarefas prontas do quadro ativo
-mangaba kanban swarm
-
-# Acompanhar o andamento
-mangaba kanban list`}</Block>
-        </Step>
-
-        <Step n={5} title="Gerenciar tarefas travadas">
-          <Block>{`# Reatribuir / liberar uma tarefa presa
-mangaba kanban reclaim <id-da-tarefa>
-
-# Marcar como concluída manualmente
-mangaba kanban complete <id-da-tarefa>
-
-# Bloquear / desbloquear
-mangaba kanban block <id-da-tarefa>`}</Block>
-        </Step>
-
-        <Tip>Veja todos os subcomandos com <Code>mangaba kanban --help</Code> (boards, create, swarm, list, show, assign, reclaim, complete, block, link, comment, edit…).</Tip>
-      </Section>
-
-      <Section title="3. Plugins">
-        <Step n={1} title="Instalar um plugin do GitHub">
-          <Block>{`# Instalar pelo CLI
-mangaba plugins install owner/repo-name
-
-# ou equivalente
-mangaba plugins install https://github.com/owner/repo-name`}</Block>
-          <p>Ou pelo dashboard: <strong>Plugins</strong> → <strong>Instalar via GitHub / URL Git</strong>.</p>
-        </Step>
-
-        <Step n={2} title="Ativar o plugin">
-          <p>Após instalar, o plugin aparece em <strong>Plugins</strong> → lista. Clique em <strong>Ativar</strong>.</p>
-          <p>Plugins de provedor de modelo/memória aparecem em <strong>Plugins → Provedores</strong> — selecione e salve.</p>
-        </Step>
-
-        <Step n={3} title="Estrutura de um plugin (para desenvolvedores)">
-          <Block>{`meu-plugin/
-├── plugin.yaml          # metadados: nome, versão, habilidades
-├── skills/
-│   └── minha-skill.py   # lógica da habilidade
-└── dashboard/           # opcional: extensão do dashboard (React)
-    └── manifest.json`}</Block>
-          <Block>{`# plugin.yaml mínimo
-name: meu-plugin
-version: "1.0.0"
-description: "Meu plugin personalizado"
-skills:
-  - name: minha-skill
-    description: "Faz algo útil"
-    entry: skills/minha-skill.py`}</Block>
-        </Step>
-
-        <Step n={4} title="Testar o plugin localmente">
-          <Block>{`# Instalar a partir de um diretório local
-mangaba plugins install /caminho/para/meu-plugin`}</Block>
-        </Step>
-      </Section>
-
-      <Section title="4. Configuração avançada (config.yaml completo)">
-        <Step n={1} title="Localização do arquivo">
-          <Block>{`~/.mangaba/config.yaml                    # profile padrão
-~/.mangaba/profiles/nome/config.yaml     # profile específico`}</Block>
-        </Step>
-
-        <Step n={2} title="Seções principais">
-          <Block>{`# Modelo e provedor
-model: gemma3
-provider: ollama
-
-# Comportamento do agente
-agent:
-  max_turns: 90               # max iterações por turno
-  memory_window: 50           # mensagens no contexto
-  compression: true           # comprimir histórico longo
-
-# Plataformas (canais)
-platforms:
-  telegram:
-    enabled: true
-    home_channel:
-      chat_id: "123456"
-      name: "Operador"
-    group_sessions_per_user: true   # sessão por usuário em grupos
-    thread_sessions_per_user: false  # sessão compartilhada em threads
-
-  discord:
-    enabled: false
-    home_channel:
-      chat_id: "999888777"
-
-  slack:
-    enabled: false
-
-  whatsapp:
-    enabled: false
-    home_channel:
-      chat_id: "5511999999999"
-
-  email:
-    enabled: false
-    smtp_host: smtp.gmail.com
-    smtp_port: 587
-
-# Memória
-memory:
-  provider: local             # local | redis | postgres
-  max_memories: 1000
-
-# Kanban
-kanban:
-  enabled: false
-  board: main
-  max_concurrent: 1
-
-# Segurança
-security:
-  allowed_users: []           # lista de user_ids permitidos (vazio = todos)
-  rate_limit: 60              # máx msgs/minuto por usuário
-
-# Logs
-logging:
-  level: INFO                 # DEBUG | INFO | WARNING | ERROR`}</Block>
-        </Step>
-      </Section>
-
-      <Section title="5. Deploy em VPS / Produção">
-        <Step n={1} title="Instalar no servidor">
-          <Block>{`# Ubuntu/Debian
-sudo apt update && sudo apt install -y python3-pip pipx
-pipx install mangaba-agent
-pipx ensurepath
-
-# Verificar
-mangaba --version`}</Block>
-        </Step>
-
-        <Step n={2} title="Configurar o ambiente">
-          <Block>{`mangaba init
-mangaba env set OPENAI_API_KEY=sk-...
-# ou configure Ollama no servidor`}</Block>
-        </Step>
-
-        <Step n={3} title="Rodar o gateway em segundo plano (systemd)">
-          <Block>{`# Criar serviço systemd
-sudo nano /etc/systemd/system/mangaba.service`}</Block>
-          <Block>{`[Unit]
-Description=Mangaba Agent Gateway
-After=network.target
-
-[Service]
-Type=simple
-User=ubuntu
-ExecStart=/home/ubuntu/.local/bin/mangaba gateway start --foreground
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target`}</Block>
-          <Block>{`sudo systemctl enable mangaba
-sudo systemctl start mangaba
-sudo systemctl status mangaba`}</Block>
-        </Step>
-
-        <Step n={4} title="Acessar o dashboard remotamente via SSH tunnel">
-          <Block>{`# No seu computador local:
-ssh -L 9119:localhost:9119 usuario@ip-do-servidor
-
-# Agora abra no navegador:
-# http://localhost:9119`}</Block>
-        </Step>
-
-        <Step n={5} title="Expor o dashboard com Nginx (opcional)">
-          <Block>{`# /etc/nginx/sites-available/mangaba
-server {
-    listen 80;
-    server_name meuagente.com;
-
-    location / {
-        proxy_pass http://localhost:9119;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-}`}</Block>
-          <Warn>Expor o dashboard publicamente sem autenticação é um risco de segurança. Configure autenticação básica ou VPN antes de fazer isso em produção.</Warn>
-        </Step>
-
-        <Step n={6} title="Atualizar o Mangaba">
-          <Block>{`pipx upgrade mangaba-agent`}</Block>
-          <p>Ou pelo dashboard: <strong>Sistema</strong> → <strong>Atualizar Mangaba</strong>.</p>
-        </Step>
-      </Section>
-
-      <Section title="6. Memória e contexto avançado">
-        <Step n={1} title="Como funciona a memória">
-          <p>O Mangaba usa dois tipos de memória:</p>
-          <ul className="list-disc pl-4 space-y-1">
-            <li><strong>Contexto da sessão</strong>: histórico da conversa atual (janela configurável)</li>
-            <li><strong>Memória de longo prazo</strong>: fatos salvos explicitamente pelo agente entre sessões</li>
-          </ul>
-        </Step>
-
-        <Step n={2} title="Salvar um fato na memória de longo prazo">
-          <p>Durante a conversa, diga ao agente:</p>
-          <Block>{`Lembre que meu nome é João e trabalho com análise de dados.`}</Block>
-          <p>O agente salva em <Code>~/.mangaba/memories/</Code> e usa em conversas futuras.</p>
-        </Step>
-
-        <Step n={3} title="Compressão de contexto">
-          <p>Quando o histórico fica longo, o Mangaba comprime automaticamente mensagens antigas em um resumo. Configure:</p>
-          <Block>{`agent:
-  compression: true
-  memory_window: 50      # manter últimas 50 mensagens íntegras
-  context_window: 65536  # max tokens no contexto (0 = auto-detect)`}</Block>
-        </Step>
-      </Section>
-
-      <Section title="7. CLI vs Dashboard — quando usar cada um">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 pr-4 font-semibold">Tarefa</th>
-                <th className="text-left py-2 pr-4 font-semibold">CLI</th>
-                <th className="text-left py-2 font-semibold">Dashboard</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {[
-                ["Iniciar/parar gateway", "✅ recomendado", "✅"],
-                ["Configurar modelo", "✅ editar config.yaml", "✅ formulário visual"],
-                ["Gerenciar habilidades", "⚠ editar config.yaml", "✅ recomendado"],
-                ["Criar cron jobs", "⚠ editar cron.yaml", "✅ recomendado"],
-                ["Ver logs em tempo real", "✅ tail -f gateway.log", "✅"],
-                ["Múltiplos profiles (fleet)", "✅ recomendado", "✅"],
-                ["Deploy/scripts", "✅ recomendado", "❌"],
-                ["Kanban tarefas", "✅ único caminho", "❌ sem UI ainda"],
-                ["Analytics de uso", "❌", "✅ recomendado"],
-              ].map(([task, cli, dash]) => (
-                <tr key={task}>
-                  <td className="py-2 pr-4">{task}</td>
-                  <td className="py-2 pr-4 text-muted-foreground">{cli}</td>
-                  <td className="py-2 text-muted-foreground">{dash}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </Section>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Main page
+// Nível 2 — Conectar canais e automações pelo dashboard
+// ---------------------------------------------------------------------------
+
+function MediumDocs() {
+  return (
+    <div className="space-y-4">
+      <Section title="1. Chaves de API (aba Chaves)">
+        <Step n={1} title="Onde ficam as chaves">
+          <p>
+            Clique em <UI>Chaves</UI>. É aqui que ficam todos os tokens e
+            chaves: <Code>TELEGRAM_BOT_TOKEN</Code>, <Code>OPENAI_API_KEY</Code>,
+            <Code>DISCORD_BOT_TOKEN</Code>, etc.
+          </p>
+        </Step>
+        <Step n={2} title="Adicionar/editar uma chave">
+          <p>
+            Preencha o campo da variável, cole o valor e salve. As chaves ficam
+            mascaradas; use o botão de revelar se precisar conferir.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="2. Conectar o Telegram (passo a passo)">
+        <Step n={1} title="Criar o bot no Telegram">
+          <p>
+            No Telegram, procure por <Code>@BotFather</Code> e envie
+            <Code>/newbot</Code>. Escolha um nome e um username terminando em
+            <Code>bot</Code>. Ao final você recebe o <strong>token</strong>.
+          </p>
+        </Step>
+        <Step n={2} title="Colar o token no dashboard">
+          <p>
+            Vá em <UI>Chaves</UI>, preencha <Code>TELEGRAM_BOT_TOKEN</Code> com
+            o valor recebido e salve.
+          </p>
+        </Step>
+        <Step n={3} title="Habilitar o Telegram">
+          <p>
+            Vá em <UI>Configuração</UI> e habilite a plataforma Telegram (seção
+            de plataformas). Informe o <Code>chat_id</Code> do seu operador, se
+            quiser receber avisos.
+          </p>
+          <Tip>
+            Para descobrir seu chat_id, envie qualquer mensagem para
+            <Code>@userinfobot</Code> no Telegram.
+          </Tip>
+        </Step>
+        <Step n={4} title="Reiniciar o gateway">
+          <p>
+            Na barra lateral, seção <UI>Sistema</UI>, clique em
+            <UI>Reiniciar gateway</UI>. Pronto — mande uma mensagem ao bot no
+            Telegram e ele responde.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="3. Habilidades (aba Habilidades)">
+        <Step n={1} title="Ligar/desligar capacidades">
+          <p>
+            Clique em <UI>Habilidades</UI>. São dezenas de capacidades
+            pré-instaladas (busca web, GitHub, arXiv, etc.). Use o interruptor
+            ao lado de cada uma para ativar.
+          </p>
+        </Step>
+        <Step n={2} title="Habilidades que precisam de chave">
+          <p>
+            Algumas mostram um aviso indicando qual chave configurar — adicione
+            em <UI>Chaves</UI> e a habilidade fica pronta.
+          </p>
+        </Step>
+        <Step n={3} title="Testar no Chat">
+          <Block>{`Pesquise no arXiv os 3 artigos mais recentes sobre LLMs.`}</Block>
+          <p>O agente usa a habilidade automaticamente.</p>
+        </Step>
+      </Section>
+
+      <Section title="4. Plugins (aba Plugins)">
+        <Step n={1} title="Instalar do GitHub">
+          <p>
+            Clique em <UI>Plugins</UI> → <UI>Instalar via GitHub / URL Git</UI>,
+            cole o endereço do repositório e confirme.
+          </p>
+        </Step>
+        <Step n={2} title="Ativar">
+          <p>
+            Após instalar, o plugin aparece na lista. Clique em <UI>Ativar</UI>.
+            Plugins de provedor (modelo/memória) aparecem em
+            <UI>Plugins → Provedores</UI>.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="5. Agendar tarefas (aba Cron)">
+        <Step n={1} title="Nova tarefa agendada">
+          <p>Clique em <UI>Cron</UI> → <UI>Nova tarefa cron</UI>.</p>
+        </Step>
+        <Step n={2} title="Preencher">
+          <ul className="list-disc pl-4 space-y-1">
+            <li><strong>Nome</strong> — ex. "Resumo diário"</li>
+            <li><strong>Prompt</strong> — o que o agente deve fazer</li>
+            <li><strong>Agendamento</strong> — expressão cron (ex. <Code>0 9 * * *</Code> = todo dia às 9h)</li>
+            <li><strong>Entregar para</strong> — onde o resultado chega (Telegram, Discord, etc.)</li>
+          </ul>
+        </Step>
+        <Step n={3} title="Referência rápida de cron">
+          <Block>{`0 9 * * *      → todo dia às 09:00
+0 8 * * 1      → toda segunda às 08:00
+*/30 * * * *   → a cada 30 minutos
+0 9,18 * * *   → às 09:00 e 18:00`}</Block>
+        </Step>
+      </Section>
+
+      <Section title="6. Criar e editar agentes (aba Perfis: multiagentes)">
+        <Step n={1} title="Criar um agente">
+          <p>
+            Clique em <UI>Perfis: multiagentes</UI> → criar novo perfil. Cada
+            perfil é um agente independente, com personalidade, modelo e memória
+            próprios.
+          </p>
+        </Step>
+        <Step n={2} title="Editar a personalidade (SOUL)">
+          <p>
+            No card do agente, use <UI>Editar SOUL</UI> para definir o prompt de
+            sistema dele. Exemplo:
+          </p>
+          <Block>{`Você é um especialista em suporte técnico da empresa XPTO.
+Responda sempre em português, de forma objetiva.
+Confirme o problema antes de sugerir soluções.`}</Block>
+        </Step>
+      </Section>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Nível 3 — Multi-agente, frota e Kanban pelo dashboard
+// ---------------------------------------------------------------------------
+
+function AdvancedDocs() {
+  return (
+    <div className="space-y-4">
+      <Section title="1. Frota de agentes (aba Fleet)">
+        <Step n={1} title="Ligar/desligar agentes">
+          <p>
+            Clique em <UI>Fleet</UI>. Cada agente (perfil) aparece com seu
+            status. Use <UI>Subir</UI>, <UI>Parar</UI> e <UI>Reiniciar</UI> para
+            controlá-los.
+          </p>
+        </Step>
+        <Step n={2} title="Ver os canais de cada agente">
+          <p>
+            No card do agente, expanda <UI>Canais</UI> para ver em quais
+            plataformas ele está conectado e se o token está configurado.
+          </p>
+        </Step>
+        <Step n={3} title="Aviso para todos (broadcast)">
+          <p>
+            O campo de broadcast no topo envia uma mensagem ao canal-operador de
+            todos os agentes de uma vez.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="2. Dois agentes no mesmo canal">
+        <Step n={1} title="Entender o modelo">
+          <p>
+            Cada agente é um processo independente. Para ter dois agentes no
+            mesmo Telegram, você precisa de <strong>dois bots</strong> (dois
+            tokens) — um por perfil.
+          </p>
+        </Step>
+        <Step n={2} title="Criar os perfis">
+          <p>
+            Em <UI>Perfis: multiagentes</UI> (ou em <UI>Roteamento</UI> →
+            <UI>Novo profile</UI>), crie dois perfis, ex. <Code>suporte</Code> e
+            <Code>vendas</Code>.
+          </p>
+        </Step>
+        <Step n={3} title="Token diferente por perfil">
+          <p>
+            Selecione o perfil no seletor de perfil do dashboard, vá em
+            <UI>Chaves</UI> e grave o <Code>TELEGRAM_BOT_TOKEN</Code> daquele
+            bot. Repita para o outro perfil com o token do segundo bot.
+          </p>
+        </Step>
+        <Step n={4} title="Subir os dois">
+          <p>
+            Em <UI>Fleet</UI>, clique em <UI>Subir</UI> nos dois agentes. Agora
+            há dois bots rodando, com personalidades e modelos diferentes.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="3. Roteamento (aba Roteamento)">
+        <Step n={1} title="Matriz de canais">
+          <p>
+            Clique em <UI>Roteamento</UI>. A matriz mostra cada perfil (linhas)
+            × cada canal (colunas): ✅ configurado com token, ⚠ sem token, —
+            não configurado. Ótimo para detectar conflitos de configuração.
+          </p>
+        </Step>
+        <Step n={2} title="Criar perfil rápido">
+          <p>
+            O botão <UI>Novo profile</UI> cria um perfil direto daqui.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="4. Sessões Globais (aba Sessões Globais)">
+        <Step n={1} title="Conversas de todos os agentes">
+          <p>
+            Clique em <UI>Sessões Globais</UI> para ver, numa lista única, as
+            conversas de todos os perfis da frota — com badge colorido por
+            agente (verde = ativo, cinza = parado).
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="5. Kanban (aba Kanban)">
+        <Step n={1} title="Criar um quadro">
+          <p>
+            Clique em <UI>Kanban</UI> → <UI>Novo quadro</UI> e dê um nome
+            (slug). Você pode ter vários quadros (projetos) e alternar entre
+            eles no seletor no topo.
+          </p>
+        </Step>
+        <Step n={2} title="Criar uma tarefa">
+          <p>
+            Clique em <UI>Nova tarefa</UI>. Descreva a tarefa, opcionalmente
+            atribua a um agente (worker). Marque <UI>Entrar em triagem</UI> se
+            quiser refinar a tarefa com IA antes de executar.
+          </p>
+        </Step>
+        <Step n={3} title="Refinar com IA (triagem)">
+          <p>
+            Em uma tarefa na coluna Triagem, abra o card e use:
+          </p>
+          <ul className="list-disc pl-4 space-y-1">
+            <li><UI>Especificar (IA)</UI> — a IA detalha o objetivo, critérios de aceite e escopo.</li>
+            <li><UI>Decompor (IA)</UI> — a IA quebra a tarefa em subtarefas com dependências.</li>
+          </ul>
+          <p>O processamento roda em segundo plano; clique em <UI>Atualizar</UI> em alguns segundos.</p>
+        </Step>
+        <Step n={4} title="Acompanhar a execução">
+          <p>
+            As tarefas se movem pelas colunas: triagem → a fazer → pronto →
+            rodando → bloqueado → revisão → concluído. Clique num card para ver
+            comentários, histórico, resumo do worker e ações (concluir,
+            bloquear, desbloquear, liberar claim, atribuir, comentar).
+          </p>
+        </Step>
+        <Tip>
+          Workers são perfis com tarefas atribuídas. Para que peguem e executem
+          as tarefas automaticamente, eles precisam estar no ar (aba
+          <UI>Fleet</UI>).
+        </Tip>
+      </Section>
+
+      <Section title="6. Sistema: reiniciar e atualizar">
+        <Step n={1} title="Reiniciar o gateway">
+          <p>
+            Na barra lateral, seção <UI>Sistema</UI> → <UI>Reiniciar gateway</UI>.
+            Use após mudar modelo, chaves ou plataformas.
+          </p>
+        </Step>
+        <Step n={2} title="Atualizar o Mangaba">
+          <p>
+            <UI>Sistema</UI> → <UI>Atualizar Mangaba</UI> baixa e aplica a
+            versão mais recente.
+          </p>
+        </Step>
+      </Section>
+
+      <Section title="7. Quando ainda é preciso o terminal">
+        <Step n={1} title="Coisas que continuam na CLI">
+          <ul className="list-disc pl-4 space-y-1">
+            <li><strong>Instalação inicial</strong> e abrir o dashboard (<Code>mangaba dashboard</Code>).</li>
+            <li><strong>Baixar modelos do Ollama</strong> (<Code>ollama pull llama3.2</Code>).</li>
+            <li><strong>Orquestração avançada do Kanban (swarm)</strong> — disparar vários workers em paralelo via <Code>mangaba kanban swarm</Code>. A criação e o acompanhamento de tarefas já são pelo dashboard; só o swarm em massa é CLI.</li>
+          </ul>
+          <Block>{`mangaba kanban --help     # todos os subcomandos do kanban via CLI`}</Block>
+        </Step>
+        <Warn>
+          Ao expor o dashboard fora do seu computador (VPS, rede), configure
+          autenticação ou VPN antes — ele dá acesso a chaves e configuração.
+        </Warn>
+      </Section>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Página
 // ---------------------------------------------------------------------------
 
 const LEVELS = [
   {
     id: "basic",
     label: "Básico",
-    sub: "Instalação, primeiro chat, gateway",
-    icon: Terminal,
+    sub: "Abrir o dashboard, modelo, primeiro chat",
+    icon: MousePointerClick,
     content: <BasicDocs />,
   },
   {
     id: "medium",
     label: "Médio",
-    sub: "Profiles, canais, skills, cron",
+    sub: "Chaves, canais, habilidades, cron, agentes",
     icon: Zap,
     content: <MediumDocs />,
   },
   {
     id: "advanced",
     label: "Avançado",
-    sub: "Multi-agente, plugins, produção",
+    sub: "Frota, multi-agente, roteamento, Kanban",
     icon: Rocket,
     content: <AdvancedDocs />,
   },
