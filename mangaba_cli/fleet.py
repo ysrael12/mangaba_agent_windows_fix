@@ -139,6 +139,57 @@ def restart_profile(name: str) -> Tuple[bool, str]:
 
 
 # ---------------------------------------------------------------------------
+# Ciclo de vida do agente (profile): criar e excluir. Reutiliza profiles.py.
+# ---------------------------------------------------------------------------
+def create_agent(name: str, description: Optional[str] = None) -> Tuple[bool, str]:
+    """Cria um novo agente (profile), clonando config/skills do default."""
+    name = (name or "").strip()
+    if not name:
+        return False, "Informe um nome: `create <nome>`."
+    try:
+        from mangaba_cli import profiles as _p
+        canon = _p.normalize_profile_name(name)
+        _p.validate_profile_name(canon)
+        if _p.profile_exists(canon):
+            return False, f"Já existe um agente `{canon}`."
+        _p.create_profile(canon, clone_config=True, description=description or None)
+    except ValueError as exc:
+        return False, f"Nome inválido: {exc}"
+    except Exception as exc:  # noqa: BLE001
+        return False, f"Falha ao criar `{name}`: {exc}"
+    extra = f" — {description}" if description else ""
+    return True, (f"✅ Agente `{canon}` criado{extra}.\n"
+                  f"Configure-o com `mangaba -p {canon} setup` e suba com "
+                  f"`mangaba fleet start {canon}`.")
+
+
+def delete_agent(name: str, confirm: bool = False) -> Tuple[bool, str]:
+    """Exclui um agente (profile). Exige confirmação; nunca apaga o default."""
+    name = (name or "").strip()
+    if not name:
+        return False, "Informe um nome: `delete <nome>`."
+    try:
+        from mangaba_cli import profiles as _p
+        canon = _p.normalize_profile_name(name)
+    except Exception:
+        canon = name
+    if canon == "default":
+        return False, "O agente `default` (controle) não pode ser excluído."
+    try:
+        from mangaba_cli import profiles as _p
+        if not _p.profile_exists(canon):
+            return False, f"Agente `{canon}` não encontrado."
+        if not confirm:
+            return False, (f"⚠️ Isso apaga *todo* o agente `{canon}` (config, skills, "
+                           f"memória, sessões) — irreversível.\n"
+                           f"Para confirmar: `/agent delete {canon} confirmar`")
+        _p.delete_profile(canon, yes=True)
+    except Exception as exc:  # noqa: BLE001
+        return False, f"Falha ao excluir `{canon}`: {exc}"
+    return True, f"🗑️ Agente `{canon}` excluído."
+
+
+# ---------------------------------------------------------------------------
 # Logs agregados
 # ---------------------------------------------------------------------------
 def read_gateway_log(profile_path: Path, lines: int = 40) -> str:

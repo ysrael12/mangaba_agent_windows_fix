@@ -167,3 +167,67 @@ def test_broadcast_skips_no_home_channel(patched, tmp_path, monkeypatch):
 def test_broadcast_empty_raises(patched):
     with pytest.raises(ValueError):
         fleet.broadcast("")
+
+
+# --- agent lifecycle (create/delete) ---
+
+def _fake_profiles(monkeypatch, exists=False):
+    calls = {}
+    monkeypatch.setattr("mangaba_cli.profiles.normalize_profile_name", lambda n: n.strip().lower())
+    monkeypatch.setattr("mangaba_cli.profiles.validate_profile_name", lambda n: None)
+    monkeypatch.setattr("mangaba_cli.profiles.profile_exists", lambda n: exists)
+    monkeypatch.setattr("mangaba_cli.profiles.create_profile",
+                        lambda n, **kw: calls.setdefault("created", (n, kw)))
+    monkeypatch.setattr("mangaba_cli.profiles.delete_profile",
+                        lambda n, yes=False: calls.setdefault("deleted", (n, yes)))
+    return calls
+
+
+def test_create_agent_ok(monkeypatch):
+    calls = _fake_profiles(monkeypatch, exists=False)
+    ok, msg = fleet.create_agent("empresa3", "Restaurante")
+    assert ok is True
+    assert calls["created"][0] == "empresa3"
+    assert calls["created"][1].get("clone_config") is True
+    assert "criado" in msg
+
+
+def test_create_agent_duplicate(monkeypatch):
+    _fake_profiles(monkeypatch, exists=True)
+    ok, msg = fleet.create_agent("empresa1")
+    assert ok is False and "Já existe" in msg
+
+
+def test_create_agent_empty_name(monkeypatch):
+    _fake_profiles(monkeypatch)
+    ok, msg = fleet.create_agent("")
+    assert ok is False
+
+
+def test_delete_agent_requires_confirm(monkeypatch):
+    calls = _fake_profiles(monkeypatch, exists=True)
+    ok, msg = fleet.delete_agent("empresa2", confirm=False)
+    assert ok is False
+    assert "confirmar" in msg.lower()
+    assert "deleted" not in calls  # nothing deleted without confirm
+
+
+def test_delete_agent_confirmed(monkeypatch):
+    calls = _fake_profiles(monkeypatch, exists=True)
+    ok, msg = fleet.delete_agent("empresa2", confirm=True)
+    assert ok is True
+    assert calls["deleted"] == ("empresa2", True)
+
+
+def test_delete_agent_refuses_default(monkeypatch):
+    calls = _fake_profiles(monkeypatch, exists=True)
+    ok, msg = fleet.delete_agent("default", confirm=True)
+    assert ok is False
+    assert "default" in msg
+    assert "deleted" not in calls
+
+
+def test_delete_agent_not_found(monkeypatch):
+    _fake_profiles(monkeypatch, exists=False)
+    ok, msg = fleet.delete_agent("ghost", confirm=True)
+    assert ok is False and "não encontrado" in msg

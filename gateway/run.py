@@ -7296,6 +7296,9 @@ class GatewayRunner:
         if canonical in ("fleet", "frota"):
             return await self._handle_fleet_command(event)
 
+        if canonical in ("agent", "agente"):
+            return await self._handle_agent_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -9627,6 +9630,43 @@ class GatewayRunner:
             return not is_capable_model(self._active_model_for_source(source))
         except Exception:
             return True  # na dúvida, ajuda
+
+    async def _handle_agent_command(self, event: MessageEvent) -> str:
+        """Handle /agent (ou /agente) — cria/exclui/lista agentes pelo canal.
+
+        Subcomandos: list (padrão) · create <nome> [descrição] · delete <nome> [confirmar].
+        Excluir exige confirmação e nunca remove o `default`. Gated por
+        ``gateway.expose_admin_commands`` (admin).
+        """
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split()
+        sub = parts[0].lower() if parts else "list"
+        try:
+            from mangaba_cli import fleet as _fleet
+        except Exception as exc:  # noqa: BLE001
+            return f"⚠ Erro ao carregar agentes: {exc}"
+
+        if sub in ("list", "ls", ""):
+            return _fleet.render_fleet(_fleet.collect_fleet(), markdown=True)
+
+        if sub in ("create", "criar", "novo", "new"):
+            if len(parts) < 2:
+                return ("Uso: `/agent create <nome> [descrição]`\n"
+                        "Ex.: `/agent create empresa3 Restaurante — atende e cobra PIX`")
+            name = parts[1]
+            description = args_str.split(maxsplit=2)[2].strip() if len(parts) > 2 else None
+            ok, msg = _fleet.create_agent(name, description)
+            return msg
+
+        if sub in ("delete", "excluir", "remover", "rm"):
+            if len(parts) < 2:
+                return "Uso: `/agent delete <nome>` (depois confirme)."
+            name = parts[1].strip("`")
+            confirm = len(parts) > 2 and parts[2].lower() in ("confirmar", "confirm", "sim", "yes")
+            ok, msg = _fleet.delete_agent(name, confirm=confirm)
+            return msg
+
+        return "Uso: `/agent [list | create <nome> [descrição] | delete <nome> [confirmar]]`"
 
     async def _handle_fleet_command(self, event: MessageEvent) -> str:
         """Handle /fleet (ou /frota) — gerencia N agentes (profiles) pelo canal.
