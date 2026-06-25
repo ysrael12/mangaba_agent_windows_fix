@@ -22,11 +22,12 @@ const SYSTEM_MONO =
   'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
 
 const DEFAULT_TYPOGRAPHY: ThemeTypography = {
-  fontSans: SYSTEM_SANS,
+  fontSans: `"Plus Jakarta Sans", ${SYSTEM_SANS}`,
   fontMono: SYSTEM_MONO,
+  fontUrl: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap",
   baseSize: "15px",
   lineHeight: "1.55",
-  letterSpacing: "0",
+  letterSpacing: "-0.01em",
 };
 
 const DEFAULT_LAYOUT: ThemeLayout = {
@@ -67,9 +68,9 @@ export const defaultTheme: DashboardTheme = {
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Inter", ${SYSTEM_SANS}`,
+    fontSans: `"Plus Jakarta Sans", ${SYSTEM_SANS}`,
     fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,400&display=swap",
+      "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap",
     letterSpacing: "-0.01em",
   },
   layout: { radius: "0.5rem", density: "comfortable" },
@@ -127,9 +128,9 @@ export const mangabaLightTheme: DashboardTheme = {
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Inter", ${SYSTEM_SANS}`,
+    fontSans: `"Plus Jakarta Sans", ${SYSTEM_SANS}`,
     fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,400&display=swap",
+      "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap",
     letterSpacing: "-0.01em",
   },
   layout: { radius: "0.5rem", density: "comfortable" },
