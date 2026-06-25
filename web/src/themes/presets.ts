@@ -21,13 +21,22 @@ const SYSTEM_SANS =
 const SYSTEM_MONO =
   'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
 
+/* Stack idêntico ao VS Code workbench — SF Pro no macOS, Segoe UI no
+   Windows, Noto Sans no Linux. Sem Google Fonts: resolve via sistema. */
+const VSCODE_SANS =
+  '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif';
+
+/* Cascadia Code/Mono — fonte do editor do VS Code. Fallback para as
+   demais monospace de sistema (Consolas no Windows, SF Mono no macOS). */
+const VSCODE_MONO =
+  '"Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", "Ubuntu Mono", Menlo, monospace';
+
 const DEFAULT_TYPOGRAPHY: ThemeTypography = {
-  fontSans: `"Plus Jakarta Sans", ${SYSTEM_SANS}`,
-  fontMono: SYSTEM_MONO,
-  fontUrl: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap",
-  baseSize: "15px",
-  lineHeight: "1.55",
-  letterSpacing: "-0.01em",
+  fontSans: VSCODE_SANS,
+  fontMono: VSCODE_MONO,
+  baseSize: "13px",
+  lineHeight: "1.5",
+  letterSpacing: "0",
 };
 
 const DEFAULT_LAYOUT: ThemeLayout = {
@@ -68,10 +77,9 @@ export const defaultTheme: DashboardTheme = {
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Plus Jakarta Sans", ${SYSTEM_SANS}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap",
-    letterSpacing: "-0.01em",
+    fontSans: VSCODE_SANS,
+    fontMono: VSCODE_MONO,
+    letterSpacing: "0",
   },
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
@@ -128,10 +136,9 @@ export const mangabaLightTheme: DashboardTheme = {
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Plus Jakarta Sans", ${SYSTEM_SANS}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap",
-    letterSpacing: "-0.01em",
+    fontSans: VSCODE_SANS,
+    fontMono: VSCODE_MONO,
+    letterSpacing: "0",
   },
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
