@@ -194,6 +194,7 @@ Depois, no próprio canal:
 | `/exemplos [baixa\|media\|alta]` | Catálogo de tarefas por complexidade |
 | `/mcp list` · `/mcp add <nome> <url>` · `/mcp remove <nome>` | Conectar servidores MCP |
 | `/mcp composio <api_key> gmail` | Conectar Google (hosted, sem Google Cloud) |
+| `/fleet` (ou `/frota`) | Frota de agentes: status de todos + reiniciar pelo canal |
 | `/tarefa <pedido>` (ou `/plano`) | Decompõe um pedido complexo em plano por etapas e executa |
 | `/followup add 2h :: <msg>` | Agenda follow-up proativo na conversa (heartbeat) |
 | `/security` (ou `/scan`) | Varredura de segurança: segredos vazados, `.env`, MCP/hooks |
@@ -379,6 +380,22 @@ resultados = await asyncio.gather(
     agente_pesquisa, agente_codigo, agente_docs
 )
 ```
+
+### Frota: gerenciar N agentes (multi-empresa)
+
+Cada **profile** é um agente independente (identidade, modelo, skills e memória próprios),
+rodando como **um gateway por profile** — ideal para multi-empresa/multi-bot, todos no mesmo
+Ollama. A frota é gerenciada de um lugar só (e pelo canal):
+
+```bash
+mangaba profile create empresa1 --description "Padaria — atende e gera PIX"
+mangaba fleet list           # quem está no ar, modelo, pid
+mangaba fleet restart empresa1
+mangaba fleet stop --all     # (start/stop em massa no terminal)
+```
+No canal-operador: `/fleet` (status de todos) e `/fleet restart <nome>`. Start/stop de outros
+agentes ficam no terminal por segurança. Isolamento total por agente = **dados de cada empresa
+separados** (exigência de LGPD).
 
 ### Papéis especializados (skills de escopo estreito)
 

@@ -10659,6 +10659,7 @@ _BUILTIN_SUBCOMMANDS = frozenset(
         "skills", "slack", "status", "tools", "uninstall", "update",
         "version", "webhook", "whatsapp", "chat", "secrets", "security-scan",
         "instincts", "instinct", "followups", "followup", "tarefa", "plano",
+        "fleet", "frota",
         # Help-ish invocations — plugin commands not being listed in
         # top-level --help is an acceptable trade-off for skipping an
         # expensive eager import of every bundled plugin module.
@@ -11239,6 +11240,53 @@ def main():
         return 0
 
     tarefa_parser.set_defaults(func=_dispatch_tarefa)
+
+    # =========================================================================
+    # fleet command — manage N agents (profiles) from one place.
+    # =========================================================================
+    fleet_parser = subparsers.add_parser(
+        "fleet",
+        aliases=["frota"],
+        help="Manage all agents (profiles): status, start, stop, restart",
+        description=(
+            "See and control your whole fleet of agents (profiles) at once: "
+            "which gateways are up, and start/stop/restart them. Each profile "
+            "is an independent agent (own identity/model/skills) running as one "
+            "gateway per profile."
+        ),
+    )
+    fleet_sub = fleet_parser.add_subparsers(dest="fleet_command")
+    fleet_sub.add_parser("list", help="List all agents and gateway status")
+    fleet_sub.add_parser("status", help="Alias of list")
+    for _act in ("start", "stop", "restart"):
+        _p = fleet_sub.add_parser(_act, help=f"{_act} a profile's gateway")
+        _p.add_argument("profile", nargs="?", help="Profile name")
+        _p.add_argument("--all", action="store_true", help=f"{_act} every profile")
+
+    def _dispatch_fleet(args):  # noqa: ANN001
+        from mangaba_cli import fleet as _fleet
+        cmd = getattr(args, "fleet_command", None) or "list"
+        if cmd in ("list", "status"):
+            print(_fleet.render_fleet(_fleet.collect_fleet()))
+            return 0
+        action = {"start": _fleet.start_profile, "stop": _fleet.stop_profile,
+                  "restart": _fleet.restart_profile}[cmd]
+        if getattr(args, "all", False):
+            members = _fleet.collect_fleet()
+            for m in members:
+                if m.is_default:
+                    continue  # never auto-act on the default/control profile
+                ok, msg = action(m.name)
+                print(("✓ " if ok else "✗ ") + msg)
+            return 0
+        if not getattr(args, "profile", None):
+            print(f"Uso: mangaba fleet {cmd} <profile>  (ou --all)")
+            return 1
+        ok, msg = action(args.profile)
+        print(("✓ " if ok else "✗ ") + msg)
+        return 0 if ok else 1
+
+    fleet_parser.set_defaults(func=_dispatch_fleet)
 
     # =========================================================================
     # migrate command

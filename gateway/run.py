@@ -7293,6 +7293,9 @@ class GatewayRunner:
         if canonical in ("tarefa", "plano", "task", "resolver"):
             return await self._handle_tarefa_command(event)
 
+        if canonical in ("fleet", "frota"):
+            return await self._handle_fleet_command(event)
+
         if canonical == "soul":
             return await self._handle_soul_command(event)
 
@@ -9624,6 +9627,39 @@ class GatewayRunner:
             return not is_capable_model(self._active_model_for_source(source))
         except Exception:
             return True  # na dúvida, ajuda
+
+    async def _handle_fleet_command(self, event: MessageEvent) -> str:
+        """Handle /fleet (ou /frota) — gerencia N agentes (profiles) pelo canal.
+
+        Subcomandos: list (padrão) · status · restart <profile>.
+        Operações destrutivas (stop/start) ficam só no CLI por segurança; pelo
+        canal expomos status e restart (o caso de operação mais comum).
+        Gated por ``gateway.expose_admin_commands``.
+        """
+        args_str = (event.get_command_args() or "").strip()
+        parts = args_str.split()
+        sub = parts[0].lower() if parts else "list"
+        try:
+            from mangaba_cli import fleet as _fleet
+        except Exception as exc:  # noqa: BLE001
+            return f"⚠ Erro ao carregar a frota: {exc}"
+
+        if sub in ("list", "status", ""):
+            return _fleet.render_fleet(_fleet.collect_fleet(), markdown=True)
+
+        if sub in ("restart", "reiniciar"):
+            if len(parts) < 2:
+                return "Uso: `/fleet restart <nome-do-agente>`"
+            name = parts[1].strip("`")
+            ok, msg = _fleet.restart_profile(name)
+            return msg
+
+        if sub in ("start", "subir", "stop", "parar"):
+            return ("Por segurança, *start/stop* de outros agentes ficam só no "
+                    "terminal (`mangaba fleet start|stop <nome>`). Pelo canal você "
+                    "pode `list`, `status` e `restart`.")
+
+        return "Uso: `/fleet [list | status | restart <nome>]`"
 
     async def _handle_tarefa_command(self, event: MessageEvent) -> str:
         """Handle /tarefa <pedido> — decompõe um pedido complexo em um plano.
