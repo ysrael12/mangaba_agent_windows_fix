@@ -38,19 +38,114 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 // Themes
 // ---------------------------------------------------------------------------
 
+/**
+ * Mangaba Brand Dark — paleta fiel ao logo vertical.
+ *
+ * Cores extraídas do SVG oficial:
+ *   background  #1E0F06  — espresso escuro derivado do marrom #403731
+ *   midground   #FFDFCC  — pêssego claro do gradiente de fundo do logo
+ *   accent      #FF7A1A  — laranja primário do gradiente da chama/fruta
+ *   yellow      #FFD83D  — amarelo dourado do logo
+ *   green       #7BBF26  — verde Mangaba do logo
+ *   deep-green  #689924  — verde folha escuro
+ *   text-dark   #403731  — marrom do logotipo ("mangaba")
+ */
 export const defaultTheme: DashboardTheme = {
   name: "default",
-  label: "Mangaba Teal",
-  description: "Classic dark teal — the canonical Mangaba look",
+  label: "Mangaba Brand",
+  description: "Paleta oficial do logo — espresso + laranja + verde Mangaba",
   palette: {
-    background: { hex: "#041c1c", alpha: 1 },
-    midground: { hex: "#ffe6cb", alpha: 1 },
+    background: { hex: "#1E0F06", alpha: 1 },
+    midground: { hex: "#FFDFCC", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(255, 189, 56, 0.35)",
-    noiseOpacity: 1,
+    warmGlow: "rgba(255, 122, 26, 0.32)",
+    noiseOpacity: 0.9,
   },
-  typography: DEFAULT_TYPOGRAPHY,
-  layout: DEFAULT_LAYOUT,
+  typography: {
+    ...DEFAULT_TYPOGRAPHY,
+    fontSans: `"Inter", ${SYSTEM_SANS}`,
+    fontUrl:
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+    letterSpacing: "-0.01em",
+  },
+  layout: { ...DEFAULT_LAYOUT, radius: "0.625rem" },
+  colorOverrides: {
+    primary:           "#FF7A1A",
+    primaryForeground: "#ffffff",
+
+    card:              "#2B1508",
+    cardForeground:    "#FFDFCC",
+    popover:           "#231006",
+    popoverForeground: "#FFDFCC",
+
+    secondary:          "#2B1508",
+    secondaryForeground:"#E8B99A",
+    muted:              "#2B1508",
+    mutedForeground:    "#C2896A",
+
+    accent:            "#3D1A07",
+    accentForeground:  "#FF7A1A",
+
+    border: "#3D2010",
+    input:  "#3D2010",
+    ring:   "#FF7A1A",
+
+    success:     "#7BBF26",
+    warning:     "#FFD83D",
+    destructive: "#E94A12",
+    destructiveForeground: "#ffffff",
+  },
+};
+
+/**
+ * Mangaba Brand Light — versão clara fiel ao logo.
+ * Fundo creme (#FFFCF0), texto marrom (#403731), laranja como acento.
+ */
+export const mangabaLightTheme: DashboardTheme = {
+  name: "mangaba-light",
+  label: "Mangaba Light",
+  description: "Tema claro com o creme e marrom do logo oficial",
+  palette: {
+    background: { hex: "#FFFCF0", alpha: 1 },
+    midground: { hex: "#403731", alpha: 1 },
+    foreground: { hex: "#000000", alpha: 0 },
+    warmGlow: "rgba(255, 122, 26, 0.18)",
+    noiseOpacity: 0.4,
+  },
+  typography: {
+    ...DEFAULT_TYPOGRAPHY,
+    fontSans: `"Inter", ${SYSTEM_SANS}`,
+    fontUrl:
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+    letterSpacing: "-0.01em",
+  },
+  layout: { ...DEFAULT_LAYOUT, radius: "0.625rem" },
+  colorOverrides: {
+    primary:           "#FF7A1A",
+    primaryForeground: "#ffffff",
+
+    card:              "#FFF4E6",
+    cardForeground:    "#403731",
+    popover:           "#FFF8F0",
+    popoverForeground: "#403731",
+
+    secondary:          "#FFE8D0",
+    secondaryForeground:"#5C3D2E",
+    muted:              "#FFE8D0",
+    mutedForeground:    "#7A5548",
+
+    accent:            "#FFDCC2",
+    accentForeground:  "#D45A00",
+
+    border: "#E8C9A8",
+    input:  "#E8C9A8",
+    ring:   "#FF7A1A",
+
+    success:     "#689924",
+    warning:     "#E6B800",
+    destructive: "#E94A12",
+    destructiveForeground: "#ffffff",
+  },
 };
 
 export const midnightTheme: DashboardTheme = {
@@ -294,6 +389,7 @@ export const claudeTheme: DashboardTheme = {
 
 export const BUILTIN_THEMES: Record<string, DashboardTheme> = {
   default: defaultTheme,
+  "mangaba-light": mangabaLightTheme,
   "default-large": defaultLargeTheme,
   claude: claudeTheme,
   midnight: midnightTheme,

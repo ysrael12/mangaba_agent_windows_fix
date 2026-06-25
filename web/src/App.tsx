@@ -505,14 +505,11 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <PluginSlot name="header-left" />
 
-                <Typography
-                  className="font-bold text-[1.125rem] leading-[0.95] tracking-[0.0525rem] text-midground uppercase"
-                  style={{ mixBlendMode: "plus-lighter" }}
-                >
-                  Mangaba
-                  <br />
-                  Agent
-                </Typography>
+                <img
+                  src="/logo-mangaba.svg"
+                  alt="Mangaba Agent"
+                  style={{ height: "52px", width: "auto", display: "block" }}
+                />
               </div>
 
               <Button
