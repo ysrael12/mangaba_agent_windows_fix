@@ -9,9 +9,10 @@ import { timeAgo } from "@/lib/utils";
 interface FleetSession {
   id: string;
   title: string | null;
-  platform: string | null;
-  session_id?: string;
-  last_active: string;
+  // Backend (list_sessions_rich) devolve `source` (telegram/discord/cli/…) e
+  // `last_active` como epoch em SEGUNDOS — não `platform`/`session_id`/string.
+  source: string | null;
+  last_active: number;
   message_count: number;
   _profile: string;
   _profile_running: boolean;
@@ -24,13 +25,8 @@ interface FleetSessionsResponse {
 
 const LIMIT = 15;
 
-function parsePlatform(session: FleetSession): string {
-  if (session.platform) return session.platform;
-  if (session.session_id) {
-    const parts = session.session_id.split(":");
-    if (parts.length > 1) return parts[0];
-  }
-  return "local";
+function parseSource(session: FleetSession): string {
+  return session.source ?? "local";
 }
 
 export default function GlobalSessionsPage() {
@@ -132,14 +128,14 @@ export default function GlobalSessionsPage() {
                   </div>
                   <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-muted-foreground">
                     <Badge tone="outline" className="text-xs">
-                      {parsePlatform(s)}
+                      {parseSource(s)}
                     </Badge>
                     <span className="text-border">&#183;</span>
                     <span className="shrink-0">
                       {s.message_count} {t.common.msgs}
                     </span>
                     <span className="text-border">&#183;</span>
-                    <span className="shrink-0">{timeAgo(new Date(s.last_active).getTime())}</span>
+                    <span className="shrink-0">{timeAgo(s.last_active)}</span>
                   </div>
                 </div>
               </div>

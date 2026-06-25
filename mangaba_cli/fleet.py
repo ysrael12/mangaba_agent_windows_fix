@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -55,6 +56,13 @@ def collect_fleet() -> List[FleetMember]:
     members: List[FleetMember] = []
     for p in list_profiles():
         pid = _pid_for(p.path) if p.gateway_running else None
+        # Nunca deixar um profile com config/.env malformado derrubar a frota
+        # inteira — degrada para uma lista de plataformas vazia.
+        try:
+            platforms = _platforms_for_profile(p.path)
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("fleet: plataformas indisponíveis para %s: %s", p.name, exc)
+            platforms = []
         members.append(FleetMember(
             name=p.name, path=p.path,
             running=bool(p.gateway_running), pid=pid,
@@ -62,7 +70,7 @@ def collect_fleet() -> List[FleetMember]:
             skills=getattr(p, "skill_count", 0) or 0,
             description=getattr(p, "description", "") or "",
             is_default=getattr(p, "is_default", False),
-            platforms=_platforms_for_profile(p.path),
+            platforms=platforms,
         ))
     members.sort(key=lambda m: (not m.running, m.name))  # no ar primeiro
     return members
