@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lightbulb, Zap, Rocket, Copy, Check } from "lucide-react";
+import { Lightbulb, Zap, Rocket, Workflow, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
 
@@ -141,6 +141,62 @@ const ADVANCED: Group[] = [
   },
 ];
 
+const COMPLEX: Group[] = [
+  {
+    title: "Orquestração de swarm (Kanban)",
+    hint: "Vários agentes trabalhando em paralelo com dependências.",
+    examples: [
+      {
+        prompt: "Objetivo: lançar uma landing page de um app de finanças. Quebre em: pesquisa de referências, copy do herói, estrutura HTML, estilo visual e revisão final — com as dependências corretas (revisão depende de tudo) e distribua entre os agentes disponíveis.",
+        note: "Crie em triagem no Kanban → Decompor (IA). Para rodar os workers em paralelo: mangaba kanban swarm (CLI).",
+      },
+      {
+        prompt: "Audite a segurança deste repositório: divida por área (autenticação, validação de entrada, dependências, segredos no código), um agente por área, e um verificador que consolida os achados confirmados.",
+        note: "Padrão pesquisador → verificador → sintetizador.",
+      },
+    ],
+  },
+  {
+    title: "Pesquisa profunda com síntese",
+    examples: [
+      {
+        prompt: "Pesquise o mercado de carros elétricos no Brasil: colete dados de pelo menos 5 fontes, cruze preço, autonomia e tempo de recarga, identifique as 3 principais tendências e gere um relatório executivo de 2 páginas em markdown, com uma tabela comparativa e as fontes citadas.",
+        note: "Requer habilidade de busca web ativada.",
+      },
+    ],
+  },
+  {
+    title: "Automação encadeada (multi-etapa + entrega)",
+    hint: "Cron acionando um fluxo completo.",
+    examples: [
+      {
+        prompt: "Toda sexta às 17h: colete as tarefas concluídas no Kanban durante a semana, gere um changelog organizado por tema, poste no Discord #geral e envie um resumo executivo de 5 linhas no Telegram.",
+        note: "Cron: 0 17 * * 5. Um prompt, várias entregas.",
+      },
+      {
+        prompt: "Todo dia às 7h: verifique se há issues abertas com a label 'urgente' no repositório, e se houver mais de 3, crie tarefas no Kanban para as mais críticas e me avise no Telegram.",
+        note: "Fluxo condicional (só age se passar do limite).",
+      },
+    ],
+  },
+  {
+    title: "Análise de dados em escala",
+    examples: [
+      {
+        prompt: "Tenho 3 arquivos CSV (vendas, clientes, produtos). Faça o join pela coluna id, detecte anomalias (valores fora do padrão, duplicados, lacunas), calcule os 5 produtos mais lucrativos por região e proponha 3 ações concretas baseadas nos dados.",
+      },
+    ],
+  },
+  {
+    title: "Pipeline de conteúdo",
+    examples: [
+      {
+        prompt: "A partir deste artigo técnico, gere: (1) um resumo executivo de 3 parágrafos, (2) uma thread de 5 posts para redes sociais, (3) um roteiro de vídeo de 2 minutos e (4) 5 perguntas frequentes com respostas. Mantenha o tom acessível.\n\n<cole o artigo>",
+      },
+    ],
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Componentes
 // ---------------------------------------------------------------------------
@@ -237,6 +293,13 @@ const LEVELS = [
     sub: "Kanban, automação, multi-agente",
     icon: Rocket,
     groups: ADVANCED,
+  },
+  {
+    id: "complex",
+    label: "Complexo",
+    sub: "Swarm, pipelines, fluxos encadeados",
+    icon: Workflow,
+    groups: COMPLEX,
   },
 ] as const;
 
