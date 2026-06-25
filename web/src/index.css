@@ -8,9 +8,10 @@
 @import '@dheiver2/ui/styles/fonts.css';
 @import '@dheiver2/ui/styles/globals.css';
 
-/* Scan the published design-system bundle so its utility classes survive
-   Tailwind's JIT purge. */
-@source '../node_modules/@dheiver2/ui/dist';
+/* Scan the vendored UI shim so its utility classes survive Tailwind's JIT
+   purge. (Replaces the old `@source '../node_modules/@dheiver2/ui/dist'`,
+   which pointed at the now-unpublished npm package.) */
+@source './vendor/dheiver2-ui';
 
 /* ------------------------------------------------------------------ */
 /* JetBrains Mono — bundled for the embedded TUI (/chat tab).          */

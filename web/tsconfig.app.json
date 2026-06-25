@@ -19,7 +19,8 @@
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@dheiver2/ui/*": ["./src/vendor/dheiver2-ui/*"]
     },
 
     /* Linting */

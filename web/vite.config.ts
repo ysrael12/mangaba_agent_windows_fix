@@ -68,6 +68,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), mangabaDevToken()],
   resolve: {
     alias: {
+      // Vendored local UI shim (replaces the unpublished @dheiver2/ui npm
+      // package). Keep this BEFORE the "@" entry so it matches first.
+      "@dheiver2/ui": path.resolve(__dirname, "./src/vendor/dheiver2-ui"),
       "@": path.resolve(__dirname, "./src"),
     },
     // When @dheiver2/ui is symlinked via `file:../../design-language`,

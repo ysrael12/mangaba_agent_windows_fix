@@ -1,0 +1,9 @@
+/* Vendored shim for @dheiver2/ui fonts.css.
+ *
+ * The original registered @font-face rules for the design-system display
+ * fonts (Collapse, Rules Compressed/Expanded, Mondwest). Those font files
+ * are not part of this repo, so we intentionally register nothing here and
+ * let the families fall back to the system / serif / mono stacks defined in
+ * globals.css. Kept as a real file so `@import '@dheiver2/ui/styles/fonts.css'`
+ * resolves during the build.
+ */

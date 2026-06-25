@@ -1,0 +1,13 @@
+/* Vendored shim for @dheiver2/ui globals.css.
+ *
+ * The original only declared the design-system --font-* CSS variables
+ * (display / mondwest / courier). We map them to safe fallback stacks so the
+ * Tailwind `font-display`, `font-mondwest`, and `font-courier` utilities still
+ * resolve — text just renders in a system / serif / monospace fallback rather
+ * than the proprietary DS fonts (which aren't bundled in this repo).
+ */
+@theme {
+  --font-display: var(--theme-font-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  --font-mondwest: Georgia, "Times New Roman", serif;
+  --font-courier: "Courier Prime", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
