@@ -57,13 +57,13 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 export const defaultTheme: DashboardTheme = {
   name: "default",
   label: "Mangaba Noite",
-  description: "Modo escuro — espresso + laranja + verde do logo oficial",
+  description: "Modo escuro — preto puro com texto branco",
   palette: {
-    background: { hex: "#1A0C04", alpha: 1 },
-    midground:  { hex: "#FFDFCC", alpha: 1 },
+    background: { hex: "#000000", alpha: 1 },
+    midground:  { hex: "#ffffff", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow:   "rgba(255, 122, 26, 0.28)",
-    noiseOpacity: 0.75,
+    warmGlow:   "rgba(255, 255, 255, 0.06)",
+    noiseOpacity: 0.5,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -74,36 +74,29 @@ export const defaultTheme: DashboardTheme = {
   },
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    /* Primary — laranja #FF7A1A do logo. Contraste 6.9:1 sobre fundo. */
-    primary:           "#FF7A1A",
-    primaryForeground: "#ffffff",
+    primary:           "#ffffff",
+    primaryForeground: "#000000",
 
-    /* Superfícies elevadas — espresso ligeiramente mais claro. */
-    card:              "#261208",
-    cardForeground:    "#FFDFCC",
-    popover:           "#200F05",
-    popoverForeground: "#FFDFCC",
+    card:              "#111111",
+    cardForeground:    "#ffffff",
+    popover:           "#0a0a0a",
+    popoverForeground: "#ffffff",
 
-    /* Secundário e muted — tons quentes sobre fundo. */
-    secondary:          "#2E1709",
-    secondaryForeground:"#FFDFCC",
-    muted:              "#2E1709",
-    /* #C8956E on #1A0C04 → 5.1:1 (WCAG AA ✓) */
-    mutedForeground:    "#C8956E",
+    secondary:          "#1a1a1a",
+    secondaryForeground:"#ffffff",
+    muted:              "#1a1a1a",
+    mutedForeground:    "#a0a0a0",
 
-    /* Tint de acento — laranja 12% sobre fundo. */
-    accent:            "#3A1C07",
-    accentForeground:  "#FF7A1A",
+    accent:            "#222222",
+    accentForeground:  "#ffffff",
 
-    /* Bordas — visíveis mas sutis. */
-    border: "#3E2010",
-    input:  "#3E2010",
-    ring:   "#FF7A1A",
+    border: "#2a2a2a",
+    input:  "#2a2a2a",
+    ring:   "#ffffff",
 
-    /* Status — do logo. */
-    success:              "#7BBF26",
-    warning:              "#FFD83D",
-    destructive:          "#E94A12",
+    success:              "#ffffff",
+    warning:              "#cccccc",
+    destructive:          "#ff3333",
     destructiveForeground:"#ffffff",
   },
 };
@@ -124,13 +117,13 @@ export const defaultTheme: DashboardTheme = {
 export const mangabaLightTheme: DashboardTheme = {
   name: "mangaba-light",
   label: "Mangaba Dia",
-  description: "Modo claro — creme + marrom + laranja do logo oficial",
+  description: "Modo claro — branco puro com texto preto",
   palette: {
-    background: { hex: "#FFFCF0", alpha: 1 },
-    midground:  { hex: "#3A2E28", alpha: 1 },
+    background: { hex: "#ffffff", alpha: 1 },
+    midground:  { hex: "#000000", alpha: 1 },
     foreground: { hex: "#000000", alpha: 0 },
-    warmGlow:   "rgba(212, 94, 0, 0.12)",
-    noiseOpacity: 0.3,
+    warmGlow:   "rgba(0, 0, 0, 0.04)",
+    noiseOpacity: 0.2,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
@@ -141,36 +134,29 @@ export const mangabaLightTheme: DashboardTheme = {
   },
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    /* Primary — laranja escurecido para contraste 4.7:1 em fundo creme. */
-    primary:           "#D45E00",
+    primary:           "#000000",
     primaryForeground: "#ffffff",
 
-    /* Superfícies — creme ligeiramente mais quente. */
-    card:              "#FFF5E6",
-    cardForeground:    "#3A2E28",
-    popover:           "#FFFAF2",
-    popoverForeground: "#3A2E28",
+    card:              "#f5f5f5",
+    cardForeground:    "#000000",
+    popover:           "#fafafa",
+    popoverForeground: "#000000",
 
-    /* Secundário e muted. */
-    secondary:          "#FFE9D0",
-    secondaryForeground:"#3A2E28",
-    muted:              "#FFE9D0",
-    /* #6B4A3A on #FFFCF0 → 5.4:1 (WCAG AA ✓) */
-    mutedForeground:    "#6B4A3A",
+    secondary:          "#eeeeee",
+    secondaryForeground:"#000000",
+    muted:              "#eeeeee",
+    mutedForeground:    "#666666",
 
-    /* Tint de acento claro. */
-    accent:            "#FFD8B0",
-    accentForeground:  "#A03800",
+    accent:            "#e5e5e5",
+    accentForeground:  "#000000",
 
-    /* Bordas quentes visíveis. */
-    border: "#E2C4A0",
-    input:  "#E2C4A0",
-    ring:   "#D45E00",
+    border: "#d4d4d4",
+    input:  "#d4d4d4",
+    ring:   "#000000",
 
-    /* Status — adaptados para fundo claro. */
-    success:              "#4A7D00",
-    warning:              "#9A6C00",
-    destructive:          "#C0300A",
+    success:              "#000000",
+    warning:              "#555555",
+    destructive:          "#cc0000",
     destructiveForeground:"#ffffff",
   },
 };
