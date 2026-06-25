@@ -149,21 +149,18 @@ export default function ChatPage() {
     };
   }, [connect]);
 
-  // Carrega os modelos disponíveis para o seletor.
+  // Carrega os modelos disponíveis para o seletor (Ollama local + atual).
   useEffect(() => {
     api
-      .getModelOptions()
+      .getChatModels()
       .then((res) => {
-        const flat: ModelOpt[] = [];
-        for (const p of res.providers ?? []) {
-          for (const m of p.models ?? []) {
-            flat.push({ provider: p.slug, model: m });
-          }
-        }
+        const flat: ModelOpt[] = (res.models ?? []).map((o) => ({
+          provider: o.provider,
+          model: o.model,
+        }));
         setModels(flat);
-        // Pré-seleciona o modelo atual, se estiver na lista.
-        if (res.model) {
-          const match = flat.find((o) => o.model === res.model);
+        if (res.current) {
+          const match = flat.find((o) => o.model === res.current);
           if (match) setSelected(`${match.provider}::${match.model}`);
         }
       })

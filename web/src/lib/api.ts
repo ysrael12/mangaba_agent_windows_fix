@@ -97,6 +97,7 @@ export const api = {
   getSchema: () => fetchJSON<{ fields: Record<string, unknown>; category_order: string[] }>("/api/config/schema"),
   getModelInfo: () => fetchJSON<ModelInfoResponse>("/api/model/info"),
   getModelOptions: () => fetchJSON<ModelOptionsResponse>("/api/model/options"),
+  getChatModels: () => fetchJSON<ChatModelsResponse>("/api/chat/models"),
   getAuxiliaryModels: () => fetchJSON<AuxiliaryModelsResponse>("/api/model/auxiliary"),
   setModelAssignment: (body: ModelAssignmentRequest) =>
     fetchJSON<ModelAssignmentResponse>("/api/model/set", {
@@ -752,6 +753,11 @@ export interface ModelOptionsResponse {
   model?: string;
   provider?: string;
   providers?: ModelOptionProvider[];
+}
+
+export interface ChatModelsResponse {
+  models: { provider: string; model: string }[];
+  current: string;
 }
 
 export interface AuxiliaryTaskAssignment {

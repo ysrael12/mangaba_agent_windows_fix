@@ -3994,6 +3994,69 @@ def _build_chat_agent(model_override: str = None, provider_override: str = None)
     return agent
 
 
+@app.get("/api/chat/models")
+def chat_models() -> Dict[str, Any]:
+    """Modelos disponíveis para o seletor da aba Chat.
+
+    Enumera os modelos locais do Ollama (que ``/api/model/options`` não lista)
+    via ``/api/tags``, inclui o modelo configurado, e cai para os providers do
+    picker quando não há Ollama local.
+    """
+    import json as _json
+    import urllib.request
+
+    from mangaba_cli.config import load_config
+
+    cfg = load_config()
+    model_cfg = cfg.get("model") or {}
+    current = str(model_cfg.get("default") or model_cfg.get("name") or "").strip()
+    provider = str(model_cfg.get("provider") or "").strip().lower()
+    base = str(model_cfg.get("base_url") or "").strip()
+
+    out: List[Dict[str, str]] = []
+    seen: set = set()
+
+    def _add(prov: str, name: str) -> None:
+        if name and name not in seen:
+            seen.add(name)
+            out.append({"provider": prov, "model": name})
+
+    # 1) Ollama local — deriva o host de base_url (…/v1 → …/api/tags).
+    if provider == "ollama" or "11434" in base or not base:
+        host = base.rstrip("/")
+        if host.endswith("/v1"):
+            host = host[: -len("/v1")]
+        if not host:
+            host = "http://localhost:11434"
+        try:
+            req = urllib.request.Request(f"{host}/api/tags")
+            with urllib.request.urlopen(req, timeout=2.5) as resp:
+                data = _json.loads(resp.read().decode("utf-8"))
+            for m in data.get("models", []):
+                name = m.get("name") or m.get("model")
+                if name:
+                    _add("ollama", str(name))
+        except Exception:  # noqa: BLE001
+            pass
+
+    # 2) Garante que o modelo atual está na lista (mesmo se o Ollama não listar).
+    if current:
+        _add(provider or "ollama", current)
+
+    # 3) Fallback: providers do picker (setups de nuvem sem Ollama).
+    if not out:
+        try:
+            from mangaba_cli.inventory import build_models_payload, load_picker_context
+            payload = build_models_payload(load_picker_context(), max_models=50)
+            for p in payload.get("providers", []) or []:
+                for name in p.get("models", []) or []:
+                    _add(str(p.get("slug") or ""), str(name))
+        except Exception:  # noqa: BLE001
+            pass
+
+    return {"models": out, "current": current}
+
+
 @app.websocket("/api/chat")
 async def chat_ws(ws: WebSocket) -> None:
     """ChatGPT-style chat over WebSocket. Each message runs one agent turn and
