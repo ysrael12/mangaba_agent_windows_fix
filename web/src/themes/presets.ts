@@ -21,19 +21,20 @@ const SYSTEM_SANS =
 const SYSTEM_MONO =
   'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
 
-/* Stack idêntico ao VS Code workbench — SF Pro no macOS, Segoe UI no
-   Windows, Noto Sans no Linux. Sem Google Fonts: resolve via sistema. */
+/* Cascadia Code — fonte do editor do VS Code, usada também na UI.
+   Fallback para Consolas (Windows) e SF Mono / Menlo (macOS). */
 const VSCODE_SANS =
-  '-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif';
+  '"Cascadia Code", Consolas, "SF Mono", Menlo, "Ubuntu Mono", monospace';
+const VSCODE_MONO = VSCODE_SANS;
 
-/* Cascadia Code/Mono — fonte do editor do VS Code. Fallback para as
-   demais monospace de sistema (Consolas no Windows, SF Mono no macOS). */
-const VSCODE_MONO =
-  '"Cascadia Code", "Cascadia Mono", Consolas, "SF Mono", "Ubuntu Mono", Menlo, monospace';
+/* CDN fontsource — carrega Cascadia Code sem instalar nada localmente. */
+const CASCADIA_URL =
+  "https://cdn.jsdelivr.net/npm/@fontsource/cascadia-code@5.2.1/index.css";
 
 const DEFAULT_TYPOGRAPHY: ThemeTypography = {
   fontSans: VSCODE_SANS,
   fontMono: VSCODE_MONO,
+  fontUrl: CASCADIA_URL,
   baseSize: "13px",
   lineHeight: "1.5",
   letterSpacing: "0",
@@ -75,12 +76,7 @@ export const defaultTheme: DashboardTheme = {
     warmGlow:   "rgba(255, 255, 255, 0.06)",
     noiseOpacity: 0.5,
   },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: VSCODE_SANS,
-    fontMono: VSCODE_MONO,
-    letterSpacing: "0",
-  },
+  typography: DEFAULT_TYPOGRAPHY,
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
     primary:           "#ffffff",
@@ -134,12 +130,7 @@ export const mangabaLightTheme: DashboardTheme = {
     warmGlow:   "rgba(0, 0, 0, 0.04)",
     noiseOpacity: 0.2,
   },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: VSCODE_SANS,
-    fontMono: VSCODE_MONO,
-    letterSpacing: "0",
-  },
+  typography: DEFAULT_TYPOGRAPHY,
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
     primary:           "#000000",
