@@ -84,7 +84,6 @@ import type { Translations } from "@/i18n/types";
 import { PluginPage, PluginSlot, usePlugins } from "@/plugins";
 import type { PluginManifest } from "@/plugins";
 import { useTheme } from "@/themes";
-import { isDashboardEmbeddedChatEnabled } from "@/lib/dashboard-flags";
 import { api } from "@/lib/api";
 
 function RootRedirect() {
@@ -106,15 +105,6 @@ const CHAT_NAV_ITEM: NavItem = {
   icon: Terminal,
 };
 
-/**
- * Built-in routes except /chat.  Chat is rendered persistently (outside
- * <Routes>) when embedded — see the persistent chat host block rendered
- * inline near the bottom of this file — so the PTY child, WebSocket,
- * and xterm instance survive when the user visits another tab and comes
- * back.  A `display:none` toggle hides the terminal without unmounting.
- * Routing still owns the URL so /chat deep-links, browser back/forward,
- * and nav highlight keep working.
- */
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/sessions": SessionsPage,
@@ -134,43 +124,6 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/docs": DocsPage,
   "/examples": ExamplesPage,
 };
-
-// Route placeholder for /chat.  The persistent ChatPage host (rendered
-// outside <Routes> when embedded chat is on) paints on top; this empty
-// element just claims the path so the `*` catch-all redirect doesn't
-// fire when the user navigates to /chat.
-function ChatRouteSink() {
-  return null;
-}
-
-// Shown on /chat when the embedded terminal chat is OFF (dashboard started
-// without --tui). Explains how to enable it and points to the messaging
-// platforms as the alternative, instead of the tab silently disappearing.
-function ChatDisabledNotice() {
-  return (
-    <div className="mx-auto max-w-xl py-10">
-      <div className="rounded-lg border border-border bg-card p-6">
-        <div className="mb-3 flex items-center gap-2">
-          <Terminal className="h-5 w-5" />
-          <h2 className="text-lg font-bold">Chat embutido desativado</h2>
-        </div>
-        <p className="mb-4 text-sm text-muted-foreground">
-          O Chat dentro do dashboard usa o terminal embutido, que só liga
-          quando o dashboard é iniciado em modo TUI. Para ativá-lo, reinicie
-          o dashboard com a opção <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">--tui</code>:
-        </p>
-        <pre className="mb-4 overflow-x-auto rounded border border-border bg-black px-4 py-3 text-xs leading-relaxed text-green-400">
-{`mangaba dashboard --tui`}
-        </pre>
-        <p className="text-sm text-muted-foreground">
-          Enquanto isso, você pode conversar com o agente normalmente pelo
-          Telegram, Discord ou outros canais conectados. As demais abas do
-          dashboard funcionam sem o modo TUI.
-        </p>
-      </div>
-    </div>
-  );
-}
 
 const BUILTIN_NAV_REST: NavItem[] = [
   {
@@ -375,7 +328,6 @@ export default function App() {
   const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
   const normalizedPath = pathname.replace(/\/$/, "") || "/";
   const isChatRoute = normalizedPath === "/chat";
-  const embeddedChat = isDashboardEmbeddedChatEnabled();
 
   // `dashboard.show_token_analytics` gates the Analytics nav item.  The
   // page itself remains reachable by URL (it renders an explanation when
@@ -394,37 +346,15 @@ export default function App() {
       .catch(() => setShowTokenAnalytics(false));
   }, []);
 
-  // A plugin can replace the built-in /chat page via `tab.override: "/chat"`
-  // in its manifest.  When one does, `buildRoutes` already swaps the route
-  // element for <PluginPage /> — but we also have to suppress the
-  // persistent ChatPage host below, or the plugin's page and the built-in
-  // terminal would paint on top of each other.  The override is niche
-  // (nothing ships overriding /chat today) but it's an advertised
-  // extension point, so preserve the pre-persistence contract: when a
-  // plugin owns /chat, the built-in chat UI is entirely absent.
-  //
-  // Waiting on `pluginsLoading` is load-bearing: manifests arrive
-  // asynchronously from /api/dashboard/plugins, so on initial render
-  // `chatOverriddenByPlugin` is always false.  Without the loading
-  // gate, the persistent host would mount, spawn a PTY, and THEN get
-  // yanked out from under the user when the plugin's manifest resolves
-  // — killing the session mid-paint.  Delaying host mount by the
-  // plugin-load window (typically <50ms, worst case 2s safety timeout)
-  // is the cheaper trade-off.
-  const chatOverriddenByPlugin = useMemo(
-    () => manifests.some((m) => m.tab.override === "/chat"),
-    [manifests],
-  );
-
+  // Chat is a normal route now — the ChatGPT-style ChatPage talks to the
+  // agent over the /api/chat WebSocket, so no persistent PTY host or --tui
+  // gating is needed.
   const builtinRoutes = useMemo(
     () => ({
       ...BUILTIN_ROUTES_CORE,
-      // Chat is always routable. With --tui the persistent ChatPage host
-      // paints over ChatRouteSink; without it, show a notice explaining how
-      // to enable the embedded terminal chat.
-      "/chat": embeddedChat ? ChatRouteSink : ChatDisabledNotice,
+      "/chat": ChatPage,
     }),
-    [embeddedChat],
+    [],
   );
 
   const builtinNav = useMemo(() => {
@@ -704,34 +634,6 @@ export default function App() {
                     }
                   />
                 </Routes>
-
-                {embeddedChat &&
-                  !chatOverriddenByPlugin &&
-                  (pluginsLoading ? (
-                    isChatRoute ? (
-                      <div
-                        className="flex min-h-0 min-w-0 flex-1 items-center justify-center"
-                        aria-busy="true"
-                        aria-live="polite"
-                      >
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Spinner />
-                          <span>Loading chat…</span>
-                        </div>
-                      </div>
-                    ) : null
-                  ) : (
-                    <div
-                      data-chat-active={isChatRoute ? "true" : "false"}
-                      className={cn(
-                        "min-h-0 min-w-0",
-                        isChatRoute ? "flex flex-1 flex-col" : "hidden",
-                      )}
-                      aria-hidden={!isChatRoute}
-                    >
-                      <ChatPage isActive={isChatRoute} />
-                    </div>
-                  ))}
               </div>
               <PluginSlot name="post-main" />
             </div>

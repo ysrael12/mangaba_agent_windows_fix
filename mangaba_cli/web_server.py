@@ -3955,6 +3955,127 @@ def _channel_or_close_code(ws: WebSocket) -> Optional[str]:
     return channel if _VALID_CHANNEL_RE.match(channel) else None
 
 
+def _build_chat_agent():
+    """Build an AIAgent for the dashboard chat, mirroring the oneshot/CLI path."""
+    from mangaba_cli.config import load_config
+    from mangaba_cli.runtime_provider import resolve_runtime_provider
+    from run_agent import AIAgent
+
+    cfg = load_config()
+    model_cfg = cfg.get("model") or {}
+    effective_model = str(
+        model_cfg.get("default") or model_cfg.get("name") or ""
+    ).strip()
+    runtime = resolve_runtime_provider(
+        requested=None, target_model=effective_model or None
+    )
+    try:
+        from mangaba_cli.tools_config import _get_platform_tools
+        toolsets = sorted(_get_platform_tools(cfg, "cli"))
+    except Exception:  # noqa: BLE001
+        toolsets = None
+
+    agent = AIAgent(
+        api_key=runtime.get("api_key"),
+        base_url=runtime.get("base_url"),
+        provider=runtime.get("provider"),
+        api_mode=runtime.get("api_mode"),
+        model=effective_model or None,
+        enabled_toolsets=toolsets,
+        quiet_mode=True,
+        platform="cli",
+        credential_pool=runtime.get("credential_pool"),
+    )
+    agent.suppress_status_output = True
+    return agent
+
+
+@app.websocket("/api/chat")
+async def chat_ws(ws: WebSocket) -> None:
+    """ChatGPT-style chat over WebSocket. Each message runs one agent turn and
+    streams the reply token-by-token. Independent of the embedded TUI/PTY."""
+    import asyncio
+    import threading
+    from starlette.websockets import WebSocketDisconnect
+
+    token = ws.query_params.get("token", "")
+    if not hmac.compare_digest(token.encode(), _SESSION_TOKEN.encode()):
+        await ws.close(code=4401)
+        return
+    if not _ws_client_is_allowed(ws):
+        await ws.close(code=4403)
+        return
+    await ws.accept()
+
+    loop = asyncio.get_event_loop()
+    agent = None
+    history: List[Dict[str, Any]] = []
+
+    try:
+        while True:
+            data = await ws.receive_json()
+            message = (data.get("message") or "").strip()
+            if not message:
+                continue
+
+            if agent is None:
+                await ws.send_json({"type": "status", "text": "Iniciando o agente…"})
+                try:
+                    agent = await loop.run_in_executor(None, _build_chat_agent)
+                except Exception as exc:  # noqa: BLE001
+                    _log.exception("chat_ws: build agent failed")
+                    await ws.send_json({"type": "error", "text": f"Falha ao iniciar o agente: {exc}"})
+                    continue
+
+            queue: "asyncio.Queue[dict]" = asyncio.Queue()
+
+            def on_delta(delta) -> None:
+                try:
+                    loop.call_soon_threadsafe(queue.put_nowait, {"delta": str(delta)})
+                except Exception:  # noqa: BLE001
+                    pass
+
+            def run_turn() -> None:
+                try:
+                    result = agent.run_conversation(
+                        message,
+                        conversation_history=list(history),
+                        stream_callback=on_delta,
+                    )
+                    final = (
+                        result.get("final_response", "")
+                        if isinstance(result, dict)
+                        else str(result)
+                    )
+                    loop.call_soon_threadsafe(queue.put_nowait, {"done": final})
+                except Exception as exc:  # noqa: BLE001
+                    loop.call_soon_threadsafe(queue.put_nowait, {"error": str(exc)})
+
+            threading.Thread(target=run_turn, daemon=True).start()
+
+            while True:
+                item = await queue.get()
+                if "delta" in item:
+                    await ws.send_json({"type": "delta", "text": item["delta"]})
+                elif "done" in item:
+                    final = item["done"]
+                    history.append({"role": "user", "content": message})
+                    history.append({"role": "assistant", "content": final})
+                    await ws.send_json({"type": "done", "text": final})
+                    break
+                else:  # error
+                    await ws.send_json({"type": "error", "text": item.get("error", "erro desconhecido")})
+                    break
+    except WebSocketDisconnect:
+        return
+    except Exception:  # noqa: BLE001
+        _log.exception("chat_ws failed")
+        try:
+            await ws.close(code=1011)
+        except Exception:  # noqa: BLE001
+            pass
+
+
 @app.websocket("/api/pty")
 async def pty_ws(ws: WebSocket) -> None:
     if not _DASHBOARD_EMBEDDED_CHAT_ENABLED:
