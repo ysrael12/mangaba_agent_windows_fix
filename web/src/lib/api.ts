@@ -346,7 +346,40 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name }),
     }),
+
+  // Fleet — manage N agents (profiles) at once
+  getFleet: () => fetchJSON<{ members: FleetMember[] }>("/api/fleet"),
+  getFleetLogs: (name: string, lines = 60) =>
+    fetchJSON<{ name: string; log: string }>(
+      `/api/fleet/${encodeURIComponent(name)}/logs?lines=${lines}`,
+    ),
+  fleetAction: (name: string, action: "start" | "stop" | "restart") =>
+    fetchJSON<{ ok: boolean; message: string }>(
+      `/api/fleet/${encodeURIComponent(name)}/${action}`,
+      { method: "POST" },
+    ),
+  fleetBroadcast: (message: string) =>
+    fetchJSON<{ ok: boolean; reached: number; channels: number; skipped: string[] }>(
+      "/api/fleet/broadcast",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      },
+    ),
 };
+
+export interface FleetMember {
+  name: string;
+  path: string;
+  running: boolean;
+  pid: number | null;
+  model: string | null;
+  provider: string | null;
+  skills: number;
+  description: string;
+  is_default: boolean;
+}
 
 export interface ActionResponse {
   name: string;

@@ -729,6 +729,83 @@ async def restart_gateway():
     }
 
 
+def _fleet_member_to_dict(m) -> Dict[str, Any]:
+    return {
+        "name": m.name,
+        "path": str(m.path),
+        "running": bool(m.running),
+        "pid": m.pid,
+        "model": m.model,
+        "provider": m.provider,
+        "skills": m.skills,
+        "description": m.description,
+        "is_default": m.is_default,
+    }
+
+
+@app.get("/api/fleet")
+async def get_fleet():
+    """Snapshot of every agent (profile) and its gateway status."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        return {"members": [_fleet_member_to_dict(m) for m in _fleet.collect_fleet()]}
+    except Exception as exc:
+        _log.exception("GET /api/fleet failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/fleet/{name}/logs")
+async def get_fleet_logs(name: str, lines: int = 60):
+    """Tail a profile's gateway.log."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        m = _fleet.find_member(name)
+        if m is None:
+            raise HTTPException(status_code=404, detail=f"Agente '{name}' não encontrado")
+        return {"name": name, "log": _fleet.read_gateway_log(m.path, lines=lines)}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("GET /api/fleet/%s/logs failed", name)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/fleet/{name}/{action}")
+async def fleet_action(name: str, action: str):
+    """start | stop | restart a profile's gateway."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        fn = {"start": _fleet.start_profile, "stop": _fleet.stop_profile,
+              "restart": _fleet.restart_profile}.get(action)
+        if fn is None:
+            raise HTTPException(status_code=400, detail=f"Ação inválida: {action}")
+        ok, message = fn(name)
+        return {"ok": ok, "message": message}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("POST /api/fleet/%s/%s failed", name, action)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+class FleetBroadcast(BaseModel):
+    message: str
+
+
+@app.post("/api/fleet/broadcast")
+async def fleet_broadcast(body: FleetBroadcast):
+    """Send an operator notice to every agent's home_channel (never customer chats)."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        reached, channels, skipped = _fleet.broadcast(body.message)
+        return {"ok": True, "reached": reached, "channels": channels, "skipped": skipped}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        _log.exception("POST /api/fleet/broadcast failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 @app.post("/api/mangaba/update")
 async def update_mangaba():
     """Kick off ``mangaba update`` in the background."""
