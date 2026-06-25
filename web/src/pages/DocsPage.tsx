@@ -392,33 +392,57 @@ mangaba fleet list`}</Block>
         <Tip>Use <strong>Fleet → Roteamento</strong> no dashboard para ver a matriz completa de profiles × canais e identificar conflitos de configuração.</Tip>
       </Section>
 
-      <Section title="2. Kanban multi-worker">
+      <Section title="2. Kanban multi-worker (somente via CLI)">
+        <Warn>O Kanban ainda não tem interface no dashboard — toda a gestão é feita pela CLI (<Code>mangaba kanban …</Code>). As seções abaixo usam comandos de terminal.</Warn>
+
         <Step n={1} title="Entender o Kanban de tarefas">
-          <p>O Kanban permite criar tarefas complexas que vários agentes processam em paralelo. Colunas: <strong>Triagem → A fazer → Pronto → Rodando → Bloqueado → Concluído</strong>.</p>
+          <p>O Kanban permite criar tarefas complexas que vários agentes (workers) processam em paralelo. Cada tarefa passa por estados: <strong>triagem → pronto → rodando → bloqueado → concluído</strong>.</p>
         </Step>
 
-        <Step n={2} title="Criar um quadro">
-          <p>Dashboard → <strong>Kanban</strong> → <strong>+ Novo quadro</strong>. Dê um slug único (ex. <Code>dev-tasks</Code>).</p>
+        <Step n={2} title="Inicializar e criar um quadro">
+          <Block>{`# Cria o kanban.db (idempotente)
+mangaba kanban init
+
+# Cria um quadro e ativa
+mangaba kanban boards create dev-tasks
+mangaba kanban boards switch dev-tasks
+
+# Listar quadros
+mangaba kanban boards list`}</Block>
         </Step>
 
-        <Step n={3} title="Criar tarefas na coluna Triagem">
-          <p>Clique em <Code>+</Code> na coluna Triagem. Descreva a tarefa em linguagem natural — um agente "especificador" vai detalhar a tarefa automaticamente antes de passá-la para execução.</p>
+        <Step n={3} title="Criar tarefas">
+          <p>Descreva a tarefa em linguagem natural — um agente "especificador" detalha a tarefa automaticamente antes da execução.</p>
+          <Block>{`mangaba kanban create "Refatorar o módulo de autenticação e adicionar testes"
+
+# Listar tarefas do quadro ativo
+mangaba kanban list
+
+# Ver detalhes de uma tarefa (comentários + eventos)
+mangaba kanban show <id-da-tarefa>`}</Block>
         </Step>
 
-        <Step n={4} title="Configurar workers">
-          <p>Qualquer profile pode ser worker. Configure em <Code>config.yaml</Code>:</p>
-          <Block>{`kanban:
-  enabled: true
-  board: dev-tasks        # quadro que este agente monitora
-  max_concurrent: 2       # máx tarefas paralelas por este worker
-  poll_interval: 30       # verificar a cada 30 segundos`}</Block>
+        <Step n={4} title="Rodar o swarm de workers">
+          <p>O comando <Code>swarm</Code> sobe múltiplos workers que consomem o quadro em paralelo.</p>
+          <Block>{`# Sobe workers que processam as tarefas prontas do quadro ativo
+mangaba kanban swarm
+
+# Acompanhar o andamento
+mangaba kanban list`}</Block>
         </Step>
 
-        <Step n={5} title="Monitorar execução">
-          <p>No dashboard → Kanban, os cards se movem automaticamente: <strong>Pronto → Rodando → Concluído</strong>. Clique em um card para ver o log do worker em tempo real.</p>
+        <Step n={5} title="Gerenciar tarefas travadas">
+          <Block>{`# Reatribuir / liberar uma tarefa presa
+mangaba kanban reclaim <id-da-tarefa>
+
+# Marcar como concluída manualmente
+mangaba kanban complete <id-da-tarefa>
+
+# Bloquear / desbloquear
+mangaba kanban block <id-da-tarefa>`}</Block>
         </Step>
 
-        <Tip>Se um worker fica travado, use o botão <strong>Reivindicar</strong> no card para liberar a tarefa e redistribuir.</Tip>
+        <Tip>Veja todos os subcomandos com <Code>mangaba kanban --help</Code> (boards, create, swarm, list, show, assign, reclaim, complete, block, link, comment, edit…).</Tip>
       </Section>
 
       <Section title="3. Plugins">
@@ -638,7 +662,7 @@ server {
                 ["Ver logs em tempo real", "✅ tail -f gateway.log", "✅"],
                 ["Múltiplos profiles (fleet)", "✅ recomendado", "✅"],
                 ["Deploy/scripts", "✅ recomendado", "❌"],
-                ["Kanban tarefas", "⚠ via API", "✅ recomendado"],
+                ["Kanban tarefas", "✅ único caminho", "❌ sem UI ainda"],
                 ["Analytics de uso", "❌", "✅ recomendado"],
               ].map(([task, cli, dash]) => (
                 <tr key={task}>
