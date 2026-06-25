@@ -98,6 +98,21 @@ export const api = {
   getModelInfo: () => fetchJSON<ModelInfoResponse>("/api/model/info"),
   getModelOptions: () => fetchJSON<ModelOptionsResponse>("/api/model/options"),
   getChatModels: () => fetchJSON<ChatModelsResponse>("/api/chat/models"),
+
+  // ── Memória ────────────────────────────────────────────────────────────
+  getMemory: () => fetchJSON<MemoryResponse>("/api/memory"),
+  saveMemory: (target: "memory" | "user", content: string) =>
+    fetchJSON<{ ok: boolean; chars: number }>("/api/memory", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target, content }),
+    }),
+  resetMemory: (target: "all" | "memory" | "user") =>
+    fetchJSON<{ ok: boolean }>("/api/memory/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target }),
+    }),
   getAuxiliaryModels: () => fetchJSON<AuxiliaryModelsResponse>("/api/model/auxiliary"),
   setModelAssignment: (body: ModelAssignmentRequest) =>
     fetchJSON<ModelAssignmentResponse>("/api/model/set", {
@@ -758,6 +773,20 @@ export interface ModelOptionsResponse {
 export interface ChatModelsResponse {
   models: { provider: string; model: string }[];
   current: string;
+}
+
+export interface MemoryBlock {
+  content: string;
+  chars: number;
+  limit: number;
+}
+
+export interface MemoryResponse {
+  memory: MemoryBlock;
+  user: MemoryBlock;
+  provider: string;
+  memory_enabled: boolean;
+  user_profile_enabled: boolean;
 }
 
 export interface AuxiliaryTaskAssignment {

@@ -18,6 +18,7 @@ import {
   Activity,
   BarChart3,
   BookOpen,
+  Brain,
   Clock,
   Code,
   Cpu,
@@ -70,6 +71,7 @@ import ModelsPage from "@/pages/ModelsPage";
 import CronPage from "@/pages/CronPage";
 import FleetPage from "@/pages/FleetPage";
 import KanbanPage from "@/pages/KanbanPage";
+import MemoryPage from "@/pages/MemoryPage";
 import ExamplesPage from "@/pages/ExamplesPage";
 import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
 import RoutingPage from "@/pages/RoutingPage";
@@ -116,6 +118,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/plugins": PluginsPage,
   "/fleet": FleetPage,
   "/kanban": KanbanPage,
+  "/memory": MemoryPage,
   "/sessions/global": GlobalSessionsPage,
   "/routing": RoutingPage,
   "/profiles": ProfilesPage,
@@ -138,6 +141,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
   { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
   { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
+  { path: "/memory", labelKey: "memory", label: "Memória", icon: Brain },
 
   // 3) Criar agentes e canais
   { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },

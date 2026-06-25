@@ -1436,6 +1436,107 @@ async def reveal_env_var(body: EnvVarReveal, request: Request):
 
 
 # ---------------------------------------------------------------------------
+# Memory API — ver/editar a memória do agente (MEMORY.md) e o perfil do
+# usuário (USER.md) direto no dashboard, como blocos editáveis.
+# ---------------------------------------------------------------------------
+
+_MEMORY_FILES = {"memory": "MEMORY.md", "user": "USER.md"}
+
+
+def _memory_dir():
+    try:
+        from tools.memory_tool import get_memory_dir
+        return get_memory_dir()
+    except Exception:  # noqa: BLE001
+        from mangaba_cli.config import get_mangaba_home
+        return get_mangaba_home() / "memories"
+
+
+class MemoryWrite(BaseModel):
+    target: str  # "memory" | "user"
+    content: str
+
+
+class MemoryReset(BaseModel):
+    target: str = "all"  # "all" | "memory" | "user"
+
+
+@app.get("/api/memory")
+def get_memory():
+    """Conteúdo + uso dos blocos de memória e o provedor configurado."""
+    try:
+        from mangaba_cli.config import load_config
+
+        mem_dir = _memory_dir()
+        cfg = load_config()
+        mcfg = cfg.get("memory") or {}
+
+        def _read(name: str) -> str:
+            p = mem_dir / name
+            try:
+                return p.read_text(encoding="utf-8") if p.exists() else ""
+            except Exception:  # noqa: BLE001
+                return ""
+
+        mem = _read("MEMORY.md")
+        usr = _read("USER.md")
+        return {
+            "memory": {
+                "content": mem,
+                "chars": len(mem),
+                "limit": int(mcfg.get("memory_char_limit", 2200)),
+            },
+            "user": {
+                "content": usr,
+                "chars": len(usr),
+                "limit": int(mcfg.get("user_char_limit", 1375)),
+            },
+            "provider": str(mcfg.get("provider") or ""),
+            "memory_enabled": bool(mcfg.get("memory_enabled", True)),
+            "user_profile_enabled": bool(mcfg.get("user_profile_enabled", True)),
+        }
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/memory failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.put("/api/memory")
+def put_memory(body: MemoryWrite):
+    """Salva o conteúdo de um bloco de memória (MEMORY.md ou USER.md)."""
+    try:
+        fname = _MEMORY_FILES.get(body.target)
+        if not fname:
+            raise HTTPException(status_code=400, detail="target deve ser 'memory' ou 'user'")
+        mem_dir = _memory_dir()
+        mem_dir.mkdir(parents=True, exist_ok=True)
+        (mem_dir / fname).write_text(body.content, encoding="utf-8")
+        return {"ok": True, "chars": len(body.content)}
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("PUT /api/memory failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/memory/reset")
+def reset_memory(body: MemoryReset):
+    """Limpa a memória do agente, o perfil do usuário, ou ambos."""
+    try:
+        mem_dir = _memory_dir()
+        targets = (
+            ["memory", "user"] if body.target == "all" else [body.target]
+        )
+        for t in targets:
+            fname = _MEMORY_FILES.get(t)
+            if fname and (mem_dir / fname).exists():
+                (mem_dir / fname).write_text("", encoding="utf-8")
+        return {"ok": True}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/memory/reset failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ---------------------------------------------------------------------------
 # Kanban board API — multi-worker task orchestration (boards + tasks +
 # lifecycle). LLM-heavy ops (specify/decompose) run in a background thread
 # so the request returns immediately. Each board is a separate SQLite DB,
