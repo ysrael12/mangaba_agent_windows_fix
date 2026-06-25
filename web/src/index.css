@@ -142,11 +142,12 @@ code { font-size: 0.875rem; }
   /* ── Semantic text tokens ──────────────────────────────────────────── */
   /* Primary readable text — same as midground (full opacity). */
   --color-text-primary:   var(--midground);
-  /* Secondary text — midground at 72% opacity (WCAG AA ≥ 4.5:1 on
-     both the dark espresso and light cream backgrounds). */
+  /* Secondary text — midground at 72% opacity (WCAG AA ≥ 4.5:1). */
   --color-text-secondary: color-mix(in srgb, var(--midground-base) 72%, transparent);
   /* Tertiary / placeholder text — midground at 48%. */
   --color-text-tertiary:  color-mix(in srgb, var(--midground-base) 48%, transparent);
+  /* Disabled text — midground at 30% (intentionally below AA — disabled). */
+  --color-text-disabled:  color-mix(in srgb, var(--midground-base) 30%, transparent);
 
   --color-card: color-mix(in srgb, var(--midground-base) 5%, var(--background-base));
   --color-card-foreground: var(--midground);
