@@ -27,6 +27,7 @@ import {
   FileText,
   GitBranch,
   Globe,
+  KanbanSquare,
   Heart,
   KeyRound,
   Menu,
@@ -67,6 +68,7 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ModelsPage from "@/pages/ModelsPage";
 import CronPage from "@/pages/CronPage";
 import FleetPage from "@/pages/FleetPage";
+import KanbanPage from "@/pages/KanbanPage";
 import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
 import RoutingPage from "@/pages/RoutingPage";
 import ProfilesPage from "@/pages/ProfilesPage";
@@ -121,6 +123,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/skills": SkillsPage,
   "/plugins": PluginsPage,
   "/fleet": FleetPage,
+  "/kanban": KanbanPage,
   "/sessions/global": GlobalSessionsPage,
   "/routing": RoutingPage,
   "/profiles": ProfilesPage,
@@ -162,6 +165,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
   { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
   { path: "/fleet", labelKey: "fleet", label: "Fleet", icon: Radio },
+  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare },
   {
     path: "/sessions/global",
     labelKey: "globalSessions",

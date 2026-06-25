@@ -1436,6 +1436,396 @@ async def reveal_env_var(body: EnvVarReveal, request: Request):
 
 
 # ---------------------------------------------------------------------------
+# Kanban board API — multi-worker task orchestration (boards + tasks +
+# lifecycle). LLM-heavy ops (specify/decompose) run in a background thread
+# so the request returns immediately. Each board is a separate SQLite DB,
+# opened via kanban_db.connect(board=<slug>).
+# ---------------------------------------------------------------------------
+
+
+class KanbanBoardCreate(BaseModel):
+    """Payload to create a kanban board."""
+    slug: str
+    name: str = ""
+    description: str = ""
+
+
+class KanbanBoardSelect(BaseModel):
+    """Payload to switch the active board."""
+    slug: str
+
+
+class KanbanTaskCreate(BaseModel):
+    """Payload to create a kanban task."""
+    title: str
+    body: str = ""
+    assignee: str = ""
+    priority: int = 0
+    triage: bool = False
+    parents: List[str] = []
+
+
+class KanbanComment(BaseModel):
+    body: str
+    author: str = "dashboard"
+
+
+class KanbanAssign(BaseModel):
+    assignee: str = ""
+
+
+class KanbanBlock(BaseModel):
+    reason: str = ""
+
+
+def _kanban_task_to_dict(t: Any) -> Dict[str, Any]:
+    """Serialize a kanban_db.Task dataclass to a JSON-safe dict."""
+    return {
+        "id": t.id,
+        "title": t.title,
+        "body": t.body,
+        "assignee": t.assignee,
+        "status": t.status,
+        "priority": t.priority,
+        "tenant": t.tenant,
+        "workspace_kind": t.workspace_kind,
+        "workspace_path": t.workspace_path,
+        "branch_name": t.branch_name,
+        "created_by": t.created_by,
+        "created_at": t.created_at,
+        "started_at": t.started_at,
+        "completed_at": t.completed_at,
+        "result": t.result,
+        "skills": list(t.skills) if t.skills else [],
+        "session_id": t.session_id,
+    }
+
+
+@app.get("/api/kanban/boards")
+async def list_kanban_boards():
+    """Lista todos os quadros com contagem de tarefas por status."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        current = _kb.get_current_board()
+        boards = []
+        for meta in _kb.list_boards(include_archived=False):
+            slug = meta.get("slug")
+            stats: Dict[str, Any] = {}
+            try:
+                conn = _kb.connect(board=slug)
+                try:
+                    stats = _kb.board_stats(conn)
+                finally:
+                    conn.close()
+            except Exception:  # noqa: BLE001
+                stats = {}
+            boards.append({
+                "slug": slug,
+                "name": meta.get("name") or slug,
+                "description": meta.get("description") or "",
+                "archived": bool(meta.get("archived")),
+                "by_status": stats.get("by_status", {}),
+                "is_current": slug == current,
+            })
+        return {"boards": boards, "current": current}
+    except Exception as exc:
+        _log.exception("GET /api/kanban/boards failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/boards")
+async def create_kanban_board(body: KanbanBoardCreate):
+    """Cria um novo quadro."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        meta = _kb.create_board(
+            body.slug,
+            name=body.name or None,
+            description=body.description or None,
+        )
+        return {"ok": True, "board": {"slug": meta.get("slug"), "name": meta.get("name")}}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        _log.exception("POST /api/kanban/boards failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/boards/current")
+async def select_kanban_board(body: KanbanBoardSelect):
+    """Define o quadro ativo."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        if not _kb.board_exists(body.slug):
+            raise HTTPException(status_code=404, detail=f"Quadro '{body.slug}' não existe")
+        _kb.set_current_board(body.slug)
+        return {"ok": True, "current": body.slug}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("POST /api/kanban/boards/current failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.delete("/api/kanban/boards/{slug}")
+async def delete_kanban_board(slug: str):
+    """Arquiva um quadro (não pode arquivar o 'default')."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        result = _kb.remove_board(slug, archive=True)
+        return {"ok": True, **result}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        _log.exception("DELETE /api/kanban/boards/%s failed", slug)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/kanban/tasks")
+async def list_kanban_tasks(board: str = "", status: str = "", assignee: str = ""):
+    """Lista tarefas de um quadro (todas as colunas). Recalcula 'ready' antes."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        board_slug = board or _kb.get_current_board()
+        conn = _kb.connect(board=board_slug)
+        try:
+            _kb.recompute_ready(conn)
+            tasks = _kb.list_tasks(
+                conn,
+                status=status or None,
+                assignee=assignee or None,
+            )
+            return {
+                "board": board_slug,
+                "tasks": [_kanban_task_to_dict(t) for t in tasks],
+            }
+        finally:
+            conn.close()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        _log.exception("GET /api/kanban/tasks failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks")
+async def create_kanban_task(body: KanbanTaskCreate, board: str = ""):
+    """Cria uma tarefa no quadro."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        board_slug = board or _kb.get_current_board()
+        conn = _kb.connect(board=board_slug)
+        try:
+            task_id = _kb.create_task(
+                conn,
+                title=body.title,
+                body=body.body or None,
+                assignee=body.assignee or None,
+                created_by="dashboard",
+                priority=body.priority,
+                parents=tuple(body.parents or ()),
+                triage=bool(body.triage),
+            )
+            task = _kb.get_task(conn, task_id)
+            return {"ok": True, "task": _kanban_task_to_dict(task)}
+        finally:
+            conn.close()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/kanban/tasks/{task_id}")
+async def get_kanban_task(task_id: str, board: str = ""):
+    """Detalhe de uma tarefa: corpo, dependências, comentários, eventos, runs."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        board_slug = board or _kb.get_current_board()
+        conn = _kb.connect(board=board_slug)
+        try:
+            task = _kb.get_task(conn, task_id)
+            if task is None:
+                raise HTTPException(status_code=404, detail=f"Tarefa '{task_id}' não encontrada")
+            comments = _kb.list_comments(conn, task_id)
+            events = _kb.list_events(conn, task_id)
+            parents = _kb.parent_ids(conn, task_id)
+            children = _kb.child_ids(conn, task_id)
+            latest_summary = _kb.latest_summary(conn, task_id)
+            return {
+                "task": _kanban_task_to_dict(task),
+                "parents": parents,
+                "children": children,
+                "latest_summary": latest_summary,
+                "comments": [
+                    {"author": c.author, "body": c.body, "created_at": c.created_at}
+                    for c in comments
+                ],
+                "events": [
+                    {"kind": e.kind, "created_at": e.created_at}
+                    for e in events
+                ],
+            }
+        finally:
+            conn.close()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("GET /api/kanban/tasks/%s failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+def _kanban_simple_action(task_id: str, board: str, fn_name: str, **kwargs) -> Dict[str, Any]:
+    """Helper: open the board DB, call a kanban_db mutator, return {ok}."""
+    from mangaba_cli import kanban_db as _kb
+
+    board_slug = board or _kb.get_current_board()
+    conn = _kb.connect(board=board_slug)
+    try:
+        fn = getattr(_kb, fn_name)
+        ok = fn(conn, task_id, **kwargs)
+        return {"ok": bool(ok)}
+    finally:
+        conn.close()
+
+
+@app.post("/api/kanban/tasks/{task_id}/complete")
+async def complete_kanban_task(task_id: str, board: str = ""):
+    """Marca a tarefa como concluída."""
+    try:
+        return _kanban_simple_action(task_id, board, "complete_task")
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/complete failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks/{task_id}/block")
+async def block_kanban_task(task_id: str, body: KanbanBlock, board: str = ""):
+    """Bloqueia a tarefa (aguardando intervenção)."""
+    try:
+        return _kanban_simple_action(task_id, board, "block_task", reason=body.reason or None)
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/block failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks/{task_id}/unblock")
+async def unblock_kanban_task(task_id: str, board: str = ""):
+    """Desbloqueia a tarefa (volta para a fila)."""
+    try:
+        return _kanban_simple_action(task_id, board, "unblock_task")
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/unblock failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks/{task_id}/reclaim")
+async def reclaim_kanban_task(task_id: str, board: str = ""):
+    """Libera o claim de um worker travado (recuperação)."""
+    try:
+        return _kanban_simple_action(task_id, board, "reclaim_task")
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/reclaim failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks/{task_id}/assign")
+async def assign_kanban_task(task_id: str, body: KanbanAssign, board: str = ""):
+    """Atribui/reatribui a tarefa a um profile (worker)."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        board_slug = board or _kb.get_current_board()
+        conn = _kb.connect(board=board_slug)
+        try:
+            ok = _kb.assign_task(conn, task_id, body.assignee or None)
+            return {"ok": bool(ok)}
+        finally:
+            conn.close()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/assign failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks/{task_id}/comment")
+async def comment_kanban_task(task_id: str, body: KanbanComment, board: str = ""):
+    """Adiciona um comentário à tarefa."""
+    try:
+        from mangaba_cli import kanban_db as _kb
+
+        board_slug = board or _kb.get_current_board()
+        conn = _kb.connect(board=board_slug)
+        try:
+            comment_id = _kb.add_comment(conn, task_id, body.author or "dashboard", body.body)
+            return {"ok": True, "comment_id": comment_id}
+        finally:
+            conn.close()
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/comment failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+def _kanban_run_llm_async(kind: str, task_id: str) -> None:
+    """Run specify/decompose in a background thread (blocking LLM call).
+
+    These functions open their own DB connection and never raise — they
+    return an outcome object. We log the result and swallow exceptions so a
+    failure here can never crash the server thread.
+    """
+    try:
+        if kind == "specify":
+            from mangaba_cli.kanban_specify import specify_task
+            outcome = specify_task(task_id)
+        else:
+            from mangaba_cli.kanban_decompose import decompose_task
+            outcome = decompose_task(task_id)
+        _log.info("kanban %s(%s) -> ok=%s reason=%s",
+                  kind, task_id, getattr(outcome, "ok", None), getattr(outcome, "reason", None))
+    except Exception:  # noqa: BLE001
+        _log.exception("kanban %s(%s) background thread failed", kind, task_id)
+
+
+@app.post("/api/kanban/tasks/{task_id}/specify")
+async def specify_kanban_task(task_id: str):
+    """Dispara a especificação automática (LLM) da tarefa em background."""
+    try:
+        import threading
+        threading.Thread(
+            target=_kanban_run_llm_async, args=("specify", task_id), daemon=True
+        ).start()
+        return {"ok": True, "started": True}
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/specify failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/kanban/tasks/{task_id}/decompose")
+async def decompose_kanban_task(task_id: str):
+    """Dispara a decomposição automática (LLM) da tarefa em subtarefas, em background."""
+    try:
+        import threading
+        threading.Thread(
+            target=_kanban_run_llm_async, args=("decompose", task_id), daemon=True
+        ).start()
+        return {"ok": True, "started": True}
+    except Exception as exc:
+        _log.exception("POST /api/kanban/tasks/%s/decompose failed", task_id)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ---------------------------------------------------------------------------
 # OAuth provider endpoints — status + disconnect (Phase 1)
 # ---------------------------------------------------------------------------
 #

@@ -367,6 +367,85 @@ export const api = {
         body: JSON.stringify({ message }),
       },
     ),
+
+  // ── Kanban ─────────────────────────────────────────────────────────────
+  getKanbanBoards: () =>
+    fetchJSON<KanbanBoardsResponse>("/api/kanban/boards"),
+  createKanbanBoard: (body: { slug: string; name?: string; description?: string }) =>
+    fetchJSON<{ ok: boolean; board: { slug: string; name: string } }>("/api/kanban/boards", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  selectKanbanBoard: (slug: string) =>
+    fetchJSON<{ ok: boolean; current: string }>("/api/kanban/boards/current", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug }),
+    }),
+  deleteKanbanBoard: (slug: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/kanban/boards/${encodeURIComponent(slug)}`, {
+      method: "DELETE",
+    }),
+  getKanbanTasks: (board: string) =>
+    fetchJSON<KanbanTasksResponse>(`/api/kanban/tasks?board=${encodeURIComponent(board)}`),
+  createKanbanTask: (
+    board: string,
+    body: { title: string; body?: string; assignee?: string; priority?: number; triage?: boolean },
+  ) =>
+    fetchJSON<{ ok: boolean; task: KanbanTask }>(
+      `/api/kanban/tasks?board=${encodeURIComponent(board)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    ),
+  getKanbanTask: (board: string, id: string) =>
+    fetchJSON<KanbanTaskDetail>(
+      `/api/kanban/tasks/${encodeURIComponent(id)}?board=${encodeURIComponent(board)}`,
+    ),
+  kanbanTaskAction: (
+    board: string,
+    id: string,
+    action: "complete" | "unblock" | "reclaim",
+  ) =>
+    fetchJSON<{ ok: boolean }>(
+      `/api/kanban/tasks/${encodeURIComponent(id)}/${action}?board=${encodeURIComponent(board)}`,
+      { method: "POST" },
+    ),
+  kanbanBlockTask: (board: string, id: string, reason: string) =>
+    fetchJSON<{ ok: boolean }>(
+      `/api/kanban/tasks/${encodeURIComponent(id)}/block?board=${encodeURIComponent(board)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason }),
+      },
+    ),
+  kanbanAssignTask: (board: string, id: string, assignee: string) =>
+    fetchJSON<{ ok: boolean }>(
+      `/api/kanban/tasks/${encodeURIComponent(id)}/assign?board=${encodeURIComponent(board)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignee }),
+      },
+    ),
+  kanbanCommentTask: (board: string, id: string, commentBody: string) =>
+    fetchJSON<{ ok: boolean; comment_id: number }>(
+      `/api/kanban/tasks/${encodeURIComponent(id)}/comment?board=${encodeURIComponent(board)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: commentBody }),
+      },
+    ),
+  kanbanLlmAction: (id: string, action: "specify" | "decompose") =>
+    fetchJSON<{ ok: boolean; started: boolean }>(
+      `/api/kanban/tasks/${encodeURIComponent(id)}/${action}`,
+      { method: "POST" },
+    ),
 };
 
 export interface FleetMember {
@@ -855,4 +934,50 @@ export interface AgentPluginUpdateResponse {
 export interface PluginProvidersPutRequest {
   memory_provider?: string;
   context_engine?: string;
+}
+
+// ── Kanban ────────────────────────────────────────────────────────────────
+
+export interface KanbanBoardSummary {
+  slug: string;
+  name: string;
+  description: string;
+  archived: boolean;
+  by_status: Record<string, number>;
+  is_current: boolean;
+}
+
+export interface KanbanBoardsResponse {
+  boards: KanbanBoardSummary[];
+  current: string;
+}
+
+export interface KanbanTask {
+  id: string;
+  title: string;
+  body: string | null;
+  assignee: string | null;
+  status: string;
+  priority: number;
+  created_by: string | null;
+  created_at: number;
+  started_at: number | null;
+  completed_at: number | null;
+  result: string | null;
+  skills: string[];
+  session_id: string | null;
+}
+
+export interface KanbanTasksResponse {
+  board: string;
+  tasks: KanbanTask[];
+}
+
+export interface KanbanTaskDetail {
+  task: KanbanTask;
+  parents: string[];
+  children: string[];
+  latest_summary: string | null;
+  comments: { author: string; body: string; created_at: number }[];
+  events: { kind: string; created_at: number }[];
 }

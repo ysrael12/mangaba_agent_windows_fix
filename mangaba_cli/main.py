@@ -10523,6 +10523,37 @@ def _report_dashboard_status() -> int:
     return len(pids)
 
 
+def _autostart_gateway_if_needed() -> None:
+    """Start the messaging gateway in the background if it isn't running.
+
+    Called from ``cmd_dashboard`` so a fresh ``mangaba dashboard`` brings the
+    agent online without a separate ``mangaba gateway start``. No-op when the
+    gateway is already running, or when opted out via ``--no-gateway`` /
+    ``MANGABA_DASHBOARD_NO_GATEWAY=1`` (handled by the caller). Spawns a
+    detached ``gateway run --replace`` for the active profile using the same
+    platform-aware detach the CLI uses elsewhere; never raises.
+    """
+    try:
+        from gateway.status import get_running_pid
+
+        if get_running_pid() is not None:
+            return  # already up — nothing to do
+
+        from mangaba_cli._subprocess_compat import windows_detach_popen_kwargs
+        from mangaba_cli.gateway import _gateway_run_args_for_profile
+
+        subprocess.Popen(
+            _gateway_run_args_for_profile("default"),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            **windows_detach_popen_kwargs(),
+        )
+        print("→ Gateway não estava rodando; iniciando em segundo plano…")
+    except Exception as exc:  # noqa: BLE001 — autostart is best-effort
+        print(f"⚠ Não consegui iniciar o gateway automaticamente: {exc}")
+        print("  Inicie manualmente com: mangaba gateway run")
+
+
 def cmd_dashboard(args):
     """Start the web UI server, or (with --stop/--status) manage running ones."""
     # --status: report running dashboards and exit, no deps needed.
@@ -10577,6 +10608,16 @@ def cmd_dashboard(args):
         print(f"→ Skipping web UI build (--skip-build); using dist at {_dist_root}")
 
     from mangaba_cli.web_server import start_server
+
+    # Auto-start the gateway alongside the dashboard so the agent comes online
+    # without a separate `mangaba gateway start`. Opt out with --no-gateway or
+    # MANGABA_DASHBOARD_NO_GATEWAY=1.
+    skip_gateway = (
+        getattr(args, "no_gateway", False)
+        or os.environ.get("MANGABA_DASHBOARD_NO_GATEWAY") == "1"
+    )
+    if not skip_gateway:
+        _autostart_gateway_if_needed()
 
     embedded_chat = args.tui or os.environ.get("MANGABA_DASHBOARD_TUI") == "1"
     start_server(
@@ -13845,6 +13886,12 @@ Examples:
         "--status",
         action="store_true",
         help="List running mangaba dashboard processes and exit",
+    )
+    dashboard_parser.add_argument(
+        "--no-gateway",
+        action="store_true",
+        help="Do not auto-start the messaging gateway alongside the dashboard "
+        "(by default the dashboard starts the gateway if it isn't running)",
     )
     dashboard_parser.set_defaults(func=cmd_dashboard)
 
