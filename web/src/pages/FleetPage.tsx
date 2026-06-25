@@ -64,7 +64,7 @@ function ChannelsPanel({
           <span className="font-medium">
             Canais · {member.name}
           </span>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <Button ghost size="sm" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -209,7 +209,7 @@ export default function FleetPage() {
           <Radio className="h-5 w-5" />
           <H2>Frota de agentes</H2>
         </div>
-        <Button variant="ghost" size="sm" onClick={load} disabled={loading}>
+        <Button ghost size="sm" onClick={load} disabled={loading}>
           <RefreshCw className="h-4 w-4" /> Atualizar
         </Button>
       </div>
@@ -270,7 +270,7 @@ export default function FleetPage() {
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-1">
                   <Button
-                    variant="outline"
+                    outlined
                     size="sm"
                     onClick={() => {
                       setExpandedChannels((prev) => {
@@ -289,21 +289,21 @@ export default function FleetPage() {
                     Canais
                   </Button>
                   <Button
-                    variant="outline"
+                    outlined
                     size="sm"
                     onClick={() => setChannelsFor(m)}
                   >
                     <Settings className="h-4 w-4" /> Configurar canais
                   </Button>
                   <Button
-                    variant="outline"
+                    outlined
                     size="sm"
                     onClick={() => openLogs(m.name)}
                   >
                     <FileText className="h-4 w-4" /> Logs
                   </Button>
                   <Button
-                    variant="outline"
+                    outlined
                     size="sm"
                     onClick={() => act(m.name, "restart")}
                     disabled={busy === `${m.name}:restart`}
@@ -317,7 +317,7 @@ export default function FleetPage() {
                   </Button>
                   {m.running ? (
                     <Button
-                      variant="outline"
+                      outlined
                       size="sm"
                       onClick={() => act(m.name, "stop")}
                       disabled={m.is_default || busy === `${m.name}:stop`}
@@ -327,7 +327,7 @@ export default function FleetPage() {
                     </Button>
                   ) : (
                     <Button
-                      variant="outline"
+                      outlined
                       size="sm"
                       onClick={() => act(m.name, "start")}
                       disabled={busy === `${m.name}:start`}
@@ -407,7 +407,7 @@ export default function FleetPage() {
           >
             <div className="flex items-center justify-between border-b p-3">
               <span className="font-medium">Logs · {logsFor}</span>
-              <Button variant="ghost" size="sm" onClick={() => setLogsFor(null)}>
+              <Button ghost size="sm" onClick={() => setLogsFor(null)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>

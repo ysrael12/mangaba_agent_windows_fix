@@ -6,6 +6,13 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["serve", "docs", "-p", "4321", "--no-clipboard"],
       "port": 4321
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["vite", "--port", "5199"],
+      "cwd": "web",
+      "port": 5199
     }
   ]
 }

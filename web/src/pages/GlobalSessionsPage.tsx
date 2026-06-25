@@ -139,7 +139,7 @@ export default function GlobalSessionsPage() {
                       {s.message_count} {t.common.msgs}
                     </span>
                     <span className="text-border">&#183;</span>
-                    <span className="shrink-0">{timeAgo(Number(s.last_active))}</span>
+                    <span className="shrink-0">{timeAgo(new Date(s.last_active).getTime())}</span>
                   </div>
                 </div>
               </div>

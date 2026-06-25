@@ -72,6 +72,7 @@ export default function PluginsPage() {
       </Button>,
     );
     return () => setAfterTitle(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, rescanBusy, setAfterTitle, t.pluginsPage.refreshDashboard]);
 
   const onInstall = async () => {

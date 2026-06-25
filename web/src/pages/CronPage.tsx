@@ -123,7 +123,7 @@ export default function CronPage() {
     api
       .getCronJobs(selectedProfile)
       .then(setJobs)
-      .catch(() => showToast(t.common.loading, "error"))
+      .catch(() => showToast(t.status.error, "error"))
       .finally(() => setLoading(false));
   }, [selectedProfile, showToast, t.common.loading]);
 
@@ -162,7 +162,7 @@ export default function CronPage() {
       setCreateModalOpen(false);
       loadJobs();
     } catch (e) {
-      showToast(`${t.config.failedToSave}: ${e}`, "error");
+      showToast(`${t.status.error}: ${e}`, "error");
     } finally {
       setCreating(false);
     }

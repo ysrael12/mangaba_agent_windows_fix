@@ -841,7 +841,7 @@ export default function ChatPage({ isActive = true }: { isActive?: boolean }) {
 
         {!narrow && (
           <div
-            id="chat-side-panel"
+            id="chat-side-panel-desktop"
             role="complementary"
             aria-label={modelToolsLabel}
             className="flex min-h-0 shrink-0 flex-col overflow-hidden lg:h-full lg:w-80"

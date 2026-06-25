@@ -919,8 +919,8 @@ async def get_sessions(limit: int = 20, offset: int = 0):
 
 
 @app.get("/api/sessions/fleet")
-async def get_fleet_sessions(limit: int = 10):
-    """Retorna sessões recentes de TODOS os profiles da frota."""
+async def get_fleet_sessions(limit: int = 10, offset: int = 0):
+    """Retorna sessões recentes de TODOS os profiles da frota com paginação."""
     try:
         from mangaba_cli import fleet as _fleet
         from mangaba_state import SessionDB
@@ -933,7 +933,8 @@ async def get_fleet_sessions(limit: int = 10):
             try:
                 db = SessionDB(db_path=db_path)
                 try:
-                    sessions = db.list_sessions_rich(limit=limit)
+                    # busca mais que limit para ter total correto após merge
+                    sessions = db.list_sessions_rich(limit=limit + offset)
                     for s in sessions:
                         s_dict = dict(s) if not isinstance(s, dict) else s
                         s_dict["_profile"] = member.name
@@ -949,7 +950,9 @@ async def get_fleet_sessions(limit: int = 10):
             key=lambda s: s.get("last_active") or s.get("started_at") or 0,
             reverse=True,
         )
-        return {"sessions": all_sessions, "total": len(all_sessions)}
+        total = len(all_sessions)
+        page = all_sessions[offset: offset + limit]
+        return {"sessions": page, "total": total}
     except Exception as exc:
         _log.exception("GET /api/sessions/fleet failed")
         raise HTTPException(status_code=500, detail=str(exc))

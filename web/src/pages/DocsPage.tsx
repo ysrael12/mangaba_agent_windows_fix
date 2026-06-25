@@ -1,5 +1,5 @@
 import { useLayoutEffect, useState } from "react";
-import { useI18n } from "@/i18n";
+
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { cn } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
@@ -686,7 +686,7 @@ const LEVELS = [
 type Level = (typeof LEVELS)[number]["id"];
 
 export default function DocsPage() {
-  useI18n();
+
   const { setEnd } = usePageHeader();
   const [level, setLevel] = useState<Level>("basic");
 
@@ -733,7 +733,7 @@ export default function DocsPage() {
       </aside>
 
       {/* Tabs mobile */}
-      <div className="sm:hidden flex border-b border-border w-full shrink-0 absolute top-0">
+      <div className="sm:hidden flex border-b border-border w-full shrink-0">
         {LEVELS.map((l) => (
           <button
             key={l.id}
