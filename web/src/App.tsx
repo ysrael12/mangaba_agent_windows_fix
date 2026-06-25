@@ -28,6 +28,7 @@ import {
   GitBranch,
   Globe,
   KanbanSquare,
+  Lightbulb,
   Heart,
   KeyRound,
   Menu,
@@ -69,6 +70,7 @@ import ModelsPage from "@/pages/ModelsPage";
 import CronPage from "@/pages/CronPage";
 import FleetPage from "@/pages/FleetPage";
 import KanbanPage from "@/pages/KanbanPage";
+import ExamplesPage from "@/pages/ExamplesPage";
 import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
 import RoutingPage from "@/pages/RoutingPage";
 import ProfilesPage from "@/pages/ProfilesPage";
@@ -130,6 +132,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/config": ConfigPage,
   "/env": EnvPage,
   "/docs": DocsPage,
+  "/examples": ExamplesPage,
 };
 
 // Route placeholder for /chat.  The persistent ChatPage host (rendered
@@ -186,6 +189,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
     label: "Documentation",
     icon: BookOpen,
   },
+  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb },
 ];
 
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
