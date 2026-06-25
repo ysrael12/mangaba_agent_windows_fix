@@ -125,53 +125,40 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/examples": ExamplesPage,
 };
 
+// Ordem da jornada do usuário, passo a passo:
+// 1) aprender → 2) configurar a IA → 3) criar agentes e canais →
+// 4) usar → 5) automatizar → 6) acompanhar → 7) ajustar.
 const BUILTIN_NAV_REST: NavItem[] = [
-  {
-    path: "/sessions",
-    labelKey: "sessions",
-    label: "Sessions",
-    icon: MessageSquare,
-  },
-  {
-    path: "/analytics",
-    labelKey: "analytics",
-    label: "Analytics",
-    icon: BarChart3,
-  },
-  {
-    path: "/models",
-    labelKey: "models",
-    label: "Models",
-    icon: Cpu,
-  },
-  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
-  { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
+  // 1) Aprender
+  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen },
+  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb },
+
+  // 2) Configurar o "cérebro"
+  { path: "/models", labelKey: "models", label: "Models", icon: Cpu },
+  { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
   { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
   { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
+
+  // 3) Criar agentes e canais
   { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
+  { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch },
   { path: "/fleet", labelKey: "fleet", label: "Fleet", icon: Radio },
+
+  // 4) Usar
+  CHAT_NAV_ITEM,
+  { path: "/sessions", labelKey: "sessions", label: "Sessions", icon: MessageSquare },
+  { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe },
+
+  // 5) Automatizar
+  { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
   { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare },
-  {
-    path: "/sessions/global",
-    labelKey: "globalSessions",
-    label: "Sessões Globais",
-    icon: Globe,
-  },
-  {
-    path: "/routing",
-    labelKey: "routing",
-    label: "Roteamento",
-    icon: GitBranch,
-  },
+
+  // 6) Acompanhar
+  { path: "/analytics", labelKey: "analytics", label: "Analytics", icon: BarChart3 },
+  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
+
+  // 7) Ajustar
   { path: "/config", labelKey: "config", label: "Config", icon: Settings },
-  { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
-  {
-    path: "/docs",
-    labelKey: "documentation",
-    label: "Documentation",
-    icon: BookOpen,
-  },
-  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb },
 ];
 
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
@@ -358,11 +345,10 @@ export default function App() {
   );
 
   const builtinNav = useMemo(() => {
-    // Chat tab is always shown; the route handles the disabled state.
-    const base = [CHAT_NAV_ITEM, ...BUILTIN_NAV_REST];
+    // BUILTIN_NAV_REST já está na ordem da jornada (Chat incluído).
     return showTokenAnalytics
-      ? base
-      : base.filter((n) => n.path !== "/analytics");
+      ? BUILTIN_NAV_REST
+      : BUILTIN_NAV_REST.filter((n) => n.path !== "/analytics");
   }, [showTokenAnalytics]);
 
   const sidebarNav = useMemo(
