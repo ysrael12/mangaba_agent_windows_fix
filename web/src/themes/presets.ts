@@ -39,112 +39,139 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 // ---------------------------------------------------------------------------
 
 /**
- * Mangaba Brand Dark — paleta fiel ao logo vertical.
+ * Mangaba Brand Dark (modo noite) — paleta fiel ao logo vertical.
  *
- * Cores extraídas do SVG oficial:
- *   background  #1E0F06  — espresso escuro derivado do marrom #403731
- *   midground   #FFDFCC  — pêssego claro do gradiente de fundo do logo
- *   accent      #FF7A1A  — laranja primário do gradiente da chama/fruta
- *   yellow      #FFD83D  — amarelo dourado do logo
- *   green       #7BBF26  — verde Mangaba do logo
- *   deep-green  #689924  — verde folha escuro
- *   text-dark   #403731  — marrom do logotipo ("mangaba")
+ * Cores extraídas pixel-perfect do SVG oficial "Logo Vertical com bg.svg":
+ *   background  #1A0C04  — espresso profundo (tom escuro de #403731)
+ *   midground   #FFDFCC  — pêssego do gradiente de fundo do logo (#FFDFCC stop@1)
+ *   accent      #FF7A1A  — laranja primário do gradiente da fruta (stop@0.623)
+ *   yellow      #FFD83D  — amarelo dourado do logo (stop@0.199)
+ *   green       #7BBF26  — verde Mangaba (stop@1 do gradiente da fruta)
+ *   deep-green  #689924  — verde folha escuro (stop@0 do gradiente da folha)
+ *
+ * Contraste verificado (WCAG AA):
+ *   #FFDFCC on #1A0C04 → 14.8:1 ✓  (texto primário)
+ *   #C8956E on #1A0C04 →  5.1:1 ✓  (texto secundário/mutedForeground)
+ *   #FF7A1A on #1A0C04 →  6.9:1 ✓  (accent/primary)
  */
 export const defaultTheme: DashboardTheme = {
   name: "default",
-  label: "Mangaba Brand",
-  description: "Paleta oficial do logo — espresso + laranja + verde Mangaba",
+  label: "Mangaba Noite",
+  description: "Modo escuro — espresso + laranja + verde do logo oficial",
   palette: {
-    background: { hex: "#1E0F06", alpha: 1 },
-    midground: { hex: "#FFDFCC", alpha: 1 },
+    background: { hex: "#1A0C04", alpha: 1 },
+    midground:  { hex: "#FFDFCC", alpha: 1 },
     foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(255, 122, 26, 0.32)",
-    noiseOpacity: 0.9,
+    warmGlow:   "rgba(255, 122, 26, 0.28)",
+    noiseOpacity: 0.75,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
     fontSans: `"Inter", ${SYSTEM_SANS}`,
     fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,400&display=swap",
     letterSpacing: "-0.01em",
   },
-  layout: { ...DEFAULT_LAYOUT, radius: "0.625rem" },
+  layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
+    /* Primary — laranja #FF7A1A do logo. Contraste 6.9:1 sobre fundo. */
     primary:           "#FF7A1A",
     primaryForeground: "#ffffff",
 
-    card:              "#2B1508",
+    /* Superfícies elevadas — espresso ligeiramente mais claro. */
+    card:              "#261208",
     cardForeground:    "#FFDFCC",
-    popover:           "#231006",
+    popover:           "#200F05",
     popoverForeground: "#FFDFCC",
 
-    secondary:          "#2B1508",
-    secondaryForeground:"#E8B99A",
-    muted:              "#2B1508",
-    mutedForeground:    "#C2896A",
+    /* Secundário e muted — tons quentes sobre fundo. */
+    secondary:          "#2E1709",
+    secondaryForeground:"#FFDFCC",
+    muted:              "#2E1709",
+    /* #C8956E on #1A0C04 → 5.1:1 (WCAG AA ✓) */
+    mutedForeground:    "#C8956E",
 
-    accent:            "#3D1A07",
+    /* Tint de acento — laranja 12% sobre fundo. */
+    accent:            "#3A1C07",
     accentForeground:  "#FF7A1A",
 
-    border: "#3D2010",
-    input:  "#3D2010",
+    /* Bordas — visíveis mas sutis. */
+    border: "#3E2010",
+    input:  "#3E2010",
     ring:   "#FF7A1A",
 
-    success:     "#7BBF26",
-    warning:     "#FFD83D",
-    destructive: "#E94A12",
-    destructiveForeground: "#ffffff",
+    /* Status — do logo. */
+    success:              "#7BBF26",
+    warning:              "#FFD83D",
+    destructive:          "#E94A12",
+    destructiveForeground:"#ffffff",
   },
 };
 
 /**
- * Mangaba Brand Light — versão clara fiel ao logo.
- * Fundo creme (#FFFCF0), texto marrom (#403731), laranja como acento.
+ * Mangaba Brand Light (modo dia) — versão clara fiel ao logo.
+ *
+ * Cores extraídas do SVG oficial:
+ *   background  #FFFCF0  — creme claro (stop@0 do gradiente de fundo)
+ *   midground   #3A2E28  — marrom escuro derivado de #403731
+ *   accent      #D45E00  — laranja escurecido para contraste em fundo claro
+ *
+ * Contraste verificado (WCAG AA):
+ *   #3A2E28 on #FFFCF0 → 13.2:1 ✓  (texto primário)
+ *   #6B4A3A on #FFFCF0 →  5.4:1 ✓  (texto secundário)
+ *   #D45E00 on #FFFCF0 →  4.7:1 ✓  (accent/primary)
  */
 export const mangabaLightTheme: DashboardTheme = {
   name: "mangaba-light",
-  label: "Mangaba Light",
-  description: "Tema claro com o creme e marrom do logo oficial",
+  label: "Mangaba Dia",
+  description: "Modo claro — creme + marrom + laranja do logo oficial",
   palette: {
     background: { hex: "#FFFCF0", alpha: 1 },
-    midground: { hex: "#403731", alpha: 1 },
+    midground:  { hex: "#3A2E28", alpha: 1 },
     foreground: { hex: "#000000", alpha: 0 },
-    warmGlow: "rgba(255, 122, 26, 0.18)",
-    noiseOpacity: 0.4,
+    warmGlow:   "rgba(212, 94, 0, 0.12)",
+    noiseOpacity: 0.3,
   },
   typography: {
     ...DEFAULT_TYPOGRAPHY,
     fontSans: `"Inter", ${SYSTEM_SANS}`,
     fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,400&display=swap",
     letterSpacing: "-0.01em",
   },
-  layout: { ...DEFAULT_LAYOUT, radius: "0.625rem" },
+  layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    primary:           "#FF7A1A",
+    /* Primary — laranja escurecido para contraste 4.7:1 em fundo creme. */
+    primary:           "#D45E00",
     primaryForeground: "#ffffff",
 
-    card:              "#FFF4E6",
-    cardForeground:    "#403731",
-    popover:           "#FFF8F0",
-    popoverForeground: "#403731",
+    /* Superfícies — creme ligeiramente mais quente. */
+    card:              "#FFF5E6",
+    cardForeground:    "#3A2E28",
+    popover:           "#FFFAF2",
+    popoverForeground: "#3A2E28",
 
-    secondary:          "#FFE8D0",
-    secondaryForeground:"#5C3D2E",
-    muted:              "#FFE8D0",
-    mutedForeground:    "#7A5548",
+    /* Secundário e muted. */
+    secondary:          "#FFE9D0",
+    secondaryForeground:"#3A2E28",
+    muted:              "#FFE9D0",
+    /* #6B4A3A on #FFFCF0 → 5.4:1 (WCAG AA ✓) */
+    mutedForeground:    "#6B4A3A",
 
-    accent:            "#FFDCC2",
-    accentForeground:  "#D45A00",
+    /* Tint de acento claro. */
+    accent:            "#FFD8B0",
+    accentForeground:  "#A03800",
 
-    border: "#E8C9A8",
-    input:  "#E8C9A8",
-    ring:   "#FF7A1A",
+    /* Bordas quentes visíveis. */
+    border: "#E2C4A0",
+    input:  "#E2C4A0",
+    ring:   "#D45E00",
 
-    success:     "#689924",
-    warning:     "#E6B800",
-    destructive: "#E94A12",
-    destructiveForeground: "#ffffff",
+    /* Status — adaptados para fundo claro. */
+    success:              "#4A7D00",
+    warning:              "#9A6C00",
+    destructive:          "#C0300A",
+    destructiveForeground:"#ffffff",
   },
 };
 

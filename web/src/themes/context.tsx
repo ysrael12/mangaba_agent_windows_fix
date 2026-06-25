@@ -27,6 +27,13 @@ import { api } from "@/lib/api";
  *  a visible flash of the default palette on theme-overridden installs. */
 const STORAGE_KEY = "mangaba-dashboard-theme";
 
+/** Canonical dark / light theme names for the day-night toggle. */
+export const NIGHT_THEME = "default";
+export const DAY_THEME   = "mangaba-light";
+
+/** Light-background theme names — used to derive `isDark`. */
+const LIGHT_THEME_NAMES = new Set([DAY_THEME, "rose"]);
+
 /** Tracks fontUrls we've already injected so multiple theme switches don't
  *  pile up <link> tags. Keyed by URL. */
 const INJECTED_FONT_URLS = new Set<string>();
@@ -401,14 +408,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [availableThemes, userThemeDefs],
   );
 
+  const isDark = !LIGHT_THEME_NAMES.has(themeName);
+
+  const toggleDayNight = useCallback(() => {
+    setTheme(isDark ? DAY_THEME : NIGHT_THEME);
+  }, [isDark, setTheme]);
+
   const value = useMemo<ThemeContextValue>(
     () => ({
       theme: resolveTheme(themeName),
       themeName,
       availableThemes,
       setTheme,
+      isDark,
+      toggleDayNight,
     }),
-    [themeName, availableThemes, setTheme, resolveTheme],
+    [themeName, availableThemes, setTheme, resolveTheme, isDark, toggleDayNight],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -427,11 +442,15 @@ const ThemeContext = createContext<ThemeContextValue>({
     description: t.description,
   })),
   setTheme: () => {},
+  isDark: true,
+  toggleDayNight: () => {},
 });
 
 interface ThemeContextValue {
   availableThemes: ThemeListEntry[];
+  isDark: boolean;
   setTheme: (name: string) => void;
   theme: DashboardTheme;
   themeName: string;
+  toggleDayNight: () => void;
 }

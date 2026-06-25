@@ -30,6 +30,7 @@ import {
   KeyRound,
   Menu,
   MessageSquare,
+  Moon,
   Package,
   Puzzle,
   Radio,
@@ -38,6 +39,7 @@ import {
   Shield,
   Sparkles,
   Star,
+  Sun,
   Terminal,
   Users,
   Wrench,
@@ -48,7 +50,6 @@ import { Button } from "@dheiver2/ui/ui/components/button";
 import { ListItem } from "@dheiver2/ui/ui/components/list-item";
 import { SelectionSwitcher } from "@dheiver2/ui/ui/components/selection-switcher";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
-import { Typography } from "@/components/NouiTypography";
 import { cn } from "@/lib/utils";
 import { Backdrop } from "@/components/Backdrop";
 import { SidebarFooter } from "@/components/SidebarFooter";
@@ -313,7 +314,7 @@ export default function App() {
   const { t } = useI18n();
   const { pathname } = useLocation();
   const { manifests, loading: pluginsLoading } = usePlugins();
-  const { theme } = useTheme();
+  const { theme, isDark, toggleDayNight } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
@@ -455,12 +456,24 @@ export default function App() {
           <Menu />
         </Button>
 
-        <Typography
-          className="font-bold text-[0.95rem] leading-[0.95] tracking-[0.05em] text-midground"
-          style={{ mixBlendMode: "plus-lighter" }}
-        >
-          {t.app.brand}
-        </Typography>
+        <img
+          src="/logo-mangaba.svg"
+          alt="Mangaba"
+          style={{ height: "36px", width: "auto" }}
+        />
+
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            ghost
+            size="icon"
+            onClick={toggleDayNight}
+            aria-label={isDark ? "Modo dia" : "Modo noite"}
+            className="text-text-secondary hover:text-midground"
+            title={isDark ? "Mudar para modo dia" : "Mudar para modo noite"}
+          >
+            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+        </div>
       </header>
 
       {mobileOpen && (
@@ -579,6 +592,21 @@ export default function App() {
             >
               <div className="flex min-w-0 items-center gap-2">
                 <PluginSlot name="header-right" />
+
+                {/* Dia / Noite toggle — acesso rápido sem abrir o picker completo */}
+                <Button
+                  ghost
+                  size="icon"
+                  onClick={toggleDayNight}
+                  aria-label={isDark ? "Modo dia" : "Modo noite"}
+                  title={isDark ? "Mudar para modo dia" : "Mudar para modo noite"}
+                  className="text-text-secondary hover:text-midground"
+                >
+                  {isDark
+                    ? <Sun className="h-3.5 w-3.5" />
+                    : <Moon className="h-3.5 w-3.5" />}
+                </Button>
+
                 <ThemeSwitcher dropUp />
                 <LanguageSwitcher dropUp />
               </div>
