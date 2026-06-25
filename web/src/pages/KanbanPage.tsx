@@ -7,6 +7,7 @@ import {
   Trash2,
   Sparkles,
   GitFork,
+  Lightbulb,
 } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Badge } from "@dheiver2/ui/ui/components/badge";
@@ -49,19 +50,68 @@ function fmtTime(ts: number | null): string {
 // Modal de criação de tarefa
 // ---------------------------------------------------------------------------
 
+// Exemplos prontos de tarefas — clicar pré-preenche o formulário de nova tarefa.
+interface TaskExample {
+  title: string;
+  body: string;
+  triage: boolean;
+  level: string;
+}
+
+const TASK_EXAMPLES: TaskExample[] = [
+  {
+    title: "Escrever testes para o módulo X",
+    body: "Cobrir os caminhos felizes e os principais casos de erro do módulo X com testes unitários.",
+    triage: false,
+    level: "Simples",
+  },
+  {
+    title: "Revisar e melhorar a documentação",
+    body: "Ler a documentação atual, apontar as seções confusas ou desatualizadas e reescrever as 3 mais problemáticas.",
+    triage: false,
+    level: "Simples",
+  },
+  {
+    title: "Refatorar o módulo de autenticação",
+    body: "Extrair a validação de token para uma função reutilizável e adicionar testes unitários cobrindo token expirado, inválido e válido.",
+    triage: false,
+    level: "Médio",
+  },
+  {
+    title: "Pesquisar 5 concorrentes",
+    body: "Levantar 5 concorrentes do produto, montar uma tabela comparativa de preço e recursos, e escrever uma análise de 1 página com recomendações.",
+    triage: true,
+    level: "Médio (IA decompõe)",
+  },
+  {
+    title: "Lançar uma landing page",
+    body: "Objetivo: landing page de um app de finanças. Quebrar em pesquisa de referências, copy do herói, estrutura HTML, estilo visual e revisão final, com as dependências corretas (revisão depende de tudo).",
+    triage: true,
+    level: "Complexo (swarm)",
+  },
+  {
+    title: "Auditar a segurança do repositório",
+    body: "Dividir por área (autenticação, validação de entrada, dependências, segredos no código), um agente por área, com um verificador que consolida os achados confirmados.",
+    triage: true,
+    level: "Complexo (swarm)",
+  },
+];
+
 function NewTaskModal({
   board,
+  initial,
   onClose,
   onCreated,
 }: {
   board: string;
+  initial?: { title: string; body: string; triage: boolean };
   onClose: () => void;
   onCreated: () => void;
 }) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [body, setBody] = useState(initial?.body ?? "");
   const [assignee, setAssignee] = useState("");
-  const [triage, setTriage] = useState(false);
+  const [triage, setTriage] = useState(initial?.triage ?? false);
   const [busy, setBusy] = useState(false);
   const { toast, showToast } = useToast();
 
@@ -421,7 +471,22 @@ export default function KanbanPage() {
   const [newBoardOpen, setNewBoardOpen] = useState(false);
   const [newBoardSlug, setNewBoardSlug] = useState("");
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [examplesOpen, setExamplesOpen] = useState(false);
+  const [prefill, setPrefill] = useState<
+    { title: string; body: string; triage: boolean } | undefined
+  >(undefined);
   const { toast, showToast } = useToast();
+
+  const useExample = (ex: TaskExample) => {
+    setPrefill({ title: ex.title, body: ex.body, triage: ex.triage });
+    setExamplesOpen(false);
+    setNewTaskOpen(true);
+  };
+
+  const openBlankTask = () => {
+    setPrefill(undefined);
+    setNewTaskOpen(true);
+  };
 
   const loadBoards = useCallback(() => {
     setLoading(true);
@@ -519,7 +584,15 @@ export default function KanbanPage() {
           <Button outlined size="sm" onClick={() => loadTasks(current)} disabled={loadingTasks}>
             <RefreshCw className="h-4 w-4" /> Atualizar
           </Button>
-          <Button size="sm" onClick={() => setNewTaskOpen(true)} disabled={!current}>
+          <Button
+            outlined
+            size="sm"
+            onClick={() => setExamplesOpen((v) => !v)}
+            disabled={!current}
+          >
+            <Lightbulb className="h-4 w-4" /> Exemplos
+          </Button>
+          <Button size="sm" onClick={openBlankTask} disabled={!current}>
             <Plus className="h-4 w-4" /> Nova tarefa
           </Button>
         </div>
@@ -581,6 +654,34 @@ export default function KanbanPage() {
         )}
       </div>
 
+      {/* Painel de exemplos (toggle) */}
+      {examplesOpen && (
+        <Card>
+          <CardContent className="flex flex-col gap-2 p-4">
+            <p className="text-sm font-medium">Exemplos de tarefas — clique para usar</p>
+            <p className="text-xs text-muted-foreground">
+              Preenche o formulário de nova tarefa. As marcadas com "IA" entram em
+              triagem para você usar Especificar/Decompor depois.
+            </p>
+            <div className="mt-1 grid gap-2 sm:grid-cols-2">
+              {TASK_EXAMPLES.map((ex, i) => (
+                <button
+                  key={i}
+                  onClick={() => useExample(ex)}
+                  className="flex flex-col gap-1 rounded-md border border-border p-3 text-left transition-colors hover:bg-secondary/40"
+                >
+                  <span className="text-sm font-medium">{ex.title}</span>
+                  <span className="line-clamp-2 text-xs text-muted-foreground">{ex.body}</span>
+                  <Badge tone={ex.triage ? "warning" : "secondary"} className="mt-1 w-fit text-xs">
+                    {ex.level}
+                  </Badge>
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Colunas do quadro */}
       {loadingTasks ? (
         <div className="flex justify-center py-12">
@@ -588,8 +689,18 @@ export default function KanbanPage() {
         </div>
       ) : tasks.length === 0 ? (
         <Card>
-          <CardContent className="p-6 text-center text-sm text-muted-foreground">
-            Nenhuma tarefa neste quadro ainda. Clique em <strong>Nova tarefa</strong> para começar.
+          <CardContent className="flex flex-col items-center gap-3 p-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              Nenhuma tarefa neste quadro ainda.
+            </p>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={openBlankTask} disabled={!current}>
+                <Plus className="h-4 w-4" /> Nova tarefa
+              </Button>
+              <Button outlined size="sm" onClick={() => setExamplesOpen(true)} disabled={!current}>
+                <Lightbulb className="h-4 w-4" /> Começar com um exemplo
+              </Button>
+            </div>
           </CardContent>
         </Card>
       ) : (
@@ -632,7 +743,11 @@ export default function KanbanPage() {
       {newTaskOpen && current && (
         <NewTaskModal
           board={current}
-          onClose={() => setNewTaskOpen(false)}
+          initial={prefill}
+          onClose={() => {
+            setNewTaskOpen(false);
+            setPrefill(undefined);
+          }}
           onCreated={() => {
             loadTasks(current);
             loadBoards();
