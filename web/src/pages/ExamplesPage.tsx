@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lightbulb, Zap, Rocket, Workflow, Copy, Check } from "lucide-react";
+import { Lightbulb, Zap, Rocket, Workflow, Atom, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PluginSlot } from "@/plugins";
 
@@ -197,6 +197,57 @@ const COMPLEX: Group[] = [
   },
 ];
 
+const HYPER: Group[] = [
+  {
+    title: "Sistema autônomo completo",
+    hint: "Combina Cron + Kanban + swarm + múltiplos perfis.",
+    examples: [
+      {
+        prompt: "Monte um sistema de inteligência de concorrentes que rode sozinho: todo dia, agentes coletam novidades de 5 concorrentes; um agente detecta o que mudou; outro classifica por relevância (alta/média/baixa); e toda sexta um relatório consolidado é gerado e entregue. Só me notifique fora da agenda se algo de relevância ALTA aparecer.",
+        note: "Requer: perfis dedicados (coletor, analista, redator) + Cron diário/semanal + entrega configurada. Monte os perfis em Perfis e os agendamentos em Cron.",
+      },
+    ],
+  },
+  {
+    title: "Equipe de agentes com handoffs",
+    hint: "Pesquisador → arquiteto → implementador → revisor.",
+    examples: [
+      {
+        prompt: "Construa a especificação e o protótipo de uma feature de exportação em PDF: o pesquisador levanta bibliotecas e trade-offs; o arquiteto decide a abordagem e define as subtarefas; os implementadores executam em paralelo; o revisor valida tudo contra os critérios de aceite e bloqueia o que não passar. Cada um passa o resultado pro próximo.",
+        note: "No Kanban: tarefa em triagem → Decompor (IA) cria o grafo com dependências → mangaba kanban swarm roda os workers. O verificador entra como tarefa filha de todos.",
+      },
+    ],
+  },
+  {
+    title: "Loop de melhoria contínua",
+    examples: [
+      {
+        prompt: "Quero um ciclo que melhore um texto até ficar excelente: um agente escreve, outro critica apontando 3 fraquezas concretas, o primeiro reescreve corrigindo, e isso repete até o crítico não achar mais fraquezas relevantes (máximo 4 rodadas). Me entregue a versão final e o histórico das mudanças.",
+        note: "Padrão gerar → criticar → refinar até convergir.",
+      },
+    ],
+  },
+  {
+    title: "Operação multi-projeto (multi-quadro)",
+    hint: "Vários quadros Kanban, cada um um projeto.",
+    examples: [
+      {
+        prompt: "Tenho 3 projetos rodando (site, app, marketing). Para cada um, mantenha um quadro separado, distribua as tarefas entre os agentes certos, e toda segunda gere um panorama executivo unificado: o que avançou em cada projeto, o que travou e os próximos passos.",
+        note: "Crie um quadro por projeto na aba Kanban; o panorama semanal vira um Cron que lê os quadros.",
+      },
+    ],
+  },
+  {
+    title: "Base de conhecimento + ação",
+    examples: [
+      {
+        prompt: "Ingira toda a documentação do nosso produto, responda dúvidas de clientes citando a seção exata, e quando identificar uma dúvida recorrente que a doc não cobre bem, abra uma tarefa no Kanban para melhorar aquela parte da documentação.",
+        note: "RAG sobre a base + criação automática de tarefas a partir de lacunas detectadas.",
+      },
+    ],
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Componentes
 // ---------------------------------------------------------------------------
@@ -300,6 +351,13 @@ const LEVELS = [
     sub: "Swarm, pipelines, fluxos encadeados",
     icon: Workflow,
     groups: COMPLEX,
+  },
+  {
+    id: "hyper",
+    label: "Hipercomplexo",
+    sub: "Sistemas autônomos, multi-projeto",
+    icon: Atom,
+    groups: HYPER,
   },
 ] as const;
 
