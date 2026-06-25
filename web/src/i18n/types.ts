@@ -88,11 +88,13 @@ export interface Translations {
       config: string;
       cron: string;
       documentation: string;
+      globalSessions: string;
       keys: string;
       logs: string;
       models: string;
       profiles: string;
       plugins: string;
+      routing: string;
       sessions: string;
       skills: string;
     };
@@ -548,6 +550,28 @@ export interface Translations {
       clipboard_unsupported: string;
       tweet_text: string;
     };
+  };
+
+  // ── Global Sessions ──
+  globalSessions: {
+    title: string;
+    allProfiles: string;
+    profile: string;
+    noSessions: string;
+    loadMore: string;
+  };
+
+  // ── Routing ──
+  routing: {
+    title: string;
+    matrix: string;
+    explanation: string;
+    addProfile: string;
+    profileName: string;
+    create: string;
+    noToken: string;
+    hasToken: string;
+    notConfigured: string;
   };
 
   // ── Kanban ──

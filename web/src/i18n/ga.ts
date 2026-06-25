@@ -77,6 +77,8 @@ export const ga: Translations = {
       models: "Samhlacha",
       profiles: "próifílí : il-agents",
       plugins: "Plugins",
+      globalSessions: "Global Sessions",
+      routing: "Routing",
       sessions: "Seisiúin",
       skills: "Scileanna",
     },
@@ -536,7 +538,28 @@ export const ga: Translations = {
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
   },
-  kanban: {
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
+    kanban: {
     loading: "Clár Kanban á luchtú…",
     loadFailed: "Theip ar luchtú an chláir Kanban: ",
     loadFailedHint:

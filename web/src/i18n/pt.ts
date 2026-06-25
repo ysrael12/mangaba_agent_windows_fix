@@ -72,11 +72,13 @@ export const pt: Translations = {
       config: "Configuração",
       cron: "Cron",
       documentation: "Documentação",
+      globalSessions: "Sessões Globais",
       keys: "Chaves",
       logs: "Logs",
       models: "Modelos",
       profiles: "Perfis: multiagentes",
       plugins: "Plugins",
+      routing: "Roteamento",
       sessions: "Sessões",
       skills: "Habilidades",
     },
@@ -536,6 +538,27 @@ export const pt: Translations = {
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
   },
+  globalSessions: {
+    title: "Sessões Globais",
+    allProfiles: "Todos os profiles",
+    profile: "Profile",
+    noSessions: "Nenhuma sessão encontrada em nenhum profile",
+    loadMore: "Carregar mais",
+  },
+
+  routing: {
+    title: "Roteamento de Agentes",
+    matrix: "Matriz de canais por profile",
+    explanation:
+      "Cada profile roda um gateway independente. Para ter dois agentes no mesmo canal, crie dois profiles com tokens diferentes.",
+    addProfile: "Novo profile",
+    profileName: "Nome do profile",
+    create: "Criar",
+    noToken: "sem token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
   kanban: {
     loading: "Carregando o quadro Kanban…",
     loadFailed: "Falha ao carregar o quadro Kanban: ",

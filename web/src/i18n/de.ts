@@ -77,6 +77,8 @@ export const de: Translations = {
       models: "Modelle",
       profiles: "Profile : Multi-Agenten",
       plugins: "Plugins",
+      globalSessions: "Global Sessions",
+      routing: "Routing",
       sessions: "Sitzungen",
       skills: "Skills",
     },
@@ -535,7 +537,28 @@ export const de: Translations = {
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
   },
-  kanban: {
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
+    kanban: {
     loading: "Kanban-Board wird geladen…",
     loadFailed: "Laden des Kanban-Boards fehlgeschlagen: ",
     loadFailedHint:

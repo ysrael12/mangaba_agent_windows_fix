@@ -16,7 +16,7 @@ import json
 import logging
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -34,6 +34,7 @@ class FleetMember:
     skills: int = 0
     description: str = ""
     is_default: bool = False
+    platforms: List[dict] = field(default_factory=list)
 
 
 def _pid_for(profile_path: Path) -> Optional[int]:
@@ -61,6 +62,7 @@ def collect_fleet() -> List[FleetMember]:
             skills=getattr(p, "skill_count", 0) or 0,
             description=getattr(p, "description", "") or "",
             is_default=getattr(p, "is_default", False),
+            platforms=_platforms_for_profile(p.path),
         ))
     members.sort(key=lambda m: (not m.running, m.name))  # no ar primeiro
     return members
@@ -229,6 +231,63 @@ def fleet_logs(name: Optional[str] = None, lines: int = 40) -> str:
 # Seguro: só atinge o canal-operador (home_channel) configurado, nunca os
 # chats de clientes. Entregue pelo heartbeat de follow-ups de cada gateway.
 # ---------------------------------------------------------------------------
+_PLATFORM_TOKEN_VARS: dict = {
+    "telegram": "TELEGRAM_BOT_TOKEN",
+    "discord": "DISCORD_BOT_TOKEN",
+    "slack": "SLACK_BOT_TOKEN",
+    "whatsapp": "WHATSAPP_TOKEN",
+    "email": "EMAIL_PASSWORD",
+    "signal": "SIGNAL_NUMBER",
+}
+
+
+def _platforms_for_profile(profile_path: Path) -> List[dict]:
+    """Lê config.yaml do profile e retorna lista de plataformas com metadados."""
+    cfg_path = profile_path / "config.yaml"
+    if not cfg_path.exists():
+        return []
+    try:
+        import yaml
+        cfg = yaml.safe_load(cfg_path.read_text()) or {}
+    except Exception:  # noqa: BLE001
+        return []
+
+    # Lê variáveis do .env do profile para checar tokens
+    env_vars: dict = {}
+    env_path = profile_path / ".env"
+    if env_path.exists():
+        try:
+            for line in env_path.read_text(errors="ignore").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, _, v = line.partition("=")
+                env_vars[k.strip()] = v.strip()
+        except Exception:  # noqa: BLE001
+            pass
+
+    platforms = cfg.get("platforms") or {}
+    if not isinstance(platforms, dict):
+        return []
+
+    out: List[dict] = []
+    for plat_name, pcfg in platforms.items():
+        if not isinstance(pcfg, dict):
+            continue
+        enabled = bool(pcfg.get("enabled", True))
+        hc = pcfg.get("home_channel")
+        home_channel = hc if isinstance(hc, dict) else None
+        token_var = _PLATFORM_TOKEN_VARS.get(plat_name)
+        has_token = bool(token_var and (env_vars.get(token_var) or os.environ.get(token_var)))
+        out.append({
+            "platform": plat_name,
+            "enabled": enabled,
+            "home_channel": home_channel,
+            "has_token": has_token,
+        })
+    return out
+
+
 def _home_channels_for_profile(profile_path: Path) -> List[dict]:
     """Lê o config.yaml do profile e retorna os home_channel configurados."""
     cfg_path = profile_path / "config.yaml"

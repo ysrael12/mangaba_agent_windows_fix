@@ -77,6 +77,8 @@ export const tr: Translations = {
       models: "Modeller",
       profiles: "profiller : çoklu agent",
       plugins: "Eklentiler",
+      globalSessions: "Global Sessions",
+      routing: "Routing",
       sessions: "Oturumlar",
       skills: "Yetenekler",
     },
@@ -536,7 +538,28 @@ export const tr: Translations = {
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
   },
-  kanban: {
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
+    kanban: {
     loading: "Kanban panosu yükleniyor…",
     loadFailed: "Kanban panosu yüklenemedi: ",
     loadFailedHint:

@@ -77,6 +77,8 @@ export const ko: Translations = {
       models: "모델",
       profiles: "프로필: 멀티 에이전트",
       plugins: "플러그인",
+      globalSessions: "Global Sessions",
+      routing: "Routing",
       sessions: "세션",
       skills: "스킬",
     },
@@ -536,7 +538,28 @@ export const ko: Translations = {
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
   },
-  kanban: {
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
+    kanban: {
     loading: "Kanban 보드를 불러오는 중입니다…",
     loadFailed: "Kanban 보드를 불러오지 못했습니다: ",
     loadFailedHint:

@@ -740,6 +740,7 @@ def _fleet_member_to_dict(m) -> Dict[str, Any]:
         "skills": m.skills,
         "description": m.description,
         "is_default": m.is_default,
+        "platforms": m.platforms,
     }
 
 
@@ -803,6 +804,51 @@ async def fleet_broadcast(body: FleetBroadcast):
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
         _log.exception("POST /api/fleet/broadcast failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/fleet/{name}/platforms")
+async def get_fleet_member_platforms(name: str):
+    """Retorna a configuração de plataformas de um profile."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        m = _fleet.find_member(name)
+        if m is None:
+            raise HTTPException(status_code=404, detail=f"Agente '{name}' não encontrado")
+        cfg_path = m.path / "config.yaml"
+        if not cfg_path.exists():
+            return {"platforms": {}}
+        cfg = yaml.safe_load(cfg_path.read_text()) or {}
+        return {"platforms": cfg.get("platforms") or {}}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("GET /api/fleet/%s/platforms failed", name)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.put("/api/fleet/{name}/platforms")
+async def update_fleet_member_platforms(name: str, body: Dict[str, Any]):
+    """Atualiza a seção platforms do config.yaml de um profile."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        m = _fleet.find_member(name)
+        if m is None:
+            raise HTTPException(status_code=404, detail=f"Agente '{name}' não encontrado")
+        cfg_path = m.path / "config.yaml"
+        cfg: dict = {}
+        if cfg_path.exists():
+            cfg = yaml.safe_load(cfg_path.read_text()) or {}
+        platforms_data = body.get("platforms")
+        if platforms_data is None:
+            raise HTTPException(status_code=400, detail="Campo 'platforms' é obrigatório no body")
+        cfg["platforms"] = platforms_data
+        cfg_path.write_text(yaml.dump(cfg, allow_unicode=True, default_flow_style=False))
+        return {"ok": True, "platforms": platforms_data}
+    except HTTPException:
+        raise
+    except Exception as exc:
+        _log.exception("PUT /api/fleet/%s/platforms failed", name)
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -870,6 +916,43 @@ async def get_sessions(limit: int = 20, offset: int = 0):
     except Exception:
         _log.exception("GET /api/sessions failed")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@app.get("/api/sessions/fleet")
+async def get_fleet_sessions(limit: int = 10):
+    """Retorna sessões recentes de TODOS os profiles da frota."""
+    try:
+        from mangaba_cli import fleet as _fleet
+        from mangaba_state import SessionDB
+
+        all_sessions: List[Dict[str, Any]] = []
+        for member in _fleet.collect_fleet():
+            db_path = member.path / "state.db"
+            if not db_path.exists():
+                continue
+            try:
+                db = SessionDB(db_path=db_path)
+                try:
+                    sessions = db.list_sessions_rich(limit=limit)
+                    for s in sessions:
+                        s_dict = dict(s) if not isinstance(s, dict) else s
+                        s_dict["_profile"] = member.name
+                        s_dict["_profile_running"] = member.running
+                        all_sessions.append(s_dict)
+                finally:
+                    db.close()
+            except Exception:
+                pass
+
+        # Ordena por last_active desc
+        all_sessions.sort(
+            key=lambda s: s.get("last_active") or s.get("started_at") or 0,
+            reverse=True,
+        )
+        return {"sessions": all_sessions, "total": len(all_sessions)}
+    except Exception as exc:
+        _log.exception("GET /api/sessions/fleet failed")
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.get("/api/sessions/search")

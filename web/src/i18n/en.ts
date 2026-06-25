@@ -72,11 +72,13 @@ export const en: Translations = {
       config: "Config",
       cron: "Cron",
       documentation: "Documentation",
+      globalSessions: "Global Sessions",
       keys: "Keys",
       logs: "Logs",
       models: "Models",
       profiles: "Profiles",
       plugins: "Plugins",
+      routing: "Routing",
       sessions: "Sessions",
       skills: "Skills",
     },
@@ -535,6 +537,27 @@ export const en: Translations = {
         "Clipboard image copy not supported in this browser — use Download instead.",
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
+  },
+
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
   },
 
   kanban: {

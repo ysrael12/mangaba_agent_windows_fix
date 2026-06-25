@@ -76,6 +76,8 @@ export const zh: Translations = {
       models: "模型",
       profiles: "多Agent配置",
       plugins: "插件管理",
+      globalSessions: "Global Sessions",
+      routing: "Routing",
       sessions: "会话",
       skills: "技能",
     },
@@ -532,7 +534,28 @@ export const zh: Translations = {
     },
   },
 
-  kanban: {
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
+    kanban: {
     loading: "正在加载看板…",
     loadFailed: "加载看板失败：",
     loadFailedHint:

@@ -77,6 +77,8 @@ export const zhHant: Translations = {
       models: "模型",
       profiles: "多代理設定檔",
       plugins: "外掛管理",
+      globalSessions: "Global Sessions",
+      routing: "Routing",
       sessions: "工作階段",
       skills: "技能",
     },
@@ -536,7 +538,28 @@ export const zhHant: Translations = {
       tweet_text: "Just unlocked {tier_part}\"{name}\" in Mangaba Agent ☤",
     },
   },
-  kanban: {
+  globalSessions: {
+    title: "Global Sessions",
+    allProfiles: "All profiles",
+    profile: "Profile",
+    noSessions: "No sessions found in any profile",
+    loadMore: "Load more",
+  },
+
+  routing: {
+    title: "Agent Routing",
+    matrix: "Channel matrix by profile",
+    explanation:
+      "Each profile runs an independent gateway. To have two agents on the same channel, create two profiles with different tokens.",
+    addProfile: "New profile",
+    profileName: "Profile name",
+    create: "Create",
+    noToken: "no token",
+    hasToken: "token ok",
+    notConfigured: "—",
+  },
+
+    kanban: {
     loading: "正在載入看板…",
     loadFailed: "載入看板失敗：",
     loadFailedHint:

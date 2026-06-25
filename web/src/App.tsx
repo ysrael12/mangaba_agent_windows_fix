@@ -25,6 +25,7 @@ import {
   Download,
   Eye,
   FileText,
+  GitBranch,
   Globe,
   Heart,
   KeyRound,
@@ -66,6 +67,8 @@ import AnalyticsPage from "@/pages/AnalyticsPage";
 import ModelsPage from "@/pages/ModelsPage";
 import CronPage from "@/pages/CronPage";
 import FleetPage from "@/pages/FleetPage";
+import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
+import RoutingPage from "@/pages/RoutingPage";
 import ProfilesPage from "@/pages/ProfilesPage";
 import SkillsPage from "@/pages/SkillsPage";
 import PluginsPage from "@/pages/PluginsPage";
@@ -118,6 +121,8 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/skills": SkillsPage,
   "/plugins": PluginsPage,
   "/fleet": FleetPage,
+  "/sessions/global": GlobalSessionsPage,
+  "/routing": RoutingPage,
   "/profiles": ProfilesPage,
   "/config": ConfigPage,
   "/env": EnvPage,
@@ -157,6 +162,18 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
   { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
   { path: "/fleet", labelKey: "fleet", label: "Fleet", icon: Radio },
+  {
+    path: "/sessions/global",
+    labelKey: "globalSessions",
+    label: "Sessões Globais",
+    icon: Globe,
+  },
+  {
+    path: "/routing",
+    labelKey: "routing",
+    label: "Roteamento",
+    icon: GitBranch,
+  },
   { path: "/config", labelKey: "config", label: "Config", icon: Settings },
   { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
   {
@@ -173,6 +190,7 @@ const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   Clock,
   Cpu,
   FileText,
+  GitBranch,
   KeyRound,
   MessageSquare,
   Package,
