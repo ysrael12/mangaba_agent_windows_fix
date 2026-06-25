@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Toast } from "@/components/Toast";
 import { useToast } from "@/hooks/useToast";
 import { useI18n } from "@/i18n";
+import { fetchJSON } from "@/lib/api";
 
 interface PlatformInfo {
   platform: string;
@@ -90,9 +91,8 @@ export default function RoutingPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch("/api/fleet")
-      .then((res) => res.json() as Promise<FleetResponse>)
-      .then((data) => setMembers(data.members))
+    fetchJSON<FleetResponse>("/api/fleet")
+      .then((data) => setMembers(data.members ?? []))
       .catch((e) => showToast(String(e), "error"))
       .finally(() => setLoading(false));
   }, [showToast]);
@@ -109,28 +109,17 @@ export default function RoutingPage() {
     if (!name) return;
     setCreating(true);
     try {
-      const res = await fetch("/api/profiles", {
+      await fetchJSON("/api/profiles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name }),
       });
-      if (!res.ok) {
-        const body = (await res.json().catch(() => ({}))) as {
-          error?: string;
-          message?: string;
-        };
-        throw new Error(
-          body.error ?? body.message ?? `HTTP ${res.status}`,
-        );
-      }
       showToast(`Profile "${name}" criado com sucesso.`, "success");
       setNewProfileName("");
       setShowAddForm(false);
-      // Reload fleet
-      const data = (await fetch("/api/fleet").then((r) =>
-        r.json(),
-      )) as FleetResponse;
-      setMembers(data.members);
+      // Recarrega a frota
+      const data = await fetchJSON<FleetResponse>("/api/fleet");
+      setMembers(data.members ?? []);
     } catch (e) {
       showToast(`Erro ao criar profile: ${(e as Error).message}`, "error");
     } finally {

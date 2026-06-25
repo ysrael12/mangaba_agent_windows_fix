@@ -4,6 +4,7 @@ import { Badge } from "@dheiver2/ui/ui/components/badge";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
 import { useI18n } from "@/i18n";
+import { fetchJSON } from "@/lib/api";
 import { timeAgo } from "@/lib/utils";
 
 interface FleetSession {
@@ -43,11 +44,9 @@ export default function GlobalSessionsPage() {
     else setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
+      const data = await fetchJSON<FleetSessionsResponse>(
         `/api/sessions/fleet?limit=${LIMIT}&offset=${currentOffset}`,
       );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data: FleetSessionsResponse = await res.json();
       setSessions((prev) =>
         append ? [...prev, ...data.sessions] : data.sessions,
       );
