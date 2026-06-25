@@ -185,6 +185,7 @@ Depois, no próprio canal:
 | `/soul show` · `/soul set <texto>` | Ver/editar a identidade do agente (SOUL.md) |
 | `/rules show` · `/rules set <texto>` | Ver/editar regras de trabalho (MANGABA.md) |
 | `/model qwen3:4b` | Trocar o modelo |
+| `/modelo` (ou `/tier`) | Ver o modelo ativo, seu tier (capaz/fraco) e o que ele ativa |
 | `/tools list` · `/tools enable web` · `/tools disable browser` | Gerenciar ferramentas |
 | `/skills list` · `/skills <categoria>` | Listar habilidades |
 | `/cron add 0 9 * * * :: me mande o resumo do dia` | Agendar tarefa (entrega no chat) |

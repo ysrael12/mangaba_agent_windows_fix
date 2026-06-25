@@ -7344,6 +7344,9 @@ class GatewayRunner:
         if canonical == "model":
             return await self._handle_model_command(event)
 
+        if canonical in ("modelo", "tier"):
+            return await self._handle_modelo_status_command(event)
+
         if canonical == "codex-runtime":
             return await self._handle_codex_runtime_command(event)
 
@@ -9552,6 +9555,38 @@ class GatewayRunner:
         except Exception:
             return None
         return None
+
+    async def _handle_modelo_status_command(self, event: MessageEvent) -> str:
+        """Handle /modelo (ou /tier) — mostra o modelo ativo, seu tier e o que
+        isso ativa. Diferente de /model (que TROCA o modelo)."""
+        source = getattr(event, "source", None)
+        model = self._active_model_for_source(source) or "(não definido)"
+        try:
+            from agent.model_capability import is_capable_model
+            capable = is_capable_model(model)
+        except Exception:
+            capable = False
+        from agent.instincts import _inject_n_for_model
+        tier = "🟢 capaz" if capable else "🟡 fraco"
+        auto_plan = self._should_inject_plan(source)
+        n_inst = _inject_n_for_model(model)
+        lines = [
+            f"🤖 *Modelo ativo:* `{model}`",
+            f"*Tier:* {tier}",
+            "",
+            "*O que isso ativa automaticamente:*",
+            f"• Plano determinístico injetado em pedidos complexos: "
+            f"{'sim' if auto_plan else 'não (o modelo planeja sozinho)'}",
+            f"• Instintos injetados no prompt: até {n_inst}",
+        ]
+        if capable:
+            lines.append("\n_Modelo forte: os auxílios determinísticos saem do "
+                         "caminho — ele orquestra sozinho._")
+        else:
+            lines.append("\n_Modelo mais fraco: os auxílios determinísticos "
+                         "(plano + instintos) garantem confiabilidade._")
+        lines.append("\nTrocar de modelo: `/model <nome>`.")
+        return "\n".join(lines)
 
     def _active_model_for_source(self, source) -> str:
         """Best-effort: the model that will run this turn (override or default)."""

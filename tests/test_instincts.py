@@ -56,6 +56,23 @@ def test_render_block_only_includes_confident(instincts):
     assert "situação a" in block
 
 
+def test_render_block_model_aware_caps(instincts):
+    # Add many instincts above threshold.
+    for i in range(10):
+        inst = instincts.add_instinct(f"gatilho {i}", f"acao {i}")
+        instincts.reinforce(inst.id)  # bump above min confidence
+    weak = instincts.render_block(model="gemma4:e4b").count("- Quando")
+    capable = instincts.render_block(model="claude-opus-4-8").count("- Quando")
+    assert weak == instincts.INJECT_TOP_N
+    assert capable == instincts.INJECT_TOP_N_CAPABLE
+    assert capable < weak
+
+
+def test_inject_n_for_model(instincts):
+    assert instincts._inject_n_for_model("gemma4:e4b") == instincts.INJECT_TOP_N
+    assert instincts._inject_n_for_model("claude-opus-4-8") == instincts.INJECT_TOP_N_CAPABLE
+
+
 def test_empty_render_block(instincts):
     assert instincts.render_block() == ""
 

@@ -44,7 +44,8 @@ PROVISIONAL_CONFIDENCE = 0.30  # auto-extracted, unconfirmed → below injection
 REINFORCE_STEP = 0.15
 MAX_CONFIDENCE = 1.0
 INJECT_MIN_CONFIDENCE = 0.40
-INJECT_TOP_N = 8
+INJECT_TOP_N = 8            # modelo fraco: injeta mais (precisa de mais lembretes)
+INJECT_TOP_N_CAPABLE = 4   # modelo forte: injeta só os mais fortes (generaliza melhor)
 PROMOTE_CONFIDENCE = 0.85
 PROMOTE_MIN_USES = 4
 
@@ -203,9 +204,38 @@ def promotion_candidates() -> List[Instinct]:
             if i.confidence >= PROMOTE_CONFIDENCE and i.uses >= PROMOTE_MIN_USES]
 
 
-def render_block() -> str:
-    """Compact prompt block of the strongest instincts, or '' if none."""
-    items = top_instincts()
+def _resolve_active_model() -> str:
+    """Best-effort: the configured default model (no gateway dependency)."""
+    try:
+        from mangaba_cli.config import load_config
+        mc = (load_config() or {}).get("model", {})
+        if isinstance(mc, str):
+            return mc
+        if isinstance(mc, dict):
+            return mc.get("default") or mc.get("model") or ""
+    except Exception:
+        pass
+    return ""
+
+
+def _inject_n_for_model(model: Optional[str]) -> int:
+    """How many instincts to inject given the active model's capability."""
+    name = model if model is not None else _resolve_active_model()
+    try:
+        from agent.model_capability import is_capable_model
+        return INJECT_TOP_N_CAPABLE if is_capable_model(name) else INJECT_TOP_N
+    except Exception:
+        return INJECT_TOP_N
+
+
+def render_block(model: Optional[str] = None) -> str:
+    """Compact prompt block of the strongest instincts, or '' if none.
+
+    Model-aware: a capable model (Claude/GPT/…) gets fewer instincts injected
+    (it generalizes better); a weak local model (gemma default) gets the full
+    set. ``model`` is resolved from config when not given.
+    """
+    items = top_instincts(n=_inject_n_for_model(model))
     if not items:
         return ""
     lines = ["# Instintos aprendidos",
