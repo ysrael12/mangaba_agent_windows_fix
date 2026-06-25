@@ -143,6 +143,35 @@ function ChatRouteSink() {
   return null;
 }
 
+// Shown on /chat when the embedded terminal chat is OFF (dashboard started
+// without --tui). Explains how to enable it and points to the messaging
+// platforms as the alternative, instead of the tab silently disappearing.
+function ChatDisabledNotice() {
+  return (
+    <div className="mx-auto max-w-xl py-10">
+      <div className="rounded-lg border border-border bg-card p-6">
+        <div className="mb-3 flex items-center gap-2">
+          <Terminal className="h-5 w-5" />
+          <h2 className="text-lg font-bold">Chat embutido desativado</h2>
+        </div>
+        <p className="mb-4 text-sm text-muted-foreground">
+          O Chat dentro do dashboard usa o terminal embutido, que só liga
+          quando o dashboard é iniciado em modo TUI. Para ativá-lo, reinicie
+          o dashboard com a opção <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">--tui</code>:
+        </p>
+        <pre className="mb-4 overflow-x-auto rounded border border-border bg-black px-4 py-3 text-xs leading-relaxed text-green-400">
+{`mangaba dashboard --tui`}
+        </pre>
+        <p className="text-sm text-muted-foreground">
+          Enquanto isso, você pode conversar com o agente normalmente pelo
+          Telegram, Discord ou outros canais conectados. As demais abas do
+          dashboard funcionam sem o modo TUI.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 const BUILTIN_NAV_REST: NavItem[] = [
   {
     path: "/sessions",
@@ -390,19 +419,21 @@ export default function App() {
   const builtinRoutes = useMemo(
     () => ({
       ...BUILTIN_ROUTES_CORE,
-      ...(embeddedChat ? { "/chat": ChatRouteSink } : {}),
+      // Chat is always routable. With --tui the persistent ChatPage host
+      // paints over ChatRouteSink; without it, show a notice explaining how
+      // to enable the embedded terminal chat.
+      "/chat": embeddedChat ? ChatRouteSink : ChatDisabledNotice,
     }),
     [embeddedChat],
   );
 
   const builtinNav = useMemo(() => {
-    const base = embeddedChat
-      ? [CHAT_NAV_ITEM, ...BUILTIN_NAV_REST]
-      : BUILTIN_NAV_REST;
+    // Chat tab is always shown; the route handles the disabled state.
+    const base = [CHAT_NAV_ITEM, ...BUILTIN_NAV_REST];
     return showTokenAnalytics
       ? base
       : base.filter((n) => n.path !== "/analytics");
-  }, [embeddedChat, showTokenAnalytics]);
+  }, [showTokenAnalytics]);
 
   const sidebarNav = useMemo(
     () => partitionSidebarNav(builtinNav, manifests),
