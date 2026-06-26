@@ -73,6 +73,7 @@ import FleetPage from "@/pages/FleetPage";
 import KanbanPage from "@/pages/KanbanPage";
 import MemoryPage from "@/pages/MemoryPage";
 import ExamplesPage from "@/pages/ExamplesPage";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
 import RoutingPage from "@/pages/RoutingPage";
 import ProfilesPage from "@/pages/ProfilesPage";
@@ -613,6 +614,7 @@ export default function App() {
                     "min-h-0 flex flex-1 flex-col",
                 )}
               >
+                {!isChatRoute && !isDocsRoute && <OnboardingChecklist />}
                 <Routes>
                   {routes.map(({ key, path, element }) => (
                     <Route key={key} path={path} element={element} />
