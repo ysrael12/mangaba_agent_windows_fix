@@ -17,6 +17,8 @@ import { H2 } from "@/components/NouiTypography";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Toast } from "@/components/Toast";
+import { StatusDot } from "@/components/StatusDot";
+import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
 import type { FleetMember } from "@/lib/api";
@@ -241,18 +243,19 @@ export default function FleetPage() {
           <Spinner className="h-6 w-6" />
         </div>
       ) : members.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhum agente (profile) encontrado.</p>
+        <EmptyState
+          icon={<Radio className="h-8 w-8" />}
+          title="Nenhum agente ainda"
+          description="Crie seu primeiro perfil de agente para começar. Cada perfil é um agente independente com personalidade e modelo próprios."
+          actionLabel="Criar um agente"
+          actionPath="/profiles"
+        />
       ) : (
         <div className="space-y-3">
           {members.map((m) => (
             <Card key={m.name}>
               <CardContent className="flex flex-wrap items-center gap-3 p-4">
-                <span
-                  className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                    m.running ? "bg-green-500" : "bg-gray-400"
-                  }`}
-                  title={m.running ? "no ar" : "parado"}
-                />
+                <StatusDot active={m.running} title={m.running ? "no ar" : "parado"} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{m.name}</span>

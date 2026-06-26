@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Square, RotateCw } from "lucide-react";
 import { MANGABA_BASE_PATH, api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { StatusDot } from "@/components/StatusDot";
 
 interface ModelOpt {
   provider: string;
@@ -215,12 +216,7 @@ export default function ChatPage() {
         <div className="flex min-w-0 flex-col">
           <span className="text-sm font-semibold leading-tight">Mangaba Agent</span>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span
-              className={cn(
-                "h-1.5 w-1.5 rounded-full",
-                connected ? "bg-green-500" : "bg-gray-400",
-              )}
-            />
+            <StatusDot active={connected} className="h-1.5 w-1.5" />
             {connected ? "Conectado" : "Desconectado"}
           </span>
         </div>

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Toast } from "@/components/Toast";
 import { useToast } from "@/hooks/useToast";
 import { useI18n } from "@/i18n";
+import { StatusDot } from "@/components/StatusDot";
 import { fetchJSON } from "@/lib/api";
 
 interface PlatformInfo {
@@ -227,11 +228,7 @@ export default function RoutingPage() {
                     <tr key={m.name} className="hover:bg-secondary/20">
                       <td className="border border-border px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`h-2 w-2 shrink-0 rounded-full ${
-                              m.running ? "bg-green-500" : "bg-gray-400"
-                            }`}
-                          />
+                          <StatusDot active={m.running} className="h-2 w-2" />
                           <span className="font-medium">{m.name}</span>
                         </div>
                       </td>
