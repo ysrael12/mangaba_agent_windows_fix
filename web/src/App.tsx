@@ -39,6 +39,7 @@ import {
   Package,
   Puzzle,
   Radio,
+  Rocket,
   RotateCw,
   Settings,
   Shield,
@@ -75,6 +76,7 @@ import KanbanPage from "@/pages/KanbanPage";
 import MemoryPage from "@/pages/MemoryPage";
 import ExamplesPage from "@/pages/ExamplesPage";
 import HomePage from "@/pages/HomePage";
+import SetupPage from "@/pages/SetupPage";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
 import RoutingPage from "@/pages/RoutingPage";
@@ -113,6 +115,7 @@ const CHAT_NAV_ITEM: NavItem = {
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/home": HomePage,
+  "/setup": SetupPage,
   "/sessions": SessionsPage,
   "/analytics": AnalyticsPage,
   "/models": ModelsPage,
@@ -137,6 +140,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
 // 4) usar → 5) automatizar → 6) acompanhar → 7) ajustar.
 const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/home", label: "Início", icon: Activity },
+  { path: "/setup", label: "Começar", icon: Rocket },
 
   // 1) Aprender
   { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },

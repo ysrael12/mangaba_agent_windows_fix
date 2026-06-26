@@ -702,6 +702,7 @@ export interface CronJob {
   deliver?: string | null;
   last_run_at?: string | null;
   next_run_at?: string | null;
+  last_status?: string | null;
   last_error?: string | null;
 }
 
