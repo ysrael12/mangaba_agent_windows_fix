@@ -73,6 +73,7 @@ import FleetPage from "@/pages/FleetPage";
 import KanbanPage from "@/pages/KanbanPage";
 import MemoryPage from "@/pages/MemoryPage";
 import ExamplesPage from "@/pages/ExamplesPage";
+import HomePage from "@/pages/HomePage";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
 import RoutingPage from "@/pages/RoutingPage";
@@ -90,7 +91,7 @@ import { useTheme } from "@/themes";
 import { api } from "@/lib/api";
 
 function RootRedirect() {
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/home" replace />;
 }
 
 function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
@@ -98,7 +99,7 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
     // Render nothing during the plugin-load window — a spinner here would just flash.
     return null;
   }
-  return <Navigate to="/sessions" replace />;
+  return <Navigate to="/home" replace />;
 }
 
 const CHAT_NAV_ITEM: NavItem = {
@@ -110,6 +111,7 @@ const CHAT_NAV_ITEM: NavItem = {
 
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
+  "/home": HomePage,
   "/sessions": SessionsPage,
   "/analytics": AnalyticsPage,
   "/models": ModelsPage,
@@ -133,6 +135,8 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
 // 1) aprender → 2) configurar a IA → 3) criar agentes e canais →
 // 4) usar → 5) automatizar → 6) acompanhar → 7) ajustar.
 const BUILTIN_NAV_REST: NavItem[] = [
+  { path: "/home", label: "Início", icon: Activity },
+
   // 1) Aprender
   { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen },
   { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb },
@@ -320,6 +324,7 @@ export default function App() {
   const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
   const normalizedPath = pathname.replace(/\/$/, "") || "/";
   const isChatRoute = normalizedPath === "/chat";
+  const isHomeRoute = normalizedPath === "/home";
 
   // `dashboard.show_token_analytics` gates the Analytics nav item.  The
   // page itself remains reachable by URL (it renders an explanation when
@@ -614,7 +619,9 @@ export default function App() {
                     "min-h-0 flex flex-1 flex-col",
                 )}
               >
-                {!isChatRoute && !isDocsRoute && <OnboardingChecklist />}
+                {!isChatRoute && !isDocsRoute && !isHomeRoute && (
+                  <OnboardingChecklist />
+                )}
                 <Routes>
                   {routes.map(({ key, path, element }) => (
                     <Route key={key} path={path} element={element} />
@@ -649,7 +656,7 @@ function SidebarNavLink({ closeMobile, item, t }: SidebarNavLinkProps) {
     <li>
       <NavLink
         to={path}
-        end={path === "/sessions"}
+        end={path === "/sessions" || path === "/home"}
         onClick={closeMobile}
         className={({ isActive }) =>
           cn(
