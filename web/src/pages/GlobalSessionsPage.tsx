@@ -6,6 +6,7 @@ import { Spinner } from "@dheiver2/ui/ui/components/spinner";
 import { useI18n } from "@/i18n";
 import { fetchJSON } from "@/lib/api";
 import { timeAgo } from "@/lib/utils";
+import { EmptyState } from "@/components/EmptyState";
 
 interface FleetSession {
   id: string;
@@ -100,10 +101,13 @@ export default function GlobalSessionsPage() {
           {error}
         </div>
       ) : sessions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
-          <Clock className="h-8 w-8 mb-3 opacity-40" />
-          <p className="text-sm font-medium">{labelNoSessions}</p>
-        </div>
+        <EmptyState
+          icon={<Clock className="h-8 w-8" />}
+          title={labelNoSessions}
+          description="Quando seus agentes conversarem (Chat, Telegram, Discord…), as sessões de toda a frota aparecem aqui."
+          actionLabel="Abrir o Chat"
+          actionPath="/chat"
+        />
       ) : (
         <>
           <div className="flex min-w-0 flex-col gap-1.5">
