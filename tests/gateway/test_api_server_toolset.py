@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 
-from toolsets import resolve_toolset, get_toolset, validate_toolset
+from mangaba_agent.toolsets import resolve_toolset, get_toolset, validate_toolset
 
 
 class TestMangabaApiServerToolset:

@@ -105,7 +105,7 @@ class MemoryStore:
         hrr_dim: int = 1024,
     ) -> None:
         if db_path is None:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             db_path = str(get_mangaba_home() / "memory_store.db")
         self.db_path = Path(db_path).expanduser()
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -130,7 +130,7 @@ class MemoryStore:
         # Use the shared WAL-fallback helper so memory_store.db degrades
         # gracefully on NFS/SMB/FUSE-mounted MANGABA_HOME (same issue as
         # state.db / kanban.db — see mangaba_state._WAL_INCOMPAT_MARKERS).
-        from mangaba_state import apply_wal_with_fallback
+        from mangaba_agent.mangaba_state import apply_wal_with_fallback
         apply_wal_with_fallback(self._conn, db_label="memory_store.db (holographic)")
         self._conn.executescript(_SCHEMA)
         # Migrate: add hrr_vector column if missing (safe for existing databases)

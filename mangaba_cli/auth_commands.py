@@ -29,7 +29,7 @@ from agent.credential_pool import (
 )
 import mangaba_cli.auth as auth_mod
 from mangaba_cli.auth import PROVIDER_REGISTRY
-from mangaba_constants import OPENROUTER_BASE_URL
+from mangaba_agent.mangaba_constants import OPENROUTER_BASE_URL
 
 
 # Providers that support OAuth login in addition to API keys.

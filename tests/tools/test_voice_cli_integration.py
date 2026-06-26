@@ -18,7 +18,7 @@ def _make_voice_cli(**overrides):
     needed.  Only the voice state attributes (from __init__ lines 3749-3758)
     are populated.
     """
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     cli = MangabaCLI.__new__(MangabaCLI)
     cli._voice_lock = threading.Lock()
@@ -595,7 +595,7 @@ class TestDisableVoiceModeStopsTTS:
     def test_disable_voice_mode_calls_stop_playback(self):
         """Source check: _disable_voice_mode must call stop_playback()."""
         import inspect
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
 
         source = inspect.getsource(MangabaCLI._disable_voice_mode)
         assert "stop_playback" in source, (

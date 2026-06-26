@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-import run_agent
+import mangaba_agent.run_agent
 from agent.transports.codex_app_server_session import CodexAppServerSession, TurnResult
 
 

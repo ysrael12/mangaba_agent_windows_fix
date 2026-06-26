@@ -68,7 +68,7 @@ def curator_status_env(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
     import importlib
-    import mangaba_constants
+    import mangaba_agent.mangaba_constants
     importlib.reload(mangaba_constants)
     from tools import skill_usage
     importlib.reload(skill_usage)

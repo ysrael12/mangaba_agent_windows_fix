@@ -38,7 +38,7 @@ from typing import Any
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
 try:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 except ImportError:
     def get_mangaba_home() -> Path:  # type: ignore[misc]
         val = (os.environ.get("MANGABA_HOME") or "").strip()

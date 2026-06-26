@@ -55,7 +55,7 @@ def _validate_explicit_toolsets(toolsets: object = None) -> tuple[list[str] | No
         return None, None
 
     try:
-        from toolsets import validate_toolset
+        from mangaba_agent.toolsets import validate_toolset
     except Exception as exc:
         return None, f"mangaba -z: failed to validate --toolsets: {exc}\n"
 
@@ -209,7 +209,7 @@ def _create_session_db_for_oneshot():
     advertised but every call returns "Session database not available.".
     """
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         return SessionDB()
     except Exception as exc:
@@ -232,7 +232,7 @@ def _run_agent(
     from mangaba_cli.models import detect_provider_for_model
     from mangaba_cli.runtime_provider import resolve_runtime_provider
     from mangaba_cli.tools_config import _get_platform_tools
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     cfg = load_config()
 

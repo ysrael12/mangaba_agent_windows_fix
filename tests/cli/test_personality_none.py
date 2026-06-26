@@ -9,7 +9,7 @@ import yaml
 class TestCLIPersonalityNone:
 
     def _make_cli(self, personalities=None):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         cli = MangabaCLI.__new__(MangabaCLI)
         cli.personalities = personalities or {
             "helpful": "You are helpful.",
@@ -161,7 +161,7 @@ class TestPersonalityDictFormat:
     """Test dict-format custom personalities with description, tone, style."""
 
     def _make_cli(self, personalities):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         cli = MangabaCLI.__new__(MangabaCLI)
         cli.personalities = personalities
         cli.system_prompt = ""
@@ -211,7 +211,7 @@ class TestPersonalityDictFormat:
         assert cli.system_prompt == "You are helpful."
 
     def test_resolve_prompt_dict_no_tone_no_style(self):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         result = MangabaCLI._resolve_personality_prompt({
             "description": "A helper",
             "system_prompt": "You are helpful.",
@@ -219,6 +219,6 @@ class TestPersonalityDictFormat:
         assert result == "You are helpful."
 
     def test_resolve_prompt_string(self):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         result = MangabaCLI._resolve_personality_prompt("You are helpful.")
         assert result == "You are helpful."

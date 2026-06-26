@@ -15,9 +15,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from mangaba_cli.env_loader import load_mangaba_dotenv
-from utils import is_truthy_value
+from mangaba_agent.utils import is_truthy_value
 from tui_gateway.transport import (
     StdioTransport,
     Transport,
@@ -341,7 +341,7 @@ atexit.register(_shutdown_sessions)
 def _get_db():
     global _db, _db_error
     if _db is None:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         try:
             _db = SessionDB()
@@ -892,7 +892,7 @@ def _display_mouse_tracking(display: dict) -> str:
 
 
 def _load_reasoning_config() -> dict | None:
-    from mangaba_constants import parse_reasoning_effort
+    from mangaba_agent.mangaba_constants import parse_reasoning_effort
 
     effort = str(
         (_load_cfg().get("agent") or {}).get("reasoning_effort", "") or ""
@@ -940,7 +940,7 @@ def _load_enabled_toolsets() -> list[str] | None:
     fallback_notice = None
 
     try:
-        from toolsets import validate_toolset
+        from mangaba_agent.toolsets import validate_toolset
     except Exception:
         validate_toolset = None
 
@@ -1451,7 +1451,7 @@ def _session_info(agent) -> dict:
     except Exception:
         pass
     try:
-        from model_tools import get_toolset_for_tool
+        from mangaba_agent.model_tools import get_toolset_for_tool
 
         for t in getattr(agent, "tools", []) or []:
             name = t["function"]["name"]
@@ -1832,7 +1832,7 @@ def _render_personality_prompt(value) -> str:
 
 def _available_personalities(cfg: dict | None = None) -> dict:
     try:
-        from cli import load_cli_config
+        from mangaba_agent.cli import load_cli_config
 
         return (load_cli_config().get("agent") or {}).get("personalities", {}) or {}
     except Exception:
@@ -1997,7 +1997,7 @@ def _reset_session_agent(sid: str, session: dict) -> dict:
 
 
 def _make_agent(sid: str, key: str, session_id: str | None = None):
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     from mangaba_cli.runtime_provider import resolve_runtime_provider
 
     cfg = _load_cfg()
@@ -2549,7 +2549,7 @@ def _(rid, params: dict) -> dict:
     if err:
         return err
 
-    from mangaba_constants import display_mangaba_home
+    from mangaba_agent.mangaba_constants import display_mangaba_home
 
     key = session.get("session_key") or params.get("session_id") or ""
     agent = session.get("agent")
@@ -2930,7 +2930,7 @@ def _(rid, params: dict) -> dict:
 
 def _spawn_trees_root():
     from pathlib import Path as _P
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     root = get_mangaba_home() / "spawn-trees"
     root.mkdir(parents=True, exist_ok=True)
@@ -3710,7 +3710,7 @@ def _(rid, params: dict) -> dict:
     if not raw:
         return _err(rid, 4015, "path required")
     try:
-        from cli import (
+        from mangaba_agent.cli import (
             _IMAGE_EXTENSIONS,
             _detect_file_drop,
             _resolve_attachment_path,
@@ -3750,7 +3750,7 @@ def _(rid, params: dict) -> dict:
     if err:
         return err
     try:
-        from cli import _detect_file_drop
+        from mangaba_agent.cli import _detect_file_drop
 
         raw = str(params.get("text", "") or "")
         dropped = _detect_file_drop(raw)
@@ -3804,7 +3804,7 @@ def _(rid, params: dict) -> dict:
     def run():
         session_tokens = _set_session_context(task_id)
         try:
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
 
             result = AIAgent(
                 **_background_agent_kwargs(session["agent"], task_id)
@@ -4051,7 +4051,7 @@ def _(rid, params: dict) -> dict:
 
     if key == "reasoning":
         try:
-            from mangaba_constants import parse_reasoning_effort
+            from mangaba_agent.mangaba_constants import parse_reasoning_effort
 
             arg = str(value or "").strip().lower()
             if arg in {"show", "on"}:
@@ -4290,7 +4290,7 @@ def _(rid, params: dict) -> dict:
         except Exception as e:
             return _err(rid, 5013, str(e))
     if key == "profile":
-        from mangaba_constants import display_mangaba_home
+        from mangaba_agent.mangaba_constants import display_mangaba_home
 
         return _ok(rid, {"home": str(_mangaba_home), "display": display_mangaba_home()})
     if key == "full":
@@ -4478,7 +4478,7 @@ def _(rid, params: dict) -> dict:
         # Honor `always=true` by persisting the opt-out to config.
         if bool(params.get("always", False)):
             try:
-                from cli import save_config_value as _save_cfg
+                from mangaba_agent.cli import save_config_value as _save_cfg
 
                 _save_cfg("approvals.mcp_reload_confirm", False)
             except Exception as _exc:
@@ -6430,7 +6430,7 @@ def _(rid, params: dict) -> dict:
 @method("tools.list")
 def _(rid, params: dict) -> dict:
     try:
-        from toolsets import get_all_toolsets, get_toolset_info
+        from mangaba_agent.toolsets import get_all_toolsets, get_toolset_info
 
         session = _sessions.get(params.get("session_id", ""))
         enabled = (
@@ -6461,7 +6461,7 @@ def _(rid, params: dict) -> dict:
 @method("tools.show")
 def _(rid, params: dict) -> dict:
     try:
-        from model_tools import get_toolset_for_tool, get_tool_definitions
+        from mangaba_agent.model_tools import get_toolset_for_tool, get_tool_definitions
 
         session = _sessions.get(params.get("session_id", ""))
         enabled = (
@@ -6570,7 +6570,7 @@ def _(rid, params: dict) -> dict:
 @method("toolsets.list")
 def _(rid, params: dict) -> dict:
     try:
-        from toolsets import get_all_toolsets, get_toolset_info
+        from mangaba_agent.toolsets import get_all_toolsets, get_toolset_info
 
         session = _sessions.get(params.get("session_id", ""))
         enabled = (

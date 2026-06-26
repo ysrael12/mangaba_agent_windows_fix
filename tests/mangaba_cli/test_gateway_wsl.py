@@ -9,7 +9,7 @@ from unittest.mock import patch, MagicMock, mock_open
 import pytest
 
 import mangaba_cli.gateway as gateway
-import mangaba_constants
+import mangaba_agent.mangaba_constants
 
 
 # =============================================================================

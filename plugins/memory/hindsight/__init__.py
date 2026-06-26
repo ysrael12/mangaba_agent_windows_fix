@@ -41,7 +41,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from agent.memory_provider import MemoryProvider
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from tools.registry import tool_error
 from mangaba_cli.config import cfg_get
 

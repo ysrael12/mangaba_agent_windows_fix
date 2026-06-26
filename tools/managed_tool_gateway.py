@@ -11,7 +11,7 @@ from typing import Callable, Optional
 
 logger = logging.getLogger(__name__)
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from tools.tool_backend_helpers import managed_nous_tools_enabled
 
 _DEFAULT_TOOL_GATEWAY_DOMAIN = "dheiver2.com"

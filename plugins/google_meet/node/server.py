@@ -30,7 +30,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from plugins.google_meet.node import protocol as _proto
 
 

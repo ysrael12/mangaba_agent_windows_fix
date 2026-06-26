@@ -14,7 +14,7 @@ import threading
 from pathlib import Path
 from typing import Any, Optional
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from tools.environments.base import (
     BaseEnvironment,
     _ThreadedProcessHandle,

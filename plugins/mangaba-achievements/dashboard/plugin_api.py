@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
 try:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 except ImportError:
     import os as _os
     def get_mangaba_home() -> Path:  # type: ignore[misc]
@@ -585,7 +585,7 @@ def scan_sessions(
     at the end.
     """
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
     except Exception as exc:
         return {"sessions": [], "aggregate": {}, "error": f"Could not import SessionDB: {exc}", "scan_meta": {"mode": "failed", "sessions_total": 0, "sessions_rescanned": 0, "sessions_reused": 0}}
 

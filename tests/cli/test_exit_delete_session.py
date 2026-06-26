@@ -15,7 +15,7 @@ def _make_cli():
     Uses ``__new__`` to skip the heavy __init__; only sets the attributes
     the /exit branch touches.
     """
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
     cli = MangabaCLI.__new__(MangabaCLI)
     cli.config = {}
     cli.console = MagicMock()

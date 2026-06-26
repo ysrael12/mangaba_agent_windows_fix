@@ -9,7 +9,7 @@ providers (violating role alternation), which retriggered the empty-retry
 recovery every turn.
 """
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _bare_agent():

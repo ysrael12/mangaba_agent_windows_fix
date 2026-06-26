@@ -22,7 +22,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 
 
 def _bound(fn, instance):

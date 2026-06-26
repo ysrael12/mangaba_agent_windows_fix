@@ -18,8 +18,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agent.context_compressor import SUMMARY_PREFIX
-from run_agent import AIAgent
-import run_agent
+from mangaba_agent.run_agent import AIAgent
+import mangaba_agent.run_agent
 
 
 # ---------------------------------------------------------------------------

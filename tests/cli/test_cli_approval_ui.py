@@ -4,8 +4,8 @@ import time
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-import cli as cli_module
-from cli import MangabaCLI
+import mangaba_agent.cli as cli_module
+from mangaba_agent.cli import MangabaCLI
 
 
 class _FakeBuffer:

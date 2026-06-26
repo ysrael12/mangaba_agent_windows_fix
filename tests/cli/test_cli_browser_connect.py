@@ -7,7 +7,7 @@ from queue import Queue
 import subprocess
 from unittest.mock import patch
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 from mangaba_cli.browser_connect import (
     get_chrome_debug_candidates,
     is_browser_debug_ready,

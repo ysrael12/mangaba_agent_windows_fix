@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 try:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 except Exception:  # pragma: no cover — plugin may load before constants resolves
     import os
 

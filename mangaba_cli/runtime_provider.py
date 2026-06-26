@@ -30,8 +30,8 @@ from mangaba_cli.auth import (
     has_usable_secret,
 )
 from mangaba_cli.config import get_compatible_custom_providers, load_config
-from mangaba_constants import OPENROUTER_BASE_URL
-from utils import base_url_host_matches, base_url_hostname
+from mangaba_agent.mangaba_constants import OPENROUTER_BASE_URL
+from mangaba_agent.utils import base_url_host_matches, base_url_hostname
 
 
 def _normalize_custom_provider_name(value: str) -> str:

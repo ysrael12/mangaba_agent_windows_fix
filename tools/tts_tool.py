@@ -52,7 +52,7 @@ from pathlib import Path
 from typing import Callable, Dict, Any, Optional
 from urllib.parse import urljoin
 
-from mangaba_constants import display_mangaba_home
+from mangaba_agent.mangaba_constants import display_mangaba_home
 
 logger = logging.getLogger(__name__)
 def get_env_value(name, default=None):
@@ -178,7 +178,7 @@ GEMINI_TTS_CHANNELS = 1
 GEMINI_TTS_SAMPLE_WIDTH = 2  # 16-bit PCM (L16)
 
 def _get_default_output_dir() -> str:
-    from mangaba_constants import get_mangaba_dir
+    from mangaba_agent.mangaba_constants import get_mangaba_dir
     return str(get_mangaba_dir("cache/audio", "audio_cache"))
 
 DEFAULT_OUTPUT_DIR = _get_default_output_dir()
@@ -1496,7 +1496,7 @@ def _get_piper_voices_dir() -> Path:
     Resolves to ``~/.mangaba/cache/piper-voices/`` under the active
     MANGABA_HOME so voice downloads follow profile boundaries.
     """
-    from mangaba_constants import get_mangaba_dir
+    from mangaba_agent.mangaba_constants import get_mangaba_dir
     root = Path(get_mangaba_dir("cache/piper-voices", "piper_voices_cache"))
     root.mkdir(parents=True, exist_ok=True)
     return root

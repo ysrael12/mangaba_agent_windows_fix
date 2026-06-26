@@ -340,7 +340,7 @@ def _resolve_path(cwd: Path, target: str, *, allowed_root: Path | None = None) -
 
 
 def _ensure_reference_path_allowed(path: Path) -> None:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     home = Path(os.path.expanduser("~")).resolve()
     mangaba_home = get_mangaba_home().resolve()
 

@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from mangaba_constants import get_default_mangaba_root, get_mangaba_home, display_mangaba_home
+from mangaba_agent.mangaba_constants import get_default_mangaba_root, get_mangaba_home, display_mangaba_home
 
 logger = logging.getLogger(__name__)
 

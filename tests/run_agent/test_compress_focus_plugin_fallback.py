@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _make_agent_with_engine(engine):

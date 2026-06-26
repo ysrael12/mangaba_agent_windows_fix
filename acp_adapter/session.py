@@ -8,7 +8,7 @@ history.
 """
 from __future__ import annotations
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 import copy
 import json
@@ -45,7 +45,7 @@ def _translate_acp_cwd(cwd: str) -> str:
     sessions all agree on the usable workspace. Native Linux/macOS keeps the
     original cwd unchanged.
     """
-    from mangaba_constants import is_wsl
+    from mangaba_agent.mangaba_constants import is_wsl
 
     if not is_wsl():
         return cwd
@@ -412,7 +412,7 @@ class SessionManager:
         if self._db_instance is not None:
             return self._db_instance
         try:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
             mangaba_home = get_mangaba_home()
             self._db_instance = SessionDB(db_path=mangaba_home / "state.db")
             return self._db_instance
@@ -573,7 +573,7 @@ class SessionManager:
         if self._agent_factory is not None:
             return self._agent_factory()
 
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         from mangaba_cli.config import load_config
         from mangaba_cli.runtime_provider import resolve_runtime_provider
 

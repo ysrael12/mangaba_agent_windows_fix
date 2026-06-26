@@ -7,7 +7,7 @@ boundaries.
 """
 import pytest
 
-from mangaba_state import SessionDB
+from mangaba_agent.mangaba_state import SessionDB
 
 
 @pytest.fixture

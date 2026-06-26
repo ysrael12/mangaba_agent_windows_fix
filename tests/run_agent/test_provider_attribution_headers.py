@@ -6,7 +6,7 @@ referrerUrl / appName / User-Agent flow into gateway analytics.
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 @patch("run_agent.OpenAI")

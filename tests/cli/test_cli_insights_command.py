@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 
 
 class _InsightsEngineStub:

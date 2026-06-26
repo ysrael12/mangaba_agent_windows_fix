@@ -23,8 +23,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from mangaba_constants import get_mangaba_home
-from utils import atomic_replace
+from mangaba_agent.mangaba_constants import get_mangaba_home
+from mangaba_agent.utils import atomic_replace
 
 logger = logging.getLogger(__name__)
 

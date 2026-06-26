@@ -24,7 +24,7 @@ except ImportError:
 from pathlib import Path
 from typing import Callable
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from tools.environments.base import _file_mtime_key
 
 logger = logging.getLogger(__name__)

@@ -140,8 +140,8 @@ from gateway.platforms.base import (
     cache_image_from_bytes,
 )
 from gateway.status import acquire_scoped_lock, release_scoped_lock
-from mangaba_constants import get_mangaba_home
-from utils import atomic_json_write
+from mangaba_agent.mangaba_constants import get_mangaba_home
+from mangaba_agent.utils import atomic_json_write
 
 logger = logging.getLogger(__name__)
 

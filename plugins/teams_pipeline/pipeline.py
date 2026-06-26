@@ -17,7 +17,7 @@ from typing import Any, Awaitable, Callable, Optional
 import httpx
 
 from agent.auxiliary_client import async_call_llm, extract_content_or_reasoning
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from plugins.teams_pipeline.meetings import (
     TeamsMeetingArtifactNotFoundError,
     download_recording_artifact,

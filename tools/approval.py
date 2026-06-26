@@ -19,7 +19,7 @@ import unicodedata
 from typing import Optional
 from mangaba_cli.config import cfg_get
 
-from utils import env_var_enabled, is_truthy_value
+from mangaba_agent.utils import env_var_enabled, is_truthy_value
 
 logger = logging.getLogger(__name__)
 

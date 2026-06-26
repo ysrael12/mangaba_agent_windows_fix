@@ -166,7 +166,7 @@ class TestRunJobProfileContext:
 
         class FakeAgent:
             def __init__(self, **kwargs):
-                from mangaba_constants import get_mangaba_home
+                from mangaba_agent.mangaba_constants import get_mangaba_home
 
                 observed["env_home_during_init"] = os.environ.get("MANGABA_HOME")
                 observed["profile_env_only_during_init"] = os.environ.get(
@@ -180,7 +180,7 @@ class TestRunJobProfileContext:
                 observed["skip_context_files"] = kwargs.get("skip_context_files")
 
             def run_conversation(self, *_a, **_kw):
-                from mangaba_constants import get_mangaba_home
+                from mangaba_agent.mangaba_constants import get_mangaba_home
 
                 observed["env_home_during_run"] = os.environ.get("MANGABA_HOME")
                 observed["profile_env_only_during_run"] = os.environ.get(

@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 
 def _make_cli():
     """Minimal MangabaCLI shell exposing prompt fallback helpers."""
-    import cli as cli_mod
+    import mangaba_agent.cli as cli_mod
 
     obj = object.__new__(cli_mod.MangabaCLI)
     obj._app = MagicMock()

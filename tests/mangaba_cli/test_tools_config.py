@@ -683,7 +683,7 @@ class TestPlatformToolsetConsistency:
     def test_all_platforms_have_toolset_definitions(self):
         """Each platform's default_toolset must exist in TOOLSETS."""
         from mangaba_cli.tools_config import PLATFORMS
-        from toolsets import TOOLSETS
+        from mangaba_agent.toolsets import TOOLSETS
 
         for platform, meta in PLATFORMS.items():
             ts_name = meta["default_toolset"]
@@ -695,7 +695,7 @@ class TestPlatformToolsetConsistency:
     def test_gateway_toolset_includes_all_messaging_platforms(self):
         """mangaba-gateway includes list should cover all messaging platforms."""
         from mangaba_cli.tools_config import PLATFORMS
-        from toolsets import TOOLSETS
+        from mangaba_agent.toolsets import TOOLSETS
 
         gateway_includes = set(TOOLSETS["mangaba-gateway"]["includes"])
         # Exclude non-messaging platforms from the check
@@ -982,7 +982,7 @@ def test_get_platform_tools_recovers_non_configurable_toolsets_from_composite():
     """Non-configurable toolsets whose tools are in the composite but not in
     CONFIGURABLE_TOOLSETS should still appear in the result.
     """
-    from toolsets import TOOLSETS
+    from mangaba_agent.toolsets import TOOLSETS
     from mangaba_cli.tools_config import PLATFORMS
     from unittest.mock import patch as mock_patch
 

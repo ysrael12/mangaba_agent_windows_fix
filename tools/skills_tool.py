@@ -69,7 +69,7 @@ Usage:
 import json
 import logging
 
-from mangaba_constants import get_mangaba_home, display_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home, display_mangaba_home
 import os
 import re
 from enum import Enum
@@ -78,7 +78,7 @@ from typing import Dict, Any, List, Optional, Set, Tuple
 
 from tools.registry import registry, tool_error
 from mangaba_cli.config import cfg_get
-from utils import env_var_enabled
+from mangaba_agent.utils import env_var_enabled
 from agent.skill_utils import EXCLUDED_SKILL_DIRS as _EXCLUDED_SKILL_DIRS
 
 logger = logging.getLogger(__name__)

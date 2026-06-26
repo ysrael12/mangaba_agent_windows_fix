@@ -30,7 +30,7 @@ def mangaba_env(tmp_path, monkeypatch):
 
     # Reload modules that cache get_mangaba_home() at import time.
     import importlib
-    import mangaba_constants
+    import mangaba_agent.mangaba_constants
     importlib.reload(mangaba_constants)
     import cron.jobs
     importlib.reload(cron.jobs)

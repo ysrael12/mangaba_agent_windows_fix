@@ -41,7 +41,7 @@ _MEMORY_PLUGINS_DIR = Path(__file__).parent
 def _get_user_plugins_dir() -> Optional[Path]:
     """Return ``$MANGABA_HOME/plugins/`` or None if unavailable."""
     try:
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         d = get_mangaba_home() / "plugins"
         return d if d.is_dir() else None
     except Exception:

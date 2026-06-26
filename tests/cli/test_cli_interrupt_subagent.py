@@ -32,7 +32,7 @@ class TestCLISubagentInterrupt(unittest.TestCase):
 
     def test_full_delegate_interrupt_flow(self):
         """Full integration: parent runs delegate_task, main thread interrupts."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         interrupt_detected = threading.Event()
         child_started = threading.Event()
@@ -99,7 +99,7 @@ class TestCLISubagentInterrupt(unittest.TestCase):
 
         # Patch AIAgent to use our mock
         from tools.delegate_tool import _run_single_child
-        from run_agent import IterationBudget
+        from mangaba_agent.run_agent import IterationBudget
 
         parent.iteration_budget = IterationBudget(max_total=100)
 

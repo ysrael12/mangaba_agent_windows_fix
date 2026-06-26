@@ -14,7 +14,7 @@ unclosed brackets, Python None) don't kill the session.
 import json
 import pytest
 
-from run_agent import _repair_tool_call_arguments
+from mangaba_agent.run_agent import _repair_tool_call_arguments
 
 
 class TestStreamingAssemblyRepair:

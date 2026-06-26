@@ -8,7 +8,7 @@ import pytest
 @pytest.fixture
 def fu(tmp_path, monkeypatch):
     monkeypatch.setenv("MANGABA_HOME", str(tmp_path))
-    import mangaba_constants
+    import mangaba_agent.mangaba_constants
     importlib.reload(mangaba_constants)
     from agent import followups as mod
     importlib.reload(mod)

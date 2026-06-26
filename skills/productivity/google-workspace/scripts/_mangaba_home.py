@@ -20,8 +20,8 @@ import os
 from pathlib import Path
 
 try:
-    from mangaba_constants import display_mangaba_home as display_mangaba_home
-    from mangaba_constants import get_mangaba_home as get_mangaba_home
+    from mangaba_agent.mangaba_constants import display_mangaba_home as display_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home as get_mangaba_home
 except (ModuleNotFoundError, ImportError):
 
     def get_mangaba_home() -> Path:

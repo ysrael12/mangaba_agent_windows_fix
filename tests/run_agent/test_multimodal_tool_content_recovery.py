@@ -42,7 +42,7 @@ class _FakeApiError(Exception):
 
 def _make_agent(provider: str = "xiaomi", model: str = "mimo-v2.5"):
     """Build a bare AIAgent for method-level testing, no provider setup."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     agent = object.__new__(AIAgent)
     agent.provider = provider
     agent.model = model

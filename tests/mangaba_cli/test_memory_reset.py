@@ -39,7 +39,7 @@ def _run_memory_reset(target="all", yes=False, monkeypatch=None, confirm_input="
 
     Simulates what happens when `mangaba memory reset` is run.
     """
-    from mangaba_constants import get_mangaba_home, display_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home, display_mangaba_home
 
     mem_dir = get_mangaba_home() / "memories"
     files_to_reset = []

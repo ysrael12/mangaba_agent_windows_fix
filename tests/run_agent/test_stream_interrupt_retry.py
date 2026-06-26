@@ -18,7 +18,7 @@ import pytest
 
 def _make_agent(**kwargs):
     """Create a minimal AIAgent for streaming tests."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     defaults = dict(
         api_key="test-key",

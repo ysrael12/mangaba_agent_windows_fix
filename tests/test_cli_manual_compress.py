@@ -1,6 +1,6 @@
 from contextlib import nullcontext
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 
 
 class DummyAgent:

@@ -24,7 +24,7 @@ class TestGetSubprocessHome:
 
     def test_returns_none_when_mangaba_home_unset(self, monkeypatch):
         monkeypatch.delenv("MANGABA_HOME", raising=False)
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
         assert get_subprocess_home() is None
 
     def test_returns_none_when_home_dir_missing(self, tmp_path, monkeypatch):
@@ -32,7 +32,7 @@ class TestGetSubprocessHome:
         mangaba_home.mkdir()
         monkeypatch.setenv("MANGABA_HOME", str(mangaba_home))
         # No home/ subdirectory created
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
         assert get_subprocess_home() is None
 
     def test_returns_path_when_home_dir_exists(self, tmp_path, monkeypatch):
@@ -41,7 +41,7 @@ class TestGetSubprocessHome:
         profile_home = mangaba_home / "home"
         profile_home.mkdir()
         monkeypatch.setenv("MANGABA_HOME", str(mangaba_home))
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
         assert get_subprocess_home() == str(profile_home)
 
     def test_returns_profile_specific_path(self, tmp_path, monkeypatch):
@@ -51,7 +51,7 @@ class TestGetSubprocessHome:
         profile_home = profile_dir / "home"
         profile_home.mkdir()
         monkeypatch.setenv("MANGABA_HOME", str(profile_dir))
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
         assert get_subprocess_home() == str(profile_home)
 
     def test_two_profiles_get_different_homes(self, tmp_path, monkeypatch):
@@ -61,7 +61,7 @@ class TestGetSubprocessHome:
             p.mkdir(parents=True)
             (p / "home").mkdir()
 
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
 
         monkeypatch.setenv("MANGABA_HOME", str(base / "alpha"))
         home_a = get_subprocess_home()
@@ -82,7 +82,7 @@ class TestGetSubprocessHome:
         profile.mkdir()
         monkeypatch.setenv("MANGABA_HOME", str(root))
 
-        from mangaba_constants import (
+        from mangaba_agent.mangaba_constants import (
             get_mangaba_home,
             reset_mangaba_home_override,
             set_mangaba_home_override,
@@ -167,7 +167,7 @@ class TestMakeRunEnvHomeInjection:
         monkeypatch.setenv("HOME", "/root")
         monkeypatch.setenv("PATH", "/usr/bin:/bin")
 
-        from mangaba_constants import reset_mangaba_home_override, set_mangaba_home_override
+        from mangaba_agent.mangaba_constants import reset_mangaba_home_override, set_mangaba_home_override
         from tools.environments.local import _make_run_env
 
         token = set_mangaba_home_override(profile)
@@ -219,7 +219,7 @@ class TestSanitizeSubprocessEnvHomeInjection:
         monkeypatch.setenv("MANGABA_HOME", str(root))
 
         base_env = {"HOME": "/root", "PATH": "/usr/bin"}
-        from mangaba_constants import reset_mangaba_home_override, set_mangaba_home_override
+        from mangaba_agent.mangaba_constants import reset_mangaba_home_override, set_mangaba_home_override
         from tools.environments.local import _sanitize_subprocess_env
 
         token = set_mangaba_home_override(profile)
@@ -273,7 +273,7 @@ class TestPythonProcessUnchanged:
         original_home = os.environ.get("HOME")
         original_path_home = str(Path.home())
 
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
         sub_home = get_subprocess_home()
 
         # Subprocess home is set but Python HOME stays the same

@@ -13,8 +13,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-import cli as cli_mod
-from cli import MangabaCLI
+import mangaba_agent.cli as cli_mod
+from mangaba_agent.cli import MangabaCLI
 
 
 @pytest.fixture

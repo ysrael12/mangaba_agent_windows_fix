@@ -125,7 +125,7 @@ MAX_MESSAGE_LENGTH = 4000
 
 # Store directory for E2EE keys and sync state.
 # Uses get_mangaba_home() so each profile gets its own Matrix store.
-from mangaba_constants import get_mangaba_dir as _get_mangaba_dir
+from mangaba_agent.mangaba_constants import get_mangaba_dir as _get_mangaba_dir
 
 _STORE_DIR = _get_mangaba_dir("platforms/matrix/store", "matrix/store")
 _CRYPTO_DB_PATH = _STORE_DIR / "crypto.db"

@@ -230,7 +230,7 @@ def _get_default_mangaba_home() -> Path:
     In Docker/custom deployments where MANGABA_HOME is outside ``~/.mangaba``
     (e.g. ``/opt/data``), returns MANGABA_HOME directly.
     """
-    from mangaba_constants import get_default_mangaba_root
+    from mangaba_agent.mangaba_constants import get_default_mangaba_root
     return get_default_mangaba_root()
 
 
@@ -691,7 +691,7 @@ def create_profile(
     if clone_from is not None or clone_all or clone_config:
         if clone_from is None:
             # Default: clone from active profile
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             source_dir = get_mangaba_home()
         else:
             clone_from = normalize_profile_name(clone_from)
@@ -1103,7 +1103,7 @@ def get_active_profile_name() -> str:
     Returns the profile name if MANGABA_HOME points into ``~/.mangaba/profiles/<name>``.
     Returns ``"custom"`` if MANGABA_HOME is set to an unrecognized path.
     """
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     mangaba_home = get_mangaba_home()
     resolved = mangaba_home.resolve()
 

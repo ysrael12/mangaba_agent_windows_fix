@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, patch, MagicMock
 
 import pytest
 
-from trajectory_compressor import (
+from mangaba_agent.trajectory_compressor import (
     CompressionConfig,
     TrajectoryMetrics,
     AggregateMetrics,

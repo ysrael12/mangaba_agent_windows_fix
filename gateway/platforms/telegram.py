@@ -86,7 +86,7 @@ from gateway.platforms.telegram_network import (
     discover_fallback_ips,
     parse_fallback_ip_env,
 )
-from utils import atomic_replace
+from mangaba_agent.utils import atomic_replace
 
 _TELEGRAM_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".gif"}
 _TELEGRAM_IMAGE_MIME_TO_EXT = {
@@ -1179,7 +1179,7 @@ class TelegramAdapter(BasePlatformAdapter):
     def _persist_dm_topic_thread_id(self, chat_id: int, topic_name: str, thread_id: int) -> None:
         """Save a newly created thread_id back into config.yaml so it persists across restarts."""
         try:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             config_path = get_mangaba_home() / "config.yaml"
             if not config_path.exists():
                 logger.warning("[%s] Config file not found at %s, cannot persist thread_id", self.name, config_path)
@@ -3268,7 +3268,7 @@ class TelegramAdapter(BasePlatformAdapter):
             pass  # non-fatal if edit fails
         # Write the response file
         try:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             home = get_mangaba_home()
             response_path = home / ".update_response"
             tmp = response_path.with_suffix(".tmp")
@@ -5371,7 +5371,7 @@ class TelegramAdapter(BasePlatformAdapter):
         recognized without a gateway restart.
         """
         try:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             config_path = get_mangaba_home() / "config.yaml"
             if not config_path.exists():
                 return

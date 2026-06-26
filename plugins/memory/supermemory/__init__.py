@@ -478,7 +478,7 @@ class SupermemoryMemoryProvider(MemoryProvider):
         _save_supermemory_config(sanitized, mangaba_home)
 
     def initialize(self, session_id: str, **kwargs) -> None:
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         self._mangaba_home = kwargs.get("mangaba_home") or str(get_mangaba_home())
         self._session_id = session_id
         self._turn_count = 0

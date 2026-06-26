@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from mangaba_cli.config import get_mangaba_home
-from utils import atomic_json_write
+from mangaba_agent.utils import atomic_json_write
 
 logger = logging.getLogger(__name__)
 

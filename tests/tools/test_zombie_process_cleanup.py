@@ -102,7 +102,7 @@ class TestAgentCloseMethod:
         from unittest.mock import patch
 
         with patch("run_agent.AIAgent.__init__", return_value=None):
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-cleanup"
             agent._active_children = []
@@ -125,7 +125,7 @@ class TestAgentCloseMethod:
         from unittest.mock import patch
 
         with patch("run_agent.AIAgent.__init__", return_value=None):
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-idempotent"
             agent._active_children = []
@@ -141,7 +141,7 @@ class TestAgentCloseMethod:
         from unittest.mock import MagicMock, patch
 
         with patch("run_agent.AIAgent.__init__", return_value=None):
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-children"
             agent._active_children_lock = threading.Lock()
@@ -162,7 +162,7 @@ class TestAgentCloseMethod:
         from unittest.mock import patch
 
         with patch("run_agent.AIAgent.__init__", return_value=None):
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-partial"
             agent._active_children = []

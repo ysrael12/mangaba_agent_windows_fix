@@ -9,7 +9,7 @@ against the tool's JSON Schema before dispatch.
 import pytest
 from unittest.mock import patch
 
-from model_tools import (
+from mangaba_agent.model_tools import (
     coerce_tool_args,
     _coerce_value,
     _coerce_number,

@@ -28,7 +28,7 @@ import os
 import uuid
 from typing import Any, Dict
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 logger = logging.getLogger(__name__)
 

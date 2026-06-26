@@ -34,7 +34,7 @@ import threading
 import time
 import urllib.request
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 logger = logging.getLogger(__name__)
 

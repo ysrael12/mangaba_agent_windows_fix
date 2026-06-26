@@ -43,7 +43,7 @@ import pytest
 
 def _make_codex_agent():
     """Build a minimal AIAgent wired for codex_responses streaming tests."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     agent = AIAgent(
         api_key="test-key",
@@ -178,7 +178,7 @@ def test_codex_stream_postlude_error_still_falls_back():
 
 def test_summarize_api_error_surfaces_xai_entitlement_body_verbatim():
     """xAI's OAuth 403 body must surface as-is, with no Mangaba-side hint."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     error = RuntimeError(
         "HTTP 403: Error code: 403 - {'code': 'The caller does not have permission "
@@ -196,7 +196,7 @@ def test_summarize_api_error_surfaces_xai_entitlement_body_verbatim():
 
 def test_summarize_api_error_xai_body_message_unwrapped():
     """SDK-style error with structured body surfaces the message cleanly."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     class _XaiErr(Exception):
         status_code = 403
@@ -219,7 +219,7 @@ def test_summarize_api_error_xai_body_message_unwrapped():
 
 def test_summarize_api_error_passes_through_unrelated_errors():
     """Non-xAI / non-entitlement errors must not be touched."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     error = RuntimeError("HTTP 500: upstream is sad")
     summary = AIAgent._summarize_api_error(error)
@@ -247,7 +247,7 @@ def test_classify_api_error_stream_event_grok_subscription_is_auth():
     skipped.  The explicit pattern added at step 1 must fire first and
     return auth/non-retryable so _is_entitlement_failure can stop the loop.
     """
-    from run_agent import _StreamErrorEvent
+    from mangaba_agent.run_agent import _StreamErrorEvent
     from agent.error_classifier import classify_api_error, FailoverReason
 
     err = _StreamErrorEvent(
@@ -263,7 +263,7 @@ def test_classify_api_error_stream_event_grok_subscription_is_auth():
 
 def test_classify_api_error_stream_event_resources_exhausted_grok_is_auth():
     """'out of available resources' + 'grok' variant also classifies as auth."""
-    from run_agent import _StreamErrorEvent
+    from mangaba_agent.run_agent import _StreamErrorEvent
     from agent.error_classifier import classify_api_error, FailoverReason
 
     err = _StreamErrorEvent(
@@ -276,7 +276,7 @@ def test_classify_api_error_stream_event_resources_exhausted_grok_is_auth():
 
 def test_classify_api_error_stream_event_unrelated_not_reclassified():
     """An unrelated _StreamErrorEvent must not be caught by the xAI guard."""
-    from run_agent import _StreamErrorEvent
+    from mangaba_agent.run_agent import _StreamErrorEvent
     from agent.error_classifier import classify_api_error, FailoverReason
 
     err = _StreamErrorEvent("Internal server error — try again later")
@@ -443,7 +443,7 @@ def test_codex_transport_native_codex_still_replays_reasoning_in_input():
     ],
 )
 def test_is_entitlement_failure_matches_real_xai_bodies(message):
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert AIAgent._is_entitlement_failure(
         {"message": message, "reason": "permission_denied"},
@@ -453,7 +453,7 @@ def test_is_entitlement_failure_matches_real_xai_bodies(message):
 
 def test_is_entitlement_failure_false_for_status_other_than_401_403():
     """200/429/500 must never be classified as entitlement, even if body matches."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     body = {
         "message": "do not have an active Grok subscription",
@@ -465,7 +465,7 @@ def test_is_entitlement_failure_false_for_status_other_than_401_403():
 
 def test_is_entitlement_failure_false_for_unrelated_auth_errors():
     """A real auth failure (expired token, wrong key) must keep refreshing."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     # Generic Anthropic-style auth failure
     assert not AIAgent._is_entitlement_failure(
@@ -490,7 +490,7 @@ def test_recover_with_credential_pool_skips_refresh_on_entitlement_403():
     the entitlement guard, recovery returns False so the error surfaces
     normally with the friendly hint from _summarize_api_error.
     """
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     from agent.error_classifier import FailoverReason
 
     agent = _make_codex_agent()
@@ -537,7 +537,7 @@ def test_recover_with_credential_pool_skips_refresh_on_bare_403_for_xai_oauth():
     subscription", etc.). Before the defense-in-depth guard, the recovery
     path would happily mint a fresh token, get a fresh 403, and spin.
     """
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     from agent.error_classifier import FailoverReason
 
     agent = _make_codex_agent()
@@ -580,7 +580,7 @@ def test_recover_with_credential_pool_skips_refresh_on_bare_403_for_xai_oauth():
 
 def test_recover_with_credential_pool_still_refreshes_genuine_auth_failure():
     """Regression guard: legitimate auth errors must still trigger refresh."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     from agent.error_classifier import FailoverReason
 
     agent = _make_codex_agent()
@@ -644,7 +644,7 @@ def test_is_entitlement_failure_false_for_bad_credentials_wke_suffix():
     carries xAI's explicit "this is a credential validation failure"
     signal.  Classifier must honor it.
     """
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert not AIAgent._is_entitlement_failure(
         {
@@ -665,7 +665,7 @@ def test_is_entitlement_failure_false_for_wke_suffix_in_normalized_shape():
     the fix actually reaches the production call site at
     ``_recover_with_credential_pool``.
     """
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert not AIAgent._is_entitlement_failure(
         {
@@ -688,7 +688,7 @@ def test_is_entitlement_failure_false_for_wke_suffix_in_normalized_shape():
     "[WKE=unauthenticated:some-future-reason]",
 ])
 def test_is_entitlement_failure_false_for_any_wke_unauthenticated_variant(wke_variant):
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert not AIAgent._is_entitlement_failure(
         {
@@ -705,7 +705,7 @@ def test_is_entitlement_failure_false_via_oauth2_validation_phrase_alone():
     refresh.  This is a belt-and-braces guard against xAI dropping or
     reformatting the WKE suffix in a future API revision without
     changing the human-readable error text."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert not AIAgent._is_entitlement_failure(
         {
@@ -722,7 +722,7 @@ def test_is_entitlement_failure_wke_signal_overrides_entitlement_keywords():
     recoverable; entitlement isn't.  If the refreshed token still
     can't access the resource, the next 403 (without WKE) lands on
     the entitlement path correctly."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert not AIAgent._is_entitlement_failure(
         {
@@ -740,7 +740,7 @@ def test_is_entitlement_failure_case_insensitive_wke_match():
     """Substring match is case-insensitive — the classifier lowercases
     everything before matching, so a future xAI build that uppercases
     the prefix wouldn't reintroduce the misclassification."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     assert not AIAgent._is_entitlement_failure(
         {
@@ -762,7 +762,7 @@ def test_recover_with_credential_pool_refreshes_on_xai_bad_credentials_403():
     the very body that pre-fix tripped the entitlement classifier
     and short-circuited the refresh path.
     """
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     from agent.error_classifier import FailoverReason
 
     agent = _make_codex_agent()
@@ -819,7 +819,7 @@ def test_recover_with_credential_pool_still_blocks_real_entitlement():
     survive the new disambiguator.  A real unsubscribed-account body
     has no WKE suffix and no OAuth2-validation phrase, so the
     classifier still classifies it as entitlement and short-circuits."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     from agent.error_classifier import FailoverReason
 
     agent = _make_codex_agent()

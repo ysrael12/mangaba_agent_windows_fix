@@ -164,7 +164,7 @@ def resolve_aspect_ratio(value: Optional[str]) -> str:
 
 def _images_cache_dir() -> Path:
     """Return ``$MANGABA_HOME/cache/images/``, creating parents as needed."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     path = get_mangaba_home() / "cache" / "images"
     path.mkdir(parents=True, exist_ok=True)

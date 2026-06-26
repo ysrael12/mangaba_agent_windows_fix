@@ -597,7 +597,7 @@ class MemoryManager:
         ``get_mangaba_home()`` themselves.
         """
         if "mangaba_home" not in kwargs:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             kwargs["mangaba_home"] = str(get_mangaba_home())
         for provider in self._providers:
             try:

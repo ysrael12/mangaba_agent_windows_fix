@@ -1125,7 +1125,7 @@ class QQAdapter(BasePlatformAdapter):
         Writes via ``tmp + rename`` so a partial write can't fool the reader.
         """
         try:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             home = get_mangaba_home()
             response_path = home / ".update_response"
             tmp = response_path.with_suffix(".tmp")

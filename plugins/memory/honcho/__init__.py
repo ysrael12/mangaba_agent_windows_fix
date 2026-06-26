@@ -387,7 +387,7 @@ class HonchoMemoryProvider(MemoryProvider):
         # of performing a one-time migration.
         try:
             if not session.messages and cfg.session_strategy != "per-session":
-                from mangaba_constants import get_mangaba_home
+                from mangaba_agent.mangaba_constants import get_mangaba_home
                 mem_dir = str(get_mangaba_home() / "memories")
                 self._manager.migrate_memory_files(self._session_key, mem_dir)
                 logger.debug("Honcho memory file migration attempted for new session: %s", self._session_key)

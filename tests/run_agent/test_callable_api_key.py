@@ -56,7 +56,7 @@ class TestCreateOpenAIClientCallable:
 
         # Build a minimal stand-in for AIAgent so we can call the bound
         # method directly without paying the full __init__ cost.
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent.__new__(AIAgent)
         # Attributes consulted by _create_openai_client / _client_log_context.

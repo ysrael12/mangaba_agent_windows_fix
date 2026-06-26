@@ -19,7 +19,7 @@ from mangaba_cli.models import provider_label
 from mangaba_cli.nous_subscription import get_nous_subscription_features
 from mangaba_cli.runtime_provider import resolve_requested_provider
 from mangaba_cli.vercel_auth import describe_vercel_auth
-from mangaba_constants import OPENROUTER_MODELS_URL
+from mangaba_agent.mangaba_constants import OPENROUTER_MODELS_URL
 from tools.tool_backend_helpers import managed_nous_tools_enabled
 
 def check_mark(ok: bool) -> str:
@@ -84,7 +84,7 @@ def _effective_provider_label() -> str:
     return provider_label(effective)
 
 
-from mangaba_constants import is_termux as _is_termux
+from mangaba_agent.mangaba_constants import is_termux as _is_termux
 
 
 def show_status(args):

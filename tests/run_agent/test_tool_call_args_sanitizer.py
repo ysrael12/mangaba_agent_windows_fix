@@ -3,7 +3,7 @@
 import copy
 import logging
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 _MISSING = object()

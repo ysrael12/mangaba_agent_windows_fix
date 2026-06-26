@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _make_copilot_agent():

@@ -14,7 +14,7 @@ from gateway.config import GatewayConfig
 
 def _pin_db(monkeypatch, tmp_path):
     """Force SessionDB() to write into tmp_path instead of the real ~/.mangaba."""
-    import mangaba_state
+    import mangaba_agent.mangaba_state
     monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
 
 

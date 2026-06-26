@@ -39,7 +39,7 @@ def _fresh_import():
     runs again and the platform check re-evaluates.
     """
     sys.modules.pop("mangaba_bootstrap", None)
-    import mangaba_bootstrap  # noqa: WPS433
+    import mangaba_agent.mangaba_bootstrap  # noqa: WPS433
     return mangaba_bootstrap
 
 

@@ -55,7 +55,7 @@ def _has_system_browser() -> bool:
 
 
 def _has_mangaba_agent_browser() -> bool:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     home = get_mangaba_home()
     if _IS_WINDOWS:
         # npm -g --prefix puts .cmd shims directly in the prefix dir on Windows
@@ -130,7 +130,7 @@ def ensure_dependency(
             return False
 
     if shell == "powershell":
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         ps_bin = shutil.which("powershell") or shutil.which("pwsh")
         if not ps_bin:
             if interactive:

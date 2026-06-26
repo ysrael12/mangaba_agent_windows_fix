@@ -9,7 +9,7 @@ finally block, so len() reflects truly-running tasks.
 import threading
 from datetime import datetime
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 
 
 def _stub_thread() -> threading.Thread:

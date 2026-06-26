@@ -1282,7 +1282,7 @@ class LineAdapter(BasePlatformAdapter):
             return web.Response(status=404, text="not found")
 
         try:
-            from mangaba_constants import get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home
             mangaba_home = Path(get_mangaba_home()).resolve()
         except Exception:
             mangaba_home = Path.home().joinpath(".mangaba").resolve()

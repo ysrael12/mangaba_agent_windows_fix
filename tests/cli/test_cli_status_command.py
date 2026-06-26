@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 from mangaba_cli.commands import resolve_command
 
 

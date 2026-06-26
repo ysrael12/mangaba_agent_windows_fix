@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch, PropertyMock
 
 import pytest
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _make_tool_defs(*names: str) -> list:
@@ -515,7 +515,7 @@ class TestRateLimitCooldown:
 
     def test_cooldown_set_on_rate_limit_reason(self):
         """_try_activate_fallback with rate_limit reason sets _rate_limited_until."""
-        from run_agent import FailoverReason
+        from mangaba_agent.run_agent import FailoverReason
         agent = _make_agent(
             fallback_model={"provider": "openrouter", "model": "anthropic/claude-sonnet-4"},
         )
@@ -529,7 +529,7 @@ class TestRateLimitCooldown:
 
     def test_cooldown_not_set_when_already_on_fallback(self):
         """Chain-switching while already on fallback must not reset cooldown."""
-        from run_agent import FailoverReason
+        from mangaba_agent.run_agent import FailoverReason
         agent = _make_agent(
             fallback_model=[
                 {"provider": "openrouter", "model": "model-a"},

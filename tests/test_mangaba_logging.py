@@ -13,7 +13,7 @@ import pytest
 
 import pytest
 
-import mangaba_logging
+import mangaba_agent.mangaba_logging
 
 
 @pytest.fixture(autouse=True)

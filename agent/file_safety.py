@@ -10,7 +10,7 @@ from typing import Optional
 def _mangaba_home_path() -> Path:
     """Resolve the active MANGABA_HOME (profile-aware) without circular imports."""
     try:
-        from mangaba_constants import get_mangaba_home  # local import to avoid cycles
+        from mangaba_agent.mangaba_constants import get_mangaba_home  # local import to avoid cycles
         return get_mangaba_home()
     except Exception:
         return Path(os.path.expanduser("~/.mangaba"))
@@ -19,7 +19,7 @@ def _mangaba_home_path() -> Path:
 def _mangaba_root_path() -> Path:
     """Resolve the Mangaba root dir (always the parent of any profile, never per-profile)."""
     try:
-        from mangaba_constants import get_default_mangaba_root  # local import to avoid cycles
+        from mangaba_agent.mangaba_constants import get_default_mangaba_root  # local import to avoid cycles
         return get_default_mangaba_root()
     except Exception:
         return Path(os.path.expanduser("~/.mangaba"))

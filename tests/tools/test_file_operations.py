@@ -72,7 +72,7 @@ class TestIsWriteDenied:
     )
     def test_mangaba_control_files_and_mcp_tokens_denied(self, path):
         """Mangaba control files and mcp-tokens entries must be write-denied."""
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         mangaba_home = get_mangaba_home()
         full_path = str(mangaba_home / path)
         assert _is_write_denied(full_path) is True
@@ -87,7 +87,7 @@ class TestIsWriteDenied:
     )
     def test_mangaba_control_files_traversal_denied(self, path):
         """Path traversal attempts to control files must be blocked by realpath."""
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         mangaba_home = get_mangaba_home()
         full_path = str(mangaba_home / path)
         assert _is_write_denied(full_path) is True

@@ -42,14 +42,14 @@ from agent.message_sanitization import (
 from agent.tool_dispatch_helpers import _trajectory_normalize_msg, make_tool_result_message
 from agent.trajectory import convert_scratchpad_to_think
 from agent.error_classifier import classify_api_error, FailoverReason
-from utils import base_url_host_matches, base_url_hostname, env_var_enabled, atomic_json_write
+from mangaba_agent.utils import base_url_host_matches, base_url_hostname, env_var_enabled, atomic_json_write
 
 logger = logging.getLogger(__name__)
 
 
 def _ra():
     """Lazy ``run_agent`` reference for test-patch routing."""
-    import run_agent
+    import mangaba_agent.run_agent
     return run_agent
 
 
@@ -1548,7 +1548,7 @@ def invoke_tool(agent, function_name: str, function_args: dict, effective_task_i
     elif function_name == "session_search":
         session_db = agent._get_session_db_for_recall()
         if not session_db:
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return json.dumps({"success": False, "error": format_session_db_unavailable()})
         from tools.session_search_tool import session_search as _session_search
         return _session_search(

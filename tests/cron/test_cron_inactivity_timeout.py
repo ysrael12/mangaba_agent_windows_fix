@@ -312,5 +312,5 @@ class TestSysPathOrdering:
 
     def test_mangaba_constants_importable(self):
         """mangaba_constants should be importable from cron context."""
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         assert callable(get_mangaba_home)

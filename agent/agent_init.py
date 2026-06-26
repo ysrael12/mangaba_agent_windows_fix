@@ -51,9 +51,9 @@ from agent.tool_guardrails import (
 )
 from mangaba_cli.config import cfg_get
 from mangaba_cli.timeouts import get_provider_request_timeout
-from mangaba_constants import get_mangaba_home
-from model_tools import check_toolset_requirements, get_tool_definitions
-from utils import base_url_host_matches
+from mangaba_agent.mangaba_constants import get_mangaba_home
+from mangaba_agent.model_tools import check_toolset_requirements, get_tool_definitions
+from mangaba_agent.utils import base_url_host_matches
 
 # Use the same logger name as run_agent so tests patching ``run_agent.logger``
 # capture our warnings.  (run_agent.py also does
@@ -67,7 +67,7 @@ def _ra():
     ``run_agent.OpenAI`` / ``run_agent.cleanup_vm`` / ... and have those
     patches reach this code path.
     """
-    import run_agent
+    import mangaba_agent.run_agent
     return run_agent
 
 
@@ -515,7 +515,7 @@ def init_agent(
     # Centralized logging — agent.log (INFO+) and errors.log (WARNING+)
     # both live under ~/.mangaba/logs/.  Idempotent, so gateway mode
     # (which creates a new AIAgent per message) won't duplicate handlers.
-    from mangaba_logging import setup_logging, setup_verbose_logging
+    from mangaba_agent.mangaba_logging import setup_logging, setup_verbose_logging
     setup_logging(mangaba_home=_ra()._mangaba_home)
 
     if agent.verbose_logging:

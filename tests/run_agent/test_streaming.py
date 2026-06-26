@@ -66,7 +66,7 @@ class TestStreamingAccumulator:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_text_only_response(self, mock_close, mock_create):
         """Text-only stream produces correct response shape."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(content="Hello"),
@@ -102,7 +102,7 @@ class TestStreamingAccumulator:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_tool_call_response(self, mock_close, mock_create):
         """Tool call stream accumulates ID, name, and arguments."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(tool_calls=[
@@ -149,7 +149,7 @@ class TestStreamingAccumulator:
         Bug #8259: the old += accumulation produced "read_fileread_file".
         Assignment (matching OpenAI Node SDK / LiteLLM) prevents this.
         """
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(tool_calls=[
@@ -191,7 +191,7 @@ class TestStreamingAccumulator:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_tool_call_extra_content_preserved(self, mock_close, mock_create):
         """Streamed tool calls preserve provider-specific extra_content metadata."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(tool_calls=[
@@ -239,7 +239,7 @@ class TestStreamingAccumulator:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_mixed_content_and_tool_calls(self, mock_close, mock_create):
         """Stream with both text and tool calls accumulates both."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(content="Let me check"),
@@ -283,7 +283,7 @@ class TestStreamingCallbacks:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_deltas_fire_in_order(self, mock_close, mock_create):
         """Callbacks receive text deltas in order."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(content="a"),
@@ -318,7 +318,7 @@ class TestStreamingCallbacks:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_on_first_delta_fires_once(self, mock_close, mock_create):
         """on_first_delta callback fires exactly once."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(content="a"),
@@ -353,7 +353,7 @@ class TestStreamingCallbacks:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_chat_stream_refreshes_activity_on_every_chunk(self, mock_close, mock_create):
         """Each streamed chat chunk should refresh the activity timestamp."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(content="a"),
@@ -387,7 +387,7 @@ class TestStreamingCallbacks:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_tool_only_does_not_fire_callback(self, mock_close, mock_create):
         """Tool-call-only stream does not fire the delta callback."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(tool_calls=[
@@ -425,7 +425,7 @@ class TestStreamingCallbacks:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_text_suppressed_when_tool_calls_present(self, mock_close, mock_create):
         """Text deltas are suppressed when tool calls are also in the stream."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(content="thinking..."),
@@ -483,7 +483,7 @@ class TestStreamingFallback:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_stream_not_supported_sets_flag_and_raises(self, mock_close, mock_create):
         """'not supported' error sets _disable_streaming and propagates."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         mock_client = MagicMock()
         mock_client.chat.completions.create.side_effect = Exception(
@@ -512,7 +512,7 @@ class TestStreamingFallback:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_non_transport_error_propagates(self, mock_close, mock_create):
         """Non-transport streaming errors propagate to the main retry loop."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         mock_client = MagicMock()
         mock_client.chat.completions.create.side_effect = Exception(
@@ -538,7 +538,7 @@ class TestStreamingFallback:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_stream_error_propagates_original(self, mock_close, mock_create):
         """The original streaming error propagates (not a fallback error)."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         mock_client = MagicMock()
         mock_client.chat.completions.create.side_effect = Exception("stream broke")
@@ -562,7 +562,7 @@ class TestStreamingFallback:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_exhausted_transient_stream_error_propagates(self, mock_close, mock_create):
         """Transient stream errors retry first, then propagate after retries exhausted."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx
 
         mock_client = MagicMock()
@@ -597,7 +597,7 @@ class TestStreamingFallback:
         this.  It should be retried at the streaming level, same as httpx connection
         errors, then propagate to the main retry loop after exhaustion.
         """
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx
 
         # Create an APIError that mimics what the OpenAI SDK raises from SSE error events.
@@ -636,7 +636,7 @@ class TestStreamingFallback:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_sse_non_connection_error_propagates_immediately(self, mock_close, mock_create):
         """SSE errors that aren't connection-related propagate immediately (no stream retry)."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx
 
         from openai import APIError as OAIAPIError
@@ -678,7 +678,7 @@ class TestReasoningStreaming:
     @patch("run_agent.AIAgent._close_request_openai_client")
     def test_reasoning_callback_fires(self, mock_close, mock_create):
         """Reasoning deltas fire the reasoning_callback."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         chunks = [
             _make_stream_chunk(reasoning_content="Let me think"),
@@ -722,7 +722,7 @@ class TestHasStreamConsumers:
     """Verify _has_stream_consumers() detects registered callbacks."""
 
     def test_no_consumers(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         agent = AIAgent(
             api_key="test-key",
             base_url="https://openrouter.ai/api/v1",
@@ -734,7 +734,7 @@ class TestHasStreamConsumers:
         assert agent._has_stream_consumers() is False
 
     def test_delta_callback_set(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         agent = AIAgent(
             api_key="test-key",
             base_url="https://openrouter.ai/api/v1",
@@ -747,7 +747,7 @@ class TestHasStreamConsumers:
         assert agent._has_stream_consumers() is True
 
     def test_stream_callback_set(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         agent = AIAgent(
             api_key="test-key",
             base_url="https://openrouter.ai/api/v1",
@@ -767,7 +767,7 @@ class TestCodexStreamCallbacks:
     """Verify _run_codex_stream fires delta callbacks."""
 
     def test_codex_text_delta_fires_callback(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         deltas = []
 
@@ -812,7 +812,7 @@ class TestCodexStreamCallbacks:
         assert "Hello from Codex!" in deltas
 
     def test_codex_stream_refreshes_activity_on_every_event(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key",
@@ -863,7 +863,7 @@ class TestCodexStreamCallbacks:
         assert touch_calls.count("receiving stream response") == 3
 
     def test_codex_remote_protocol_error_falls_back_to_create_stream(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx
 
         fallback_response = SimpleNamespace(
@@ -897,7 +897,7 @@ class TestCodexStreamCallbacks:
         mock_fallback.assert_called_once_with({}, client=mock_client)
 
     def test_codex_create_stream_fallback_refreshes_activity_on_every_event(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key",
@@ -950,7 +950,7 @@ class TestAnthropicStreamCallbacks:
     """Verify Anthropic streaming refreshes activity on every event."""
 
     def test_anthropic_stream_refreshes_activity_on_every_event(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key",
@@ -1004,7 +1004,7 @@ class TestAnthropicStreamCallbacks:
         self, mock_replace, monkeypatch,
     ):
         """Malformed Anthropic event-stream frames retry instead of surfacing HTTP None."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key",
@@ -1055,7 +1055,7 @@ class TestAnthropicStreamCallbacks:
         self, mock_replace, monkeypatch,
     ):
         """Only known provider stream parser ValueErrors are treated as transient."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key",
@@ -1104,7 +1104,7 @@ class TestPartialToolCallWarning:
         """Stream with text + partial tool-call name + mid-stream error
         produces a stub whose content contains the user-visible warning
         and whose tool_calls is None."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         class _StallError(RuntimeError):
             pass
@@ -1171,7 +1171,7 @@ class TestPartialToolCallWarning:
     def test_partial_text_only_no_warning(self, mock_close, mock_create):
         """Text-only partial stream (no tool call mid-flight) keeps the
         pre-fix behaviour: bare recovered text, no warning noise."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         class _StallError(RuntimeError):
             pass
@@ -1235,7 +1235,7 @@ class TestSilentRetryMidToolCall:
         """First attempt: text + partial tool-call + connection drop.
         Second attempt: text + complete tool-call.  Response should contain
         the recovered tool call; no warning stub should be returned."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx as _httpx
 
         attempts = {"n": 0}
@@ -1330,7 +1330,7 @@ class TestSilentRetryMidToolCall:
         """When all retry attempts fail with connection errors, fall back
         to the original stub-with-warning behaviour so the user isn't left
         with zero signal."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx as _httpx
 
         def _always_fails():
@@ -1385,7 +1385,7 @@ class TestSilentRetryMidToolCall:
         """Text-only stall (no tool call in flight) must NOT trigger silent
         retry — that's the case where the user saw the model's text reply
         and retrying would duplicate it with no benefit."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import httpx as _httpx
 
         attempts = {"n": 0}
@@ -1463,7 +1463,7 @@ def _make_acp_agent(provider="copilot-acp", base_url="acp://copilot"):
     """Create an AIAgent configured for copilot-acp with a stream consumer
     so _has_stream_consumers() returns True (ensuring the test exercises the
     ACP exclusion, not the no-consumer branch)."""
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
     agent = AIAgent(
         api_key="test-acp-key",
         base_url=base_url,
@@ -1562,7 +1562,7 @@ class TestCopilotACPStreamingDecision:
 
     def test_non_acp_provider_allows_streaming(self):
         """Regular providers still get streaming enabled."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         agent = AIAgent(
             api_key="test-key",
             base_url="https://openrouter.ai/api/v1",
@@ -1603,7 +1603,7 @@ class TestCodexFallbackErrorEvent:
     """
 
     def _make_agent(self):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         agent = AIAgent(
             api_key="test-key",
             base_url="https://api.x.ai/v1",
@@ -1618,7 +1618,7 @@ class TestCodexFallbackErrorEvent:
         return agent
 
     def test_fallback_raises_synthesized_error_with_xai_subscription_message(self):
-        from run_agent import _StreamErrorEvent
+        from mangaba_agent.run_agent import _StreamErrorEvent
 
         agent = self._make_agent()
 
@@ -1660,7 +1660,7 @@ class TestCodexFallbackErrorEvent:
     def test_fallback_dict_event_payload_is_also_handled(self):
         """Some relays deliver events as plain dicts instead of model
         objects; the dict branch in the loop must surface them too."""
-        from run_agent import _StreamErrorEvent
+        from mangaba_agent.run_agent import _StreamErrorEvent
 
         agent = self._make_agent()
 
@@ -1692,7 +1692,7 @@ class TestCodexFallbackErrorEvent:
         """The synthesized exception must be readable by
         ``_summarize_api_error`` so the user-facing log line shows the
         real provider message instead of a generic class name."""
-        from run_agent import AIAgent, _StreamErrorEvent
+        from mangaba_agent.run_agent import AIAgent, _StreamErrorEvent
 
         agent = self._make_agent()
         exc = _StreamErrorEvent(

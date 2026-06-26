@@ -5,7 +5,7 @@ from unittest.mock import ANY, call, patch
 
 import pytest
 
-from model_tools import (
+from mangaba_agent.model_tools import (
     handle_function_call,
     get_all_tool_names,
     get_toolset_for_tool,
@@ -328,33 +328,33 @@ class TestCoerceNumberInfNan:
     float('nan') are not JSON-compliant under strict serialization."""
 
     def test_inf_returns_original_string(self):
-        from model_tools import _coerce_number
+        from mangaba_agent.model_tools import _coerce_number
         assert _coerce_number("inf") == "inf"
 
     def test_negative_inf_returns_original_string(self):
-        from model_tools import _coerce_number
+        from mangaba_agent.model_tools import _coerce_number
         assert _coerce_number("-inf") == "-inf"
 
     def test_nan_returns_original_string(self):
-        from model_tools import _coerce_number
+        from mangaba_agent.model_tools import _coerce_number
         assert _coerce_number("nan") == "nan"
 
     def test_infinity_spelling_returns_original_string(self):
-        from model_tools import _coerce_number
+        from mangaba_agent.model_tools import _coerce_number
         # Python's float() parses "Infinity" too — still not JSON-safe.
         assert _coerce_number("Infinity") == "Infinity"
 
     def test_coerced_result_is_strict_json_safe(self):
         """Whatever _coerce_number returns for inf/nan must round-trip
         through strict (allow_nan=False) json.dumps without raising."""
-        from model_tools import _coerce_number
+        from mangaba_agent.model_tools import _coerce_number
         for s in ("inf", "-inf", "nan", "Infinity"):
             result = _coerce_number(s)
             json.dumps({"x": result}, allow_nan=False)  # must not raise
 
     def test_normal_numbers_still_coerce(self):
         """Guard against over-correction — real numbers still coerce."""
-        from model_tools import _coerce_number
+        from mangaba_agent.model_tools import _coerce_number
         assert _coerce_number("42") == 42
         assert _coerce_number("3.14") == 3.14
         assert _coerce_number("1e3") == 1000

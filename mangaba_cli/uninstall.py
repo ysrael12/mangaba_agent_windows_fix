@@ -11,7 +11,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 from mangaba_cli.colors import Colors, color
 
@@ -362,7 +362,7 @@ def _is_windows() -> bool:
 def _is_default_mangaba_home(mangaba_home: Path) -> bool:
     """Return True when ``mangaba_home`` points at the default (non-profile) root."""
     try:
-        from mangaba_constants import get_default_mangaba_root
+        from mangaba_agent.mangaba_constants import get_default_mangaba_root
         return mangaba_home.resolve() == get_default_mangaba_root().resolve()
     except Exception:
         return False

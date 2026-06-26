@@ -59,7 +59,7 @@ from agent.tool_guardrails import (
     toolguard_synthetic_result,
 )
 from tools.terminal_tool import is_persistent_env
-from utils import base_url_host_matches, base_url_hostname
+from mangaba_agent.utils import base_url_host_matches, base_url_hostname
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ def _ra():
     ``patch("run_agent.cleanup_vm")`` / ``patch("run_agent.cleanup_browser")``
     that target symbols imported into ``run_agent``'s namespace.
     """
-    import run_agent
+    import mangaba_agent.run_agent
     return run_agent
 
 

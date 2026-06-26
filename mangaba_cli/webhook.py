@@ -17,8 +17,8 @@ import time
 from pathlib import Path
 from typing import Dict
 
-from mangaba_constants import display_mangaba_home
-from utils import atomic_replace
+from mangaba_agent.mangaba_constants import display_mangaba_home
+from mangaba_agent.utils import atomic_replace
 from mangaba_cli.config import cfg_get
 
 
@@ -26,7 +26,7 @@ _SUBSCRIPTIONS_FILENAME = "webhook_subscriptions.json"
 
 
 def _mangaba_home() -> Path:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     return get_mangaba_home()
 
 

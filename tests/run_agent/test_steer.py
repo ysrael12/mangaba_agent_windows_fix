@@ -11,7 +11,7 @@ import threading
 
 import pytest
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _bare_agent() -> AIAgent:

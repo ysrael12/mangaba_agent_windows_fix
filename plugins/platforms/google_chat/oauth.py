@@ -73,7 +73,7 @@ logger = logging.getLogger("gateway.platforms.google_chat_user_oauth")
 # Use the project's MANGABA_HOME helper so the token follows the user's
 # profile (e.g. tests can override via MANGABA_HOME=/tmp/...).
 try:
-    from mangaba_constants import display_mangaba_home, get_mangaba_home
+    from mangaba_agent.mangaba_constants import display_mangaba_home, get_mangaba_home
 except (ModuleNotFoundError, ImportError):
     # Fallback for environments where mangaba_constants isn't importable
     # (mirrors the same fallback used by the google-workspace skill's

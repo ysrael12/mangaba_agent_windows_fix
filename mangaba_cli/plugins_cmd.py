@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 from typing import Any, Optional
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from mangaba_cli.config import cfg_get
 
 logger = logging.getLogger(__name__)
@@ -254,7 +254,7 @@ def _prompt_plugin_env_vars(manifest: dict, console) -> None:
         return
 
     from mangaba_cli.config import get_env_value, save_env_value  # noqa: F811
-    from mangaba_constants import display_mangaba_home
+    from mangaba_agent.mangaba_constants import display_mangaba_home
 
     # Normalise to list-of-dicts
     env_specs: list[dict] = []

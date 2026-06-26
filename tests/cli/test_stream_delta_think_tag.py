@@ -8,7 +8,7 @@ import pytest
 
 def _make_cli_stub():
     """Create a minimal MangabaCLI-like object with stream state."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     cli = MangabaCLI.__new__(MangabaCLI)
     cli.show_reasoning = False

@@ -13,7 +13,7 @@ import uuid
 from pathlib import Path
 from typing import Dict, Optional
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 CAMOFOX_STATE_DIR_NAME = "browser_auth"
 CAMOFOX_STATE_SUBDIR = "camofox"

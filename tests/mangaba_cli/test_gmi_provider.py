@@ -369,7 +369,7 @@ class TestGmiMainFlow:
             _model_flow_api_key_provider(load_config(), "gmi", "old-model")
 
         import yaml
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
 
         config = yaml.safe_load((get_mangaba_home() / "config.yaml").read_text()) or {}
         model_cfg = config.get("model")

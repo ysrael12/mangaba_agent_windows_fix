@@ -29,7 +29,7 @@ import os
 import socket
 from urllib.parse import urlparse
 
-from utils import is_truthy_value
+from mangaba_agent.utils import is_truthy_value
 
 logger = logging.getLogger(__name__)
 

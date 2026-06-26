@@ -30,7 +30,7 @@ def store(tmp_path, monkeypatch):
     at mangaba_state import time, before pytest's MANGABA_HOME monkeypatch
     fires — the autouse fixture's MANGABA_HOME override doesn't help here.)
     """
-    import mangaba_state
+    import mangaba_agent.mangaba_state
     monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
     config = GatewayConfig()
     s = SessionStore(sessions_dir=tmp_path, config=config)

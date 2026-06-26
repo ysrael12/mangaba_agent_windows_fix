@@ -29,7 +29,7 @@ _IS_WINDOWS = platform.system() == "Windows"
 from pathlib import Path
 from typing import Dict, Optional, Any
 
-from mangaba_constants import get_mangaba_dir
+from mangaba_agent.mangaba_constants import get_mangaba_dir
 
 logger = logging.getLogger(__name__)
 

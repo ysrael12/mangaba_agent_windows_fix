@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 import json
 import sys
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _mock_response(*, usage: dict, content: str = "done"):

@@ -9,7 +9,7 @@ import pytest
 def instincts(tmp_path, monkeypatch):
     """Point the instinct store at a temp MANGABA_HOME."""
     monkeypatch.setenv("MANGABA_HOME", str(tmp_path))
-    import mangaba_constants
+    import mangaba_agent.mangaba_constants
     importlib.reload(mangaba_constants)
     from agent import instincts as mod
     importlib.reload(mod)

@@ -111,8 +111,8 @@ class TestWebServerEndpoints:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import mangaba_state
-        from mangaba_constants import get_mangaba_home
+        import mangaba_agent.mangaba_state
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         from mangaba_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
         monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", get_mangaba_home() / "state.db")
@@ -564,8 +564,8 @@ class TestNewEndpoints:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import mangaba_state
-        from mangaba_constants import get_mangaba_home
+        import mangaba_agent.mangaba_state
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         from mangaba_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
         monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", get_mangaba_home() / "state.db")
@@ -597,7 +597,7 @@ class TestNewEndpoints:
     # --- Profiles ---
 
     def test_profiles_list_includes_default(self):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         get_mangaba_home().mkdir(parents=True, exist_ok=True)
 
         resp = self.client.get("/api/profiles")
@@ -606,7 +606,7 @@ class TestNewEndpoints:
         assert "default" in names
 
     def test_profiles_list_falls_back_when_profile_listing_fails(self, monkeypatch):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         import mangaba_cli.profiles as profiles_mod
 
         mangaba_home = get_mangaba_home()
@@ -661,7 +661,7 @@ class TestNewEndpoints:
         assert "test-prof-2" not in names
 
     def test_profile_setup_command_uses_named_profile_wrapper(self):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
 
         (get_mangaba_home() / "profiles" / "coder").mkdir(parents=True)
 
@@ -671,7 +671,7 @@ class TestNewEndpoints:
         assert resp.json()["command"] == "coder setup"
 
     def test_profile_setup_command_uses_mangaba_for_default_profile(self):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
 
         get_mangaba_home().mkdir(parents=True, exist_ok=True)
 
@@ -698,7 +698,7 @@ class TestNewEndpoints:
         assert wrapper_path.read_text() == '#!/bin/sh\nexec mangaba -p writer "$@"\n'
 
     def test_profiles_create_with_clone_from_default_copies_default_skills(self, monkeypatch):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         import mangaba_cli.profiles as profiles_mod
 
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
@@ -718,7 +718,7 @@ class TestNewEndpoints:
         assert profiles["cloned"]["skill_count"] == 1
 
     def test_profiles_create_without_clone_seeds_bundled_skills(self, monkeypatch):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         import mangaba_cli.profiles as profiles_mod
 
         monkeypatch.setattr(profiles_mod, "create_wrapper_script", lambda name: None)
@@ -743,7 +743,7 @@ class TestNewEndpoints:
         assert profiles["fresh"]["skill_count"] == 1
 
     def test_profile_open_terminal_uses_macos_terminal(self, monkeypatch):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         import mangaba_cli.web_server as web_server
 
         (get_mangaba_home() / "profiles" / "coder").mkdir(parents=True)
@@ -759,7 +759,7 @@ class TestNewEndpoints:
         assert "coder setup" in " ".join(calls[0])
 
     def test_profile_open_terminal_uses_windows_cmd(self, monkeypatch):
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         import mangaba_cli.web_server as web_server
 
         (get_mangaba_home() / "profiles" / "coder").mkdir(parents=True)
@@ -868,7 +868,7 @@ class TestNewEndpoints:
 
     def test_toolsets_list_matches_cli_enabled_state(self, monkeypatch):
         import mangaba_cli.tools_config as tools_config
-        import toolsets as toolsets_module
+        import mangaba_agent.toolsets as toolsets_module
         import mangaba_cli.web_server as web_server
 
         monkeypatch.setattr(
@@ -976,7 +976,7 @@ class TestNewEndpoints:
         }
 
     def test_analytics_usage_includes_skill_breakdown(self):
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         db = SessionDB()
         try:
@@ -1840,8 +1840,8 @@ class TestPluginAPIAuth:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import mangaba_state
-        from mangaba_constants import get_mangaba_home
+        import mangaba_agent.mangaba_state
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         from mangaba_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
         monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", get_mangaba_home() / "state.db")

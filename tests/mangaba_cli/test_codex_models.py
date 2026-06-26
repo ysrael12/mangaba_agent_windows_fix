@@ -233,8 +233,8 @@ def test_model_command_uses_existing_codex_session_without_relogin(monkeypatch):
 
 def _make_cli(model="anthropic/claude-opus-4.6", **kwargs):
     """Create a MangabaCLI with minimal mocking."""
-    import cli as _cli_mod
-    from cli import MangabaCLI
+    import mangaba_agent.cli as _cli_mod
+    from mangaba_agent.cli import MangabaCLI
 
     _clean_config = {
         "model": {
@@ -331,7 +331,7 @@ class TestNormalizeModelForProvider:
 
     def test_default_model_replaced(self):
         """No model configured (empty default) gets swapped for codex."""
-        import cli as _cli_mod
+        import mangaba_agent.cli as _cli_mod
         _clean_config = {
             "model": {
                 "default": "",
@@ -348,7 +348,7 @@ class TestNormalizeModelForProvider:
             patch.dict("os.environ", {"LLM_MODEL": "", "MANGABA_MAX_ITERATIONS": ""}, clear=False),
             patch.dict(_cli_mod.__dict__, {"CLI_CONFIG": _clean_config}),
         ):
-            from cli import MangabaCLI
+            from mangaba_agent.cli import MangabaCLI
             cli = MangabaCLI()
 
         assert cli._model_is_default is True
@@ -363,7 +363,7 @@ class TestNormalizeModelForProvider:
 
     def test_default_fallback_when_api_fails(self):
         """No model configured falls back to gpt-5.3-codex when API unreachable."""
-        import cli as _cli_mod
+        import mangaba_agent.cli as _cli_mod
         _clean_config = {
             "model": {
                 "default": "",
@@ -379,7 +379,7 @@ class TestNormalizeModelForProvider:
             patch.dict("os.environ", {"LLM_MODEL": "", "MANGABA_MAX_ITERATIONS": ""}, clear=False),
             patch.dict(_cli_mod.__dict__, {"CLI_CONFIG": _clean_config}),
         ):
-            from cli import MangabaCLI
+            from mangaba_agent.cli import MangabaCLI
             cli = MangabaCLI()
 
         with patch(

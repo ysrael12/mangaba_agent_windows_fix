@@ -216,8 +216,8 @@ def _get_session_db() -> Optional[Any]:
     non-standard launchers can still use the GoalManager.
     """
     try:
-        from mangaba_constants import get_mangaba_home
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_state import SessionDB
 
         home = str(get_mangaba_home())
     except Exception as exc:  # pragma: no cover

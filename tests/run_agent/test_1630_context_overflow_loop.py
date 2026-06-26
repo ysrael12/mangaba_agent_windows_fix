@@ -29,7 +29,7 @@ class TestGeneric400Heuristic:
             patch("run_agent.check_toolset_requirements", return_value={}),
             patch("run_agent.OpenAI"),
         ):
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
             a = AIAgent(
                 api_key="test-key-12345",
                 base_url="https://openrouter.ai/api/v1",

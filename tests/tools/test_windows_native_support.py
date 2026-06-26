@@ -801,7 +801,7 @@ class TestGitBashPathNormalization:
 
     def test_posix_noop(self):
         """Must NOT mutate paths on Linux/macOS."""
-        from cli import _normalize_git_bash_path
+        from mangaba_agent.cli import _normalize_git_bash_path
         if sys.platform != "win32":
             assert _normalize_git_bash_path("/home/teknium/foo") == "/home/teknium/foo"
             assert _normalize_git_bash_path("/c/Users/foo") == "/c/Users/foo"
@@ -809,12 +809,12 @@ class TestGitBashPathNormalization:
             assert _normalize_git_bash_path(None) is None
 
     def test_empty_string_preserved(self):
-        from cli import _normalize_git_bash_path
+        from mangaba_agent.cli import _normalize_git_bash_path
         assert _normalize_git_bash_path("") == ""
 
     def test_windows_translation(self, monkeypatch):
         """Simulate Windows and verify /c/Users/... becomes C:\\Users\\..."""
-        import cli as cli_mod
+        import mangaba_agent.cli as cli_mod
         monkeypatch.setattr(cli_mod.sys, "platform", "win32")
         assert cli_mod._normalize_git_bash_path("/c/Users/foo") == r"C:\Users\foo"
         assert cli_mod._normalize_git_bash_path("/C/Users/foo") == r"C:\Users\foo"

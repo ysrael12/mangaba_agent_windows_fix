@@ -95,7 +95,7 @@ FACT_FEEDBACK_SCHEMA = {
 # ---------------------------------------------------------------------------
 
 def _load_plugin_config() -> dict:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     config_path = get_mangaba_home() / "config.yaml"
     if not config_path.exists():
         return {}
@@ -146,7 +146,7 @@ class HolographicMemoryProvider(MemoryProvider):
             pass
 
     def get_config_schema(self):
-        from mangaba_constants import display_mangaba_home
+        from mangaba_agent.mangaba_constants import display_mangaba_home
         _default_db = f"{display_mangaba_home()}/memory_store.db"
         return [
             {"key": "db_path", "description": "SQLite database path", "default": _default_db},
@@ -156,7 +156,7 @@ class HolographicMemoryProvider(MemoryProvider):
         ]
 
     def initialize(self, session_id: str, **kwargs) -> None:
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         _mangaba_home = str(get_mangaba_home())
         _default_db = _mangaba_home + "/memory_store.db"
         db_path = self._config.get("db_path", _default_db)

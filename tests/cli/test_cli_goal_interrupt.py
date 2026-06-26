@@ -42,7 +42,7 @@ def mangaba_home(tmp_path, monkeypatch):
 
 def _make_cli_with_goal(session_id: str, goal_text: str = "build a thing"):
     """Build a minimal MangabaCLI stub with an active goal wired in."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
     from mangaba_cli.goals import GoalManager
 
     cli = MangabaCLI.__new__(MangabaCLI)
@@ -208,7 +208,7 @@ class TestInterruptFlagLifecycle:
         # We can't run chat() end-to-end here, but we can assert the reset
         # is the first thing after the secret-capture registration by
         # inspecting the source shape.
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         import inspect
 
         src = inspect.getsource(MangabaCLI.chat)

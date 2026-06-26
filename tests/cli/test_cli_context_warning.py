@@ -23,7 +23,7 @@ def cli_obj(_isolate):
         "terminal": {},
     }), patch("cli.get_tool_definitions", return_value=[]), \
          patch("cli.build_welcome_banner"):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         obj = MangabaCLI.__new__(MangabaCLI)
         obj.model = "test-model"
         obj.enabled_toolsets = ["mangaba-core"]

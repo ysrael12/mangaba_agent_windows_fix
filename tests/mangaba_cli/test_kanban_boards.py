@@ -55,7 +55,7 @@ def fresh_home(tmp_path, monkeypatch):
         monkeypatch.delenv(var, raising=False)
     # Also reset mangaba_constants cache so get_default_mangaba_root() re-reads.
     try:
-        import mangaba_constants
+        import mangaba_agent.mangaba_constants
         mangaba_constants._cached_default_mangaba_root = None  # type: ignore[attr-defined]
     except Exception:
         pass

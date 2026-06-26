@@ -113,7 +113,7 @@ class FetchResult:
 
 def _mangaba_bin_dir() -> Path:
     """Where Mangaba stores its managed binaries.  Profile-aware."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     return get_mangaba_home() / "bin"
 

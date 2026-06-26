@@ -13,7 +13,7 @@ import sys
 import shlex
 from pathlib import Path
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 
 # ---------------------------------------------------------------------------

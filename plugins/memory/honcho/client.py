@@ -20,7 +20,7 @@ import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from mangaba_cli.profiles import _get_default_mangaba_home
 from typing import Any, TYPE_CHECKING
 

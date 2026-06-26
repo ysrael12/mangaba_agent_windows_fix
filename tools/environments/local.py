@@ -174,7 +174,7 @@ _MANGABA_PROVIDER_ENV_BLOCKLIST = _build_provider_env_blocklist()
 def _inject_context_mangaba_home(env: dict) -> None:
     """Bridge the context-local Mangaba home override into subprocess env."""
     try:
-        from mangaba_constants import get_mangaba_home_override
+        from mangaba_agent.mangaba_constants import get_mangaba_home_override
 
         value = get_mangaba_home_override()
         if value:
@@ -208,7 +208,7 @@ def _sanitize_subprocess_env(base_env: dict | None, extra_env: dict | None = Non
     _inject_context_mangaba_home(sanitized)
 
     # Per-profile HOME isolation for background processes (same as _make_run_env).
-    from mangaba_constants import get_subprocess_home
+    from mangaba_agent.mangaba_constants import get_subprocess_home
     _profile_home = get_subprocess_home()
     if _profile_home:
         sanitized["HOME"] = _profile_home
@@ -312,7 +312,7 @@ def _make_run_env(env: dict) -> dict:
     # Per-profile HOME isolation: redirect system tool configs (git, ssh, gh,
     # npm …) into {MANGABA_HOME}/home/ when that directory exists.  Only the
     # subprocess sees the override — the Python process keeps the real HOME.
-    from mangaba_constants import get_subprocess_home
+    from mangaba_agent.mangaba_constants import get_subprocess_home
     _profile_home = get_subprocess_home()
     if _profile_home:
         run_env["HOME"] = _profile_home
@@ -454,7 +454,7 @@ class LocalEnvironment(BaseEnvironment):
             # accepts forward slashes in filesystem paths, and we control
             # the path so we can guarantee no spaces.
             try:
-                from mangaba_constants import get_mangaba_home
+                from mangaba_agent.mangaba_constants import get_mangaba_home
                 cache_dir = get_mangaba_home() / "cache" / "terminal"
             except Exception:
                 cache_dir = Path(tempfile.gettempdir()) / "mangaba_terminal"

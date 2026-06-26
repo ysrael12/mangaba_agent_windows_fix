@@ -1,6 +1,6 @@
 """Regression tests for empty-response recovery transcript persistence."""
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _agent_with_stubbed_persistence():

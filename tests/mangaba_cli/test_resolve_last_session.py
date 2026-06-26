@@ -51,7 +51,7 @@ def test_search_sessions_exposes_last_active_column(tmp_path, monkeypatch):
     monkeypatch.setenv("MANGABA_HOME", str(tmp_path))
     monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
 
-    import mangaba_state
+    import mangaba_agent.mangaba_state
 
     from pathlib import Path
 
@@ -124,7 +124,7 @@ def test_resolve_last_session_not_limited_to_newest_started_20(tmp_path, monkeyp
     monkeypatch.setenv("MANGABA_HOME", str(tmp_path))
     monkeypatch.setattr("pathlib.Path.home", lambda: tmp_path)
 
-    import mangaba_state
+    import mangaba_agent.mangaba_state
 
     from pathlib import Path
 

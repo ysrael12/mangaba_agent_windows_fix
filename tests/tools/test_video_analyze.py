@@ -327,11 +327,11 @@ class TestVideoToolsetRegistration:
 
     def test_not_in_core_tools(self):
         """video_analyze should NOT be in _MANGABA_CORE_TOOLS (default disabled)."""
-        from toolsets import _MANGABA_CORE_TOOLS
+        from mangaba_agent.toolsets import _MANGABA_CORE_TOOLS
         assert "video_analyze" not in _MANGABA_CORE_TOOLS
 
     def test_in_video_toolset_definition(self):
         """Toolset 'video' should contain video_analyze."""
-        from toolsets import TOOLSETS
+        from mangaba_agent.toolsets import TOOLSETS
         assert "video" in TOOLSETS
         assert "video_analyze" in TOOLSETS["video"]["tools"]

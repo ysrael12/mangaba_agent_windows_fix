@@ -4,7 +4,7 @@ import time
 import pytest
 from pathlib import Path
 
-from mangaba_state import SessionDB
+from mangaba_agent.mangaba_state import SessionDB
 from agent.insights import (
     InsightsEngine,
     _estimate_cost,

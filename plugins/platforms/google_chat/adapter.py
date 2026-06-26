@@ -522,7 +522,7 @@ class GoogleChatAdapter(BasePlatformAdapter):
         # made the in-memory version of this heuristic flaky for
         # multi-restart sessions).
         try:
-            from mangaba_constants import get_mangaba_home as _get_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home as _get_mangaba_home
             _mangaba_home = _get_mangaba_home()
         except (ModuleNotFoundError, ImportError):
             _mangaba_home = _Path.home() / ".mangaba"

@@ -39,10 +39,10 @@ import re
 import shutil
 import tempfile
 from pathlib import Path
-from mangaba_constants import get_mangaba_home, display_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home, display_mangaba_home
 from typing import Dict, Any, Optional, Tuple
 
-from utils import atomic_replace, is_truthy_value
+from mangaba_agent.utils import atomic_replace, is_truthy_value
 from mangaba_cli.config import cfg_get
 
 logger = logging.getLogger(__name__)

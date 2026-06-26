@@ -1588,8 +1588,8 @@ class AutoSetHomeMiddleware(InboundMiddleware):
                 adapter._auto_sethome_done = True  # DM seen — no further upgrades needed
             if _should_set:
                 try:
-                    from mangaba_constants import get_mangaba_home
-                    from utils import atomic_yaml_write
+                    from mangaba_agent.mangaba_constants import get_mangaba_home
+                    from mangaba_agent.utils import atomic_yaml_write
                     import yaml
 
                     _home = get_mangaba_home()

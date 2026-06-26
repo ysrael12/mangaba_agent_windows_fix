@@ -785,7 +785,7 @@ class MangabaACPAgent(acp.Agent):
             return
 
         try:
-            from model_tools import get_tool_definitions
+            from mangaba_agent.model_tools import get_tool_definitions
 
             enabled_toolsets = _expand_acp_enabled_toolsets(
                 getattr(state.agent, "enabled_toolsets", None) or ["mangaba-acp"],
@@ -1684,7 +1684,7 @@ class MangabaACPAgent(acp.Agent):
 
     def _cmd_tools(self, args: str, state: SessionState) -> str:
         try:
-            from model_tools import get_tool_definitions
+            from mangaba_agent.model_tools import get_tool_definitions
             toolsets = _expand_acp_enabled_toolsets(
                 getattr(state.agent, "enabled_toolsets", None) or ["mangaba-acp"]
             )

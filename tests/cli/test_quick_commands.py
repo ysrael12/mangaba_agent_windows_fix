@@ -18,7 +18,7 @@ class TestCLIQuickCommands:
         return str(call_arg)
 
     def _make_cli(self, quick_commands):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         cli = MangabaCLI.__new__(MangabaCLI)
         cli.config = {"quick_commands": quick_commands}
         cli.console = MagicMock()

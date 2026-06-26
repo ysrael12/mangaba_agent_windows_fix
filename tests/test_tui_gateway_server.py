@@ -415,7 +415,7 @@ def test_load_enabled_toolsets_filters_invalid_tui_env(monkeypatch, capsys):
 def test_load_enabled_toolsets_accepts_plugin_env_after_discovery(monkeypatch):
     monkeypatch.setenv("MANGABA_TUI_TOOLSETS", "plugin_demo")
 
-    import toolsets
+    import mangaba_agent.toolsets
 
     discovered = {"ready": False}
     original_validate = toolsets.validate_toolset

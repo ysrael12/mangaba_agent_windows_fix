@@ -12,7 +12,7 @@ import time
 
 import pytest
 
-from mangaba_state import SessionDB
+from mangaba_agent.mangaba_state import SessionDB
 from tools.session_search_tool import (
     SESSION_SEARCH_SCHEMA,
     _HIDDEN_SESSION_SOURCES,

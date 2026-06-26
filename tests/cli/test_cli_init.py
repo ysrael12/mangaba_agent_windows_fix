@@ -47,7 +47,7 @@ def _make_cli(env_overrides=None, config_overrides=None, **kwargs):
     }
     with patch.dict(sys.modules, prompt_toolkit_stubs), \
          patch.dict("os.environ", clean_env, clear=False):
-        import cli as _cli_mod
+        import mangaba_agent.cli as _cli_mod
         _cli_mod = importlib.reload(_cli_mod)
         with patch.object(_cli_mod, "get_tool_definitions", return_value=[]), \
              patch.dict(_cli_mod.__dict__, {"CLI_CONFIG": _clean_config}):
@@ -191,7 +191,7 @@ class TestPromptToolkitTerminalCompatibility:
         from unittest.mock import patch as _patch
         from prompt_toolkit.key_binding import KeyBindings
 
-        from cli import _bind_prompt_submit_keys
+        from mangaba_agent.cli import _bind_prompt_submit_keys
 
         def submit_handler(event):
             return None
@@ -227,7 +227,7 @@ class TestPromptToolkitTerminalCompatibility:
             assert ("c-j",) not in bindings
 
     def test_cpr_warning_callback_is_disabled(self):
-        from cli import _disable_prompt_toolkit_cpr_warning
+        from mangaba_agent.cli import _disable_prompt_toolkit_cpr_warning
 
         renderer = SimpleNamespace(cpr_not_supported_callback=lambda: None)
         app = SimpleNamespace(renderer=renderer)
@@ -437,7 +437,7 @@ class TestRootLevelProviderOverride:
             },
         }))
 
-        import cli
+        import mangaba_agent.cli
         monkeypatch.setattr(cli, "_mangaba_home", mangaba_home)
         cfg = cli.load_cli_config()
 
@@ -460,7 +460,7 @@ class TestRootLevelProviderOverride:
             },
         }))
 
-        import cli
+        import mangaba_agent.cli
         monkeypatch.setattr(cli, "_mangaba_home", mangaba_home)
         cfg = cli.load_cli_config()
 
@@ -484,7 +484,7 @@ class TestRootLevelProviderOverride:
             },
         }))
 
-        import cli
+        import mangaba_agent.cli
         monkeypatch.setattr(cli, "_mangaba_home", mangaba_home)
         cfg = cli.load_cli_config()
 

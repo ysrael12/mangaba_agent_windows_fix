@@ -57,7 +57,7 @@ Usage:
 # ``mangaba update`` to recover.  Missing the bootstrap means UTF-8 stdio
 # setup is skipped on Windows — degraded, not broken.  POSIX is unaffected.
 try:
-    import mangaba_bootstrap  # noqa: F401
+    import mangaba_agent.mangaba_bootstrap  # noqa: F401
 except ModuleNotFoundError:
     pass
 
@@ -225,7 +225,7 @@ def _apply_profile_override() -> None:
     # 2. If no flag, check active_profile in the mangaba root
     if profile_name is None:
         try:
-            from mangaba_constants import get_default_mangaba_root
+            from mangaba_agent.mangaba_constants import get_default_mangaba_root
 
             active_path = get_default_mangaba_root() / "active_profile"
             if active_path.exists():
@@ -300,7 +300,7 @@ except Exception:
 # Initialize centralized file logging early — all `mangaba` subcommands
 # (chat, setup, gateway, config, etc.) write to agent.log + errors.log.
 try:
-    from mangaba_logging import setup_logging as _setup_logging
+    from mangaba_agent.mangaba_logging import setup_logging as _setup_logging
 
     _setup_logging(mode="cli")
 except Exception:
@@ -309,7 +309,7 @@ except Exception:
 # Apply IPv4 preference early, before any HTTP clients are created.
 try:
     from mangaba_cli.config import load_config as _load_config_early
-    from mangaba_constants import apply_ipv4_preference as _apply_ipv4
+    from mangaba_agent.mangaba_constants import apply_ipv4_preference as _apply_ipv4
 
     _early_cfg = _load_config_early()
     _net = _early_cfg.get("network", {})
@@ -843,7 +843,7 @@ def _resolve_last_session(source: str = "cli") -> Optional[str]:
     """Look up the most recently-used session ID for a source."""
     db = None
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         db = SessionDB()
         sessions = db.search_sessions(source=source, limit=1)
@@ -982,7 +982,7 @@ def _resolve_session_by_name_or_id(name_or_id: str) -> Optional[str]:
       resumed at the live tip instead of a stale parent with no messages.
     """
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         db = SessionDB()
 
@@ -1035,7 +1035,7 @@ def _print_tui_exit_summary(
 
     db = None
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         db = SessionDB()
         session = db.get_session(target)
@@ -1485,7 +1485,7 @@ def _launch_tui(
     wt_info = None
     if worktree:
         try:
-            from cli import (
+            from mangaba_agent.cli import (
                 _cleanup_worktree,
                 _git_repo_root,
                 _prune_stale_worktrees,
@@ -1775,7 +1775,7 @@ def cmd_chat(args):
         )
 
     # Import and run the CLI
-    from cli import main as cli_main
+    from mangaba_agent.cli import main as cli_main
 
     # Build kwargs from args
     kwargs = {
@@ -2869,7 +2869,7 @@ def _prompt_provider_choice(choices, *, default=0):
 
 def _model_flow_openrouter(config, current_model=""):
     """OpenRouter provider: ensure API key, then pick model."""
-    from mangaba_constants import OPENROUTER_BASE_URL
+    from mangaba_agent.mangaba_constants import OPENROUTER_BASE_URL
     from mangaba_cli.auth import (
         ProviderConfig,
         _prompt_model_selection,
@@ -2930,7 +2930,7 @@ def _model_flow_openrouter(config, current_model=""):
 
 def _model_flow_ai_gateway(config, current_model=""):
     """Vercel AI Gateway provider: ensure API key, then pick model with pricing."""
-    from mangaba_constants import AI_GATEWAY_BASE_URL
+    from mangaba_agent.mangaba_constants import AI_GATEWAY_BASE_URL
     from mangaba_cli.auth import (
         PROVIDER_REGISTRY,
         _prompt_model_selection,
@@ -5831,7 +5831,7 @@ def _run_anthropic_oauth_flow(save_env_value):
         ):
             use_anthropic_claude_code_credentials(save_fn=save_env_value)
             print("  ✓ Claude Code credentials linked.")
-            from mangaba_constants import display_mangaba_home as _dhh_fn
+            from mangaba_agent.mangaba_constants import display_mangaba_home as _dhh_fn
 
             print(
                 f"    Mangaba will use Claude's credential store directly instead of copying a setup-token into {_dhh_fn()}/.env."
@@ -6363,7 +6363,7 @@ def _gateway_prompt(prompt_text: str, default: str = "", timeout: float = 300.0)
     """
     import json as _json
     import uuid as _uuid
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     home = get_mangaba_home()
     prompt_path = home / ".update_prompt.json"
@@ -7343,7 +7343,7 @@ def _count_commits_between(git_cmd: list[str], cwd: Path, base: str, head: str) 
 
 def _should_skip_upstream_prompt() -> bool:
     """Check if user previously declined to add upstream."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     return (get_mangaba_home() / SKIP_UPSTREAM_PROMPT_FILE).exists()
 
@@ -7351,7 +7351,7 @@ def _should_skip_upstream_prompt() -> bool:
 def _mark_skip_upstream_prompt():
     """Create marker file to skip future upstream prompts."""
     try:
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
 
         (get_mangaba_home() / SKIP_UPSTREAM_PROMPT_FILE).touch()
     except Exception:
@@ -7498,7 +7498,7 @@ def _invalidate_update_cache():
     """
     homes = []
     # Default profile home (Docker-aware — uses /opt/data in Docker)
-    from mangaba_constants import get_default_mangaba_root
+    from mangaba_agent.mangaba_constants import get_default_mangaba_root
 
     default_home = get_default_mangaba_root()
     homes.append(default_home)
@@ -8538,7 +8538,7 @@ def _run_pre_update_backup(args) -> None:
 
     # Render path using display_mangaba_home so the user sees ~/.mangaba/...
     try:
-        from mangaba_constants import get_mangaba_home, display_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home, display_mangaba_home
 
         home = get_mangaba_home()
         try:
@@ -8982,7 +8982,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
         # attributes like display_mangaba_home() added since the last release.
         try:
             import importlib
-            import mangaba_constants as _hc
+            import mangaba_agent.mangaba_constants as _hc
 
             importlib.reload(_hc)
         except Exception:
@@ -9308,7 +9308,7 @@ def _cmd_update_impl(args, gateway_mode: bool):
             # systemd units without SIGUSR1 wiring this wait just times out
             # and we fall back to ``systemctl restart`` (the old behaviour).
             try:
-                from mangaba_constants import (
+                from mangaba_agent.mangaba_constants import (
                     DEFAULT_GATEWAY_RESTART_DRAIN_TIMEOUT as _DEFAULT_DRAIN,
                 )
             except Exception:
@@ -9868,7 +9868,7 @@ def cmd_profile(args):
         _is_wrapper_dir_in_path,
         _get_wrapper_dir,
     )
-    from mangaba_constants import display_mangaba_home
+    from mangaba_agent.mangaba_constants import display_mangaba_home
 
     action = getattr(args, "profile_action", None)
 
@@ -10099,7 +10099,7 @@ def cmd_profile(args):
         if name and not text_value and not auto_flag:
             try:
                 if _profiles_mod.normalize_profile_name(name) == "default":
-                    from mangaba_constants import get_mangaba_home as _hh
+                    from mangaba_agent.mangaba_constants import get_mangaba_home as _hh
                     profile_dir = Path(_hh())
                 else:
                     profile_dir = _profiles_mod.get_profile_dir(name)
@@ -10122,7 +10122,7 @@ def cmd_profile(args):
         if text_value:
             try:
                 if _profiles_mod.normalize_profile_name(name) == "default":
-                    from mangaba_constants import get_mangaba_home as _hh
+                    from mangaba_agent.mangaba_constants import get_mangaba_home as _hh
                     profile_dir = Path(_hh())
                 else:
                     profile_dir = _profiles_mod.get_profile_dir(name)
@@ -12851,7 +12851,7 @@ Examples:
             print("\n  ✓ Memory provider: built-in only")
             print("  Saved to config.yaml\n")
         elif sub == "reset":
-            from mangaba_constants import get_mangaba_home, display_mangaba_home
+            from mangaba_agent.mangaba_constants import get_mangaba_home, display_mangaba_home
 
             mem_dir = get_mangaba_home() / "memories"
             target = getattr(args, "target", "all")
@@ -13208,7 +13208,7 @@ Examples:
         import json as _json
 
         try:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
 
             db = SessionDB()
         except Exception as e:
@@ -13388,7 +13388,7 @@ Examples:
 
     def cmd_insights(args):
         try:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
             from agent.insights import InsightsEngine
 
             db = SessionDB()

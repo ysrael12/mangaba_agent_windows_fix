@@ -53,7 +53,7 @@ def _ra():
     directly here those patches would not reach us.  Looking them up
     through ``run_agent`` on every call preserves the patch contract.
     """
-    import run_agent
+    import mangaba_agent.run_agent
     return run_agent
 
 
@@ -260,7 +260,7 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
         except Exception:
             pass
 
-    from mangaba_time import now as _mangaba_now
+    from mangaba_agent.mangaba_time import now as _mangaba_now
     now = _mangaba_now()
     # Date-only (not minute-precision) so the system prompt is byte-stable
     # for the full day.  Minute-precision changes invalidate prefix-cache KV

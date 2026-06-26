@@ -292,7 +292,7 @@ class WebhookAdapter(BasePlatformAdapter):
 
     def _reload_dynamic_routes(self) -> None:
         """Reload agent-created subscriptions from disk if the file changed."""
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         mangaba_home = get_mangaba_home()
         subs_path = mangaba_home / _DYNAMIC_ROUTES_FILENAME
         if not subs_path.exists():

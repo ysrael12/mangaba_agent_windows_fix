@@ -399,11 +399,11 @@ def session_search(
     """
     if db is None:
         try:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
             db = SessionDB()
         except Exception:
             logging.debug("SessionDB unavailable for session_search", exc_info=True)
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return tool_error(format_session_db_unavailable(), success=False)
 
     # Scroll shape takes precedence — explicit anchor beats any query.
@@ -453,7 +453,7 @@ def session_search(
 def check_session_search_requirements() -> bool:
     """Requires the SQLite state database."""
     try:
-        from mangaba_state import DEFAULT_DB_PATH
+        from mangaba_agent.mangaba_state import DEFAULT_DB_PATH
         return DEFAULT_DB_PATH.parent.exists()
     except ImportError:
         return False

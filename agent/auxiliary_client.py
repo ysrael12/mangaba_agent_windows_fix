@@ -101,8 +101,8 @@ OpenAI = _OpenAIProxy()  # module-level name, resolves lazily on call/isinstance
 
 from agent.credential_pool import load_pool
 from mangaba_cli.config import get_mangaba_home
-from mangaba_constants import OPENROUTER_BASE_URL
-from utils import base_url_host_matches, base_url_hostname, normalize_proxy_env_vars
+from mangaba_agent.mangaba_constants import OPENROUTER_BASE_URL
+from mangaba_agent.utils import base_url_host_matches, base_url_hostname, normalize_proxy_env_vars
 
 logger = logging.getLogger(__name__)
 

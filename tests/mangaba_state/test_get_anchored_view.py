@@ -6,7 +6,7 @@ anchor, the call returns goal (bookend_start) + match (window) + resolution
 """
 import pytest
 
-from mangaba_state import SessionDB
+from mangaba_agent.mangaba_state import SessionDB
 
 
 @pytest.fixture

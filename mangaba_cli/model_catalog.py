@@ -53,7 +53,7 @@ from pathlib import Path
 from typing import Any
 
 from mangaba_cli import __version__ as _MANGABA_VERSION
-from utils import atomic_replace
+from mangaba_agent.utils import atomic_replace
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +104,7 @@ def _load_catalog_config() -> dict[str, Any]:
 
 def _cache_path() -> Path:
     """Return the disk cache path. Import lazily so tests can monkeypatch home."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     return get_mangaba_home() / "cache" / "model_catalog.json"
 
 

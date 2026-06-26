@@ -698,7 +698,7 @@ class TestDiscoverAndRegister:
         """MCP toolsets resolve through the live registry without TOOLSETS mutation."""
         from tools.registry import ToolRegistry
         from tools.mcp_tool import _discover_and_register_server, _servers, MCPServerTask
-        from toolsets import resolve_toolset, validate_toolset
+        from mangaba_agent.toolsets import resolve_toolset, validate_toolset
 
         mock_registry = ToolRegistry()
         mock_tools = [_make_mcp_tool("ping", "Ping")]
@@ -986,7 +986,7 @@ class TestToolsetInjection:
         """Discovered MCP tools resolve through raw server-name aliases."""
         from tools.mcp_tool import MCPServerTask
         from tools.registry import ToolRegistry
-        from toolsets import resolve_toolset, validate_toolset
+        from mangaba_agent.toolsets import resolve_toolset, validate_toolset
 
         mock_tools = [_make_mcp_tool("list_files", "List files")]
         mock_session = MagicMock()
@@ -1020,7 +1020,7 @@ class TestToolsetInjection:
         """MCP raw aliases never overwrite a built-in toolset name."""
         from tools.mcp_tool import MCPServerTask
         from tools.registry import ToolRegistry
-        from toolsets import resolve_toolset, validate_toolset
+        from mangaba_agent.toolsets import resolve_toolset, validate_toolset
 
         mock_tools = [_make_mcp_tool("run", "Run command")]
         mock_session = MagicMock()
@@ -1208,7 +1208,7 @@ class TestShutdown:
         import tools.mcp_tool as mcp_mod
         from tools.mcp_tool import MCPServerTask, shutdown_mcp_servers, _servers
         from tools.registry import registry
-        from toolsets import resolve_toolset, validate_toolset
+        from mangaba_agent.toolsets import resolve_toolset, validate_toolset
 
         _servers.clear()
         registry.register(
@@ -3654,7 +3654,7 @@ class TestSanitizeMcpNameComponent:
     def test_slash_in_server_alias_resolution(self):
         """Server names with slashes resolve through their live MCP alias."""
         from tools.registry import ToolRegistry
-        from toolsets import resolve_toolset, validate_toolset
+        from mangaba_agent.toolsets import resolve_toolset, validate_toolset
 
         reg = ToolRegistry()
         reg.register(

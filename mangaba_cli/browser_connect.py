@@ -8,7 +8,7 @@ import shlex
 import shutil
 import subprocess
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 
 
 DEFAULT_BROWSER_CDP_PORT = 9222

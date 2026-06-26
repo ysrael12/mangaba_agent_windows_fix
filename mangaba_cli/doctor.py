@@ -13,7 +13,7 @@ from pathlib import Path
 
 from mangaba_cli.config import get_project_root, get_mangaba_home, get_env_path
 from mangaba_cli.env_loader import load_mangaba_dotenv
-from mangaba_constants import display_mangaba_home
+from mangaba_agent.mangaba_constants import display_mangaba_home
 
 PROJECT_ROOT = get_project_root()
 MANGABA_HOME = get_mangaba_home()
@@ -26,8 +26,8 @@ load_mangaba_dotenv(mangaba_home=_env_path.parent, project_env=PROJECT_ROOT / ".
 from mangaba_cli.colors import Colors, color
 from mangaba_cli.models import _MANGABA_USER_AGENT
 from mangaba_cli.vercel_auth import describe_vercel_auth
-from mangaba_constants import OPENROUTER_MODELS_URL
-from utils import base_url_host_matches
+from mangaba_agent.mangaba_constants import OPENROUTER_MODELS_URL
+from mangaba_agent.utils import base_url_host_matches
 
 
 _PROVIDER_ENV_HINTS = (
@@ -57,7 +57,7 @@ _PROVIDER_ENV_HINTS = (
 )
 
 
-from mangaba_constants import is_termux as _is_termux
+from mangaba_agent.mangaba_constants import is_termux as _is_termux
 
 
 def _python_install_cmd() -> str:
@@ -750,7 +750,7 @@ def run_doctor(args):
                             model_section[k] = raw_config.pop(k)
                         else:
                             raw_config.pop(k)
-                    from utils import atomic_yaml_write
+                    from mangaba_agent.utils import atomic_yaml_write
                     atomic_yaml_write(config_path, raw_config)
                     check_ok("Migrated stale root-level keys into model section")
                     fixed_count += 1
@@ -1785,7 +1785,7 @@ def run_doctor(args):
     try:
         # Add project root to path for imports
         sys.path.insert(0, str(PROJECT_ROOT))
-        from model_tools import check_tool_availability, TOOLSET_REQUIREMENTS
+        from mangaba_agent.model_tools import check_tool_availability, TOOLSET_REQUIREMENTS
         
         available, unavailable = check_tool_availability()
         available, unavailable = _apply_doctor_tool_availability_overrides(available, unavailable)

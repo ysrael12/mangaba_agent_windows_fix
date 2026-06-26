@@ -18,8 +18,8 @@ from unittest.mock import patch
 
 import pytest
 
-import mangaba_state
-from mangaba_state import (
+import mangaba_agent.mangaba_state
+from mangaba_agent.mangaba_state import (
     SessionDB,
     apply_wal_with_fallback,
     format_session_db_unavailable,

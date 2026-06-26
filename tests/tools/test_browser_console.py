@@ -122,15 +122,15 @@ class TestBrowserConsoleToolsetWiring:
     """browser_console must be reachable via toolset resolution."""
 
     def test_in_browser_toolset(self):
-        from toolsets import TOOLSETS
+        from mangaba_agent.toolsets import TOOLSETS
         assert "browser_console" in TOOLSETS["browser"]["tools"]
 
     def test_in_mangaba_core_tools(self):
-        from toolsets import _MANGABA_CORE_TOOLS
+        from mangaba_agent.toolsets import _MANGABA_CORE_TOOLS
         assert "browser_console" in _MANGABA_CORE_TOOLS
 
     def test_in_legacy_toolset_map(self):
-        from model_tools import _LEGACY_TOOLSET_MAP
+        from mangaba_agent.model_tools import _LEGACY_TOOLSET_MAP
         assert "browser_console" in _LEGACY_TOOLSET_MAP["browser_tools"]
 
     def test_in_registry(self):

@@ -35,7 +35,7 @@ from mangaba_cli.clipboard import (
     _windows_has_image,
     _convert_to_png,
 )
-from cli import _should_auto_attach_clipboard_image_on_paste
+from mangaba_agent.cli import _should_auto_attach_clipboard_image_on_paste
 
 FAKE_PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 100
 FAKE_BMP = b"BM" + b"\x00" * 100
@@ -209,14 +209,14 @@ class TestIsWsl:
         # _is_wsl is mangaba_constants.is_wsl; reset the function's own module
         # globals so this stays stable even if mangaba_constants was imported
         # through a different module object earlier in a large xdist run.
-        import mangaba_constants
+        import mangaba_agent.mangaba_constants
         mangaba_constants._wsl_detected = None
         _is_wsl.__globals__["_wsl_detected"] = None
 
     def teardown_method(self):
         # Reset again after the test so we don't leak a cached value
         # (True/False) into whichever test the xdist worker runs next.
-        import mangaba_constants
+        import mangaba_agent.mangaba_constants
         mangaba_constants._wsl_detected = None
         _is_wsl.__globals__["_wsl_detected"] = None
 
@@ -896,7 +896,7 @@ class TestPreprocessImagesWithVision:
             }
             with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
                 with patch("cli.CLI_CONFIG", mock_cfg.return_value):
-                    from cli import MangabaCLI
+                    from mangaba_agent.cli import MangabaCLI
                     cli_obj = MangabaCLI.__new__(MangabaCLI)
                     # Manually init just enough state
                     cli_obj._attached_images = []
@@ -994,7 +994,7 @@ class TestTryAttachClipboardImage:
 
     @pytest.fixture
     def cli(self):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         cli_obj = MangabaCLI.__new__(MangabaCLI)
         cli_obj._attached_images = []
         cli_obj._image_counter = 0
@@ -1057,7 +1057,7 @@ class TestAutoAttachClipboardImageOnPaste:
 class TestVoiceSubmission:
     @pytest.fixture
     def cli(self):
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         cli_obj = MangabaCLI.__new__(MangabaCLI)
         cli_obj._attached_images = [Path("/tmp/stale.png")]
         cli_obj._pending_input = queue.Queue()

@@ -10,8 +10,8 @@ import json
 import os
 import sys
 
-import cli as cli_mod
-from cli import MangabaCLI
+import mangaba_agent.cli as cli_mod
+from mangaba_agent.cli import MangabaCLI
 from rich.console import Console
 
 

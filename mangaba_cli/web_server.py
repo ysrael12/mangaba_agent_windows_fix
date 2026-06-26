@@ -48,7 +48,7 @@ from mangaba_cli.config import (
     redact_key,
 )
 from gateway.status import get_running_pid, read_runtime_status
-from utils import env_var_enabled
+from mangaba_agent.utils import env_var_enabled
 
 try:
     from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
@@ -607,7 +607,7 @@ async def get_status():
 
     active_sessions = 0
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
         db = SessionDB()
         try:
             sessions = db.list_sessions_rich(limit=50)
@@ -899,7 +899,7 @@ async def get_action_status(name: str, lines: int = 200):
 @app.get("/api/sessions")
 async def get_sessions(limit: int = 20, offset: int = 0):
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
         db = SessionDB()
         try:
             sessions = db.list_sessions_rich(limit=limit, offset=offset)
@@ -923,7 +923,7 @@ async def get_fleet_sessions(limit: int = 10, offset: int = 0):
     """Retorna sessões recentes de TODOS os profiles da frota com paginação."""
     try:
         from mangaba_cli import fleet as _fleet
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
 
         all_sessions: List[Dict[str, Any]] = []
         for member in _fleet.collect_fleet():
@@ -964,7 +964,7 @@ async def search_sessions(q: str = "", limit: int = 20):
     if not q or not q.strip():
         return {"results": []}
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
         db = SessionDB()
         try:
             # Auto-add prefix wildcards so partial words match
@@ -3020,7 +3020,7 @@ def _session_latest_descendant(session_id: str):
     /model may create child sessions. Dashboard refresh should continue the
     newest child instead of reopening the old parent.
     """
-    from mangaba_state import SessionDB
+    from mangaba_agent.mangaba_state import SessionDB
 
     def row_get(row, key, index):
         if isinstance(row, dict):
@@ -3092,7 +3092,7 @@ def _session_latest_descendant(session_id: str):
 
 @app.get("/api/sessions/{session_id}")
 async def get_session_detail(session_id: str):
-    from mangaba_state import SessionDB
+    from mangaba_agent.mangaba_state import SessionDB
     db = SessionDB()
     try:
         sid = db.resolve_session_id(session_id)
@@ -3119,7 +3119,7 @@ async def get_session_latest_descendant(session_id: str):
 
 @app.get("/api/sessions/{session_id}/messages")
 async def get_session_messages(session_id: str):
-    from mangaba_state import SessionDB
+    from mangaba_agent.mangaba_state import SessionDB
     db = SessionDB()
     try:
         sid = db.resolve_session_id(session_id)
@@ -3133,7 +3133,7 @@ async def get_session_messages(session_id: str):
 
 @app.delete("/api/sessions/{session_id}")
 async def delete_session_endpoint(session_id: str):
-    from mangaba_state import SessionDB
+    from mangaba_agent.mangaba_state import SessionDB
     db = SessionDB()
     try:
         if not db.delete_session(session_id):
@@ -3166,7 +3166,7 @@ async def get_logs(
         return {"file": file, "lines": []}
 
     try:
-        from mangaba_logging import COMPONENT_PREFIXES
+        from mangaba_agent.mangaba_logging import COMPONENT_PREFIXES
     except ImportError:
         COMPONENT_PREFIXES = {}
 
@@ -3689,7 +3689,7 @@ async def get_toolsets():
         _get_platform_tools,
         _toolset_has_keys,
     )
-    from toolsets import resolve_toolset
+    from mangaba_agent.toolsets import resolve_toolset
 
     config = load_config()
     enabled_toolsets = _get_platform_tools(
@@ -3750,7 +3750,7 @@ async def update_config_raw(body: RawConfigUpdate):
 
 @app.get("/api/analytics/usage")
 async def get_usage_analytics(days: int = 30):
-    from mangaba_state import SessionDB
+    from mangaba_agent.mangaba_state import SessionDB
     from agent.insights import InsightsEngine
 
     db = SessionDB()
@@ -3824,7 +3824,7 @@ async def get_models_analytics(days: int = 30):
     Returns token/cost/session breakdown per model plus capability metadata
     from models.dev (context window, vision, tools, reasoning, etc.).
     """
-    from mangaba_state import SessionDB
+    from mangaba_agent.mangaba_state import SessionDB
 
     db = SessionDB()
     try:
@@ -4064,7 +4064,7 @@ def _build_chat_agent(model_override: str = None, provider_override: str = None)
     """
     from mangaba_cli.config import load_config
     from mangaba_cli.runtime_provider import resolve_runtime_provider
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     cfg = load_config()
     model_cfg = cfg.get("model") or {}

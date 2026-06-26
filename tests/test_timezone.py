@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 from zoneinfo import ZoneInfo
 
-import mangaba_time
+import mangaba_agent.mangaba_time
 
 
 def _reset_mangaba_time_cache():

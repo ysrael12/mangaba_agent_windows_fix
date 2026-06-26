@@ -180,7 +180,7 @@ def describe_profile(
 
     try:
         if canon == "default":
-            from mangaba_constants import get_mangaba_home  # type: ignore
+            from mangaba_agent.mangaba_constants import get_mangaba_home  # type: ignore
             profile_dir = Path(get_mangaba_home())
         else:
             profile_dir = profiles_mod.get_profile_dir(canon)

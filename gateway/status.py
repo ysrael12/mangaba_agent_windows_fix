@@ -19,9 +19,9 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from typing import Any, Optional
-from utils import atomic_json_write
+from mangaba_agent.utils import atomic_json_write
 
 if sys.platform == "win32":
     import msvcrt

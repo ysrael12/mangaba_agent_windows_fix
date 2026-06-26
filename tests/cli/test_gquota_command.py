@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 def test_gquota_uses_chat_console_when_tui_is_live():
     from agent.google_oauth import GoogleOAuthError
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     cli = MangabaCLI.__new__(MangabaCLI)
     cli.console = MagicMock()

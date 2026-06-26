@@ -13,7 +13,7 @@ from dataclasses import dataclass, fields, replace
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-from mangaba_constants import OPENROUTER_BASE_URL
+from mangaba_agent.mangaba_constants import OPENROUTER_BASE_URL
 from mangaba_cli.config import get_env_value, load_env
 import mangaba_cli.auth as auth_mod
 from mangaba_cli.auth import (

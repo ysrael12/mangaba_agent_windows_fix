@@ -22,7 +22,7 @@ from unittest.mock import patch
 
 import httpx
 
-from run_agent import AIAgent, _get_proxy_from_env, _get_proxy_for_base_url
+from mangaba_agent.run_agent import AIAgent, _get_proxy_from_env, _get_proxy_for_base_url
 
 
 def _make_agent():

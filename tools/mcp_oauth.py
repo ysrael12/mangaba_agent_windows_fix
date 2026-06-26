@@ -48,7 +48,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
-from mangaba_constants import secure_parent_dir
+from mangaba_agent.mangaba_constants import secure_parent_dir
 
 logger = logging.getLogger(__name__)
 
@@ -106,7 +106,7 @@ def _get_token_dir() -> Path:
     Layout: ``MANGABA_HOME/mcp-tokens/``
     """
     try:
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         base = Path(get_mangaba_home())
     except ImportError:
         base = Path(os.environ.get("MANGABA_HOME", str(Path.home() / ".mangaba")))

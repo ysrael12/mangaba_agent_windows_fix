@@ -18,7 +18,7 @@ def _bound(fn, instance):
 
 def _make_self(prompt_response):
     """Build a minimal stand-in 'self' for _confirm_destructive_slash."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = SimpleNamespace(
         _app=None,
@@ -34,7 +34,7 @@ def _make_self(prompt_response):
 def test_gate_off_returns_once_without_prompting():
     """When approvals.destructive_slash_confirm is False, return 'once'
     immediately (caller proceeds without showing a prompt)."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response="should not be called")
 
@@ -51,7 +51,7 @@ def test_gate_off_returns_once_without_prompting():
 
 def test_gate_on_choice_once_returns_once():
     """When the gate is on and the user picks '1', return 'once'."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response="1")
 
@@ -68,7 +68,7 @@ def test_gate_on_choice_once_returns_once():
 
 def test_gate_on_choice_cancel_returns_none():
     """When the user picks '3' (cancel), return None — caller must abort."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response="3")
 
@@ -85,7 +85,7 @@ def test_gate_on_choice_cancel_returns_none():
 
 def test_gate_on_no_input_returns_none():
     """No input (None / EOF / Ctrl-C) treated as cancel."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response=None)
 
@@ -102,7 +102,7 @@ def test_gate_on_no_input_returns_none():
 
 def test_gate_on_unknown_choice_returns_none():
     """Garbage input is treated as cancel — fail safe, don't destroy state."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response="maybe")
 
@@ -120,7 +120,7 @@ def test_gate_on_unknown_choice_returns_none():
 def test_gate_on_choice_always_persists_and_returns_always():
     """User picks 'always' → returns 'always' AND
     save_config_value('approvals.destructive_slash_confirm', False) was called."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response="2")
 
@@ -144,7 +144,7 @@ def test_gate_on_choice_always_persists_and_returns_always():
 def test_gate_default_true_when_config_missing():
     """If load_cli_config raises or returns malformed data, treat as
     'gate on' (default safe) — must prompt."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = _make_self(prompt_response="3")  # cancel
 
@@ -161,7 +161,7 @@ def test_gate_default_true_when_config_missing():
 
 def test_slash_confirm_modal_number_selection_submits_without_raw_input():
     """Pressing 2 in the TUI modal should resolve to Always Approve directly."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     q = queue.Queue()
     self_ = SimpleNamespace(
@@ -187,7 +187,7 @@ def test_slash_confirm_modal_number_selection_submits_without_raw_input():
 
 def test_slash_confirm_display_fragments_include_choice_mapping():
     """The modal itself must show what 1/2/3 mean, not only 'Choice [1/2/3]'."""
-    from cli import MangabaCLI
+    from mangaba_agent.cli import MangabaCLI
 
     self_ = SimpleNamespace(
         _slash_confirm_state={

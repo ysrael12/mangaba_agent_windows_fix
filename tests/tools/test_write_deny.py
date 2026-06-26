@@ -39,7 +39,7 @@ class TestWriteDenyExactPaths:
         # ``~/.mangaba``) must be write-denied. The hermetic test conftest
         # points MANGABA_HOME at a tempdir — resolve via get_mangaba_home()
         # to match the denylist.
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         path = str(get_mangaba_home() / ".env")
         assert _is_write_denied(path) is True
 
@@ -62,7 +62,7 @@ class TestWriteDenyExactPaths:
         monkeypatch.setenv("MANGABA_HOME", str(profile_home))
 
         # Sanity check: MANGABA_HOME does point to the profile dir, not the root.
-        from mangaba_constants import get_mangaba_home, get_default_mangaba_root
+        from mangaba_agent.mangaba_constants import get_mangaba_home, get_default_mangaba_root
         assert get_mangaba_home() == profile_home
         assert get_default_mangaba_root() == root
 

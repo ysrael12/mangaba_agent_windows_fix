@@ -26,10 +26,10 @@ import logging
 import os
 import shutil
 from pathlib import Path
-from mangaba_constants import get_bundled_skills_dir, get_mangaba_home
+from mangaba_agent.mangaba_constants import get_bundled_skills_dir, get_mangaba_home
 from agent.skill_utils import is_excluded_skill_path
 from typing import Dict, List, Tuple
-from utils import atomic_replace
+from mangaba_agent.utils import atomic_replace
 
 logger = logging.getLogger(__name__)
 

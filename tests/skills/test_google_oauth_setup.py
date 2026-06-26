@@ -319,6 +319,6 @@ class TestMangabaConstantsFallback:
         module = importlib.util.module_from_spec(spec)
         assert spec.loader is not None
         spec.loader.exec_module(module)
-        import mangaba_constants
+        import mangaba_agent.mangaba_constants
         assert module.get_mangaba_home is mangaba_constants.get_mangaba_home
         assert module.display_mangaba_home is mangaba_constants.display_mangaba_home

@@ -10,7 +10,7 @@ import os
 import sys
 from pathlib import Path
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from plugins.memory.honcho.client import resolve_active_host, resolve_config_path, HOST
 from mangaba_cli.config import cfg_get
 

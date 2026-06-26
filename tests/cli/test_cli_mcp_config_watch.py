@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 def _make_cli(tmp_path, mcp_servers=None):
     """Create a minimal MangabaCLI instance with mocked config."""
-    import cli as cli_mod
+    import mangaba_agent.cli as cli_mod
     obj = object.__new__(cli_mod.MangabaCLI)
     obj.config = {"mcp_servers": mcp_servers or {}}
     obj._agent_running = False

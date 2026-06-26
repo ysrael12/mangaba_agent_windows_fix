@@ -16,9 +16,9 @@ from urllib.parse import urlparse
 import requests
 import yaml
 
-from utils import base_url_host_matches, base_url_hostname
+from mangaba_agent.utils import base_url_host_matches, base_url_hostname
 
-from mangaba_constants import OPENROUTER_MODELS_URL
+from mangaba_agent.mangaba_constants import OPENROUTER_MODELS_URL
 
 logger = logging.getLogger(__name__)
 
@@ -814,7 +814,7 @@ def _resolve_endpoint_context_length(
 
 def _get_context_cache_path() -> Path:
     """Return path to the persistent context length cache file."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     return get_mangaba_home() / "context_length_cache.yaml"
 
 

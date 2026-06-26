@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 def _make_cli():
     """Build a minimal MangabaCLI shell exposing ``_reload_skills``."""
-    import cli as cli_mod
+    import mangaba_agent.cli as cli_mod
 
     obj = object.__new__(cli_mod.MangabaCLI)
     obj._command_running = False

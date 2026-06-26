@@ -16,7 +16,7 @@ Usage:
 # IMPORTANT: mangaba_bootstrap must be the very first import — UTF-8 stdio
 # on Windows.  No-op on POSIX.  See mangaba_bootstrap.py for full rationale.
 try:
-    import mangaba_bootstrap  # noqa: F401
+    import mangaba_agent.mangaba_bootstrap  # noqa: F401
 except ModuleNotFoundError:
     # Graceful fallback when mangaba_bootstrap isn't registered in the venv
     # yet — happens during partial ``mangaba update`` where git-reset landed
@@ -665,8 +665,8 @@ _ensure_ssl_certs()
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Resolve Mangaba home directory (respects MANGABA_HOME override)
-from mangaba_constants import get_mangaba_home
-from utils import atomic_json_write, atomic_yaml_write, base_url_host_matches, is_truthy_value
+from mangaba_agent.mangaba_constants import get_mangaba_home
+from mangaba_agent.utils import atomic_json_write, atomic_yaml_write, base_url_host_matches, is_truthy_value
 _mangaba_home = get_mangaba_home()
 
 # Load environment variables from ~/.mangaba/.env first.
@@ -873,7 +873,7 @@ if _config_path.exists():
 
 # Apply IPv4 preference if configured (before any HTTP clients are created).
 try:
-    from mangaba_constants import apply_ipv4_preference
+    from mangaba_agent.mangaba_constants import apply_ipv4_preference
     _network_cfg = (_cfg if '_cfg' in dir() else {}).get("network", {})
     if isinstance(_network_cfg, dict) and _network_cfg.get("force_ipv4"):
         apply_ipv4_preference(force=True)
@@ -1251,7 +1251,7 @@ def _check_unavailable_skill(command_name: str) -> str | None:
                     )
 
         # Check optional skills (shipped with repo but not installed)
-        from mangaba_constants import get_optional_skills_dir
+        from mangaba_agent.mangaba_constants import get_optional_skills_dir
         repo_root = Path(__file__).resolve().parent.parent
         optional_dir = get_optional_skills_dir(repo_root / "optional-skills")
         if optional_dir.exists():
@@ -1688,7 +1688,7 @@ class GatewayRunner:
         # Initialize session database for session_search tool support
         self._session_db = None
         try:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
             self._session_db = SessionDB()
         except Exception as e:
             # WARNING (not DEBUG) so the failure appears in errors.log — matches
@@ -2714,7 +2714,7 @@ class GatewayRunner:
         "minimal", "low", "medium", "high", "xhigh". Returns None to use
         default (medium).
         """
-        from mangaba_constants import parse_reasoning_effort
+        from mangaba_agent.mangaba_constants import parse_reasoning_effort
         cfg = _load_gateway_runtime_config()
         effort = str(cfg_get(cfg, "agent", "reasoning_effort", default="") or "").strip()
         result = parse_reasoning_effort(effort)
@@ -8390,7 +8390,7 @@ class GatewayRunner:
                     _hyg_meta = self._thread_metadata_for_source(source, self._reply_anchor_for_event(event))
 
                     try:
-                        from run_agent import AIAgent
+                        from mangaba_agent.run_agent import AIAgent
 
                         _hyg_model, _hyg_runtime = self._resolve_session_agent_runtime(
                             source=source,
@@ -9283,7 +9283,7 @@ class GatewayRunner:
         _title_arg = event.get_command_args().strip()
         _title_note = ""
         if _title_arg and self._session_db and new_entry:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
             try:
                 sanitized = SessionDB.sanitize_title(_title_arg)
             except ValueError as e:
@@ -10232,7 +10232,7 @@ class GatewayRunner:
 
     async def _handle_profile_command(self, event: MessageEvent) -> str:
         """Handle /profile — show active profile name and home directory."""
-        from mangaba_constants import display_mangaba_home
+        from mangaba_agent.mangaba_constants import display_mangaba_home
         from mangaba_cli.profiles import get_active_profile_name
 
         display = display_mangaba_home()
@@ -11361,7 +11361,7 @@ class GatewayRunner:
 
     async def _handle_personality_command(self, event: MessageEvent) -> str:
         """Handle /personality command - list or set a personality."""
-        from mangaba_constants import display_mangaba_home
+        from mangaba_agent.mangaba_constants import display_mangaba_home
 
         args = event.get_command_args().strip().lower()
         config_path = _mangaba_home / 'config.yaml'
@@ -12457,7 +12457,7 @@ class GatewayRunner:
         media_types: Optional[List[str]] = None,
     ) -> None:
         """Execute a background agent task and deliver the result to the chat."""
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         media_urls = media_urls or []
         media_types = media_types or []
@@ -12971,7 +12971,7 @@ class GatewayRunner:
         focus_topic = (event.get_command_args() or "").strip() or None
 
         try:
-            from run_agent import AIAgent
+            from mangaba_agent.run_agent import AIAgent
             from agent.manual_compression_feedback import summarize_manual_compression
             from agent.model_metadata import estimate_request_tokens_rough
 
@@ -13378,7 +13378,7 @@ class GatewayRunner:
     def _disable_telegram_topic_mode_for_chat(self, source: SessionSource) -> str:
         """Cleanly disable topic mode for a chat via /topic off."""
         if not self._session_db:
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return format_session_db_unavailable(prefix=t("gateway.shared.session_db_unavailable_prefix"))
         chat_id = str(source.chat_id or "")
         if not chat_id:
@@ -13417,7 +13417,7 @@ class GatewayRunner:
         if source.platform != Platform.TELEGRAM or source.chat_type != "dm":
             return t("gateway.topic.not_telegram_dm")
         if not self._session_db:
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return format_session_db_unavailable(prefix=t("gateway.shared.session_db_unavailable_prefix"))
 
         # Authorization: /topic activates multi-session mode and mutates
@@ -13607,7 +13607,7 @@ class GatewayRunner:
         session_id = session_entry.session_id
 
         if not self._session_db:
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return format_session_db_unavailable(prefix=t("gateway.shared.session_db_unavailable_prefix"))
 
         # Ensure session exists in SQLite DB (it may only exist in session_store
@@ -13652,7 +13652,7 @@ class GatewayRunner:
     async def _handle_resume_command(self, event: MessageEvent) -> str:
         """Handle /resume command — switch to a previously-named session."""
         if not self._session_db:
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return format_session_db_unavailable(prefix=t("gateway.shared.session_db_unavailable_prefix"))
 
         source = event.source
@@ -13735,7 +13735,7 @@ class GatewayRunner:
         import uuid as _uuid
 
         if not self._session_db:
-            from mangaba_state import format_session_db_unavailable
+            from mangaba_agent.mangaba_state import format_session_db_unavailable
             return format_session_db_unavailable(prefix=t("gateway.shared.session_db_unavailable_prefix"))
 
         source = event.source
@@ -13985,7 +13985,7 @@ class GatewayRunner:
                     i += 1
 
         try:
-            from mangaba_state import SessionDB
+            from mangaba_agent.mangaba_state import SessionDB
             from agent.insights import InsightsEngine
 
             loop = asyncio.get_running_loop()
@@ -14043,7 +14043,7 @@ class GatewayRunner:
             if choice == "always":
                 # Persist the opt-out and run the reload.
                 try:
-                    from cli import save_config_value
+                    from mangaba_agent.cli import save_config_value
                     save_config_value("approvals.mcp_reload_confirm", False)
                     logger.info(
                         "User opted out of /reload-mcp confirmation (session=%s)",
@@ -14334,7 +14334,7 @@ class GatewayRunner:
                 return f"🟡 /{command} cancelled. Conversation unchanged."
             if choice == "always":
                 try:
-                    from cli import save_config_value
+                    from mangaba_agent.cli import save_config_value
                     save_config_value("approvals.destructive_slash_confirm", False)
                     logger.info(
                         "User opted out of destructive slash confirm (session=%s)",
@@ -16533,7 +16533,7 @@ class GatewayRunner:
                 event_message_id=event_message_id,
             )
 
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
         import queue
 
         def _run_still_current() -> bool:
@@ -18957,7 +18957,7 @@ async def start_gateway(config: Optional[GatewayConfig] = None, replace: bool = 
     # Centralized logging — agent.log (INFO+), errors.log (WARNING+),
     # and gateway.log (INFO+, gateway-component records only).
     # Idempotent, so repeated calls from AIAgent.__init__ won't duplicate.
-    from mangaba_logging import setup_logging
+    from mangaba_agent.mangaba_logging import setup_logging
     setup_logging(mangaba_home=_mangaba_home, mode="gateway")
 
     # Periodic process memory usage logging (gateway only) — emits a

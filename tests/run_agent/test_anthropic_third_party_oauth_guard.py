@@ -22,7 +22,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 # A plausible-looking OAuth token (``sk-ant-`` without the ``-api`` suffix).

@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 
 
 class TestCLILoadingIndicator:

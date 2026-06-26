@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 from acp_adapter import session as acp_session
 from acp_adapter.session import SessionManager, SessionState
-from mangaba_state import SessionDB
+from mangaba_agent.mangaba_state import SessionDB
 
 
 def _mock_agent():

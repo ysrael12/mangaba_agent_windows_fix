@@ -2,7 +2,7 @@
 when primary provider credentials are exhausted."""
 import pytest
 from unittest.mock import patch, MagicMock
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _make_tool_defs():

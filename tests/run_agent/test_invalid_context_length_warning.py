@@ -18,7 +18,7 @@ def _build_agent(model_cfg, custom_providers=None, model="anthropic/claude-opus-
         patch("run_agent.check_toolset_requirements", return_value={}),
         patch("run_agent.OpenAI"),
     ):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             model=model,

@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Optional
 
 from mangaba_cli.config import get_mangaba_home, get_config_path, load_config, save_config
-from mangaba_constants import get_optional_skills_dir
+from mangaba_agent.mangaba_constants import get_optional_skills_dir
 from mangaba_cli.setup import (
     Colors,
     color,

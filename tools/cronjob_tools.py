@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
-from mangaba_constants import display_mangaba_home
+from mangaba_agent.mangaba_constants import display_mangaba_home
 
 logger = logging.getLogger(__name__)
 
@@ -264,7 +264,7 @@ def _validate_cron_script_path(script: Optional[str]) -> Optional[str]:
     if not script or not script.strip():
         return None  # empty/None = clearing the field, always OK
 
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     raw = script.strip()
 
@@ -731,7 +731,7 @@ def check_cronjob_requirements() -> bool:
     leave the tool disabled. Uses the shared ``env_var_enabled`` helper so
     every consumer of these flags agrees on the truthy set.
     """
-    from utils import env_var_enabled
+    from mangaba_agent.utils import env_var_enabled
 
     return (
         env_var_enabled("MANGABA_INTERACTIVE")

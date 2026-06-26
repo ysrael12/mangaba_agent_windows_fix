@@ -112,7 +112,7 @@ class TestLoadCliConfigExpansion:
         # Patch the mangaba home so load_cli_config finds our test config
         monkeypatch.setattr("cli._mangaba_home", tmp_path)
 
-        from cli import load_cli_config
+        from mangaba_agent.cli import load_cli_config
         config = load_cli_config()
 
         assert config["auxiliary"]["vision"]["api_key"] == "vis-key-123"
@@ -129,7 +129,7 @@ class TestLoadCliConfigExpansion:
         monkeypatch.delenv("UNSET_CLI_VAR_ABC", raising=False)
         monkeypatch.setattr("cli._mangaba_home", tmp_path)
 
-        from cli import load_cli_config
+        from mangaba_agent.cli import load_cli_config
         config = load_cli_config()
 
         assert config["auxiliary"]["vision"]["api_key"] == "${UNSET_CLI_VAR_ABC}"

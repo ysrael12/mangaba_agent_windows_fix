@@ -40,7 +40,7 @@ from acp.schema import (
 from acp_adapter.auth import TERMINAL_SETUP_AUTH_METHOD_ID
 from acp_adapter.server import MangabaACPAgent, MANGABA_VERSION
 from acp_adapter.session import SessionManager
-from mangaba_state import SessionDB
+from mangaba_agent.mangaba_state import SessionDB
 
 
 @pytest.fixture()

@@ -203,7 +203,7 @@ class VideoGenProvider(abc.ABC):
 
 def _videos_cache_dir() -> Path:
     """Return ``$MANGABA_HOME/cache/videos/``, creating parents as needed."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     path = get_mangaba_home() / "cache" / "videos"
     path.mkdir(parents=True, exist_ok=True)

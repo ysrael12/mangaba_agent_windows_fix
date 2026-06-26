@@ -11,15 +11,15 @@ from io import StringIO
 from unittest.mock import MagicMock, patch
 
 import pytest
-import cli as cli_mod
+import mangaba_agent.cli as cli_mod
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def _make_cli(config_overrides=None, env_overrides=None, **kwargs):
     """Create a MangabaCLI instance with minimal mocking."""
-    import cli as _cli_mod
-    from cli import MangabaCLI
+    import mangaba_agent.cli as _cli_mod
+    from mangaba_agent.cli import MangabaCLI
 
     _clean_config = {
         "model": {
@@ -650,8 +650,8 @@ class TestResumeDisplayConfig:
 
     def test_cli_defaults_have_resume_display(self):
         """cli.py load_cli_config defaults include resume_display."""
-        import cli as _cli_mod
-        from cli import load_cli_config
+        import mangaba_agent.cli as _cli_mod
+        from mangaba_agent.cli import load_cli_config
 
         with (
             patch("pathlib.Path.exists", return_value=False),

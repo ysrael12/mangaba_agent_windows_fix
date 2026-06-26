@@ -131,7 +131,7 @@ def slack_manifest_command(args) -> int:
         if isinstance(write_target, bool) and write_target:
             # --write with no value → default location
             try:
-                from mangaba_constants import get_mangaba_home
+                from mangaba_agent.mangaba_constants import get_mangaba_home
 
                 target = Path(get_mangaba_home()) / "slack-manifest.json"
             except Exception:

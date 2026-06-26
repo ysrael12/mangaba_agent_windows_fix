@@ -29,7 +29,7 @@ from mangaba_cli.nous_subscription import (
     get_nous_subscription_features,
 )
 from tools.tool_backend_helpers import fal_key_is_configured, managed_nous_tools_enabled
-from utils import base_url_hostname, is_truthy_value
+from mangaba_agent.utils import base_url_hostname, is_truthy_value
 
 logger = logging.getLogger(__name__)
 
@@ -760,7 +760,7 @@ def _run_post_setup(post_setup_key: str):
             if result.returncode == 0:
                 _print_success("    Node.js dependencies installed")
             else:
-                from mangaba_constants import display_mangaba_home
+                from mangaba_agent.mangaba_constants import display_mangaba_home
                 _print_warning(f"    npm install failed - run manually: cd {display_mangaba_home()}/mangaba-agent && npm install")
                 if result.stderr:
                     _print_info(f"      {result.stderr.strip()[:200]}")
@@ -1118,7 +1118,7 @@ def _get_platform_tools(
     include_default_mcp_servers: bool = True,
 ) -> Set[str]:
     """Resolve which individual toolset names are enabled for a platform."""
-    from toolsets import resolve_toolset, TOOLSETS
+    from mangaba_agent.toolsets import resolve_toolset, TOOLSETS
 
     platform_toolsets = config.get("platform_toolsets") or {}
     toolset_names = platform_toolsets.get(platform)
@@ -1474,7 +1474,7 @@ def _estimate_tool_tokens() -> Dict[str, int]:
 
     try:
         # Trigger full tool discovery (imports all tool modules).
-        import model_tools  # noqa: F401
+        import mangaba_agent.model_tools  # noqa: F401
         from tools.registry import registry
     except Exception:
         logger.debug("Tool registry unavailable; skipping token estimation")
@@ -1496,7 +1496,7 @@ def _estimate_tool_tokens() -> Dict[str, int]:
 def _prompt_toolset_checklist(platform_label: str, enabled: Set[str], platform: str = "cli") -> Set[str]:
     """Multi-select checklist of toolsets. Returns set of selected toolset keys."""
     from mangaba_cli.curses_ui import curses_checklist
-    from toolsets import resolve_toolset
+    from mangaba_agent.toolsets import resolve_toolset
 
     # Pre-compute per-tool token counts (cached after first call).
     tool_tokens = _estimate_tool_tokens()
@@ -3022,7 +3022,7 @@ def tools_command(args=None, first_install: bool = False, config: dict = None):
         platform_choices[idx] = f"Configure {pinfo['label']}  ({new_count}/{total} enabled)"
 
     print()
-    from mangaba_constants import display_mangaba_home
+    from mangaba_agent.mangaba_constants import display_mangaba_home
     print(color(f"  Tool configuration saved to {display_mangaba_home()}/config.yaml", Colors.DIM))
     print(color("  Changes take effect on next 'mangaba' or gateway restart.", Colors.DIM))
     print()

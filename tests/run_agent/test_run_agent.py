@@ -18,8 +18,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from agent.codex_responses_adapter import _chat_messages_to_responses_input, _normalize_codex_response, _preflight_codex_input_items
 
-import run_agent
-from run_agent import AIAgent
+import mangaba_agent.run_agent
+from mangaba_agent.run_agent import AIAgent
 from agent.error_classifier import FailoverReason
 from agent.prompt_builder import DEFAULT_AGENT_IDENTITY
 
@@ -2304,38 +2304,38 @@ class TestPathsOverlap:
     """Unit tests for the _paths_overlap helper."""
 
     def test_same_path_overlaps(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert _paths_overlap(Path("src/a.py"), Path("src/a.py"))
 
     def test_siblings_do_not_overlap(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert not _paths_overlap(Path("src/a.py"), Path("src/b.py"))
 
     def test_parent_child_overlap(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert _paths_overlap(Path("src"), Path("src/sub/a.py"))
 
     def test_different_roots_do_not_overlap(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert not _paths_overlap(Path("src/a.py"), Path("other/a.py"))
 
     def test_nested_vs_flat_do_not_overlap(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert not _paths_overlap(Path("src/sub/a.py"), Path("src/a.py"))
 
     def test_empty_paths_do_not_overlap(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert not _paths_overlap(Path(""), Path(""))
 
     def test_one_empty_path_does_not_overlap(self):
-        from run_agent import _paths_overlap
+        from mangaba_agent.run_agent import _paths_overlap
         assert not _paths_overlap(Path(""), Path("src/a.py"))
         assert not _paths_overlap(Path("src/a.py"), Path(""))
 
 
 class TestParallelScopePathNormalization:
     def test_extract_parallel_scope_path_normalizes_relative_to_cwd(self, tmp_path, monkeypatch):
-        from run_agent import _extract_parallel_scope_path
+        from mangaba_agent.run_agent import _extract_parallel_scope_path
 
         monkeypatch.chdir(tmp_path)
 
@@ -2344,7 +2344,7 @@ class TestParallelScopePathNormalization:
         assert scoped == tmp_path / "notes.txt"
 
     def test_extract_parallel_scope_path_treats_relative_and_absolute_same_file_as_same_scope(self, tmp_path, monkeypatch):
-        from run_agent import _extract_parallel_scope_path, _paths_overlap
+        from mangaba_agent.run_agent import _extract_parallel_scope_path, _paths_overlap
 
         monkeypatch.chdir(tmp_path)
         abs_path = tmp_path / "notes.txt"
@@ -2356,7 +2356,7 @@ class TestParallelScopePathNormalization:
         assert _paths_overlap(rel_scoped, abs_scoped)
 
     def test_should_parallelize_tool_batch_rejects_same_file_with_mixed_path_spellings(self, tmp_path, monkeypatch):
-        from run_agent import _should_parallelize_tool_batch
+        from mangaba_agent.run_agent import _should_parallelize_tool_batch
 
         monkeypatch.chdir(tmp_path)
         tc1 = _mock_tool_call(name="write_file", arguments='{"path":"notes.txt","content":"one"}', call_id="c1")
@@ -2370,14 +2370,14 @@ class TestMcpParallelToolBatch:
 
     def test_mcp_tools_default_sequential(self):
         """MCP tools without supports_parallel_tool_calls are sequential."""
-        from run_agent import _should_parallelize_tool_batch
+        from mangaba_agent.run_agent import _should_parallelize_tool_batch
         tc1 = _mock_tool_call(name="mcp_github_list_repos", arguments='{"org":"openai"}', call_id="c1")
         tc2 = _mock_tool_call(name="mcp_github_search_code", arguments='{"q":"test"}', call_id="c2")
         assert not _should_parallelize_tool_batch([tc1, tc2])
 
     def test_mcp_tools_parallel_when_server_opted_in(self):
         """MCP tools from a parallel-safe server can run concurrently."""
-        from run_agent import _should_parallelize_tool_batch
+        from mangaba_agent.run_agent import _should_parallelize_tool_batch
         from tools.mcp_tool import _mcp_tool_server_names, _parallel_safe_servers, _lock
         with _lock:
             _parallel_safe_servers.add("github")
@@ -2395,7 +2395,7 @@ class TestMcpParallelToolBatch:
 
     def test_mixed_mcp_and_builtin_parallel(self):
         """MCP parallel tools mixed with built-in parallel-safe tools."""
-        from run_agent import _should_parallelize_tool_batch
+        from mangaba_agent.run_agent import _should_parallelize_tool_batch
         from tools.mcp_tool import _mcp_tool_server_names, _parallel_safe_servers, _lock
         with _lock:
             _parallel_safe_servers.add("docs")
@@ -2411,7 +2411,7 @@ class TestMcpParallelToolBatch:
 
     def test_mixed_parallel_and_serial_mcp_servers(self):
         """One parallel MCP server + one non-parallel MCP server = sequential."""
-        from run_agent import _should_parallelize_tool_batch
+        from mangaba_agent.run_agent import _should_parallelize_tool_batch
         from tools.mcp_tool import _mcp_tool_server_names, _parallel_safe_servers, _lock
         with _lock:
             _parallel_safe_servers.add("docs")
@@ -4270,7 +4270,7 @@ class TestSafeWriter:
 
     def test_write_delegates_normally(self):
         """When stdout is healthy, _SafeWriter is transparent."""
-        from run_agent import _SafeWriter
+        from mangaba_agent.run_agent import _SafeWriter
         from io import StringIO
         inner = StringIO()
         writer = _SafeWriter(inner)
@@ -4279,7 +4279,7 @@ class TestSafeWriter:
 
     def test_write_catches_oserror(self):
         """OSError on write is silently caught, returns len(data)."""
-        from run_agent import _SafeWriter
+        from mangaba_agent.run_agent import _SafeWriter
         from unittest.mock import MagicMock
         inner = MagicMock()
         inner.write.side_effect = OSError(5, "Input/output error")
@@ -4289,7 +4289,7 @@ class TestSafeWriter:
 
     def test_flush_catches_oserror(self):
         """OSError on flush is silently caught."""
-        from run_agent import _SafeWriter
+        from mangaba_agent.run_agent import _SafeWriter
         from unittest.mock import MagicMock
         inner = MagicMock()
         inner.flush.side_effect = OSError(5, "Input/output error")
@@ -4299,7 +4299,7 @@ class TestSafeWriter:
     def test_print_survives_broken_stdout(self, monkeypatch):
         """print() through _SafeWriter doesn't crash on broken pipe."""
         import sys
-        from run_agent import _SafeWriter
+        from mangaba_agent.run_agent import _SafeWriter
         from unittest.mock import MagicMock
         broken = MagicMock()
         broken.write.side_effect = OSError(5, "Input/output error")
@@ -4313,7 +4313,7 @@ class TestSafeWriter:
     def test_installed_in_run_conversation(self, agent):
         """run_conversation installs _SafeWriter on stdio."""
         import sys
-        from run_agent import _SafeWriter
+        from mangaba_agent.run_agent import _SafeWriter
         resp = _mock_response(content="Done", finish_reason="stop")
         agent.client.chat.completions.create.return_value = resp
         original_stdout = sys.stdout
@@ -4337,7 +4337,7 @@ class TestSafeWriter:
     def test_double_wrap_prevented(self):
         """Wrapping an already-wrapped stream doesn't add layers."""
         import sys
-        from run_agent import _SafeWriter
+        from mangaba_agent.run_agent import _SafeWriter
         from io import StringIO
         inner = StringIO()
         wrapped = _SafeWriter(inner)

@@ -36,10 +36,10 @@ from typing import List, Optional
 # the module) fail with ModuleNotFoundError for mangaba_time et al.
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from mangaba_cli._subprocess_compat import windows_hide_flags
 from mangaba_cli.config import load_config, _expand_env_vars
-from mangaba_time import now as _mangaba_now
+from mangaba_agent.mangaba_time import now as _mangaba_now
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +173,7 @@ def _job_profile_context(job_id: str, profile: Optional[str]):
     env_snapshot = os.environ.copy()
 
     from mangaba_cli.profiles import normalize_profile_name, resolve_profile_env
-    from mangaba_constants import reset_mangaba_home_override, set_mangaba_home_override
+    from mangaba_agent.mangaba_constants import reset_mangaba_home_override, set_mangaba_home_override
 
     normalized_profile = normalize_profile_name(raw_profile)
     try:
@@ -882,7 +882,7 @@ def _run_job_script(script_path: str) -> tuple[bool, str]:
     run_env = os.environ.copy()
     run_env["MANGABA_HOME"] = str(_get_mangaba_home())
     try:
-        from mangaba_constants import get_subprocess_home
+        from mangaba_agent.mangaba_constants import get_subprocess_home
 
         profile_home = get_subprocess_home()
         if profile_home:
@@ -1260,13 +1260,13 @@ def _run_job_impl(job: dict) -> tuple[bool, str, str, Optional[str]]:
     # at module top keeps no_agent ticks from paying for AIAgent / SessionDB
     # construction costs.
     # ---------------------------------------------------------------
-    from run_agent import AIAgent
+    from mangaba_agent.run_agent import AIAgent
 
     # Initialize SQLite session store so cron job messages are persisted
     # and discoverable via session_search (same pattern as gateway/run.py).
     _session_db = None
     try:
-        from mangaba_state import SessionDB
+        from mangaba_agent.mangaba_state import SessionDB
         _session_db = SessionDB()
     except Exception as e:
         logger.debug("Job '%s': SQLite session store not available: %s", job.get("id", "?"), e)
@@ -1438,7 +1438,7 @@ def _run_job_impl(job: dict) -> tuple[bool, str, str, Optional[str]]:
 
         # Apply IPv4 preference if configured.
         try:
-            from mangaba_constants import apply_ipv4_preference
+            from mangaba_agent.mangaba_constants import apply_ipv4_preference
             _net_cfg = _cfg.get("network", {})
             if isinstance(_net_cfg, dict) and _net_cfg.get("force_ipv4"):
                 apply_ipv4_preference(force=True)
@@ -1446,7 +1446,7 @@ def _run_job_impl(job: dict) -> tuple[bool, str, str, Optional[str]]:
             pass
 
         # Reasoning config from config.yaml
-        from mangaba_constants import parse_reasoning_effort
+        from mangaba_agent.mangaba_constants import parse_reasoning_effort
         effort = str(_cfg.get("agent", {}).get("reasoning_effort", "")).strip()
         reasoning_config = parse_reasoning_effort(effort)
 

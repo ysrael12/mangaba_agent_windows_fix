@@ -16,13 +16,13 @@ import re
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from typing import Optional, Dict, List, Any, Union
 
 logger = logging.getLogger(__name__)
 
-from mangaba_time import now as _mangaba_now
-from utils import atomic_replace
+from mangaba_agent.mangaba_time import now as _mangaba_now
+from mangaba_agent.utils import atomic_replace
 
 try:
     from croniter import croniter

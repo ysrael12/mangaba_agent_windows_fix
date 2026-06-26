@@ -205,7 +205,7 @@ class TestMCPReloadTimeout:
         # by checking that _check_config_mcp_changes doesn't call
         # _reload_mcp directly (it uses a thread now)
         import inspect
-        from cli import MangabaCLI
+        from mangaba_agent.cli import MangabaCLI
         source = inspect.getsource(MangabaCLI._check_config_mcp_changes)
         # The fix adds threading.Thread for _reload_mcp
         assert "Thread" in source or "thread" in source.lower(), \

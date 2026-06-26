@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
-from cli import MangabaCLI, _rich_text_from_ansi
+from mangaba_agent.cli import MangabaCLI, _rich_text_from_ansi
 from mangaba_cli.skin_engine import get_active_skin, set_active_skin
 
 

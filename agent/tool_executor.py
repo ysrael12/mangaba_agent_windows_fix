@@ -58,7 +58,7 @@ _MAX_TOOL_WORKERS = 8
 
 def _ra():
     """Lazy reference to ``run_agent`` so patches like ``run_agent._set_interrupt`` work."""
-    import run_agent
+    import mangaba_agent.run_agent
     return run_agent
 
 
@@ -608,7 +608,7 @@ def execute_tool_calls_sequential(agent, assistant_message, messages: list, effe
         elif function_name == "session_search":
             session_db = agent._get_session_db_for_recall()
             if not session_db:
-                from mangaba_state import format_session_db_unavailable
+                from mangaba_agent.mangaba_state import format_session_db_unavailable
                 function_result = json.dumps({"success": False, "error": format_session_db_unavailable()})
             else:
                 from tools.session_search_tool import session_search as _session_search

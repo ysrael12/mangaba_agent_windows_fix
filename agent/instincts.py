@@ -51,7 +51,7 @@ PROMOTE_MIN_USES = 4
 
 
 def _store_path() -> Path:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     return get_mangaba_home() / "instincts.jsonl"
 
 

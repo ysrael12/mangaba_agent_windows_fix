@@ -206,7 +206,7 @@ def _remove_claude_code(provider: str, removed) -> RemovalResult:
 
 def _remove_mangaba_pkce(provider: str, removed) -> RemovalResult:
     """~/.mangaba/.anthropic_oauth.json is ours — delete it outright."""
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
 
     result = RemovalResult()
     oauth_file = get_mangaba_home() / ".anthropic_oauth.json"

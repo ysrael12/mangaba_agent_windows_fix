@@ -19,7 +19,7 @@ import uuid
 from abc import ABC, abstractmethod
 from urllib.parse import urlsplit
 
-from utils import normalize_proxy_url
+from mangaba_agent.utils import normalize_proxy_url
 
 logger = logging.getLogger(__name__)
 
@@ -472,7 +472,7 @@ sys.path.insert(0, str(_Path(__file__).resolve().parents[2]))
 
 from gateway.config import Platform, PlatformConfig
 from gateway.session import SessionSource, build_session_key
-from mangaba_constants import get_mangaba_dir, get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_dir, get_mangaba_home
 
 
 GATEWAY_SECRET_CAPTURE_UNSUPPORTED_MESSAGE = (

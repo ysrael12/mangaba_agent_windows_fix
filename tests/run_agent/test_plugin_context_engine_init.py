@@ -41,7 +41,7 @@ def test_plugin_engine_gets_context_length_on_init():
         patch("run_agent.check_toolset_requirements", return_value={}),
         patch("run_agent.OpenAI"),
     ):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key-1234567890",
@@ -71,7 +71,7 @@ def test_plugin_engine_update_model_args():
         patch("run_agent.check_toolset_requirements", return_value={}),
         patch("run_agent.OpenAI"),
     ):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             model="openrouter/auto",

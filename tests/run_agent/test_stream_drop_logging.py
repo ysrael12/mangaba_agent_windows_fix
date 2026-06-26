@@ -23,8 +23,8 @@ from unittest.mock import patch
 
 import pytest
 
-import run_agent
-from run_agent import AIAgent
+import mangaba_agent.run_agent
+from mangaba_agent.run_agent import AIAgent
 
 
 def _make_agent() -> AIAgent:

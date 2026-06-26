@@ -24,7 +24,7 @@ from mangaba_cli.config import (
     get_mangaba_home,  # noqa: F401 — used by test mocks
 )
 from mangaba_cli.colors import Colors, color
-from mangaba_constants import display_mangaba_home
+from mangaba_agent.mangaba_constants import display_mangaba_home
 from tools.mcp_tool import _ENV_VAR_PATTERN
 
 logger = logging.getLogger(__name__)
@@ -745,7 +745,7 @@ def mcp_command(args):
     action = getattr(args, "mcp_action", None)
 
     if action == "serve":
-        from mcp_serve import run_mcp_server
+        from mangaba_agent.mcp_serve import run_mcp_server
         run_mcp_server(verbose=getattr(args, "verbose", False))
         return
 

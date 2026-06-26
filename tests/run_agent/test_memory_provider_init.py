@@ -22,7 +22,7 @@ def test_blank_memory_provider_does_not_auto_enable_honcho():
         patch("run_agent.check_toolset_requirements", return_value={}),
         patch("run_agent.OpenAI"),
     ):
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
 
         agent = AIAgent(
             api_key="test-key-1234567890",

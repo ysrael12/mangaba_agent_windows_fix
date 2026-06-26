@@ -31,7 +31,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set
 
-from mangaba_constants import get_mangaba_home
+from mangaba_agent.mangaba_constants import get_mangaba_home
 from tools import skill_usage
 
 logger = logging.getLogger(__name__)
@@ -1642,7 +1642,7 @@ def _run_llm_review(prompt: str) -> Dict[str, Any]:
         "error": None,
     }
     try:
-        from run_agent import AIAgent
+        from mangaba_agent.run_agent import AIAgent
     except Exception as e:
         result_meta["error"] = f"AIAgent import failed: {e}"
         result_meta["summary"] = result_meta["error"]

@@ -87,7 +87,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable, Optional
 
-from toolsets import get_toolset_names
+from mangaba_agent.toolsets import get_toolset_names
 
 _log = logging.getLogger(__name__)
 
@@ -194,7 +194,7 @@ def kanban_home() -> Path:
     override = os.environ.get("MANGABA_KANBAN_HOME", "").strip()
     if override:
         return Path(override).expanduser()
-    from mangaba_constants import get_default_mangaba_root
+    from mangaba_agent.mangaba_constants import get_default_mangaba_root
     return get_default_mangaba_root()
 
 
@@ -1179,7 +1179,7 @@ def connect(
             # WAL doesn't work on network filesystems (NFS/SMB/FUSE). Shared helper
             # falls back to DELETE with one WARNING so kanban stays usable there.
             # See mangaba_state._WAL_INCOMPAT_MARKERS for detection logic.
-            from mangaba_state import apply_wal_with_fallback
+            from mangaba_agent.mangaba_state import apply_wal_with_fallback
             apply_wal_with_fallback(conn, db_label=f"kanban.db ({path.name})")
             conn.execute("PRAGMA synchronous=NORMAL")
             conn.execute("PRAGMA foreign_keys=ON")
@@ -6326,7 +6326,7 @@ def list_profiles_on_disk() -> list[str]:
     path).
     """
     try:
-        from mangaba_constants import get_default_mangaba_root
+        from mangaba_agent.mangaba_constants import get_default_mangaba_root
         default_root = get_default_mangaba_root()
         profiles_dir = default_root / "profiles"
     except Exception:

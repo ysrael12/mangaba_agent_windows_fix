@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cli import MangabaCLI
+from mangaba_agent.cli import MangabaCLI
 
 
 def _make_cli():

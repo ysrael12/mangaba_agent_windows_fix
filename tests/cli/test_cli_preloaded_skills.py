@@ -39,7 +39,7 @@ def _make_real_cli(**kwargs):
     with patch.dict(sys.modules, prompt_toolkit_stubs), patch.dict(
         "os.environ", clean_env, clear=False
     ):
-        import cli as cli_mod
+        import mangaba_agent.cli as cli_mod
 
         cli_mod = importlib.reload(cli_mod)
         with patch.object(cli_mod, "get_tool_definitions", return_value=[]), patch.dict(
@@ -69,7 +69,7 @@ class _DummyCLI:
 
 
 def test_main_applies_preloaded_skills_to_system_prompt(monkeypatch):
-    import cli as cli_mod
+    import mangaba_agent.cli as cli_mod
 
     created = {}
 
@@ -93,7 +93,7 @@ def test_main_applies_preloaded_skills_to_system_prompt(monkeypatch):
 
 
 def test_main_raises_for_unknown_preloaded_skill(monkeypatch):
-    import cli as cli_mod
+    import mangaba_agent.cli as cli_mod
 
     monkeypatch.setattr(cli_mod, "MangabaCLI", lambda **kwargs: _DummyCLI(**kwargs))
     monkeypatch.setattr(

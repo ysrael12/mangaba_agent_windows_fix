@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import patch
 
-from cli import (
+from mangaba_agent.cli import (
     MangabaCLI,
     _collect_query_images,
     _format_image_attachment_badges,

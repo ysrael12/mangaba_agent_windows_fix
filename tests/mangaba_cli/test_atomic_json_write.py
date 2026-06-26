@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from utils import atomic_json_write
+from mangaba_agent.utils import atomic_json_write
 
 
 class TestAtomicJsonWrite:

@@ -32,8 +32,8 @@ from gateway.whatsapp_identity import (
     expand_whatsapp_aliases,
     normalize_whatsapp_identifier,
 )
-from mangaba_constants import get_mangaba_dir
-from utils import atomic_replace
+from mangaba_agent.mangaba_constants import get_mangaba_dir
+from mangaba_agent.utils import atomic_replace
 
 
 # Unambiguous alphabet -- excludes 0/O, 1/I to prevent confusion

@@ -5,7 +5,7 @@ time. This test verifies that the value survives the flush path into the session
 """
 from unittest.mock import MagicMock, patch
 
-from run_agent import AIAgent
+from mangaba_agent.run_agent import AIAgent
 from agent.tool_dispatch_helpers import make_tool_result_message
 
 

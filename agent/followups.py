@@ -29,7 +29,7 @@ STATUS_CANCELLED = "cancelled"
 
 
 def _store_path() -> Path:
-    from mangaba_constants import get_mangaba_home
+    from mangaba_agent.mangaba_constants import get_mangaba_home
     return get_mangaba_home() / "followups.jsonl"
 
 

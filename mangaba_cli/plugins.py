@@ -47,8 +47,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Set, Union
 
-from mangaba_constants import get_mangaba_home
-from utils import env_var_enabled
+from mangaba_agent.mangaba_constants import get_mangaba_home
+from mangaba_agent.utils import env_var_enabled
 from mangaba_cli.config import cfg_get
 
 

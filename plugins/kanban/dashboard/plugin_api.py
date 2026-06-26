@@ -1916,7 +1916,7 @@ def update_profile_description(profile_name: str, payload: DescribeBody):
         from mangaba_cli import profiles as profiles_mod
         canon = profiles_mod.normalize_profile_name(profile_name)
         if canon == "default":
-            from mangaba_constants import get_mangaba_home  # type: ignore
+            from mangaba_agent.mangaba_constants import get_mangaba_home  # type: ignore
             from pathlib import Path as _Path
             profile_dir = _Path(get_mangaba_home())
         else:

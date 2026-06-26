@@ -15,7 +15,7 @@ from pathlib import Path
 
 from mangaba_cli.config import get_mangaba_home, get_env_path, get_project_root, load_config
 from mangaba_cli.env_loader import load_mangaba_dotenv
-from mangaba_constants import display_mangaba_home
+from mangaba_agent.mangaba_constants import display_mangaba_home
 from agent.skill_utils import is_excluded_skill_path
 
 

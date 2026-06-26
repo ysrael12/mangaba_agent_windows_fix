@@ -505,7 +505,7 @@ class RetainDBMemoryProvider(MemoryProvider):
         self._user_id = kwargs.get("user_id", "default") or "default"
         self._agent_id = kwargs.get("agent_id", "mangaba") or "mangaba"
 
-        from mangaba_constants import get_mangaba_home
+        from mangaba_agent.mangaba_constants import get_mangaba_home
         mangaba_home_path = get_mangaba_home()
         db_path = mangaba_home_path / "retaindb_queue.db"
         self._queue = _WriteQueue(self._client, db_path)
