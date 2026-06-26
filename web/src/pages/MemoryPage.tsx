@@ -97,6 +97,7 @@ function BlockEditor({
 
         <textarea
           value={text}
+          aria-label="Conteúdo do bloco de memória"
           onChange={(e) => setText(e.target.value)}
           rows={8}
           placeholder="(vazio) — o agente preenche isto sozinho ao longo das conversas, mas você pode editar aqui."

@@ -146,24 +146,24 @@ function NewTaskModal({
       >
         <div className="flex items-center justify-between">
           <span className="font-medium">Nova tarefa</span>
-          <Button ghost size="icon" onClick={onClose}>
+          <Button ghost size="icon" onClick={onClose} aria-label="Fechar">
             <X className="h-4 w-4" />
           </Button>
         </div>
         <Input
-          placeholder="Título da tarefa"
+          placeholder="Título da tarefa" aria-label="Título da tarefa"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           autoFocus
         />
         <textarea
           className="min-h-24 w-full rounded-md border border-input bg-background p-2 text-sm text-foreground"
-          placeholder="Descrição / especificação (opcional)"
+          placeholder="Descrição / especificação (opcional)" aria-label="Descrição da tarefa"
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
         <Input
-          placeholder="Atribuir a (profile worker, opcional)"
+          placeholder="Atribuir a (profile worker, opcional)" aria-label="Atribuir a um worker"
           value={assignee}
           onChange={(e) => setAssignee(e.target.value)}
         />
@@ -252,7 +252,7 @@ function TaskDetailModal({
           <span className="min-w-0 flex-1 truncate font-medium">
             {t ? t.title : "Carregando…"}
           </span>
-          <Button ghost size="icon" onClick={onClose}>
+          <Button ghost size="icon" onClick={onClose} aria-label="Fechar">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -408,7 +408,7 @@ function TaskDetailModal({
               )}
               <div className="flex gap-2">
                 <Input
-                  placeholder="Adicionar comentário…"
+                  placeholder="Adicionar comentário…" aria-label="Adicionar comentário"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   onKeyDown={(e) => {
@@ -631,7 +631,7 @@ export default function KanbanPage() {
         {newBoardOpen ? (
           <div className="flex items-center gap-1">
             <Input
-              placeholder="slug-do-quadro"
+              placeholder="slug-do-quadro" aria-label="Slug do novo quadro"
               value={newBoardSlug}
               onChange={(e) => setNewBoardSlug(e.target.value)}
               onKeyDown={(e) => {
@@ -643,7 +643,7 @@ export default function KanbanPage() {
             <Button size="sm" onClick={createBoard} disabled={!newBoardSlug.trim()}>
               Criar
             </Button>
-            <Button ghost size="icon" onClick={() => setNewBoardOpen(false)}>
+            <Button ghost size="icon" onClick={() => setNewBoardOpen(false)} aria-label="Cancelar novo quadro">
               <X className="h-4 w-4" />
             </Button>
           </div>

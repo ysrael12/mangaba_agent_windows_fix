@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useCallback,
   useEffect,
   useMemo,
@@ -138,36 +139,36 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/home", label: "Início", icon: Activity },
 
   // 1) Aprender
-  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen },
-  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb },
+  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },
+  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb, section: "Aprender" },
 
-  // 2) Configurar o "cérebro"
-  { path: "/models", labelKey: "models", label: "Models", icon: Cpu },
-  { path: "/env", labelKey: "keys", label: "Keys", icon: KeyRound },
-  { path: "/skills", labelKey: "skills", label: "Skills", icon: Package },
-  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle },
-  { path: "/memory", labelKey: "memory", label: "Memória", icon: Brain },
+  // 2) Configurar a IA
+  { path: "/models", labelKey: "models", label: "Modelos", icon: Cpu, section: "Configurar a IA" },
+  { path: "/env", labelKey: "keys", label: "Chaves", icon: KeyRound, section: "Configurar a IA" },
+  { path: "/skills", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar a IA" },
+  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle, section: "Configurar a IA" },
+  { path: "/memory", labelKey: "memory", label: "Memória", icon: Brain, section: "Configurar a IA" },
 
   // 3) Criar agentes e canais
-  { path: "/profiles", labelKey: "profiles", label: "Profiles", icon: Users },
-  { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch },
-  { path: "/fleet", labelKey: "fleet", label: "Fleet", icon: Radio },
+  { path: "/profiles", labelKey: "profiles", label: "Perfis", icon: Users, section: "Agentes e canais" },
+  { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais" },
+  { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais" },
 
   // 4) Usar
-  CHAT_NAV_ITEM,
-  { path: "/sessions", labelKey: "sessions", label: "Sessions", icon: MessageSquare },
-  { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe },
+  { ...CHAT_NAV_ITEM, section: "Usar" },
+  { path: "/sessions", labelKey: "sessions", label: "Sessões", icon: MessageSquare, section: "Usar" },
+  { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe, section: "Usar" },
 
   // 5) Automatizar
-  { path: "/cron", labelKey: "cron", label: "Cron", icon: Clock },
-  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare },
+  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar" },
+  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare, section: "Automatizar" },
 
   // 6) Acompanhar
-  { path: "/analytics", labelKey: "analytics", label: "Analytics", icon: BarChart3 },
-  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText },
+  { path: "/analytics", labelKey: "analytics", label: "Análise", icon: BarChart3, section: "Acompanhar" },
+  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
 
   // 7) Ajustar
-  { path: "/config", labelKey: "config", label: "Config", icon: Settings },
+  { path: "/config", labelKey: "config", label: "Configuração", icon: Settings, section: "Ajustar" },
 ];
 
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
@@ -533,14 +534,26 @@ export default function App() {
               aria-label={t.app.navigation}
             >
               <ul className="flex flex-col gap-1 px-1">
-                {sidebarNav.coreItems.map((item) => (
-                  <SidebarNavLink
-                    closeMobile={closeMobile}
-                    item={item}
-                    key={item.path}
-                    t={t}
-                  />
-                ))}
+                {(() => {
+                  let lastSection: string | undefined;
+                  return sidebarNav.coreItems.map((item) => {
+                    const showHeader = item.section && item.section !== lastSection;
+                    lastSection = item.section ?? lastSection;
+                    return (
+                      <Fragment key={item.path}>
+                        {showHeader && (
+                          <li
+                            className="px-5 pb-1 pt-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-text-tertiary first:pt-1"
+                            aria-hidden="true"
+                          >
+                            {item.section}
+                          </li>
+                        )}
+                        <SidebarNavLink closeMobile={closeMobile} item={item} t={t} />
+                      </Fragment>
+                    );
+                  });
+                })()}
               </ul>
 
               {sidebarNav.pluginItems.length > 0 && (
@@ -814,6 +827,8 @@ interface NavItem {
   label: string;
   labelKey?: string;
   path: string;
+  /** Cabeçalho de seção da jornada exibido antes deste item na sidebar. */
+  section?: string;
 }
 
 interface SidebarNavLinkProps {

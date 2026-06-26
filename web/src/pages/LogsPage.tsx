@@ -13,6 +13,7 @@ import { FilterGroup, Segmented } from "@dheiver2/ui/ui/components/segmented";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
 import { Switch } from "@dheiver2/ui/ui/components/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
@@ -60,6 +61,8 @@ export default function LogsPage() {
   const [component, setComponent] =
     useState<(typeof COMPONENTS)[number]>("all");
   const [lineCount, setLineCount] = useState<(typeof LINE_COUNTS)[number]>(100);
+  const [search, setSearch] = useState("");
+  const [searchDraft, setSearchDraft] = useState("");
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [lines, setLines] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -72,7 +75,7 @@ export default function LogsPage() {
     setLoading(true);
     setError(null);
     api
-      .getLogs({ file, lines: lineCount, level, component })
+      .getLogs({ file, lines: lineCount, level, component, search })
       .then((resp) => {
         setLines(resp.lines);
         setTimeout(() => {
@@ -83,7 +86,7 @@ export default function LogsPage() {
       })
       .catch((err) => setError(String(err)))
       .finally(() => setLoading(false));
-  }, [file, lineCount, level, component]);
+  }, [file, lineCount, level, component, search]);
 
   useLayoutEffect(() => {
     setAfterTitle(
@@ -167,6 +170,20 @@ export default function LogsPage() {
             value={file}
             onChange={setFile}
             options={toSegmentOptions(FILES)}
+          />
+        </FilterGroup>
+
+        <FilterGroup label="Buscar" className={filterGroupClass}>
+          <Input
+            value={searchDraft}
+            onChange={(e) => setSearchDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") setSearch(searchDraft);
+            }}
+            onBlur={() => setSearch(searchDraft)}
+            placeholder="Texto nos logs… (Enter)"
+            aria-label="Buscar nos logs"
+            className="h-8 w-48 text-xs"
           />
         </FilterGroup>
 

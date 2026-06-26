@@ -80,12 +80,13 @@ export const api = {
     fetchJSON<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}`, {
       method: "DELETE",
     }),
-  getLogs: (params: { file?: string; lines?: number; level?: string; component?: string }) => {
+  getLogs: (params: { file?: string; lines?: number; level?: string; component?: string; search?: string }) => {
     const qs = new URLSearchParams();
     if (params.file) qs.set("file", params.file);
     if (params.lines) qs.set("lines", String(params.lines));
     if (params.level && params.level !== "ALL") qs.set("level", params.level);
     if (params.component && params.component !== "all") qs.set("component", params.component);
+    if (params.search && params.search.trim()) qs.set("search", params.search.trim());
     return fetchJSON<LogsResponse>(`/api/logs?${qs.toString()}`);
   },
   getAnalytics: (days: number) =>

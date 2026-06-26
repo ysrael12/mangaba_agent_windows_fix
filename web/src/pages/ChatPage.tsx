@@ -231,6 +231,7 @@ export default function ChatPage() {
               value={selected}
               onChange={(e) => onModelChange(e.target.value)}
               title="Trocar o modelo para testar"
+              aria-label="Selecionar modelo"
               className="max-w-[180px] rounded-md border border-input bg-background px-2 py-1 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="">Modelo padrão</option>
