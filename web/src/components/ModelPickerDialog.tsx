@@ -74,7 +74,7 @@ export function ModelPickerDialog(props: Props) {
     loader,
     onApply,
     onClose,
-    title = "Switch Model",
+    title = "Switch Mangaba Model",
     alwaysGlobal = false,
   } = props;
   const standalone = !!loader && !!onApply;
@@ -232,8 +232,10 @@ export function ModelPickerDialog(props: Props) {
             {title}
           </h2>
           <p className="text-xs text-muted-foreground mt-1 font-mono">
-            current: {currentModel || "(unknown)"}
-            {currentProviderSlug && ` · ${currentProviderSlug}`}
+            current: <span className="text-primary">{currentModel || "(unknown)"}</span>
+            {currentProviderSlug && (
+              <span className="text-text-secondary"> · {currentProviderSlug}</span>
+            )}
           </p>
         </header>
 
@@ -373,7 +375,9 @@ function ProviderColumn({
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="font-medium truncate">{p.name}</span>
+                <span className={`font-medium truncate ${active ? "text-primary" : ""}`}>
+                  {p.name}
+                </span>
                 {p.is_current && <CurrentTag />}
               </div>
               <div className="text-xs text-text-secondary font-mono truncate">
@@ -451,7 +455,7 @@ function ModelColumn({
               <Check
                 className={`h-3 w-3 shrink-0 ${active ? "text-primary" : "text-transparent"}`}
               />
-              <span className="flex-1 truncate">{m}</span>
+              <span className={`flex-1 truncate ${isCurrent ? "text-primary" : ""}`}>{m}</span>
               {isCurrent && <CurrentTag />}
             </ListItem>
           );

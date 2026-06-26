@@ -49,14 +49,14 @@ export function ModelInfoCard({
   const hasCaps = caps && Object.keys(caps).length > 0;
 
   return (
-    <div className="border border-border/60 bg-muted/30 px-3 py-2.5 space-y-2">
+    <div className="border border-primary/20 bg-primary/5 px-3 py-2.5 space-y-2">
       <div className="flex items-center gap-4 text-xs">
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Gauge className="h-3.5 w-3.5" />
           <span className="font-medium">Context Window</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-mono font-semibold text-foreground">
+          <span className="font-mono font-semibold text-primary">
             {formatTokenCount(info.effective_context_length)}
           </span>
           {info.config_context_length > 0 ? (
@@ -77,7 +77,7 @@ export function ModelInfoCard({
             <Lightbulb className="h-3.5 w-3.5" />
             <span className="font-medium">Max Output</span>
           </div>
-          <span className="font-mono font-semibold text-foreground">
+          <span className="font-mono font-semibold text-primary">
             {formatTokenCount(caps.max_output_tokens)}
           </span>
         </div>

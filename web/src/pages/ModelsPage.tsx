@@ -672,12 +672,20 @@ function ModelSettingsPanel({
   return (
     <Card className="min-w-0 max-w-full overflow-hidden">
       <CardHeader className="min-w-0 pb-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <Settings2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-          <CardTitle className="text-sm">Model Settings</CardTitle>
-          <span className="max-w-full min-w-0 text-xs text-text-secondary [overflow-wrap:anywhere]">
-            applies to new sessions
-          </span>
+        <div className="flex min-w-0 flex-col gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+            <Settings2 className="h-4 w-4 shrink-0 text-primary" />
+            <CardTitle className="text-sm font-mondwest tracking-wider text-primary">
+              Mangaba Model Settings
+            </CardTitle>
+            <span className="max-w-full min-w-0 text-xs text-text-secondary [overflow-wrap:anywhere]">
+              applies to new sessions
+            </span>
+          </div>
+          <p className="text-xs text-text-secondary max-w-2xl">
+            Choose the model that powers Mangaba for new sessions and assign
+            auxiliary models to side tasks like vision, compression, and search.
+          </p>
         </div>
       </CardHeader>
 
@@ -869,6 +877,23 @@ export default function ModelsPage() {
   return (
     <div className="flex min-w-0 max-w-full flex-col gap-6">
       <PluginSlot name="models:top" />
+
+      <Card className="min-w-0 overflow-hidden border border-primary/15 bg-primary/5">
+        <CardContent className="space-y-2 py-5">
+          <div className="flex items-center gap-3">
+            <Star className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-sm font-mondwest tracking-[0.16em] uppercase text-primary">
+                Mangaba model manager
+              </p>
+              <p className="text-xs text-text-secondary">
+                Configure the AI models that power Mangaba and the auxiliary
+                tasks that support it.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid min-w-0 gap-6 lg:grid-cols-2">
         <ModelSettingsPanel

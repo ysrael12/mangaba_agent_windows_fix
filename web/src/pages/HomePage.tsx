@@ -4,28 +4,28 @@ import { useNavigate } from "react-router-dom";
 
 const STEPS = [
   {
-    title: "1. Defina o cérebro",
+    title: "Defina o cérebro",
     description: "Escolha o modelo de IA que responderá às suas mensagens.",
     path: "/models",
     icon: Cpu,
     action: "Ir para modelos",
   },
   {
-    title: "2. Conecte um canal",
+    title: "Conecte um canal",
     description: "Adicione Telegram, Discord ou outro canal para enviar e receber mensagens.",
     path: "/routing",
     icon: Radio,
     action: "Conectar canal",
   },
   {
-    title: "3. Crie um agente",
+    title: "Crie um agente",
     description: "Monte um perfil com personalidade e comportamento próprio.",
     path: "/profiles",
     icon: Users,
     action: "Criar agente",
   },
   {
-    title: "4. Converse",
+    title: "Converse",
     description: "Use o chat para testar e ajustar o agente imediatamente.",
     path: "/chat",
     icon: MessageSquare,
@@ -35,25 +35,25 @@ const STEPS = [
 
 const QUICK_ACTIONS = [
   {
-    title: "Ações rápidas",
-    description: "Comece com o essencial: modelo, canal e perfil.",
+    title: "Comece pelo chat",
+    description: "Teste o agente imediatamente e veja a IA em ação.",
     icon: Zap,
     path: "/chat",
-    action: "Ir para o chat",
+    action: "Abrir chat",
   },
   {
-    title: "Acompanhar tarefas",
-    description: "Delegue trabalho ao Kanban e veja o progresso em um só lugar.",
+    title: "Automatize com Kanban",
+    description: "Delegue tarefas e acompanhe o progresso em um só lugar.",
     icon: BookOpen,
     path: "/kanban",
     action: "Abrir Kanban",
   },
   {
-    title: "Rever configurações",
-    description: "Confira as chaves, plugins e memória do seu agente.",
+    title: "Verifique sua configuração",
+    description: "Confira chaves, plugins, memória e perfis ativos.",
     icon: Users,
     path: "/config",
-    action: "Ir para configurações",
+    action: "Abrir configurações",
   },
 ];
 
@@ -62,25 +62,24 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6 pb-6">
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-              Bem-vindo ao Mangaba
-            </p>
-            <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Gerencie agentes e canais sem sair do painel.
+      <section className="rounded-[2rem] border border-border bg-card p-7 shadow-sm">
+        <div className="grid gap-6 lg:grid-cols-[1.2fr_max(320px,0.8fr)] lg:items-center">
+          <div className="space-y-5">
+            <span className="inline-flex rounded-full bg-midground/10 px-4 py-2 text-sm font-semibold text-midground">
+              Comece aqui
+            </span>
+            <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              Um painel simples para gerenciar agentes, canais e automações.
             </h1>
-            <p className="max-w-2xl text-sm leading-7 text-muted-foreground">
-              Abra o chat, conecte um canal, crie um agente e automatize tarefas
-              em poucos cliques. O terminal só é necessário para iniciar o
-              dashboard; depois disso, tudo acontece aqui mesmo.
+            <p className="max-w-2xl text-base leading-7 text-muted-foreground">
+              Use o dashboard como sua central de trabalho: configure modelos, crie perfis e inicie conversas sem precisar voltar ao terminal.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button onClick={() => navigate("/chat")}>Começar pelo chat</Button>
-              <Button ghost onClick={() => navigate("/docs")}>Ler o guia rápido</Button>
+              <Button onClick={() => navigate("/chat")}>Testar um agente</Button>
+              <Button ghost onClick={() => navigate("/docs")}>Guia rápido</Button>
             </div>
           </div>
+
           <div className="grid gap-3">
             {STEPS.slice(0, 3).map((step) => {
               const Icon = step.icon;
@@ -89,13 +88,13 @@ export default function HomePage() {
                   key={step.title}
                   className="rounded-3xl border border-border bg-background p-4"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-midground/10 text-midground">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-midground/10 text-midground">
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold">{step.title}</p>
-                      <p className="text-sm text-muted-foreground">{step.description}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
                     </div>
                   </div>
                 </div>
@@ -106,17 +105,17 @@ export default function HomePage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[1.5fr_minmax(280px,1fr)]">
-        <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-4">
+        <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-                Próximo passo
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold">Como começar em menos de 5 minutos</h2>
+              <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                Jornada inicial
+              </span>
+              <h2 className="mt-3 text-2xl font-semibold">Configure seu primeiro fluxo em minutos</h2>
             </div>
-            <div className="rounded-2xl bg-midground/10 px-3 py-2 text-sm font-semibold text-midground">
-              Fácil e visual
-            </div>
+            <span className="inline-flex rounded-2xl bg-midground/10 px-3 py-2 text-sm font-semibold text-midground">
+              Rápido e direto
+            </span>
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -150,7 +149,7 @@ export default function HomePage() {
           {QUICK_ACTIONS.map((card) => {
             const Icon = card.icon;
             return (
-              <div key={card.title} className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+              <div key={card.title} className="rounded-[2rem] border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted text-foreground">
                     <Icon className="h-5 w-5" />
@@ -171,9 +170,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="text-xl font-semibold">Por que usar o Mangaba?</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+      <section className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Por que usar o Mangaba?</h2>
+            <p className="mt-2 text-sm text-muted-foreground max-w-2xl">
+              Um painel pensado para quem quer gerenciar agentes, criar automações e continuar produtivo sem complexidade.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-midground/10 px-4 py-2 text-sm font-semibold text-midground">
+            Plug & play
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
           <div className="rounded-3xl border border-border bg-background p-4">
             <p className="font-semibold">Tudo visual</p>
             <p className="mt-2 text-sm text-muted-foreground">
