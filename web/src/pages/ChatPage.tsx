@@ -3,6 +3,7 @@ import { Send, Square, RotateCw } from "lucide-react";
 import { MANGABA_BASE_PATH, api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { StatusDot } from "@/components/StatusDot";
+import { brandModel } from "@/lib/modelBrand";
 
 interface ModelOpt {
   provider: string;
@@ -172,7 +173,7 @@ export default function ChatPage() {
 
   const onModelChange = (value: string) => {
     setSelected(value);
-    const label = value ? value.split("::")[1] : "modelo padrão";
+    const label = value ? brandModel(value.split("::")[1]) : "modelo padrão";
     setMessages((prev) => [
       ...prev,
       { role: "assistant", content: `🔄 Modelo agora: ${label}`, pending: false },
@@ -233,7 +234,7 @@ export default function ChatPage() {
               <option value="">Modelo padrão</option>
               {models.map((o) => (
                 <option key={`${o.provider}::${o.model}`} value={`${o.provider}::${o.model}`}>
-                  {o.model}
+                  {brandModel(o.model)}
                 </option>
               ))}
             </select>

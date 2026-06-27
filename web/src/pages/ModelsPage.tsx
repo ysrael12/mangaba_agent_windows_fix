@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { brandModel } from "@/lib/modelBrand";
 import type {
   AuxiliaryModelsResponse,
   AuxiliaryTaskAssignment,
@@ -68,12 +69,6 @@ function formatCost(n: number): string {
 }
 
 /** Short model name: strip vendor prefix like "openrouter/" or "anthropic/". */
-function shortModelName(model: string): string {
-  const slashIdx = model.indexOf("/");
-  if (slashIdx > 0) return model.slice(slashIdx + 1);
-  return model;
-}
-
 /** Extract vendor prefix from a model string like "anthropic/claude-opus-4.7" → "anthropic". */
 function modelVendor(model: string, fallback?: string): string {
   const slashIdx = model.indexOf("/");
@@ -348,8 +343,8 @@ function ModelCard({
               <span className="text-text-tertiary text-xs font-mono">
                 #{rank}
               </span>
-              <CardTitle className="text-sm font-mono-ui truncate">
-                {shortModelName(entry.model)}
+              <CardTitle className="text-sm font-mono-ui truncate" title={entry.model}>
+                {brandModel(entry.model)}
               </CardTitle>
               {isMain && (
                 <span className="inline-flex items-center gap-0.5 bg-primary/15 px-1.5 py-0.5 text-display text-xs font-medium tracking-wider text-primary">
@@ -581,8 +576,8 @@ function AuxiliaryTasksModal({
                   </div>
                   <div className="text-xs font-mono text-text-secondary truncate">
                     {isAuto
-                      ? "auto (use main model)"
-                      : `${cur?.provider} · ${cur?.model || "(provider default)"}`}
+                      ? "auto (usar modelo principal)"
+                      : `${cur?.provider} · ${cur?.model ? brandModel(cur.model) : "(padrão do provedor)"}`}
                   </div>
                 </div>
                 <Button
