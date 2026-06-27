@@ -1536,6 +1536,77 @@ def reset_memory(body: MemoryReset):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+def _load_rag_module():
+    """Carrega o módulo do provider de RAG (mangaba_rag) de forma isolada."""
+    import importlib.util
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    init = root / "plugins" / "memory" / "mangaba_rag" / "__init__.py"
+    spec = importlib.util.spec_from_file_location("mangaba_rag_dash", str(init))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+@app.get("/api/rag/status")
+def rag_status():
+    """Estado da base de conhecimento RAG (mangaba.ia.br)."""
+    try:
+        import json as _json
+
+        from mangaba_cli.config import load_config
+
+        mod = _load_rag_module()
+        path = mod._index_path()
+        enabled = str((load_config().get("memory") or {}).get("provider") or "") == "mangaba_rag"
+        info = {
+            "enabled": enabled,
+            "source": mod.SOURCE_BASE,
+            "indexed": path.exists(),
+            "pages": 0,
+            "chunks": 0,
+            "built_at": None,
+        }
+        if path.exists():
+            data = _json.loads(path.read_text(encoding="utf-8"))
+            info["pages"] = int(data.get("pages", 0))
+            info["chunks"] = len(data.get("chunks") or [])
+            info["built_at"] = data.get("built_at")
+        return info
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/rag/status failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/rag/reindex")
+def rag_reindex():
+    """(Re)constrói a base de conhecimento a partir de mangaba.ia.br."""
+    try:
+        mod = _load_rag_module()
+        stats = mod.reindex()
+        return {"ok": True, **stats}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/rag/reindex failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/rag/enable")
+def rag_enable(enable: bool = True):
+    """Liga/desliga o provider de RAG (memory.provider)."""
+    try:
+        from mangaba_cli.config import load_config, save_config
+
+        cfg = load_config()
+        mem = cfg.setdefault("memory", {})
+        mem["provider"] = "mangaba_rag" if enable else ""
+        save_config(cfg)
+        return {"ok": True, "enabled": bool(enable)}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/rag/enable failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 # ---------------------------------------------------------------------------
 # Kanban board API — multi-worker task orchestration (boards + tasks +
 # lifecycle). LLM-heavy ops (specify/decompose) run in a background thread

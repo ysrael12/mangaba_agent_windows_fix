@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Brain, Save, Trash2, RefreshCw, User } from "lucide-react";
+import { Brain, Save, Trash2, RefreshCw, User, BookOpen, Globe } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Badge } from "@dheiver2/ui/ui/components/badge";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
@@ -8,8 +8,102 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Toast } from "@/components/Toast";
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
-import type { MemoryResponse } from "@/lib/api";
+import type { MemoryResponse, RagStatus } from "@/lib/api";
 import { cn } from "@/lib/utils";
+
+function RagCard() {
+  const [status, setStatus] = useState<RagStatus | null>(null);
+  const [busy, setBusy] = useState(false);
+  const { toast, showToast } = useToast();
+
+  const load = useCallback(() => {
+    api
+      .getRagStatus()
+      .then(setStatus)
+      .catch((e) => showToast(`Erro RAG: ${(e as Error).message}`, "error"));
+  }, [showToast]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const reindex = async () => {
+    setBusy(true);
+    try {
+      const r = await api.reindexRag();
+      showToast(`Base reindexada: ${r.pages} páginas, ${r.chunks} trechos.`, "success");
+      load();
+    } catch (e) {
+      showToast(`Erro ao reindexar: ${(e as Error).message}`, "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggle = async () => {
+    if (!status) return;
+    setBusy(true);
+    try {
+      const r = await api.enableRag(!status.enabled);
+      showToast(r.enabled ? "RAG ativado." : "RAG desativado.", "success");
+      load();
+    } catch (e) {
+      showToast(`Erro: ${(e as Error).message}`, "error");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Card>
+      <Toast toast={toast} />
+      <CardContent className="flex flex-col gap-3 p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5" />
+            <div>
+              <h3 className="text-base font-semibold">Base de conhecimento (RAG)</h3>
+              <p className="text-xs text-muted-foreground">
+                Conteúdo oficial de mangaba.ia.br injetado em cada resposta
+              </p>
+            </div>
+          </div>
+          <Badge tone={status?.enabled ? "secondary" : "outline"} className="shrink-0 text-xs">
+            {status?.enabled ? "Ativo" : "Desligado"}
+          </Badge>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1">
+            <Globe className="h-3.5 w-3.5" />
+            {status?.source ?? "mangaba.ia.br"}
+          </span>
+          {status?.indexed ? (
+            <span className="tabular-nums">
+              {status.pages} páginas · {status.chunks} trechos indexados
+            </span>
+          ) : (
+            <span className="text-destructive">Ainda não indexado</span>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-2">
+          <Button outlined size="sm" onClick={toggle} disabled={busy || !status}>
+            {status?.enabled ? "Desativar" : "Ativar"}
+          </Button>
+          <Button
+            size="sm"
+            onClick={reindex}
+            disabled={busy}
+            prefix={busy ? <Spinner className="h-4 w-4" /> : <RefreshCw className="h-4 w-4" />}
+          >
+            Reindexar site
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface BlockEditorProps {
   title: string;
@@ -187,6 +281,8 @@ export default function MemoryPage() {
           </>
         ) : null}
       </p>
+
+      <RagCard />
 
       {data && (
         <div className="grid gap-4 lg:grid-cols-2">

@@ -114,6 +114,19 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ target }),
     }),
+
+  // ── RAG (base de conhecimento mangaba.ia.br) ─────────────────────────────
+  getRagStatus: () => fetchJSON<RagStatus>("/api/rag/status"),
+  reindexRag: () =>
+    fetchJSON<{ ok: boolean; pages: number; chunks: number; path: string }>(
+      "/api/rag/reindex",
+      { method: "POST" },
+    ),
+  enableRag: (enable: boolean) =>
+    fetchJSON<{ ok: boolean; enabled: boolean }>(
+      `/api/rag/enable?enable=${enable ? "true" : "false"}`,
+      { method: "POST" },
+    ),
   getAuxiliaryModels: () => fetchJSON<AuxiliaryModelsResponse>("/api/model/auxiliary"),
   setModelAssignment: (body: ModelAssignmentRequest) =>
     fetchJSON<ModelAssignmentResponse>("/api/model/set", {
@@ -789,6 +802,15 @@ export interface MemoryResponse {
   provider: string;
   memory_enabled: boolean;
   user_profile_enabled: boolean;
+}
+
+export interface RagStatus {
+  enabled: boolean;
+  source: string;
+  indexed: boolean;
+  pages: number;
+  chunks: number;
+  built_at: number | null;
 }
 
 export interface AuxiliaryTaskAssignment {

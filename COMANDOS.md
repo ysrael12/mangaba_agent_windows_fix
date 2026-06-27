@@ -131,6 +131,23 @@ mangaba send --list
 cd web && npm run build && cd ..
 ```
 
+## 8.1 Base de conhecimento (RAG — mangaba.ia.br)
+
+O agente responde com base no conteúdo oficial de **mangaba.ia.br**. A camada
+de RAG injeta os trechos relevantes do site em cada resposta — em todos os
+canais (chat do dashboard, Telegram, Discord).
+
+Gerenciar pelo dashboard: aba **Memória → Base de conhecimento (RAG)**
+(Ativar/Desativar e **Reindexar site**).
+
+Reindexar pelo terminal (após o site mudar):
+```
+curl -s -X POST http://localhost:9119/api/rag/reindex -H "X-Mangaba-Session-Token: $(curl -s http://localhost:9119/ | grep -o '__MANGABA_SESSION_TOKEN__=\"[^\"]*\"' | cut -d'\"' -f2)"
+```
+
+Ligar/desligar manualmente: campo `memory.provider` no `~/.mangaba/config.yaml`
+(`mangaba_rag` = ligado, vazio = desligado), depois `mangaba gateway restart`.
+
 ## 9. Ajuda
 
 ```
