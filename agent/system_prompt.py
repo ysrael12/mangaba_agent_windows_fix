@@ -54,9 +54,7 @@ def _ra():
     through ``run_agent`` on every call preserves the patch contract.
     """
     import mangaba_agent.run_agent
-    return run_agent
-
-
+    return mangaba_agent.run_agent
 def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) -> Dict[str, str]:
     """Assemble the system prompt as three ordered parts.
 

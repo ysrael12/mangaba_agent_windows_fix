@@ -59,9 +59,7 @@ _MAX_TOOL_WORKERS = 8
 def _ra():
     """Lazy reference to ``run_agent`` so patches like ``run_agent._set_interrupt`` work."""
     import mangaba_agent.run_agent
-    return run_agent
-
-
+    return mangaba_agent.run_agent
 def execute_tool_calls_concurrent(agent, assistant_message, messages: list, effective_task_id: str, api_call_count: int = 0) -> None:
     """Execute multiple tool calls concurrently using a thread pool.
 

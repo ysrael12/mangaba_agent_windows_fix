@@ -68,7 +68,7 @@ def _ra():
     patches reach this code path.
     """
     import mangaba_agent.run_agent
-    return run_agent
+    return mangaba_agent.run_agent
 
 
 def _normalized_custom_base_url(value: Any) -> str:

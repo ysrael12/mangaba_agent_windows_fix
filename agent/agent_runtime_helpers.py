@@ -50,10 +50,7 @@ logger = logging.getLogger(__name__)
 def _ra():
     """Lazy ``run_agent`` reference for test-patch routing."""
     import mangaba_agent.run_agent
-    return run_agent
-
-
-
+    return mangaba_agent.run_agent
 def convert_to_trajectory_format(agent, messages: List[Dict[str, Any]], user_query: str, completed: bool) -> List[Dict[str, Any]]:
     """
     Convert internal message format to trajectory format for saving.

@@ -72,10 +72,7 @@ def _ra():
     that target symbols imported into ``run_agent``'s namespace.
     """
     import mangaba_agent.run_agent
-    return run_agent
-
-
-
+    return mangaba_agent.run_agent
 def interruptible_api_call(agent, api_kwargs: dict):
     """
     Run the API call in a background thread so the main conversation loop

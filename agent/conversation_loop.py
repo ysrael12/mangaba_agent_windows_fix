@@ -124,9 +124,7 @@ def _ra():
     ``run_agent.OpenAI`` and have those patches reach this code path.
     """
     import mangaba_agent.run_agent
-    return run_agent
-
-
+    return mangaba_agent.run_agent
 def _restore_or_build_system_prompt(agent, system_message, conversation_history):
     """Restore the cached system prompt from the session DB or build it fresh.
 
