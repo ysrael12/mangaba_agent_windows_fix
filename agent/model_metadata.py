@@ -130,7 +130,16 @@ DEFAULT_FALLBACK_CONTEXT = CONTEXT_PROBE_TIERS[0]
 # Minimum context length required to run Mangaba Agent.  Models with fewer
 # tokens cannot maintain enough working memory for tool-calling workflows.
 # Sessions, model switches, and cron jobs should reject models below this.
-MINIMUM_CONTEXT_LENGTH = 64_000
+#
+# Reduzido de 64k para 16k: em modelos locais (Ollama) num Mac, forçar 64k de
+# KV cache torna o carregamento lento ao ponto de travar ("no chunks").  16k
+# carrega rápido e basta para chat + ferramentas moderadas.  Override via env
+# MANGABA_MIN_CONTEXT_LENGTH se precisar voltar a exigir mais.
+import os as _os_mctx
+try:
+    MINIMUM_CONTEXT_LENGTH = int(_os_mctx.getenv("MANGABA_MIN_CONTEXT_LENGTH", "16000"))
+except (TypeError, ValueError):
+    MINIMUM_CONTEXT_LENGTH = 16_000
 
 # Thin fallback defaults — only broad model family patterns.
 # These fire only when provider is unknown AND models.dev/OpenRouter/Anthropic
