@@ -26,6 +26,71 @@ import { usePageHeader } from "@/contexts/usePageHeader";
 import { useI18n } from "@/i18n";
 import { PluginSlot } from "@/plugins";
 import { AnimatedNumber } from "@/components/motion";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip as RTooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+function UsageAreaChart({
+  series,
+}: {
+  series: { date: string; total: number; turns: number }[];
+}) {
+  const data = series.map((d) => ({ ...d, label: formatDate(d.date) }));
+  return (
+    <div className="text-primary" style={{ width: "100%", height: 180 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+          <defs>
+            <linearGradient id="usageFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="currentColor" stopOpacity={0.28} />
+              <stop offset="100%" stopColor="currentColor" stopOpacity={0.02} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+          <XAxis
+            dataKey="label"
+            tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+            tickLine={false}
+            axisLine={false}
+            minTickGap={16}
+          />
+          <YAxis
+            tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+            tickLine={false}
+            axisLine={false}
+            width={44}
+            tickFormatter={(v: number) => formatTokens(v)}
+          />
+          <RTooltip
+            contentStyle={{
+              background: "var(--color-card)",
+              border: "1px solid var(--color-border)",
+              borderRadius: 12,
+              fontSize: 12,
+              color: "var(--color-foreground)",
+            }}
+            labelStyle={{ color: "var(--color-muted-foreground)" }}
+            formatter={(v) => `${Number(v).toLocaleString("pt-BR")} tokens`}
+          />
+          <Area
+            type="monotone"
+            dataKey="total"
+            stroke="currentColor"
+            strokeWidth={2}
+            fill="url(#usageFill)"
+            animationDuration={700}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
 
 const PERIODS = [
   { label: "7d", days: 7 },
@@ -465,6 +530,13 @@ function UsagePanel() {
               {b.enabled ? `${b.percent}%` : "—"}
             </div>
           </div>
+        </div>
+
+        <div>
+          <div className="mb-1 text-xs text-muted-foreground">
+            Tokens · últimos {data.recent.series.length} dias
+          </div>
+          <UsageAreaChart series={data.recent.series} />
         </div>
 
         {b.enabled && (
