@@ -33,6 +33,47 @@ def _usage_dir() -> Path:
     return d
 
 
+class _FileLock:
+    """Trava entre processos (fcntl) — o ledger é escrito pelo roteador e pelos
+    gateways dedicados (processos separados). No-op em plataformas sem fcntl."""
+
+    def __init__(self) -> None:
+        self._fh = None
+
+    def __enter__(self):
+        try:
+            import fcntl
+
+            self._fh = open(_usage_dir() / ".lock", "w")
+            fcntl.flock(self._fh, fcntl.LOCK_EX)
+        except Exception:
+            self._fh = None
+        return self
+
+    def __exit__(self, *exc):
+        if self._fh is not None:
+            try:
+                import fcntl
+
+                fcntl.flock(self._fh, fcntl.LOCK_UN)
+            except Exception:
+                pass
+            try:
+                self._fh.close()
+            except Exception:
+                pass
+            self._fh = None
+
+
+def _atomic_write(path: Path, text: str) -> None:
+    """Escrita atômica: tmp + os.replace (evita JSON truncado em crash)."""
+    import os
+
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(text, encoding="utf-8")
+    os.replace(tmp, path)
+
+
 def _today() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
@@ -72,7 +113,7 @@ def record_usage(
         if inp <= 0 and out <= 0:
             return
         day = _today()
-        with _LOCK:
+        with _LOCK, _FileLock():
             data = _read_month(day)
             d = data.setdefault(
                 day,
@@ -95,8 +136,8 @@ def record_usage(
                 tt["input"] += inp
                 tt["output"] += out
                 tt["turns"] += 1
-            _month_path(day).write_text(
-                json.dumps(data, ensure_ascii=False), encoding="utf-8"
+            _atomic_write(
+                _month_path(day), json.dumps(data, ensure_ascii=False)
             )
     except Exception as e:  # pragma: no cover
         logger.debug("usage_ledger.record_usage falhou: %s", e)

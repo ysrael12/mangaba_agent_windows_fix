@@ -683,9 +683,12 @@ class APIServerAdapter(BasePlatformAdapter):
         requisição mais antiga sai da janela.
         """
         now = time.time()
-        win = self._rate_window.get(client_id, [])
-        win = [t for t in win if now - t < 60.0]
-        self._rate_window[client_id] = win
+        win = [t for t in self._rate_window.get(client_id, []) if now - t < 60.0]
+        if win:
+            self._rate_window[client_id] = win
+        else:
+            # Não acumula entradas vazias de tenants ociosos (evita vazamento).
+            self._rate_window.pop(client_id, None)
         used = len(win)
         if rpm <= 0:  # sem limite de rpm
             return {"allowed": True, "limit": 0, "remaining": 0, "reset": 0, "used": used}
@@ -2986,26 +2989,27 @@ class APIServerAdapter(BasePlatformAdapter):
 
         try:
             if stream:
-                resp = await session.post(url, json=body, headers=fwd_headers)
-                if resp.status != 200:
-                    text = await resp.text()
-                    await session.close()
-                    return web.Response(status=resp.status, text=text,
-                                        content_type="application/json", headers=rl_headers)
-                out = web.StreamResponse(
-                    status=200,
-                    headers={**rl_headers, "Content-Type": "text/event-stream",
-                             "Cache-Control": "no-cache"},
-                )
-                await out.prepare(request)
+                # try/finally cobre TODO o caminho (post, prepare, write) para
+                # nunca vazar a sessão, mesmo em desconexão do cliente.
                 try:
+                    resp = await session.post(url, json=body, headers=fwd_headers)
+                    if resp.status != 200:
+                        text = await resp.text()
+                        return web.Response(status=resp.status, text=text,
+                                            content_type="application/json", headers=rl_headers)
+                    out = web.StreamResponse(
+                        status=200,
+                        headers={**rl_headers, "Content-Type": "text/event-stream",
+                                 "Cache-Control": "no-cache"},
+                    )
+                    await out.prepare(request)
                     async for chunk in resp.content.iter_any():
                         await out.write(chunk)
                     await out.write_eof()
+                    # Medição best-effort: streaming não expõe usage aqui.
+                    return out
                 finally:
                     await session.close()
-                # Medição best-effort: streaming não expõe usage facilmente aqui.
-                return out
 
             # Não-streaming: lê JSON, mede uso por cliente e devolve.
             async with session:

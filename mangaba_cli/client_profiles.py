@@ -23,12 +23,17 @@ import shutil
 import signal
 import socket
 import subprocess
+import threading
 import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 _PORT_BASE = 8700
 _PORT_MAX = 8900
+
+# Serializa provisionamento para evitar dois clientes pegando a mesma porta
+# (TOCTOU entre _free_port e a gravação do api_port).
+_PROVISION_LOCK = threading.Lock()
 
 
 def _profile_name(client: Dict[str, Any]) -> str:
@@ -100,8 +105,11 @@ def provision(client: Dict[str, Any]) -> Dict[str, Any]:
         # modelo e configuração de RAG.
         create_profile(name, clone_config=True, no_alias=True)
 
-    # Porta dedicada (reusa se já houver).
-    port = int(client.get("api_port") or 0) or _free_port()
+    # Porta dedicada (reusa se já houver). Aloca + persiste sob trava para que
+    # dois clientes concorrentes não recebam a mesma porta.
+    with _PROVISION_LOCK:
+        port = int(client.get("api_port") or 0) or _free_port()
+        api_clients.update_client(client["id"], profile=name, api_port=port)
 
     # .env: liga só o api_server nesta porta; remove tokens de outros canais
     # para o gateway dedicado não tentar conectar Telegram/Discord.
@@ -137,7 +145,6 @@ def provision(client: Dict[str, Any]) -> Dict[str, Any]:
             except Exception:
                 pass
 
-    api_clients.update_client(client["id"], profile=name, api_port=port)
     return {"profile": name, "api_port": port}
 
 

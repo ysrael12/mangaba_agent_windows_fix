@@ -104,7 +104,11 @@ def _init(conn: sqlite3.Connection) -> None:
         ("autostart", "autostart INTEGER NOT NULL DEFAULT 0"),
     ):
         if name not in cols:
-            conn.execute(f"ALTER TABLE clients ADD COLUMN {ddl}")
+            try:
+                conn.execute(f"ALTER TABLE clients ADD COLUMN {ddl}")
+            except sqlite3.OperationalError:
+                # Coluna já adicionada por outro processo concorrente.
+                pass
     conn.commit()
 
 
