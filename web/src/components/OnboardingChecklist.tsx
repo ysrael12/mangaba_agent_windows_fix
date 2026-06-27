@@ -87,7 +87,11 @@ export function OnboardingChecklist() {
     };
   }, [dismissed]);
 
-  if (dismissed || !ready) return null;
+  // Auto-oculta quando o essencial (modelo + canal + 1ª conversa) está feito —
+  // usuário já passou do onboarding, não precisa mais do painel.
+  const essentialDone = ["model", "channel", "chat"].every((k) => done[k]);
+
+  if (dismissed || !ready || essentialDone) return null;
 
   const completed = STEPS.filter((s) => done[s.key]).length;
   const total = STEPS.length;
