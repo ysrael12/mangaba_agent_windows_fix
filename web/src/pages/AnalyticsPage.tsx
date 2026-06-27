@@ -26,6 +26,7 @@ import { usePageHeader } from "@/contexts/usePageHeader";
 import { useI18n } from "@/i18n";
 import { PluginSlot } from "@/plugins";
 import { AnimatedNumber } from "@/components/motion";
+import { useQuery } from "@tanstack/react-query";
 import {
   Area,
   AreaChart,
@@ -459,31 +460,33 @@ function SkillTable({ skills }: { skills: AnalyticsSkillEntry[] }) {
 }
 
 function UsagePanel() {
-  const [data, setData] = useState<import("@/lib/api").UsageResponse | null>(null);
+  const { data, refetch } = useQuery({
+    queryKey: ["usage", 14],
+    queryFn: () => api.getUsage(14),
+    refetchInterval: 20_000,
+  });
   const [limit, setLimit] = useState<string>("");
   const [mode, setMode] = useState<"warn" | "block">("warn");
   const [saving, setSaving] = useState(false);
+  const [touched, setTouched] = useState(false);
+
+  // Sincroniza os campos de teto com os dados na primeira carga.
+  useEffect(() => {
+    if (data && !touched) {
+      setLimit(data.budget.daily_token_limit ? String(data.budget.daily_token_limit) : "");
+      setMode(data.budget.budget_mode);
+    }
+  }, [data, touched]);
 
   const load = useCallback(() => {
-    api
-      .getUsage(14)
-      .then((d) => {
-        setData(d);
-        setLimit(d.budget.daily_token_limit ? String(d.budget.daily_token_limit) : "");
-        setMode(d.budget.budget_mode);
-      })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+    refetch();
+  }, [refetch]);
 
   const save = async () => {
     setSaving(true);
     try {
       await api.setUsageBudget(parseInt(limit || "0", 10) || 0, mode);
-      load();
+      await refetch();
     } finally {
       setSaving(false);
     }
@@ -563,7 +566,7 @@ function UsagePanel() {
               type="number"
               min={0}
               value={limit}
-              onChange={(e) => setLimit(e.target.value)}
+              onChange={(e) => { setTouched(true); setLimit(e.target.value); }}
               placeholder="ex.: 2000000"
               className="w-44 rounded-md border border-input bg-background px-2 py-1 text-sm tabular-nums text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             />
@@ -572,7 +575,7 @@ function UsagePanel() {
             Ao atingir o limite
             <select
               value={mode}
-              onChange={(e) => setMode(e.target.value as "warn" | "block")}
+              onChange={(e) => { setTouched(true); setMode(e.target.value as "warn" | "block"); }}
               aria-label="Modo do teto diário"
               className="w-40 rounded-md border border-input bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
             >

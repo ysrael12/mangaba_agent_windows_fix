@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
 import type { ApiClient, ApiKey, ClientProfileStatus } from "@/lib/api";
 import { Stagger, StaggerItem, AnimatedNumber } from "@/components/motion";
+import { useQuery } from "@tanstack/react-query";
 
 function fmtTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -339,20 +340,24 @@ function ClientCard({
 }
 
 export default function ClientsPage() {
-  const [clients, setClients] = useState<ApiClient[] | null>(null);
-  const [baseUrl, setBaseUrl] = useState("");
   const { toast, showToast } = useToast();
-
+  const { data, error, refetch } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const [list, info] = await Promise.all([api.listClients(), api.getApiInfo()]);
+      return { clients: list.clients, baseUrl: info.base_url };
+    },
+    refetchInterval: 15_000,
+  });
+  const clients = data?.clients ?? null;
+  const baseUrl = data?.baseUrl ?? "";
   const load = useCallback(() => {
-    api.listClients().then((r) => setClients(r.clients)).catch((e) =>
-      showToast(`Erro: ${(e as Error).message}`, "error"),
-    );
-    api.getApiInfo().then((i) => setBaseUrl(i.base_url)).catch(() => {});
-  }, [showToast]);
+    refetch();
+  }, [refetch]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (error) showToast(`Erro: ${(error as Error).message}`, "error");
+  }, [error, showToast]);
 
   return (
     <div className="flex w-full max-w-full flex-col gap-4 p-1">
