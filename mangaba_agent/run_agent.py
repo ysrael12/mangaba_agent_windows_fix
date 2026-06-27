@@ -4061,7 +4061,42 @@ class AIAgent:
     ) -> Dict[str, Any]:
         """Forwarder — see ``agent.conversation_loop.run_conversation``."""
         from agent.conversation_loop import run_conversation
-        return run_conversation(self, user_message, system_message, conversation_history, task_id, stream_callback, persist_user_message)
+
+        # Teto diário de tokens (opt-in). Em modo 'block', recusa o turno com
+        # mensagem clara em vez de gastar mais. Best-effort — nunca quebra o
+        # fluxo se o ledger falhar.
+        try:
+            from mangaba_cli.usage_ledger import is_over_budget_block
+
+            if is_over_budget_block():
+                msg = (
+                    "⚠️ Limite diário de uso atingido. O atendimento volta "
+                    "amanhã ou aumente o teto em Configurações › Uso."
+                )
+                return {"final_response": msg, "completed": False, "budget_blocked": True}
+        except Exception:
+            pass
+
+        result = run_conversation(
+            self, user_message, system_message, conversation_history,
+            task_id, stream_callback, persist_user_message,
+        )
+
+        try:
+            from mangaba_cli.usage_ledger import record_usage
+
+            if isinstance(result, dict):
+                record_usage(
+                    input_tokens=result.get("input_tokens", 0),
+                    output_tokens=result.get("output_tokens", 0),
+                    model=result.get("model", getattr(self, "model", "")),
+                    provider=result.get("provider", getattr(self, "provider", "")),
+                    platform=getattr(self, "platform", "") or "",
+                )
+        except Exception:
+            pass
+
+        return result
 
     def chat(self, message: str, stream_callback: Optional[callable] = None) -> str:
         """

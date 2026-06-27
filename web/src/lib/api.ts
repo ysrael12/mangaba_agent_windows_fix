@@ -127,6 +127,15 @@ export const api = {
       `/api/rag/enable?enable=${enable ? "true" : "false"}`,
       { method: "POST" },
     ),
+
+  // ── Uso & custo ──────────────────────────────────────────────────────────
+  getUsage: (days = 14) => fetchJSON<UsageResponse>(`/api/usage?days=${days}`),
+  setUsageBudget: (daily_token_limit: number, budget_mode: "warn" | "block") =>
+    fetchJSON<{ ok: boolean; budget: UsageBudgetStatus }>("/api/usage/budget", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ daily_token_limit, budget_mode }),
+    }),
   getAuxiliaryModels: () => fetchJSON<AuxiliaryModelsResponse>("/api/model/auxiliary"),
   setModelAssignment: (body: ModelAssignmentRequest) =>
     fetchJSON<ModelAssignmentResponse>("/api/model/set", {
@@ -802,6 +811,29 @@ export interface MemoryResponse {
   provider: string;
   memory_enabled: boolean;
   user_profile_enabled: boolean;
+}
+
+export interface UsageBudgetStatus {
+  daily_token_limit: number;
+  budget_mode: "warn" | "block";
+  used: number;
+  over_budget: boolean;
+  percent: number;
+  enabled: boolean;
+}
+
+export interface UsageDay {
+  date: string;
+  input: number;
+  output: number;
+  total: number;
+  turns: number;
+}
+
+export interface UsageResponse {
+  today: UsageDay & { by_model?: Record<string, { input: number; output: number; turns: number }> };
+  recent: { series: UsageDay[] };
+  budget: UsageBudgetStatus;
 }
 
 export interface RagStatus {

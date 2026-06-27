@@ -81,10 +81,33 @@ app = FastAPI(title="Mangaba Agent", version=__version__)
 
 # ---------------------------------------------------------------------------
 # Session token for protecting sensitive endpoints (reveal).
-# Generated fresh on every server start — dies when the process exits.
-# Injected into the SPA HTML so only the legitimate web UI can use it.
+# Persistido em $MANGABA_HOME/.dashboard_session_token para sobreviver a
+# reinícios do dashboard — evita o 401 que obrigava a recarregar o navegador
+# a cada restart. Injetado na SPA para que só a UI legítima possa usá-lo.
 # ---------------------------------------------------------------------------
-_SESSION_TOKEN = secrets.token_urlsafe(32)
+def _load_or_create_session_token() -> str:
+    try:
+        from mangaba_agent.mangaba_constants import get_mangaba_home
+
+        p = get_mangaba_home() / ".dashboard_session_token"
+        if p.exists():
+            tok = p.read_text(encoding="utf-8").strip()
+            if tok:
+                return tok
+        tok = secrets.token_urlsafe(32)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(tok, encoding="utf-8")
+        try:
+            p.chmod(0o600)
+        except Exception:
+            pass
+        return tok
+    except Exception:
+        # Falha ao persistir → cai no token efêmero (comportamento antigo).
+        return secrets.token_urlsafe(32)
+
+
+_SESSION_TOKEN = _load_or_create_session_token()
 _SESSION_HEADER_NAME = "X-Mangaba-Session-Token"
 
 # In-browser Chat tab (/chat, /api/pty, …).  Off unless ``mangaba dashboard --tui``
@@ -113,6 +136,7 @@ app.add_middleware(
 # only truly non-sensitive, read-only endpoints belong here.
 # ---------------------------------------------------------------------------
 _PUBLIC_API_PATHS: frozenset = frozenset({
+    "/api/health",
     "/api/status",
     "/api/config/defaults",
     "/api/config/schema",
@@ -533,6 +557,40 @@ def _probe_gateway_health() -> tuple[bool, dict | None]:
         except Exception:
             continue
     return False, None
+
+
+@app.get("/api/health")
+async def get_health():
+    """Healthcheck leve e sem autenticação para monitoramento externo.
+
+    Retorna 200 com ``{"ok": true}`` quando o dashboard está no ar e o gateway
+    está rodando; ``ok: false`` (ainda HTTP 200) quando o gateway caiu — assim
+    um supervisor consegue distinguir "processo vivo" de "serviço saudável".
+    """
+    try:
+        pid = get_running_pid()
+    except Exception:
+        pid = None
+    gateway_up = pid is not None
+
+    last_activity = None
+    gateway_state = None
+    try:
+        runtime = read_runtime_status()
+        if runtime:
+            gateway_state = runtime.get("gateway_state")
+            last_activity = runtime.get("updated_at") or runtime.get("last_activity")
+    except Exception:
+        pass
+
+    return {
+        "ok": gateway_up,
+        "dashboard": True,
+        "gateway": gateway_up,
+        "gateway_pid": pid,
+        "gateway_state": gateway_state,
+        "last_activity": last_activity,
+    }
 
 
 @app.get("/api/status")
@@ -1604,6 +1662,46 @@ def rag_enable(enable: bool = True):
         return {"ok": True, "enabled": bool(enable)}
     except Exception as exc:  # noqa: BLE001
         _log.exception("POST /api/rag/enable failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/usage")
+def get_usage(days: int = 14):
+    """Uso de tokens (hoje + série recente) e estado do teto diário."""
+    try:
+        from mangaba_cli import usage_ledger
+
+        return {
+            "today": usage_ledger.get_today(),
+            "recent": usage_ledger.get_recent(days),
+            "budget": usage_ledger.budget_status(),
+        }
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/usage failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+class UsageBudget(BaseModel):
+    daily_token_limit: int = 0
+    budget_mode: str = "warn"  # "warn" | "block"
+
+
+@app.put("/api/usage/budget")
+def set_usage_budget(body: UsageBudget):
+    """Configura o teto diário de tokens e o modo (avisar ou bloquear)."""
+    try:
+        from mangaba_cli.config import load_config, save_config
+        from mangaba_cli import usage_ledger
+
+        mode = body.budget_mode if body.budget_mode in ("warn", "block") else "warn"
+        cfg = load_config()
+        usage = cfg.setdefault("usage", {})
+        usage["daily_token_limit"] = max(0, int(body.daily_token_limit or 0))
+        usage["budget_mode"] = mode
+        save_config(cfg)
+        return {"ok": True, "budget": usage_ledger.budget_status()}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("PUT /api/usage/budget failed")
         raise HTTPException(status_code=500, detail=str(exc))
 
 

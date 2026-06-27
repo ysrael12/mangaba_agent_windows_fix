@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LaunchAgent do macOS: mantém o dashboard (e o gateway, que sobe junto) sempre
+  no ar. Se o processo cair, o launchd reinicia automaticamente.
+
+  Instalar:
+    bash scripts/macos/install-autostart.sh
+
+  Remover:
+    launchctl bootout gui/$(id -u)/com.mangaba.dashboard
+    rm ~/Library/LaunchAgents/com.mangaba.dashboard.plist
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.mangaba.dashboard</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__MANGABA_BIN__</string>
+        <string>dashboard</string>
+        <string>--skip-build</string>
+        <string>--no-open</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__PROJECT_DIR__</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>__VENV_BIN__:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+
+    <key>StandardOutPath</key>
+    <string>__HOME__/.mangaba/logs/dashboard.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>__HOME__/.mangaba/logs/dashboard.err.log</string>
+</dict>
+</plist>

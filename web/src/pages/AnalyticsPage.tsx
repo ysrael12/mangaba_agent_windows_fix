@@ -392,6 +392,126 @@ function SkillTable({ skills }: { skills: AnalyticsSkillEntry[] }) {
   );
 }
 
+function UsagePanel() {
+  const [data, setData] = useState<import("@/lib/api").UsageResponse | null>(null);
+  const [limit, setLimit] = useState<string>("");
+  const [mode, setMode] = useState<"warn" | "block">("warn");
+  const [saving, setSaving] = useState(false);
+
+  const load = useCallback(() => {
+    api
+      .getUsage(14)
+      .then((d) => {
+        setData(d);
+        setLimit(d.budget.daily_token_limit ? String(d.budget.daily_token_limit) : "");
+        setMode(d.budget.budget_mode);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await api.setUsageBudget(parseInt(limit || "0", 10) || 0, mode);
+      load();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!data) return null;
+  const t = data.today;
+  const b = data.budget;
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <TrendingUp className="h-4 w-4" />
+          Uso & teto diário
+        </CardTitle>
+        <Button outlined size="sm" onClick={load} prefix={<RefreshCw className="h-4 w-4" />}>
+          Atualizar
+        </Button>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div>
+            <div className="text-xs text-muted-foreground">Tokens hoje</div>
+            <div className="text-lg font-semibold tabular-nums">{formatTokens(t.total)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Entrada / Saída</div>
+            <div className="text-lg font-semibold tabular-nums">
+              {formatTokens(t.input)} / {formatTokens(t.output)}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Conversas hoje</div>
+            <div className="text-lg font-semibold tabular-nums">{t.turns}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Teto diário</div>
+            <div className="text-lg font-semibold tabular-nums">
+              {b.enabled ? `${b.percent}%` : "—"}
+            </div>
+          </div>
+        </div>
+
+        {b.enabled && (
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className={`h-full rounded-full ${b.over_budget ? "bg-destructive" : "bg-primary"}`}
+              style={{ width: `${Math.min(b.percent, 100)}%` }}
+            />
+          </div>
+        )}
+        {b.over_budget && (
+          <p className="text-xs text-destructive">
+            Teto diário atingido ({formatTokens(b.used)} / {formatTokens(b.daily_token_limit)} tokens).
+            {b.budget_mode === "block"
+              ? " Novos atendimentos estão bloqueados até amanhã."
+              : " Modo aviso — atendimento continua."}
+          </p>
+        )}
+
+        <div className="flex flex-wrap items-end gap-3 border-t border-border pt-3">
+          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+            Limite de tokens/dia (0 = sem limite)
+            <input
+              type="number"
+              min={0}
+              value={limit}
+              onChange={(e) => setLimit(e.target.value)}
+              placeholder="ex.: 2000000"
+              className="w-44 rounded-md border border-input bg-background px-2 py-1 text-sm tabular-nums text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+            Ao atingir o limite
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value as "warn" | "block")}
+              aria-label="Modo do teto diário"
+              className="w-40 rounded-md border border-input bg-background px-2 py-1 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="warn">Apenas avisar</option>
+              <option value="block">Bloquear atendimento</option>
+            </select>
+          </label>
+          <Button size="sm" onClick={save} disabled={saving}>
+            {saving ? "Salvando…" : "Salvar teto"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function AnalyticsPage() {
   const [days, setDays] = useState(30);
   const [data, setData] = useState<AnalyticsResponse | null>(null);
@@ -481,6 +601,8 @@ export default function AnalyticsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PluginSlot name="analytics:top" />
+
+      <UsagePanel />
 
       {showTokens === false && (
         <Card>
