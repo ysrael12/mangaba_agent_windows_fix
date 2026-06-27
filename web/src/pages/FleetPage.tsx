@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Radio,
   RefreshCw,
@@ -132,8 +133,6 @@ function ChannelsPanel({
 }
 
 export default function FleetPage() {
-  const [members, setMembers] = useState<FleetMemberWithPlatforms[]>([]);
-  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
   const [logsFor, setLogsFor] = useState<string | null>(null);
   const [logText, setLogText] = useState("");
@@ -142,22 +141,21 @@ export default function FleetPage() {
   const [expandedChannels, setExpandedChannels] = useState<Set<string>>(new Set());
   const { toast, showToast } = useToast();
 
-  const load = useCallback(async () => {
-    try {
-      const res = await api.getFleet() as { members: FleetMemberWithPlatforms[] };
-      setMembers(res.members);
-    } catch (e) {
-      showToast(`Erro ao carregar a frota: ${(e as Error).message}`, "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [showToast]);
+  const { data, error, isLoading, refetch } = useQuery({
+    queryKey: ["fleet"],
+    queryFn: () =>
+      api.getFleet() as Promise<{ members: FleetMemberWithPlatforms[] }>,
+    refetchInterval: 15_000,
+  });
+  const members = data?.members ?? [];
+  const loading = isLoading;
+  const load = useCallback(() => {
+    refetch();
+  }, [refetch]);
 
   useEffect(() => {
-    load();
-    const t = setInterval(load, 15000); // auto-refresh
-    return () => clearInterval(t);
-  }, [load]);
+    if (error) showToast(`Erro ao carregar a frota: ${(error as Error).message}`, "error");
+  }, [error, showToast]);
 
   const act = async (name: string, action: "restart" | "start" | "stop") => {
     setBusy(`${name}:${action}`);

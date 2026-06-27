@@ -25,11 +25,11 @@ import {
   Play,
 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import type {
   SessionInfo,
   SessionMessage,
   SessionSearchResult,
-  StatusResponse,
 } from "@/lib/api";
 import { timeAgo } from "@/lib/utils";
 import { Markdown } from "@/components/Markdown";
@@ -477,10 +477,7 @@ function SessionsPagination({
 }
 
 export default function SessionsPage() {
-  const [sessions, setSessions] = useState<SessionInfo[]>([]);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<
@@ -489,9 +486,33 @@ export default function SessionsPage() {
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
   const logScrollRef = useRef<HTMLPreElement | null>(null);
-  const [status, setStatus] = useState<StatusResponse | null>(null);
-  const [overviewSessions, setOverviewSessions] = useState<SessionInfo[]>([]);
   const [view, setView] = useState<SessionsView>("overview");
+
+  // Lista paginada + visão geral (status/sessões) via TanStack Query.
+  const {
+    data: sessionsData,
+    isLoading: loading,
+    refetch: refetchSessions,
+  } = useQuery({
+    queryKey: ["sessions", page],
+    queryFn: () => api.getSessions(PAGE_SIZE, page * PAGE_SIZE),
+  });
+  const sessions = sessionsData?.sessions ?? [];
+  const total = sessionsData?.total ?? 0;
+
+  const { data: statusData } = useQuery({
+    queryKey: ["status"],
+    queryFn: () => api.getStatus(),
+    refetchInterval: 5000,
+  });
+  const status = statusData ?? null;
+
+  const { data: overviewData } = useQuery({
+    queryKey: ["sessions-overview"],
+    queryFn: () => api.getSessions(50),
+    refetchInterval: 5000,
+  });
+  const overviewSessions = overviewData?.sessions ?? [];
   const { toast, showToast } = useToast();
   const { t } = useI18n();
   const { setAfterTitle } = usePageHeader();
@@ -512,38 +533,6 @@ export default function SessionsPage() {
       setAfterTitle(null);
     };
   }, [loading, setAfterTitle, total]);
-
-  const loadSessions = useCallback((p: number) => {
-    setLoading(true);
-    api
-      .getSessions(PAGE_SIZE, p * PAGE_SIZE)
-      .then((resp) => {
-        setSessions(resp.sessions);
-        setTotal(resp.total);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    loadSessions(page);
-  }, [loadSessions, page]);
-
-  useEffect(() => {
-    const loadOverview = () => {
-      api
-        .getStatus()
-        .then(setStatus)
-        .catch(() => {});
-      api
-        .getSessions(50)
-        .then((r) => setOverviewSessions(r.sessions))
-        .catch(() => {});
-    };
-    loadOverview();
-    const id = setInterval(loadOverview, 5000);
-    return () => clearInterval(id);
-  }, []);
 
   useEffect(() => {
     const el = logScrollRef.current;
@@ -579,8 +568,7 @@ export default function SessionsPage() {
       async (id: string) => {
         try {
           await api.deleteSession(id);
-          setSessions((prev) => prev.filter((s) => s.id !== id));
-          setTotal((prev) => prev - 1);
+          await refetchSessions();
           if (expandedId === id) setExpandedId(null);
           showToast(t.sessions.sessionDeleted, "success");
         } catch {
@@ -591,6 +579,7 @@ export default function SessionsPage() {
       [
         expandedId,
         showToast,
+        refetchSessions,
         t.sessions.sessionDeleted,
         t.sessions.failedToDelete,
       ],

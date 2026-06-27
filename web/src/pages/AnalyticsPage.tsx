@@ -30,6 +30,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip as RTooltip,
@@ -199,11 +201,6 @@ function TokenBarChart({ daily }: { daily: AnalyticsDailyEntry[] }) {
   const { t } = useI18n();
   if (daily.length === 0) return null;
 
-  const maxTokens = Math.max(
-    ...daily.map((d) => d.input_tokens + d.output_tokens),
-    1,
-  );
-
   return (
     <Card>
       <CardHeader>
@@ -225,63 +222,47 @@ function TokenBarChart({ daily }: { daily: AnalyticsDailyEntry[] }) {
         </div>
       </CardHeader>
       <CardContent>
-        <div
-          className="flex items-end gap-[2px]"
-          style={{ height: CHART_HEIGHT_PX }}
-        >
-          {daily.map((d) => {
-            const total = d.input_tokens + d.output_tokens;
-            const inputH = Math.round(
-              (d.input_tokens / maxTokens) * CHART_HEIGHT_PX,
-            );
-            const outputH = Math.round(
-              (d.output_tokens / maxTokens) * CHART_HEIGHT_PX,
-            );
-            return (
-              <div
-                key={d.day}
-                className="flex-1 min-w-0 group relative flex flex-col justify-end"
-                style={{ height: CHART_HEIGHT_PX }}
-              >
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-10 pointer-events-none">
-                  <div className="font-mondwest normal-case bg-card border border-border px-2.5 py-1.5 text-xs text-foreground shadow-lg whitespace-nowrap">
-                    <div className="font-medium">{formatDate(d.day)}</div>
-                    <div>
-                      {t.analytics.input}: {formatTokens(d.input_tokens)}
-                    </div>
-                    <div>
-                      {t.analytics.output}: {formatTokens(d.output_tokens)}
-                    </div>
-                    <div>
-                      {t.analytics.total}: {formatTokens(total)}
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className="w-full bg-[#ffe6cb]/70"
-                  style={{ height: Math.max(inputH, total > 0 ? 1 : 0) }}
-                />
-
-                <div
-                  className="w-full bg-emerald-500/70"
-                  style={{
-                    height: Math.max(outputH, d.output_tokens > 0 ? 1 : 0),
-                  }}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="flex justify-between mt-2 font-mondwest normal-case text-xs text-text-tertiary">
-          <span>{daily.length > 0 ? formatDate(daily[0].day) : ""}</span>
-          {daily.length > 2 && (
-            <span>{formatDate(daily[Math.floor(daily.length / 2)].day)}</span>
-          )}
-          <span>
-            {daily.length > 1 ? formatDate(daily[daily.length - 1].day) : ""}
-          </span>
+        <div style={{ width: "100%", height: CHART_HEIGHT_PX + 24 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={daily.map((d) => ({
+                label: formatDate(d.day),
+                input: d.input_tokens,
+                output: d.output_tokens,
+              }))}
+              margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                tickLine={false}
+                axisLine={false}
+                minTickGap={16}
+              />
+              <YAxis
+                tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }}
+                tickLine={false}
+                axisLine={false}
+                width={44}
+                tickFormatter={(v: number) => formatTokens(v)}
+              />
+              <RTooltip
+                cursor={{ fill: "var(--color-muted)", opacity: 0.3 }}
+                contentStyle={{
+                  background: "var(--color-card)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: 12,
+                  fontSize: 12,
+                  color: "var(--color-foreground)",
+                }}
+                labelStyle={{ color: "var(--color-muted-foreground)" }}
+                formatter={(v) => `${Number(v).toLocaleString("pt-BR")} tokens`}
+              />
+              <Bar dataKey="input" stackId="a" fill="#f5b170" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="output" stackId="a" fill="#10b981" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </CardContent>
     </Card>
