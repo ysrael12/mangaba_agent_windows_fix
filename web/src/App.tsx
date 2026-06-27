@@ -1,5 +1,7 @@
 import {
   Fragment,
+  Suspense,
+  lazy,
   useCallback,
   useEffect,
   useMemo,
@@ -64,28 +66,30 @@ import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
 import { useSystemActions } from "@/contexts/useSystemActions";
 import type { SystemAction } from "@/contexts/system-actions-context";
-import ConfigPage from "@/pages/ConfigPage";
-import DocsPage from "@/pages/DocsPage";
-import EnvPage from "@/pages/EnvPage";
-import SessionsPage from "@/pages/SessionsPage";
-import LogsPage from "@/pages/LogsPage";
-import AnalyticsPage from "@/pages/AnalyticsPage";
-import ModelsPage from "@/pages/ModelsPage";
-import CronPage from "@/pages/CronPage";
-import FleetPage from "@/pages/FleetPage";
-import KanbanPage from "@/pages/KanbanPage";
-import MemoryPage from "@/pages/MemoryPage";
-import ClientsPage from "@/pages/ClientsPage";
-import ExamplesPage from "@/pages/ExamplesPage";
-import HomePage from "@/pages/HomePage";
-import SetupPage from "@/pages/SetupPage";
+// Páginas carregadas sob demanda (code-splitting por rota) — cada uma vira um
+// chunk separado, então o carregamento inicial não baixa todas as telas.
+const ConfigPage = lazy(() => import("@/pages/ConfigPage"));
+const DocsPage = lazy(() => import("@/pages/DocsPage"));
+const EnvPage = lazy(() => import("@/pages/EnvPage"));
+const SessionsPage = lazy(() => import("@/pages/SessionsPage"));
+const LogsPage = lazy(() => import("@/pages/LogsPage"));
+const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
+const ModelsPage = lazy(() => import("@/pages/ModelsPage"));
+const CronPage = lazy(() => import("@/pages/CronPage"));
+const FleetPage = lazy(() => import("@/pages/FleetPage"));
+const KanbanPage = lazy(() => import("@/pages/KanbanPage"));
+const MemoryPage = lazy(() => import("@/pages/MemoryPage"));
+const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
+const ExamplesPage = lazy(() => import("@/pages/ExamplesPage"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const SetupPage = lazy(() => import("@/pages/SetupPage"));
+const GlobalSessionsPage = lazy(() => import("@/pages/GlobalSessionsPage"));
+const RoutingPage = lazy(() => import("@/pages/RoutingPage"));
+const ProfilesPage = lazy(() => import("@/pages/ProfilesPage"));
+const SkillsPage = lazy(() => import("@/pages/SkillsPage"));
+const PluginsPage = lazy(() => import("@/pages/PluginsPage"));
+const ChatPage = lazy(() => import("@/pages/ChatPage"));
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
-import GlobalSessionsPage from "@/pages/GlobalSessionsPage";
-import RoutingPage from "@/pages/RoutingPage";
-import ProfilesPage from "@/pages/ProfilesPage";
-import SkillsPage from "@/pages/SkillsPage";
-import PluginsPage from "@/pages/PluginsPage";
-import ChatPage from "@/pages/ChatPage";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useI18n } from "@/i18n";
@@ -666,17 +670,25 @@ export default function App() {
                     exit={{ opacity: 0, y: isDocsRoute || isChatRoute ? 0 : -6 }}
                     transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <Routes location={location}>
-                      {routes.map(({ key, path, element }) => (
-                        <Route key={key} path={path} element={element} />
-                      ))}
-                      <Route
-                        path="*"
-                        element={
-                          <UnknownRouteFallback pluginsLoading={pluginsLoading} />
-                        }
-                      />
-                    </Routes>
+                    <Suspense
+                      fallback={
+                        <div className="flex justify-center py-24">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                        </div>
+                      }
+                    >
+                      <Routes location={location}>
+                        {routes.map(({ key, path, element }) => (
+                          <Route key={key} path={path} element={element} />
+                        ))}
+                        <Route
+                          path="*"
+                          element={
+                            <UnknownRouteFallback pluginsLoading={pluginsLoading} />
+                          }
+                        />
+                      </Routes>
+                    </Suspense>
                   </motion.div>
                 </AnimatePresence>
               </div>

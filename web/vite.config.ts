@@ -95,6 +95,17 @@ export default defineConfig({
   build: {
     outDir: "../mangaba_cli/web_dist",
     emptyOutDir: true,
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      output: {
+        // Libs grandes em chunks próprios: cacheáveis entre deploys (mudam
+        // raramente) e fora do bundle de entrada.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          motion: ["motion", "gsap"],
+        },
+      },
+    },
   },
   server: {
     proxy: {
