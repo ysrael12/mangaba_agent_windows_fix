@@ -4122,6 +4122,23 @@ def chat_models() -> Dict[str, Any]:
             seen.add(name)
             out.append({"provider": prov, "model": name})
 
+    # 0) Hugging Face — lista curada de modelos verificados na Inference API.
+    #    (O branding Mangaba é aplicado no frontend via brandModel.)
+    if provider == "huggingface" or "huggingface" in base:
+        _HF_MODELS = [
+            "Qwen/Qwen2.5-7B-Instruct",
+            "Qwen/Qwen2.5-72B-Instruct",
+            "Qwen/Qwen2.5-Coder-32B-Instruct",
+            "meta-llama/Llama-3.3-70B-Instruct",
+            "meta-llama/Llama-3.1-8B-Instruct",
+            "deepseek-ai/DeepSeek-V3-0324",
+        ]
+        if current:
+            _add("huggingface", current)
+        for m in _HF_MODELS:
+            _add("huggingface", m)
+        return {"models": out, "current": current}
+
     # 1) Ollama local — deriva o host de base_url (…/v1 → …/api/tags).
     if provider == "ollama" or "11434" in base or not base:
         host = base.rstrip("/")
