@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { Reveal } from "@/components/motion";
 import {
   Routes,
   Route,
@@ -298,7 +299,20 @@ function buildRoutes(
         element: <PluginPage name={om.name} />,
       });
     } else {
-      routes.push({ key: `builtin:${path}`, path, element: <Component /> });
+      // Páginas full-height (chat/docs) não podem ser embrulhadas (quebra o
+      // layout flex). As demais ganham uma entrada suave de conteúdo.
+      const fullHeight = path === "/chat" || path === "/docs";
+      routes.push({
+        key: `builtin:${path}`,
+        path,
+        element: fullHeight ? (
+          <Component />
+        ) : (
+          <Reveal y={10}>
+            <Component />
+          </Reveal>
+        ),
+      });
     }
   }
 
