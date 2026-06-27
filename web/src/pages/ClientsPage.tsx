@@ -32,6 +32,7 @@ function NewClientForm({ onCreated }: { onCreated: () => void }) {
   const [model, setModel] = useState("");
   const [persona, setPersona] = useState("");
   const [limit, setLimit] = useState("");
+  const [plan, setPlan] = useState("free");
   const [busy, setBusy] = useState(false);
   const { toast, showToast } = useToast();
 
@@ -44,9 +45,10 @@ function NewClientForm({ onCreated }: { onCreated: () => void }) {
         email: email.trim(),
         model: model.trim(),
         persona: persona.trim(),
+        plan,
         daily_token_limit: parseInt(limit || "0", 10) || 0,
       });
-      setName(""); setEmail(""); setModel(""); setPersona(""); setLimit("");
+      setName(""); setEmail(""); setModel(""); setPersona(""); setLimit(""); setPlan("free");
       setOpen(false);
       onCreated();
     } catch (e) {
@@ -76,8 +78,15 @@ function NewClientForm({ onCreated }: { onCreated: () => void }) {
             className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
           <input value={model} onChange={(e) => setModel(e.target.value)} placeholder="Modelo (vazio = padrão)"
             className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
+          <select value={plan} onChange={(e) => setPlan(e.target.value)} aria-label="Plano"
+            className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring">
+            <option value="free">Free (10 req/min · 100K tokens/dia)</option>
+            <option value="pro">Pro (60 req/min · 2M tokens/dia)</option>
+            <option value="enterprise">Enterprise (600 req/min · ilimitado)</option>
+            <option value="custom">Custom (defina abaixo)</option>
+          </select>
           <input value={limit} onChange={(e) => setLimit(e.target.value)} type="number" min={0}
-            placeholder="Limite tokens/dia (0 = sem limite)"
+            placeholder="Limite tokens/dia (0 = padrão do plano)"
             className="rounded-md border border-input bg-background px-3 py-2 text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-ring" />
         </div>
         <textarea value={persona} onChange={(e) => setPersona(e.target.value)} rows={2}
@@ -173,6 +182,18 @@ function ClientCard({
             <p className="text-xs text-muted-foreground">
               {client.email || "sem e-mail"} · {client.model || "modelo padrão"}
             </p>
+            <div className="mt-1 flex flex-wrap items-center gap-1.5">
+              <Badge tone="outline" className="text-[10px] uppercase">{client.plan || "free"}</Badge>
+              {client.limits ? (
+                <span className="text-[11px] text-muted-foreground">
+                  {client.limits.rpm ? `${client.limits.rpm} req/min` : "req/min ilimitado"}
+                  {" · "}
+                  {client.limits.daily_token_limit
+                    ? `${fmtTokens(client.limits.daily_token_limit)} tok/dia`
+                    : "tokens ilimitados"}
+                </span>
+              ) : null}
+            </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
             <Button outlined size="sm" onClick={toggleSuspend} prefix={<Ban className="h-3.5 w-3.5" />}>

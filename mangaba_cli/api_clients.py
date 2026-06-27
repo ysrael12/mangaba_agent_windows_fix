@@ -28,6 +28,24 @@ from typing import Any, Dict, List, Optional
 _LOCK = threading.Lock()
 _KEY_PREFIX = "mk_live_"
 
+# Planos: definem limites padrão. O cliente pode sobrescrever (rpm /
+# daily_token_limit > 0 vencem o padrão do plano). daily 0 = ilimitado.
+PLANS: Dict[str, Dict[str, int]] = {
+    "free":       {"rpm": 10,  "daily_token_limit": 100_000},
+    "pro":        {"rpm": 60,  "daily_token_limit": 2_000_000},
+    "enterprise": {"rpm": 600, "daily_token_limit": 0},
+    "custom":     {"rpm": 0,   "daily_token_limit": 0},
+}
+
+
+def effective_limits(client: Dict[str, Any]) -> Dict[str, int]:
+    """Resolve os limites efetivos (rpm, teto diário) a partir do plano +
+    overrides do cliente."""
+    plan = PLANS.get(str(client.get("plan") or "free"), PLANS["free"])
+    rpm = int(client.get("rpm") or 0) or plan["rpm"]
+    daily = int(client.get("daily_token_limit") or 0) or plan["daily_token_limit"]
+    return {"rpm": rpm, "daily_token_limit": daily}
+
 
 def _db_path() -> Path:
     from mangaba_agent.mangaba_constants import get_mangaba_home
@@ -56,6 +74,10 @@ def _init(conn: sqlite3.Connection) -> None:
             persona     TEXT DEFAULT '',                  -- prompt de persona (opcional)
             rag_enabled INTEGER NOT NULL DEFAULT 1,
             daily_token_limit INTEGER NOT NULL DEFAULT 0, -- 0 = sem limite
+            plan        TEXT NOT NULL DEFAULT 'free',     -- free | pro | enterprise | custom
+            rpm         INTEGER NOT NULL DEFAULT 0,       -- requests/min (0 = padrão do plano)
+            profile     TEXT DEFAULT '',                  -- profile dedicado (Fase 3)
+            api_port    INTEGER NOT NULL DEFAULT 0,       -- porta do api_server dedicado
             created_at  INTEGER NOT NULL
         );
         CREATE TABLE IF NOT EXISTS api_keys (
@@ -72,6 +94,16 @@ def _init(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_keys_client ON api_keys(client_id);
         """
     )
+    # Migração: adiciona colunas novas em bancos já existentes.
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(clients)").fetchall()}
+    for name, ddl in (
+        ("plan", "plan TEXT NOT NULL DEFAULT 'free'"),
+        ("rpm", "rpm INTEGER NOT NULL DEFAULT 0"),
+        ("profile", "profile TEXT DEFAULT ''"),
+        ("api_port", "api_port INTEGER NOT NULL DEFAULT 0"),
+    ):
+        if name not in cols:
+            conn.execute(f"ALTER TABLE clients ADD COLUMN {ddl}")
     conn.commit()
 
 
@@ -98,17 +130,22 @@ def create_client(
     persona: str = "",
     rag_enabled: bool = True,
     daily_token_limit: int = 0,
+    plan: str = "free",
+    rpm: int = 0,
 ) -> Dict[str, Any]:
     cid = _gen_id("cli")
     now = int(time.time())
+    if plan not in PLANS:
+        plan = "free"
     with _LOCK, _connect() as conn:
         _init(conn)
         conn.execute(
             "INSERT INTO clients (id, name, email, status, model, persona, "
-            "rag_enabled, daily_token_limit, created_at) "
-            "VALUES (?,?,?,?,?,?,?,?,?)",
+            "rag_enabled, daily_token_limit, plan, rpm, created_at) "
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             (cid, name.strip(), email.strip(), "active", model.strip(),
-             persona.strip(), 1 if rag_enabled else 0, max(0, int(daily_token_limit or 0)), now),
+             persona.strip(), 1 if rag_enabled else 0, max(0, int(daily_token_limit or 0)),
+             plan, max(0, int(rpm or 0)), now),
         )
         conn.commit()
     return get_client(cid)
@@ -136,15 +173,18 @@ def get_client(client_id: str) -> Optional[Dict[str, Any]]:
 
 
 def update_client(client_id: str, **fields: Any) -> Optional[Dict[str, Any]]:
-    allowed = {"name", "email", "status", "model", "persona", "rag_enabled", "daily_token_limit"}
+    allowed = {"name", "email", "status", "model", "persona", "rag_enabled",
+               "daily_token_limit", "plan", "rpm", "profile", "api_port"}
     sets, vals = [], []
     for k, v in fields.items():
         if k not in allowed:
             continue
         if k == "rag_enabled":
             v = 1 if v else 0
-        elif k == "daily_token_limit":
+        elif k in ("daily_token_limit", "rpm", "api_port"):
             v = max(0, int(v or 0))
+        elif k == "plan":
+            v = v if v in PLANS else "free"
         elif k == "status":
             v = "suspended" if str(v) == "suspended" else "active"
         sets.append(f"{k}=?")

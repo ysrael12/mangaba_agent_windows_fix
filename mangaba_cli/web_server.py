@@ -1713,6 +1713,8 @@ class ClientCreate(BaseModel):
     persona: str = ""
     rag_enabled: bool = True
     daily_token_limit: int = 0
+    plan: str = "free"
+    rpm: int = 0
 
 
 class ClientUpdate(BaseModel):
@@ -1723,6 +1725,8 @@ class ClientUpdate(BaseModel):
     persona: Optional[str] = None
     rag_enabled: Optional[bool] = None
     daily_token_limit: Optional[int] = None
+    plan: Optional[str] = None
+    rpm: Optional[int] = None
 
 
 def _api_base_url() -> str:
@@ -1753,8 +1757,9 @@ def clients_list():
             t = today.get(c["id"]) or {}
             c["used_today"] = int(t.get("input", 0)) + int(t.get("output", 0))
             c["turns_today"] = int(t.get("turns", 0))
+            c["limits"] = api_clients.effective_limits(c)
             out.append(c)
-        return {"clients": out}
+        return {"clients": out, "plans": api_clients.PLANS}
     except Exception as exc:  # noqa: BLE001
         _log.exception("GET /api/clients failed")
         raise HTTPException(status_code=500, detail=str(exc))
@@ -1770,6 +1775,7 @@ def clients_create(body: ClientCreate):
         return api_clients.create_client(
             body.name, email=body.email, model=body.model, persona=body.persona,
             rag_enabled=body.rag_enabled, daily_token_limit=body.daily_token_limit,
+            plan=body.plan, rpm=body.rpm,
         )
     except HTTPException:
         raise

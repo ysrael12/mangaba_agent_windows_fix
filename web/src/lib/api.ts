@@ -848,10 +848,13 @@ export interface ApiClient {
   persona: string;
   rag_enabled: boolean;
   daily_token_limit: number;
+  plan: string;
+  rpm: number;
   created_at: number;
   active_keys?: number;
   used_today?: number;
   turns_today?: number;
+  limits?: { rpm: number; daily_token_limit: number };
 }
 
 export interface ApiKey {

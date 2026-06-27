@@ -669,6 +669,47 @@ class APIServerAdapter(BasePlatformAdapter):
         # in-flight run by run_id.
         self._run_approval_sessions: Dict[str, str] = {}
         self._session_db: Optional[Any] = None  # Lazy-init SessionDB for session continuity
+        # Rate-limit por cliente (janela deslizante de 60s, em memória).
+        self._rate_window: Dict[str, list] = {}
+
+    # ------------------------------------------------------------------
+    # Rate limiting por cliente (Fase 2)
+    # ------------------------------------------------------------------
+
+    def _rate_check(self, client_id: str, rpm: int) -> Dict[str, Any]:
+        """Janela deslizante de 60s. Retorna estado SEM consumir.
+
+        ``allowed`` indica se uma nova requisição cabe; ``reset`` é quando a
+        requisição mais antiga sai da janela.
+        """
+        now = time.time()
+        win = self._rate_window.get(client_id, [])
+        win = [t for t in win if now - t < 60.0]
+        self._rate_window[client_id] = win
+        used = len(win)
+        if rpm <= 0:  # sem limite de rpm
+            return {"allowed": True, "limit": 0, "remaining": 0, "reset": 0, "used": used}
+        remaining = max(0, rpm - used)
+        reset = int(60 - (now - win[0])) + 1 if win else 0
+        return {"allowed": used < rpm, "limit": rpm, "remaining": remaining,
+                "reset": max(reset, 0), "used": used}
+
+    def _rate_consume(self, client_id: str) -> None:
+        self._rate_window.setdefault(client_id, []).append(time.time())
+
+    @staticmethod
+    def _ratelimit_headers(
+        rate: Dict[str, Any], daily_limit: int, daily_used: int
+    ) -> Dict[str, str]:
+        h: Dict[str, str] = {}
+        if rate.get("limit"):
+            h["x-ratelimit-limit-requests"] = str(rate["limit"])
+            h["x-ratelimit-remaining-requests"] = str(rate["remaining"])
+            h["x-ratelimit-reset-requests"] = f"{rate['reset']}s"
+        if daily_limit:
+            h["x-ratelimit-limit-tokens"] = str(daily_limit)
+            h["x-ratelimit-remaining-tokens"] = str(max(0, daily_limit - daily_used))
+        return h
 
     @staticmethod
     def _parse_cors_origins(value: Any) -> tuple[str, ...]:
@@ -1084,23 +1125,47 @@ class APIServerAdapter(BasePlatformAdapter):
             return auth_err
 
         # Cliente da API (tenant), se a chave for mk_live_…  Usado para
-        # roteamento white-label, teto por cliente e medição de uso.
+        # roteamento white-label, planos/quota e medição de uso.
         tenant = request.get("mangaba_client")
-
-        # Teto diário por cliente (quota). Bloqueia com 429 quando estourado.
-        if tenant and tenant.get("daily_token_limit"):
+        rl_headers: Dict[str, str] = {}
+        if tenant:
             try:
-                from mangaba_cli.usage_ledger import tenant_over_limit
+                from mangaba_cli.api_clients import effective_limits
+                from mangaba_cli.usage_ledger import tenant_used_today
 
-                if tenant_over_limit(tenant["id"], tenant["daily_token_limit"]):
+                limits = effective_limits(tenant)
+                daily_limit = limits["daily_token_limit"]
+                rpm = limits["rpm"]
+                used_today = tenant_used_today(tenant["id"])
+                rate = self._rate_check(tenant["id"], rpm)
+                rl_headers = self._ratelimit_headers(rate, daily_limit, used_today)
+
+                # Quota diária de tokens.
+                if daily_limit and used_today >= daily_limit:
                     return web.json_response(
                         {"error": {
-                            "message": "Daily usage limit reached for this account.",
+                            "message": "Daily token limit reached for this account.",
                             "type": "insufficient_quota",
                             "code": "daily_limit_exceeded",
                         }},
                         status=429,
+                        headers={**rl_headers, "Retry-After": "3600"},
                     )
+
+                # Limite de requisições por minuto (plano).
+                if not rate["allowed"]:
+                    return web.json_response(
+                        {"error": {
+                            "message": f"Rate limit exceeded ({rpm} req/min). Retry in {rate['reset']}s.",
+                            "type": "rate_limit_error",
+                            "code": "rate_limit_exceeded",
+                        }},
+                        status=429,
+                        headers={**rl_headers, "Retry-After": str(rate["reset"] or 1)},
+                    )
+
+                # Consome um slot da janela só quando a requisição vai prosseguir.
+                self._rate_consume(tenant["id"])
             except Exception:
                 pass
 
@@ -1363,6 +1428,9 @@ class APIServerAdapter(BasePlatformAdapter):
         }
         if gateway_session_key:
             response_headers["X-Mangaba-Session-Key"] = gateway_session_key
+        # Headers de rate-limit por cliente (Fase 2).
+        if rl_headers:
+            response_headers.update(rl_headers)
 
         # Hard-fail path: no usable assistant text AND a real failure → 5xx
         # with OpenAI-style error envelope so SDK clients raise instead of
