@@ -74,6 +74,7 @@ import CronPage from "@/pages/CronPage";
 import FleetPage from "@/pages/FleetPage";
 import KanbanPage from "@/pages/KanbanPage";
 import MemoryPage from "@/pages/MemoryPage";
+import ClientsPage from "@/pages/ClientsPage";
 import ExamplesPage from "@/pages/ExamplesPage";
 import HomePage from "@/pages/HomePage";
 import SetupPage from "@/pages/SetupPage";
@@ -126,6 +127,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/fleet": FleetPage,
   "/kanban": KanbanPage,
   "/memory": MemoryPage,
+  "/clients": ClientsPage,
   "/sessions/global": GlobalSessionsPage,
   "/routing": RoutingPage,
   "/profiles": ProfilesPage,
@@ -157,6 +159,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/profiles", labelKey: "profiles", label: "Perfis", icon: Users, section: "Agentes e canais" },
   { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais" },
   { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais" },
+  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais" },
 
   // 4) Usar
   { ...CHAT_NAV_ITEM, section: "Usar" },

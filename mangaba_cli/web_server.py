@@ -1705,6 +1705,146 @@ def set_usage_budget(body: UsageBudget):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+# ── Clientes & API (multi-tenant / white-label) ─────────────────────────────
+class ClientCreate(BaseModel):
+    name: str
+    email: str = ""
+    model: str = ""
+    persona: str = ""
+    rag_enabled: bool = True
+    daily_token_limit: int = 0
+
+
+class ClientUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    status: Optional[str] = None
+    model: Optional[str] = None
+    persona: Optional[str] = None
+    rag_enabled: Optional[bool] = None
+    daily_token_limit: Optional[int] = None
+
+
+def _api_base_url() -> str:
+    """URL pública sugerida para os clientes baterem na API."""
+    import os as _os
+
+    host = _os.getenv("API_SERVER_HOST", "127.0.0.1")
+    port = _os.getenv("API_SERVER_PORT", "8642")
+    if host in ("0.0.0.0", "::"):
+        host = "SEU_IP_OU_DOMINIO"
+    return f"http://{host}:{port}/v1"
+
+
+@app.get("/api/clients/api-info")
+def clients_api_info():
+    """Info para montar o snippet de uso (base URL da API OpenAI-compatível)."""
+    return {"base_url": _api_base_url(), "endpoint": "/chat/completions"}
+
+
+@app.get("/api/clients")
+def clients_list():
+    try:
+        from mangaba_cli import api_clients, usage_ledger
+
+        today = usage_ledger.get_today().get("by_tenant") or {}
+        out = []
+        for c in api_clients.list_clients():
+            t = today.get(c["id"]) or {}
+            c["used_today"] = int(t.get("input", 0)) + int(t.get("output", 0))
+            c["turns_today"] = int(t.get("turns", 0))
+            out.append(c)
+        return {"clients": out}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/clients failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/clients")
+def clients_create(body: ClientCreate):
+    try:
+        from mangaba_cli import api_clients
+
+        if not body.name.strip():
+            raise HTTPException(status_code=400, detail="nome obrigatório")
+        return api_clients.create_client(
+            body.name, email=body.email, model=body.model, persona=body.persona,
+            rag_enabled=body.rag_enabled, daily_token_limit=body.daily_token_limit,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/clients failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.put("/api/clients/{client_id}")
+def clients_update(client_id: str, body: ClientUpdate):
+    try:
+        from mangaba_cli import api_clients
+
+        fields = {k: v for k, v in body.model_dump().items() if v is not None}
+        c = api_clients.update_client(client_id, **fields)
+        if not c:
+            raise HTTPException(status_code=404, detail="cliente não encontrado")
+        return c
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("PUT /api/clients failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.delete("/api/clients/{client_id}")
+def clients_delete(client_id: str):
+    try:
+        from mangaba_cli import api_clients
+
+        return {"ok": api_clients.delete_client(client_id)}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("DELETE /api/clients failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.get("/api/clients/{client_id}/keys")
+def clients_keys_list(client_id: str):
+    try:
+        from mangaba_cli import api_clients
+
+        return {"keys": api_clients.list_keys(client_id)}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/clients/keys failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/clients/{client_id}/keys")
+def clients_keys_create(client_id: str):
+    """Cria uma chave. Retorna o token em texto puro UMA vez."""
+    try:
+        from mangaba_cli import api_clients
+
+        k = api_clients.create_key(client_id)
+        if not k:
+            raise HTTPException(status_code=404, detail="cliente não encontrado")
+        return k
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/clients/keys failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.delete("/api/clients/keys/{key_id}")
+def clients_keys_revoke(key_id: str):
+    try:
+        from mangaba_cli import api_clients
+
+        return {"ok": api_clients.revoke_key(key_id)}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("DELETE /api/clients/keys failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 # ---------------------------------------------------------------------------
 # Kanban board API — multi-worker task orchestration (boards + tasks +
 # lifecycle). LLM-heavy ops (specify/decompose) run in a background thread

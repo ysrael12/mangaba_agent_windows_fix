@@ -747,14 +747,44 @@ class APIServerAdapter(BasePlatformAdapter):
         If no API key is configured, all requests are allowed (only when API
         server is local).
         """
-        if not self._api_key:
-            return None  # No key configured — allow all (local-only use)
-
         auth_header = request.headers.get("Authorization", "")
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:].strip()
-            if hmac.compare_digest(token, self._api_key):
-                return None  # Auth OK
+        token = auth_header[7:].strip() if auth_header.startswith("Bearer ") else ""
+
+        # 1) Chave de cliente (multi-tenant): mk_live_…  → anexa o cliente ao
+        #    request para roteamento white-label + medição por tenant.
+        if token.startswith("mk_live_"):
+            try:
+                from mangaba_cli.api_clients import verify_key
+
+                client = verify_key(token)
+                if client:
+                    request["mangaba_client"] = client
+                    return None  # Auth OK (tenant)
+            except Exception:
+                pass
+            return web.json_response(
+                {"error": {"message": "Invalid API key", "type": "invalid_request_error", "code": "invalid_api_key"}},
+                status=401,
+            )
+
+        # 2) Chave global do operador (admin / sem tenant).
+        if not self._api_key:
+            # Sem chave global configurada: permite só uso local, EXCETO quando
+            # já existem clientes cadastrados (aí exige uma chave mk_live_).
+            try:
+                from mangaba_cli.api_clients import has_any_clients
+
+                if has_any_clients():
+                    return web.json_response(
+                        {"error": {"message": "API key required", "type": "invalid_request_error", "code": "invalid_api_key"}},
+                        status=401,
+                    )
+            except Exception:
+                pass
+            return None
+
+        if token and hmac.compare_digest(token, self._api_key):
+            return None  # Auth OK (operador)
 
         return web.json_response(
             {"error": {"message": "Invalid API key", "type": "invalid_request_error", "code": "invalid_api_key"}},
@@ -857,6 +887,7 @@ class APIServerAdapter(BasePlatformAdapter):
         tool_start_callback=None,
         tool_complete_callback=None,
         gateway_session_key: Optional[str] = None,
+        tenant: Optional[Dict[str, Any]] = None,
     ) -> Any:
         """
         Create an AIAgent instance using the gateway's runtime config.
@@ -890,15 +921,35 @@ class APIServerAdapter(BasePlatformAdapter):
         # same fallback behaviour as Telegram/Discord/Slack (fixes #4954).
         fallback_model = GatewayRunner._load_fallback_model()
 
+        # ── White-label por cliente (tenant) ──────────────────────────────
+        # Aplica overrides do cliente sem trocar de processo: modelo próprio,
+        # persona injetada no prompt e isolamento de sessão por tenant.
+        eff_system = ephemeral_system_prompt or None
+        eff_session = session_id
+        eff_key = gateway_session_key
+        if tenant:
+            if tenant.get("model"):
+                model = tenant["model"]
+            persona = (tenant.get("persona") or "").strip()
+            if persona:
+                eff_system = (persona + "\n\n" + (eff_system or "")).strip()
+            tid = tenant.get("id") or ""
+            if tid:
+                # Prefixa sessão e chave de memória → um cliente nunca enxerga
+                # o histórico de outro.
+                if eff_session:
+                    eff_session = f"t_{tid}_{eff_session}"
+                eff_key = f"t_{tid}_{eff_key or 'default'}"
+
         agent = AIAgent(
             model=model,
             **runtime_kwargs,
             max_iterations=max_iterations,
             quiet_mode=True,
             verbose_logging=False,
-            ephemeral_system_prompt=ephemeral_system_prompt or None,
+            ephemeral_system_prompt=eff_system,
             enabled_toolsets=enabled_toolsets,
-            session_id=session_id,
+            session_id=eff_session,
             platform="api_server",
             stream_delta_callback=stream_delta_callback,
             tool_progress_callback=tool_progress_callback,
@@ -907,8 +958,14 @@ class APIServerAdapter(BasePlatformAdapter):
             session_db=self._ensure_session_db(),
             fallback_model=fallback_model,
             reasoning_config=reasoning_config,
-            gateway_session_key=gateway_session_key,
+            gateway_session_key=eff_key,
         )
+        # Tag de tenant → medição de uso por cliente no usage_ledger.
+        if tenant and tenant.get("id"):
+            try:
+                agent._api_tenant_id = tenant["id"]
+            except Exception:
+                pass
         return agent
 
     # ------------------------------------------------------------------
@@ -1025,6 +1082,27 @@ class APIServerAdapter(BasePlatformAdapter):
         auth_err = self._check_auth(request)
         if auth_err:
             return auth_err
+
+        # Cliente da API (tenant), se a chave for mk_live_…  Usado para
+        # roteamento white-label, teto por cliente e medição de uso.
+        tenant = request.get("mangaba_client")
+
+        # Teto diário por cliente (quota). Bloqueia com 429 quando estourado.
+        if tenant and tenant.get("daily_token_limit"):
+            try:
+                from mangaba_cli.usage_ledger import tenant_over_limit
+
+                if tenant_over_limit(tenant["id"], tenant["daily_token_limit"]):
+                    return web.json_response(
+                        {"error": {
+                            "message": "Daily usage limit reached for this account.",
+                            "type": "insufficient_quota",
+                            "code": "daily_limit_exceeded",
+                        }},
+                        status=429,
+                    )
+            except Exception:
+                pass
 
         # Parse request body
         try:
@@ -1220,6 +1298,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 tool_complete_callback=_on_tool_complete,
                 agent_ref=agent_ref,
                 gateway_session_key=gateway_session_key,
+                tenant=tenant,
             ))
             # Ensure SSE drain loops can terminate without relying on polling
             # agent_task.done(), which can race with queue timeout checks.
@@ -1239,6 +1318,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 ephemeral_system_prompt=system_prompt,
                 session_id=session_id,
                 gateway_session_key=gateway_session_key,
+                tenant=tenant,
             )
 
         idempotency_key = request.headers.get("Idempotency-Key")
@@ -2743,6 +2823,7 @@ class APIServerAdapter(BasePlatformAdapter):
         tool_complete_callback=None,
         agent_ref: Optional[list] = None,
         gateway_session_key: Optional[str] = None,
+        tenant: Optional[Dict[str, Any]] = None,
     ) -> tuple:
         """
         Create an agent and run a conversation in a thread executor.
@@ -2766,6 +2847,7 @@ class APIServerAdapter(BasePlatformAdapter):
                 tool_start_callback=tool_start_callback,
                 tool_complete_callback=tool_complete_callback,
                 gateway_session_key=gateway_session_key,
+                tenant=tenant,
             )
             if agent_ref is not None:
                 agent_ref[0] = agent

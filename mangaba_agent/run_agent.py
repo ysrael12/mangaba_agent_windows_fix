@@ -4092,6 +4092,7 @@ class AIAgent:
                     model=result.get("model", getattr(self, "model", "")),
                     provider=result.get("provider", getattr(self, "provider", "")),
                     platform=getattr(self, "platform", "") or "",
+                    tenant_id=getattr(self, "_api_tenant_id", "") or "",
                 )
         except Exception:
             pass

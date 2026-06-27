@@ -59,8 +59,13 @@ def record_usage(
     model: str = "",
     provider: str = "",
     platform: str = "",
+    tenant_id: str = "",
 ) -> None:
-    """Acumula o uso de um turno no ledger do dia. Best-effort, não levanta."""
+    """Acumula o uso de um turno no ledger do dia. Best-effort, não levanta.
+
+    ``tenant_id`` (id do cliente da API) habilita a medição por cliente, base
+    da cobrança/quota no modelo provedor-de-IA.
+    """
     try:
         inp = int(input_tokens or 0)
         out = int(output_tokens or 0)
@@ -70,7 +75,9 @@ def record_usage(
         with _LOCK:
             data = _read_month(day)
             d = data.setdefault(
-                day, {"input": 0, "output": 0, "turns": 0, "by_model": {}, "by_platform": {}}
+                day,
+                {"input": 0, "output": 0, "turns": 0,
+                 "by_model": {}, "by_platform": {}, "by_tenant": {}},
             )
             d["input"] += inp
             d["output"] += out
@@ -82,11 +89,31 @@ def record_usage(
                 m["turns"] += 1
             if platform:
                 d["by_platform"][platform] = d["by_platform"].get(platform, 0) + 1
+            if tenant_id:
+                bt = d.setdefault("by_tenant", {})
+                tt = bt.setdefault(tenant_id, {"input": 0, "output": 0, "turns": 0})
+                tt["input"] += inp
+                tt["output"] += out
+                tt["turns"] += 1
             _month_path(day).write_text(
                 json.dumps(data, ensure_ascii=False), encoding="utf-8"
             )
     except Exception as e:  # pragma: no cover
         logger.debug("usage_ledger.record_usage falhou: %s", e)
+
+
+def tenant_used_today(tenant_id: str) -> int:
+    """Tokens (entrada+saída) consumidos hoje por um cliente da API."""
+    if not tenant_id:
+        return 0
+    bt = (get_today().get("by_tenant") or {}).get(tenant_id) or {}
+    return int(bt.get("input", 0)) + int(bt.get("output", 0))
+
+
+def tenant_over_limit(tenant_id: str, daily_token_limit: int) -> bool:
+    """True se o cliente estourou seu teto diário (limite > 0)."""
+    lim = int(daily_token_limit or 0)
+    return bool(lim and tenant_used_today(tenant_id) >= lim)
 
 
 def get_today() -> Dict[str, Any]:

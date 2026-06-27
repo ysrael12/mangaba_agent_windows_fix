@@ -148,6 +148,34 @@ curl -s -X POST http://localhost:9119/api/rag/reindex -H "X-Mangaba-Session-Toke
 Ligar/desligar manualmente: campo `memory.provider` no `~/.mangaba/config.yaml`
 (`mangaba_rag` = ligado, vazio = desligado), depois `mangaba gateway restart`.
 
+## 8.2 Clientes consumindo a API (white-label / multi-tenant)
+
+Seus clientes podem consumir o agente por uma **API OpenAI-compatível**. Cada
+cliente tem **chave**, **modelo**, **persona** e **teto diário** próprios —
+isolados entre si.
+
+Ligar a API (uma vez, no `~/.mangaba/.env`):
+```
+API_SERVER_ENABLED=true
+API_SERVER_HOST=127.0.0.1
+API_SERVER_PORT=8642
+```
+Depois: `mangaba gateway restart`.
+
+> Para expor à internet, troque o host para `0.0.0.0`, ponha atrás de um
+> proxy com HTTPS e defina `API_SERVER_KEY` (chave global do operador).
+
+Gerenciar clientes e chaves: aba **Clientes & API** no dashboard (criar,
+gerar/revogar chave — a chave aparece **uma vez** —, suspender, ver uso).
+
+O cliente usa a chave `mk_live_…` como qualquer API OpenAI:
+```
+curl http://SEU_HOST:8642/v1/chat/completions \
+  -H "Authorization: Bearer mk_live_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"mangaba","messages":[{"role":"user","content":"Olá!"}]}'
+```
+
 ## 9. Ajuda
 
 ```

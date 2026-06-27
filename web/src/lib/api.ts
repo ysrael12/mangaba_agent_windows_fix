@@ -115,6 +115,32 @@ export const api = {
       body: JSON.stringify({ target }),
     }),
 
+  // ── Clientes & API (white-label / multi-tenant) ──────────────────────────
+  getApiInfo: () => fetchJSON<{ base_url: string; endpoint: string }>("/api/clients/api-info"),
+  listClients: () => fetchJSON<{ clients: ApiClient[] }>("/api/clients"),
+  createClient: (body: Partial<ApiClient> & { name: string }) =>
+    fetchJSON<ApiClient>("/api/clients", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  updateClient: (id: string, body: Partial<ApiClient>) =>
+    fetchJSON<ApiClient>(`/api/clients/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  deleteClient: (id: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/clients/${id}`, { method: "DELETE" }),
+  listClientKeys: (id: string) =>
+    fetchJSON<{ keys: ApiKey[] }>(`/api/clients/${id}/keys`),
+  createClientKey: (id: string) =>
+    fetchJSON<{ id: string; key: string; last4: string }>(`/api/clients/${id}/keys`, {
+      method: "POST",
+    }),
+  revokeClientKey: (keyId: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/clients/keys/${keyId}`, { method: "DELETE" }),
+
   // ── RAG (base de conhecimento mangaba.ia.br) ─────────────────────────────
   getRagStatus: () => fetchJSON<RagStatus>("/api/rag/status"),
   reindexRag: () =>
@@ -811,6 +837,30 @@ export interface MemoryResponse {
   provider: string;
   memory_enabled: boolean;
   user_profile_enabled: boolean;
+}
+
+export interface ApiClient {
+  id: string;
+  name: string;
+  email: string;
+  status: "active" | "suspended";
+  model: string;
+  persona: string;
+  rag_enabled: boolean;
+  daily_token_limit: number;
+  created_at: number;
+  active_keys?: number;
+  used_today?: number;
+  turns_today?: number;
+}
+
+export interface ApiKey {
+  id: string;
+  client_id: string;
+  last4: string;
+  status: "active" | "revoked";
+  created_at: number;
+  last_used_at: number | null;
 }
 
 export interface UsageBudgetStatus {
