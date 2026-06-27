@@ -7,6 +7,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   Routes,
   Route,
@@ -324,7 +325,8 @@ function buildRoutes(
 
 export default function App() {
   const { t } = useI18n();
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const { manifests, loading: pluginsLoading } = usePlugins();
   const { theme, isDark, toggleDayNight } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -651,17 +653,32 @@ export default function App() {
                 {!isChatRoute && !isDocsRoute && !isHomeRoute && (
                   <OnboardingChecklist />
                 )}
-                <Routes>
-                  {routes.map(({ key, path, element }) => (
-                    <Route key={key} path={path} element={element} />
-                  ))}
-                  <Route
-                    path="*"
-                    element={
-                      <UnknownRouteFallback pluginsLoading={pluginsLoading} />
-                    }
-                  />
-                </Routes>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={pathname}
+                    className={cn(
+                      "w-full min-w-0",
+                      (isDocsRoute || isChatRoute) &&
+                        "flex min-h-0 flex-1 flex-col",
+                    )}
+                    initial={{ opacity: 0, y: isDocsRoute || isChatRoute ? 0 : 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: isDocsRoute || isChatRoute ? 0 : -6 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Routes location={location}>
+                      {routes.map(({ key, path, element }) => (
+                        <Route key={key} path={path} element={element} />
+                      ))}
+                      <Route
+                        path="*"
+                        element={
+                          <UnknownRouteFallback pluginsLoading={pluginsLoading} />
+                        }
+                      />
+                    </Routes>
+                  </motion.div>
+                </AnimatePresence>
               </div>
               <PluginSlot name="post-main" />
             </div>

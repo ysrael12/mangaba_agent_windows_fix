@@ -25,6 +25,7 @@ import { Badge } from "@dheiver2/ui/ui/components/badge";
 import { usePageHeader } from "@/contexts/usePageHeader";
 import { useI18n } from "@/i18n";
 import { PluginSlot } from "@/plugins";
+import { AnimatedNumber } from "@/components/motion";
 
 const PERIODS = [
   { label: "7d", days: 7 },
@@ -442,7 +443,9 @@ function UsagePanel() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div>
             <div className="text-xs text-muted-foreground">Tokens hoje</div>
-            <div className="text-lg font-semibold tabular-nums">{formatTokens(t.total)}</div>
+            <div className="text-lg font-semibold">
+              <AnimatedNumber value={t.total} format={formatTokens} />
+            </div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Entrada / Saída</div>
@@ -452,7 +455,9 @@ function UsagePanel() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Conversas hoje</div>
-            <div className="text-lg font-semibold tabular-nums">{t.turns}</div>
+            <div className="text-lg font-semibold">
+              <AnimatedNumber value={t.turns} />
+            </div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Teto diário</div>

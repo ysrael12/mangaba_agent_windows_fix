@@ -1,6 +1,7 @@
 import { ArrowRight, BookOpen, Cpu, MessageSquare, Radio, Users, Zap } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { useNavigate } from "react-router-dom";
+import { Stagger, StaggerItem } from "@/components/motion";
 
 const STEPS = [
   {
@@ -61,7 +62,8 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="space-y-6 pb-6">
+    <Stagger className="space-y-6 pb-6" gap={0.09}>
+      <StaggerItem>
       <section className="rounded-[2rem] border border-border bg-card p-7 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-[1.2fr_max(320px,0.8fr)] lg:items-center">
           <div className="space-y-5">
@@ -103,7 +105,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </StaggerItem>
 
+      <StaggerItem>
       <section className="grid gap-4 xl:grid-cols-[1.5fr_minmax(280px,1fr)]">
         <div className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -169,7 +173,9 @@ export default function HomePage() {
           })}
         </div>
       </section>
+      </StaggerItem>
 
+      <StaggerItem>
       <section className="rounded-[2rem] border border-border bg-card p-6 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -204,6 +210,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-    </div>
+      </StaggerItem>
+    </Stagger>
   );
 }

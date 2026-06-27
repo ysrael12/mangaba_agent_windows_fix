@@ -18,6 +18,7 @@ import { Toast } from "@/components/Toast";
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
 import type { ApiClient, ApiKey, ClientProfileStatus } from "@/lib/api";
+import { Stagger, StaggerItem, AnimatedNumber } from "@/components/motion";
 
 function fmtTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -205,7 +206,7 @@ function ClientCard({
     client.daily_token_limit > 0 && (client.used_today ?? 0) >= client.daily_token_limit;
 
   return (
-    <Card>
+    <Card className="h-full transition-shadow duration-300 hover:shadow-lg hover:shadow-primary/5">
       <Toast toast={toast} />
       <CardContent className="flex flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
@@ -247,7 +248,7 @@ function ClientCard({
           <span>
             Uso hoje:{" "}
             <b className={overLimit ? "text-destructive" : "text-foreground"}>
-              {fmtTokens(client.used_today ?? 0)}
+              <AnimatedNumber value={client.used_today ?? 0} format={fmtTokens} />
               {client.daily_token_limit > 0 ? ` / ${fmtTokens(client.daily_token_limit)}` : ""}
             </b>
           </span>
@@ -383,11 +384,13 @@ export default function ClientsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        <Stagger className="grid gap-3 lg:grid-cols-2">
           {clients.map((c) => (
-            <ClientCard key={c.id} client={c} baseUrl={baseUrl} onChanged={load} />
+            <StaggerItem key={c.id}>
+              <ClientCard client={c} baseUrl={baseUrl} onChanged={load} />
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       )}
     </div>
   );
