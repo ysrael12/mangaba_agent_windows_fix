@@ -9,6 +9,7 @@ import {
   Brain,
   CheckCircle2,
   ArrowRight,
+  RotateCw,
 } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
@@ -122,6 +123,18 @@ export default function SetupPage() {
     };
   }, []);
 
+  const resetOnboarding = () => {
+    try {
+      // Mesma chave usada pelo OnboardingChecklist.
+      localStorage.removeItem("mangaba-onboarding-dismissed");
+    } catch {
+      /* ignore */
+    }
+    // O checklist fica montado fora das rotas; recarregar é o jeito simples
+    // e confiável de reexibi-lo.
+    window.location.reload();
+  };
+
   const essential = STEPS.filter((s) => s.essential);
   const essentialDone = essential.filter((s) => done[s.key]).length;
   const pct = Math.round((essentialDone / essential.length) * 100);
@@ -214,6 +227,16 @@ export default function SetupPage() {
             </Card>
           );
         })}
+      </div>
+
+      {/* Reset do painel de primeiros passos (o banner dispensável) */}
+      <div className="flex items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
+        <span>
+          Dispensou o painel "Primeiros passos" e quer ele de volta?
+        </span>
+        <Button outlined size="sm" onClick={resetOnboarding} suffix={<RotateCw className="h-4 w-4" />}>
+          Reativar primeiros passos
+        </Button>
       </div>
     </div>
   );
