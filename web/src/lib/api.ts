@@ -872,6 +872,7 @@ export interface ClientProfileStatus {
   pid: number | null;
   healthy: boolean;
   provisioned: boolean;
+  autostart?: boolean;
 }
 
 export interface ApiKey {

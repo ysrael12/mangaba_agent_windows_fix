@@ -270,6 +270,9 @@ function ClientCard({
             ) : (
               <Badge tone="outline" className="text-[10px]">compartilhado</Badge>
             )}
+            {iso?.autostart ? (
+              <Badge tone="outline" className="text-[10px]">reinicia no boot</Badge>
+            ) : null}
           </div>
           {iso?.healthy ? (
             <Button outlined size="sm" onClick={stopIso} disabled={isoBusy}>Parar agente</Button>

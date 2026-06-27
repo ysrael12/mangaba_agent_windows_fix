@@ -186,6 +186,31 @@ curl http://SEU_HOST:8642/v1/chat/completions \
   -d '{"model":"mangaba","messages":[{"role":"user","content":"Olá!"}]}'
 ```
 
+## 8.3 Expor a API na internet (produção)
+
+A API fica só em `127.0.0.1` por padrão. Para abrir ao mundo com segurança:
+
+```
+bash scripts/deploy/setup-public.sh   # gera API_SERVER_KEY e configura .env
+mangaba gateway restart
+```
+
+Suba um proxy HTTPS na frente (HTTPS automático):
+```
+# edite o domínio em scripts/deploy/Caddyfile.example, depois:
+sudo caddy run --config scripts/deploy/Caddyfile.example
+```
+
+Regras de ouro:
+- Exponha **apenas** o roteador `:8642` (via proxy HTTPS). **Nunca** exponha o
+  dashboard `:9119` nem os backends dedicados `:8700+` (ficam em 127.0.0.1).
+- O **operador** usa a `API_SERVER_KEY` (admin); os **clientes** usam as chaves
+  `mk_live_…` deles.
+
+**Auto-start dos agentes dedicados:** ao iniciar um agente dedicado pelo painel,
+ele é marcado para **voltar sozinho no boot**. O dashboard reconcilia na subida
+(o LaunchAgent do macÓS já sobe o dashboard). Parar pelo painel desmarca.
+
 ## 9. Ajuda
 
 ```

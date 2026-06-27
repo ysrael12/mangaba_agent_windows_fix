@@ -219,8 +219,13 @@ def start(client: Dict[str, Any], wait: float = 35.0) -> Dict[str, Any]:
 
     env = dict(os.environ)
     env["MANGABA_HOME"] = str(pdir)
-    # Garante que o subprocesso não herde overrides do processo pai.
-    env.pop("API_SERVER_PORT", None)
+    # Crítico p/ exposição pública: o backend dedicado deve ler SEMPRE do .env
+    # do seu profile (host=127.0.0.1, porta dedicada, sem API_SERVER_KEY). Se
+    # herdasse API_SERVER_HOST=0.0.0.0 / API_SERVER_KEY do processo principal,
+    # ficaria exposto e exigiria auth, quebrando o proxy interno.
+    for _k in ("API_SERVER_HOST", "API_SERVER_PORT", "API_SERVER_KEY",
+               "API_SERVER_ENABLED", "API_SERVER_CORS_ORIGINS", "API_SERVER_MODEL_NAME"):
+        env.pop(_k, None)
 
     logf = open(pdir / "logs" / "gateway.out.log", "ab", buffering=0)
     (pdir / "logs").mkdir(parents=True, exist_ok=True)
@@ -284,7 +289,45 @@ def status(client: Dict[str, Any]) -> Dict[str, Any]:
         "pid": pid if (pid and _pid_alive(pid)) else None,
         "healthy": bool(port and _port_healthy(port)),
         "provisioned": _profile_dir(client).exists(),
+        "autostart": bool(client.get("autostart")),
     }
+
+
+def reconcile() -> Dict[str, Any]:
+    """Sobe os agentes dedicados de todos os clientes marcados com autostart.
+
+    Chamado no boot/start do dashboard para que os backends isolados voltem
+    sozinhos após um reinício da máquina. Inicia em threads (cada start bloqueia
+    enquanto o gateway sobe).
+    """
+    import threading
+
+    from mangaba_cli import api_clients
+
+    targets = [
+        c for c in api_clients.list_clients()
+        if c.get("autostart") and c.get("status") == "active" and c.get("profile")
+    ]
+    results: Dict[str, str] = {}
+    threads = []
+
+    def _boot(c: Dict[str, Any]) -> None:
+        try:
+            r = start(c)
+            results[c["id"]] = "up" if r.get("running") else f"falha: {r.get('error')}"
+        except Exception as e:  # pragma: no cover
+            results[c["id"]] = f"erro: {e}"
+
+    for c in targets:
+        if _port_healthy(int(c.get("api_port") or 0)):
+            results[c["id"]] = "já no ar"
+            continue
+        t = threading.Thread(target=_boot, args=(c,), daemon=True)
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join(timeout=60)
+    return {"started": results, "count": len(targets)}
 
 
 def teardown(client: Dict[str, Any], *, delete_files: bool = True) -> None:

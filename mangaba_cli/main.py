@@ -10554,6 +10554,32 @@ def _autostart_gateway_if_needed() -> None:
         print("  Inicie manualmente com: mangaba gateway run")
 
 
+def _reconcile_client_agents_async() -> None:
+    """Sobe, em segundo plano, os agentes dedicados dos clientes marcados com
+    autostart — para que voltem sozinhos após um reinício da máquina.
+
+    Roda numa thread para não atrasar a subida do dashboard. Best-effort.
+    """
+    def _run() -> None:
+        try:
+            from mangaba_cli import api_clients, client_profiles
+
+            if not api_clients.has_any_clients():
+                return
+            res = client_profiles.reconcile()
+            if res.get("count"):
+                print(f"→ Reconciliação: {res['count']} agente(s) dedicado(s) — {res['started']}")
+        except Exception as exc:  # noqa: BLE001 — best-effort
+            print(f"⚠ Reconciliação dos agentes dedicados falhou: {exc}")
+
+    try:
+        import threading
+
+        threading.Thread(target=_run, daemon=True).start()
+    except Exception:
+        pass
+
+
 def cmd_dashboard(args):
     """Start the web UI server, or (with --stop/--status) manage running ones."""
     # --status: report running dashboards and exit, no deps needed.
@@ -10618,6 +10644,7 @@ def cmd_dashboard(args):
     )
     if not skip_gateway:
         _autostart_gateway_if_needed()
+        _reconcile_client_agents_async()
 
     embedded_chat = args.tui or os.environ.get("MANGABA_DASHBOARD_TUI") == "1"
     start_server(

@@ -1847,10 +1847,15 @@ def client_profile_start(client_id: str):
     try:
         from mangaba_cli import client_profiles
 
+        from mangaba_cli import api_clients
+
         c = _client_or_404(client_id)
         client_profiles.provision(c)
         c = _client_or_404(client_id)  # recarrega com profile/api_port
-        return client_profiles.start(c)
+        r = client_profiles.start(c)
+        if r.get("running"):
+            api_clients.update_client(client_id, autostart=True)  # volta no boot
+        return r
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001
@@ -1861,9 +1866,11 @@ def client_profile_start(client_id: str):
 @app.post("/api/clients/{client_id}/profile/stop")
 def client_profile_stop(client_id: str):
     try:
-        from mangaba_cli import client_profiles
+        from mangaba_cli import api_clients, client_profiles
 
-        return client_profiles.stop(_client_or_404(client_id))
+        r = client_profiles.stop(_client_or_404(client_id))
+        api_clients.update_client(client_id, autostart=False)  # não volta no boot
+        return r
     except HTTPException:
         raise
     except Exception as exc:  # noqa: BLE001

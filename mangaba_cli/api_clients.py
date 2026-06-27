@@ -101,6 +101,7 @@ def _init(conn: sqlite3.Connection) -> None:
         ("rpm", "rpm INTEGER NOT NULL DEFAULT 0"),
         ("profile", "profile TEXT DEFAULT ''"),
         ("api_port", "api_port INTEGER NOT NULL DEFAULT 0"),
+        ("autostart", "autostart INTEGER NOT NULL DEFAULT 0"),
     ):
         if name not in cols:
             conn.execute(f"ALTER TABLE clients ADD COLUMN {ddl}")
@@ -118,6 +119,7 @@ def _gen_id(prefix: str) -> str:
 def _client_row(row: sqlite3.Row) -> Dict[str, Any]:
     d = dict(row)
     d["rag_enabled"] = bool(d.get("rag_enabled", 1))
+    d["autostart"] = bool(d.get("autostart", 0))
     return d
 
 
@@ -174,12 +176,12 @@ def get_client(client_id: str) -> Optional[Dict[str, Any]]:
 
 def update_client(client_id: str, **fields: Any) -> Optional[Dict[str, Any]]:
     allowed = {"name", "email", "status", "model", "persona", "rag_enabled",
-               "daily_token_limit", "plan", "rpm", "profile", "api_port"}
+               "daily_token_limit", "plan", "rpm", "profile", "api_port", "autostart"}
     sets, vals = [], []
     for k, v in fields.items():
         if k not in allowed:
             continue
-        if k == "rag_enabled":
+        if k in ("rag_enabled", "autostart"):
             v = 1 if v else 0
         elif k in ("daily_token_limit", "rpm", "api_port"):
             v = max(0, int(v or 0))
