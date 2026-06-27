@@ -168,6 +168,16 @@ Depois: `mangaba gateway restart`.
 Gerenciar clientes e chaves: aba **Clientes & API** no dashboard (criar,
 gerar/revogar chave — a chave aparece **uma vez** —, suspender, ver uso).
 
+**Planos e limites (Fase 2):** cada cliente tem um plano (free/pro/enterprise/
+custom) com **req/min** e **teto de tokens/dia**. Ao exceder → `429` com headers
+`x-ratelimit-*` e `Retry-After`.
+
+**Isolamento dedicado (Fase 3):** no card do cliente, **Iniciar agente
+dedicado** cria um *profile* próprio (`~/.mangaba/profiles/<id>/` com config,
+`.env`/credenciais, memória, RAG e persona separados) rodando como um gateway
+próprio numa porta dedicada. O roteador (8642) faz proxy automático para o
+backend do cliente. **Parar agente** derruba; excluir o cliente remove o profile.
+
 O cliente usa a chave `mk_live_…` como qualquer API OpenAI:
 ```
 curl http://SEU_HOST:8642/v1/chat/completions \

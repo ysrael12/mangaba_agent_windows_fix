@@ -1184,6 +1184,15 @@ class APIServerAdapter(BasePlatformAdapter):
 
         stream = _coerce_request_bool(body.get("stream"), default=False)
 
+        # ── Fase 3: isolamento por processo dedicado ──────────────────────
+        # Se o cliente tem um profile dedicado no ar, faz proxy da requisição
+        # para o backend dele (porta própria, config/creds/RAG separados) em
+        # vez de atender em processo compartilhado.
+        if tenant and tenant.get("profile") and tenant.get("api_port"):
+            return await self._proxy_to_backend(
+                request, body, int(tenant["api_port"]), tenant, rl_headers, stream,
+            )
+
         # Extract system message (becomes ephemeral system prompt layered ON TOP of core)
         system_prompt = None
         conversation_messages: List[Dict[str, str]] = []
@@ -2939,6 +2948,99 @@ class APIServerAdapter(BasePlatformAdapter):
             return result, usage
 
         return await loop.run_in_executor(None, _run)
+
+    # ------------------------------------------------------------------
+    # Proxy para backend dedicado do cliente (Fase 3)
+    # ------------------------------------------------------------------
+
+    async def _proxy_to_backend(
+        self,
+        request: "web.Request",
+        body: Dict[str, Any],
+        port: int,
+        tenant: Dict[str, Any],
+        rl_headers: Dict[str, str],
+        stream: bool,
+    ) -> "web.Response":
+        """Repassa /v1/chat/completions ao gateway dedicado do cliente.
+
+        O backend escuta só em 127.0.0.1 e roda como o profile do cliente
+        (config/creds/RAG/persona próprios). Não encaminhamos a chave mk_live_
+        — o backend é local e não tem clientes cadastrados, então aceita a
+        requisição. A medição por cliente é gravada aqui (processo roteador).
+        """
+        import aiohttp
+
+        url = f"http://127.0.0.1:{port}/v1/chat/completions"
+        # Não encaminhamos Authorization nem headers de sessão: o backend é
+        # local, sem API key, e o isolamento já é total (profile próprio).
+        # Esses headers exigiriam autenticação no backend e seriam rejeitados.
+        fwd_headers = {"Content-Type": "application/json"}
+
+        try:
+            session = aiohttp.ClientSession()
+        except Exception as e:
+            return web.json_response(
+                _openai_error(f"backend indisponível: {e}"), status=503, headers=rl_headers,
+            )
+
+        try:
+            if stream:
+                resp = await session.post(url, json=body, headers=fwd_headers)
+                if resp.status != 200:
+                    text = await resp.text()
+                    await session.close()
+                    return web.Response(status=resp.status, text=text,
+                                        content_type="application/json", headers=rl_headers)
+                out = web.StreamResponse(
+                    status=200,
+                    headers={**rl_headers, "Content-Type": "text/event-stream",
+                             "Cache-Control": "no-cache"},
+                )
+                await out.prepare(request)
+                try:
+                    async for chunk in resp.content.iter_any():
+                        await out.write(chunk)
+                    await out.write_eof()
+                finally:
+                    await session.close()
+                # Medição best-effort: streaming não expõe usage facilmente aqui.
+                return out
+
+            # Não-streaming: lê JSON, mede uso por cliente e devolve.
+            async with session:
+                async with session.post(url, json=body, headers=fwd_headers) as resp:
+                    data = await resp.json(content_type=None)
+                    status_code = resp.status
+            if status_code == 200 and isinstance(data, dict):
+                try:
+                    from mangaba_cli.usage_ledger import record_usage
+
+                    u = data.get("usage") or {}
+                    record_usage(
+                        input_tokens=u.get("prompt_tokens", 0),
+                        output_tokens=u.get("completion_tokens", 0),
+                        model=data.get("model", tenant.get("model", "")),
+                        provider="huggingface",
+                        platform="api_server",
+                        tenant_id=tenant["id"],
+                    )
+                except Exception:
+                    pass
+            return web.json_response(data, status=status_code, headers=rl_headers)
+        except aiohttp.ClientError as e:
+            try:
+                await session.close()
+            except Exception:
+                pass
+            return web.json_response(
+                _openai_error(
+                    f"Backend do cliente indisponível (porta {port}). "
+                    f"Inicie o agente dedicado no painel. Detalhe: {e}"
+                ),
+                status=503,
+                headers=rl_headers,
+            )
 
     # ------------------------------------------------------------------
     # /v1/runs — structured event streaming

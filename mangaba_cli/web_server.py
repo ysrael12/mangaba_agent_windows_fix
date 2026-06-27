@@ -1804,11 +1804,70 @@ def clients_update(client_id: str, body: ClientUpdate):
 @app.delete("/api/clients/{client_id}")
 def clients_delete(client_id: str):
     try:
-        from mangaba_cli import api_clients
+        from mangaba_cli import api_clients, client_profiles
 
+        c = api_clients.get_client(client_id)
+        if c and c.get("profile"):
+            try:
+                client_profiles.teardown(c, delete_files=True)
+            except Exception:
+                _log.warning("teardown do profile do cliente %s falhou", client_id)
         return {"ok": api_clients.delete_client(client_id)}
     except Exception as exc:  # noqa: BLE001
         _log.exception("DELETE /api/clients failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+# ── Isolamento por processo dedicado (Fase 3) ───────────────────────────────
+def _client_or_404(client_id: str):
+    from mangaba_cli import api_clients
+
+    c = api_clients.get_client(client_id)
+    if not c:
+        raise HTTPException(status_code=404, detail="cliente não encontrado")
+    return c
+
+
+@app.get("/api/clients/{client_id}/profile/status")
+def client_profile_status(client_id: str):
+    try:
+        from mangaba_cli import client_profiles
+
+        return client_profiles.status(_client_or_404(client_id))
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET profile/status failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/clients/{client_id}/profile/start")
+def client_profile_start(client_id: str):
+    """Provisiona (se preciso) e sobe o agente dedicado do cliente."""
+    try:
+        from mangaba_cli import client_profiles
+
+        c = _client_or_404(client_id)
+        client_profiles.provision(c)
+        c = _client_or_404(client_id)  # recarrega com profile/api_port
+        return client_profiles.start(c)
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST profile/start failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/clients/{client_id}/profile/stop")
+def client_profile_stop(client_id: str):
+    try:
+        from mangaba_cli import client_profiles
+
+        return client_profiles.stop(_client_or_404(client_id))
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST profile/stop failed")
         raise HTTPException(status_code=500, detail=str(exc))
 
 

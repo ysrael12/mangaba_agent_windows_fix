@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Toast } from "@/components/Toast";
 import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
-import type { ApiClient, ApiKey } from "@/lib/api";
+import type { ApiClient, ApiKey, ClientProfileStatus } from "@/lib/api";
 
 function fmtTokens(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -115,7 +115,44 @@ function ClientCard({
   const [keys, setKeys] = useState<ApiKey[] | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [newKey, setNewKey] = useState<string | null>(null);
+  const [iso, setIso] = useState<ClientProfileStatus | null>(null);
+  const [isoBusy, setIsoBusy] = useState(false);
   const { toast, showToast } = useToast();
+
+  const loadIso = useCallback(() => {
+    api.clientProfileStatus(client.id).then(setIso).catch(() => {});
+  }, [client.id]);
+
+  useEffect(() => {
+    loadIso();
+  }, [loadIso]);
+
+  const startIso = async () => {
+    setIsoBusy(true);
+    try {
+      const r = await api.clientProfileStart(client.id);
+      showToast(
+        r.running ? `Agente dedicado no ar (porta ${r.api_port}).` : `Falha: ${r.error || "timeout"}`,
+        r.running ? "success" : "error",
+      );
+      loadIso();
+    } catch (e) {
+      showToast(`Erro: ${(e as Error).message}`, "error");
+    } finally {
+      setIsoBusy(false);
+    }
+  };
+
+  const stopIso = async () => {
+    setIsoBusy(true);
+    try {
+      await api.clientProfileStop(client.id);
+      showToast("Agente dedicado parado.", "success");
+      loadIso();
+    } finally {
+      setIsoBusy(false);
+    }
+  };
 
   const loadKeys = useCallback(() => {
     api.listClientKeys(client.id).then((r) => setKeys(r.keys)).catch(() => setKeys([]));
@@ -222,6 +259,26 @@ function ClientCard({
             Persona: {client.persona}
           </p>
         ) : null}
+
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border px-3 py-2">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-medium">Isolamento dedicado:</span>
+            {iso?.healthy ? (
+              <Badge tone="secondary" className="text-[10px]">no ar · porta {iso.api_port}</Badge>
+            ) : iso?.provisioned ? (
+              <Badge tone="outline" className="text-[10px]">provisionado · parado</Badge>
+            ) : (
+              <Badge tone="outline" className="text-[10px]">compartilhado</Badge>
+            )}
+          </div>
+          {iso?.healthy ? (
+            <Button outlined size="sm" onClick={stopIso} disabled={isoBusy}>Parar agente</Button>
+          ) : (
+            <Button size="sm" onClick={startIso} disabled={isoBusy}>
+              {isoBusy ? "Subindo…" : "Iniciar agente dedicado"}
+            </Button>
+          )}
+        </div>
 
         {newKey && (
           <div className="rounded-md border border-primary/40 bg-primary/5 p-3 text-xs">

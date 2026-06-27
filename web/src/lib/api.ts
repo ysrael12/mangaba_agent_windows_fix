@@ -140,6 +140,15 @@ export const api = {
     }),
   revokeClientKey: (keyId: string) =>
     fetchJSON<{ ok: boolean }>(`/api/clients/keys/${keyId}`, { method: "DELETE" }),
+  clientProfileStatus: (id: string) =>
+    fetchJSON<ClientProfileStatus>(`/api/clients/${id}/profile/status`),
+  clientProfileStart: (id: string) =>
+    fetchJSON<{ running: boolean; api_port: number; error?: string }>(
+      `/api/clients/${id}/profile/start`,
+      { method: "POST" },
+    ),
+  clientProfileStop: (id: string) =>
+    fetchJSON<{ running: boolean }>(`/api/clients/${id}/profile/stop`, { method: "POST" }),
 
   // ── RAG (base de conhecimento mangaba.ia.br) ─────────────────────────────
   getRagStatus: () => fetchJSON<RagStatus>("/api/rag/status"),
@@ -855,6 +864,14 @@ export interface ApiClient {
   used_today?: number;
   turns_today?: number;
   limits?: { rpm: number; daily_token_limit: number };
+}
+
+export interface ClientProfileStatus {
+  profile: string;
+  api_port: number;
+  pid: number | null;
+  healthy: boolean;
+  provisioned: boolean;
 }
 
 export interface ApiKey {
