@@ -345,7 +345,7 @@ def _transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> A
     if not key:
         return {"erro": "Configure TRANSPARENCIA_API_KEY (chave grátis) no .env."}
     H = {**_HEADERS, "chave-api-dados": key}
-    anos_tentar = [ano] if (ano and ano <= datetime.now().year - 1) else [2024, 2023, 2022]
+    anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
     try:
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
@@ -381,7 +381,7 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
         return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
     H = {**_HEADERS, "chave-api-dados": key}
     # Se ano não especificado ou futuro, tenta anos recentes disponíveis
-    anos_tentar = [ano] if (ano and ano <= datetime.now().year - 1) else [2024, 2023, 2022]
+    anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
     try:
         emendas = []
         ano_usado = None
