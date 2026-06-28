@@ -41,6 +41,47 @@ def _norm_autor(autor: str) -> str:
     return (autor or "").strip().upper()
 
 
+def _resolver_autor(autor: str, ano: int, headers: Dict[str, Any]) -> str:
+    """Resolve o nome do autor de emendas tolerando erros de grafia do modelo.
+
+    A API do Portal faz match de substring EXATO em maiúsculas — um typo como
+    'RENNAN CALHEIROS' retorna zero. Estratégia: tenta o nome exato; se falhar,
+    busca pelo token mais distintivo (sobrenome) e escolhe, entre os autores
+    reais retornados, o mais parecido com o pedido (difflib). Retorna o nome
+    canônico a usar — ou o nome normalizado original se nada melhor for achado."""
+    import difflib
+
+    nome = _norm_autor(autor)
+    if not nome:
+        return nome
+    URL = "https://api.portaldatransparencia.gov.br/api-de-dados/emendas"
+    try:
+        r = httpx.get(URL, params={"pagina": 1, "ano": ano, "nomeAutor": nome},
+                      headers=headers, timeout=15)
+        if r.status_code == 200 and r.json():
+            return nome  # nome exato já funciona
+    except Exception:
+        return nome
+    # fallback: busca pelo token mais longo (sobrenome costuma ser distintivo)
+    tokens = sorted([t for t in nome.split() if len(t) >= 4], key=len, reverse=True)
+    for tok in tokens:
+        try:
+            r = httpx.get(URL, params={"pagina": 1, "ano": ano, "nomeAutor": tok},
+                          headers=headers, timeout=15)
+            if r.status_code != 200:
+                continue
+            candidatos = {e.get("nomeAutor", "") for e in r.json() if e.get("nomeAutor")}
+            if not candidatos:
+                continue
+            # escolhe o candidato mais parecido com o nome pedido
+            melhor = max(candidatos, key=lambda c: difflib.SequenceMatcher(None, nome, c).ratio())
+            if difflib.SequenceMatcher(None, nome, melhor).ratio() >= 0.6:
+                return melhor
+        except Exception:
+            continue
+    return nome
+
+
 # ── Funções de domínio (testáveis sem MCP) ──────────────────────────────────
 def buscar_deputados(nome: str = "", uf: str = "", partido: str = "", limite: int = 10) -> List[Dict[str, Any]]:
     p: Dict[str, Any] = {"ordem": "ASC", "ordenarPor": "nome", "itens": min(limite, 50)}
@@ -362,10 +403,11 @@ def _transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> A
     H = {**_HEADERS, "chave-api-dados": key}
     anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
     try:
+        autor_resolvido = _resolver_autor(autor, anos_tentar[0], H) if autor else ""
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
-            if autor:
-                params["nomeAutor"] = _norm_autor(autor)
+            if autor_resolvido:
+                params["nomeAutor"] = autor_resolvido
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=25)
             if r.status_code != 200:
@@ -398,12 +440,13 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
     # Se ano não especificado ou futuro, tenta anos recentes disponíveis
     anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
     try:
+        autor_resolvido = _resolver_autor(autor, anos_tentar[0], H) if autor else ""
         emendas = []
         ano_usado = None
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
-            if autor:
-                params["nomeAutor"] = _norm_autor(autor)
+            if autor_resolvido:
+                params["nomeAutor"] = autor_resolvido
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=25)
             if r.status_code != 200:
@@ -522,15 +565,16 @@ def _emendas_beneficiarios_raw(autor: str = "", ano: int = 0):
 
     key = os.getenv("TRANSPARENCIA_API_KEY", "")
     if not key:
-        return "Configure TRANSPARENCIA_API_KEY no .env.", None
+        return "Configure TRANSPARENCIA_API_KEY no .env.", None, autor
     H = {**_HEADERS, "chave-api-dados": key}
     anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
     try:
+        autor_resolvido = _resolver_autor(autor, anos_tentar[0], H) if autor else ""
         emendas, ano_usado = [], None
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
-            if autor:
-                params["nomeAutor"] = _norm_autor(autor)
+            if autor_resolvido:
+                params["nomeAutor"] = autor_resolvido
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=20)
             emendas = r.json() if r.status_code == 200 else []
@@ -538,7 +582,7 @@ def _emendas_beneficiarios_raw(autor: str = "", ano: int = 0):
                 ano_usado = a
                 break
         if not emendas:
-            return f"Nenhuma emenda encontrada para '{autor}' nos anos 2022-2026.", None
+            return f"Nenhuma emenda encontrada para '{autor}' nos anos 2022-2026.", None, autor_resolvido
 
         cnpj_cache: Dict[str, Dict] = {}
         resultados = []
@@ -603,9 +647,9 @@ def _emendas_beneficiarios_raw(autor: str = "", ano: int = 0):
                 pass
 
         lista = sorted(por_benef.values(), key=lambda x: -x["total_recebido_R$"])
-        return lista, ano_usado
+        return lista, ano_usado, (autor_resolvido or autor)
     except Exception as e:  # noqa: BLE001
-        return f"Erro ao consultar emendas: {e}", None
+        return f"Erro ao consultar emendas: {e}", None, autor
 
 
 def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> Any:
@@ -613,15 +657,15 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
     Cruza: emendas → documentos → itens de empenho → extrai CNPJ da proposta →
     consulta BrasilAPI (Receita Federal) para obter razão social, município e situação.
     Requer TRANSPARENCIA_API_KEY. BrasilAPI: pública, sem chave."""
-    lista, ano_usado = _emendas_beneficiarios_raw(autor, ano)
+    lista, ano_usado, autor_nome = _emendas_beneficiarios_raw(autor, ano)
     if isinstance(lista, str):  # erro/mensagem
         return lista
     if not lista:
-        return f"RESULTADO: 0 beneficiários encontrados para {autor} em {ano_usado}."
+        return f"RESULTADO: 0 beneficiários encontrados para {autor_nome} em {ano_usado}."
 
     # Resposta curta — modelo DEVE entregar estes dados ao usuário sem alteração
     linhas = [f"RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
-              f"Emendas de {autor} ({ano_usado}) — {len(lista)} entidades receberam verba:"]
+              f"Emendas de {autor_nome} ({ano_usado}) — {len(lista)} entidades receberam verba:"]
     for i, b in enumerate(lista[:15], 1):
         cnpj = b["cnpj"] if b["cnpj"] else f"CNES {b.get('cnes','?')}"
         linhas.append(f"{i}. {b['beneficiario']} | {cnpj} | R$ {b['total_recebido_R$']:,.2f}")
@@ -633,11 +677,11 @@ def _transparencia_emendas_x_sancoes(autor: str = "", ano: int = 0) -> Any:
     """CRUZAMENTO server-side: pega TODOS os beneficiários das emendas de um autor
     e verifica cada CNPJ no CEIS (sancionados). Garante cobertura 100% — não
     depende do modelo iterar. Retorna texto pré-formatado."""
-    lista, ano_usado = _emendas_beneficiarios_raw(autor, ano)
+    lista, ano_usado, autor_nome = _emendas_beneficiarios_raw(autor, ano)
     if isinstance(lista, str):
         return lista
     if not lista:
-        return f"RESULTADO: 0 beneficiários para {autor} em {ano_usado} — nada a cruzar."
+        return f"RESULTADO: 0 beneficiários para {autor_nome} em {ano_usado} — nada a cruzar."
 
     com_cnpj = [b for b in lista if b.get("cnpj")]
     sancionados = []
@@ -648,7 +692,7 @@ def _transparencia_emendas_x_sancoes(autor: str = "", ano: int = 0) -> Any:
             sancionados.append((b, res))
 
     linhas = ["RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
-              f"Cruzamento emendas × sanções (CEIS) — {autor} ({ano_usado}):",
+              f"Cruzamento emendas × sanções (CEIS) — {autor_nome} ({ano_usado}):",
               f"Beneficiários com CNPJ verificados: {len(com_cnpj)} de {len(lista)} "
               f"(demais são empenhos/CNES sem CNPJ direto)."]
     if not sancionados:
@@ -680,10 +724,11 @@ def _transparencia_emendas_multiperiodo(autor: str = "", anos: str = "") -> Any:
     lista_anos = [int(a.strip()) for a in anos.split(",") if a.strip().isdigit()] if anos else list(range(2022, ano_atual + 1))
     resultado: Dict[str, Any] = {}
     try:
+        autor_resolvido = _resolver_autor(autor, lista_anos[-1], H) if (autor and lista_anos) else ""
         for a in lista_anos:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
-            if autor:
-                params["nomeAutor"] = _norm_autor(autor)
+            if autor_resolvido:
+                params["nomeAutor"] = autor_resolvido
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=20)
             if r.status_code != 200:
