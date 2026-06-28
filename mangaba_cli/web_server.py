@@ -1705,6 +1705,39 @@ def rag_enable(enable: bool = True):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+@app.get("/api/traces")
+def get_traces(limit: int = 100, hours: int = 24):
+    """Observabilidade: traces recentes + resumo (latência, sucesso, tokens, nota)."""
+    try:
+        from mangaba_cli import trace_ledger
+        from mangaba_cli.config import load_config
+
+        obs = (load_config().get("observability") or {})
+        return {
+            "traces": trace_ledger.recent(limit),
+            "stats": trace_ledger.stats(hours),
+            "eval_enabled": bool(obs.get("eval")),
+        }
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/traces failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.put("/api/observability")
+def set_observability(eval: bool = False):
+    """Liga/desliga a avaliação de qualidade (LLM-juiz) por turno."""
+    try:
+        from mangaba_cli.config import load_config, save_config
+
+        cfg = load_config()
+        cfg.setdefault("observability", {})["eval"] = bool(eval)
+        save_config(cfg)
+        return {"ok": True, "eval": bool(eval)}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("PUT /api/observability failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 @app.get("/api/usage")
 def get_usage(days: int = 14):
     """Uso de tokens (hoje + série recente) e estado do teto diário."""

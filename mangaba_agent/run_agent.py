@@ -4077,10 +4077,14 @@ class AIAgent:
         except Exception:
             pass
 
+        import time as _t
+
+        _t0 = _t.time()
         result = run_conversation(
             self, user_message, system_message, conversation_history,
             task_id, stream_callback, persist_user_message,
         )
+        _latency_ms = int((_t.time() - _t0) * 1000)
 
         try:
             from mangaba_cli.usage_ledger import record_usage
@@ -4094,6 +4098,40 @@ class AIAgent:
                     platform=getattr(self, "platform", "") or "",
                     tenant_id=getattr(self, "_api_tenant_id", "") or "",
                 )
+        except Exception:
+            pass
+
+        # Observabilidade: registra um trace do turno (+ eval em background).
+        try:
+            if isinstance(result, dict):
+                from mangaba_cli import trace_ledger
+
+                _reply = result.get("final_response") or ""
+                _status = ("ok" if result.get("completed")
+                           else "partial" if result.get("partial") else "failed")
+                _user_txt = user_message if isinstance(user_message, str) else ""
+                _tid = trace_ledger.record_trace(
+                    platform=getattr(self, "platform", "") or "",
+                    model=result.get("model", getattr(self, "model", "")),
+                    provider=result.get("provider", getattr(self, "provider", "")),
+                    tenant=getattr(self, "_api_tenant_id", "") or "",
+                    input_tokens=result.get("input_tokens", 0),
+                    output_tokens=result.get("output_tokens", 0),
+                    latency_ms=_latency_ms,
+                    tool_calls=max(int(result.get("api_calls", 1) or 1) - 1, 0),
+                    status=_status,
+                    user_preview=_user_txt,
+                    reply_preview=_reply,
+                )
+                if _tid and _reply and trace_ledger.eval_enabled():
+                    import threading as _th
+
+                    def _judge() -> None:
+                        v = trace_ledger.judge_quality(_user_txt, _reply)
+                        if v:
+                            trace_ledger.set_score(_tid, v["score"], v.get("reason", ""))
+
+                    _th.Thread(target=_judge, daemon=True).start()
         except Exception:
             pass
 

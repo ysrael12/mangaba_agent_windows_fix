@@ -84,6 +84,7 @@ const KanbanPage = lazy(() => import("@/pages/KanbanPage"));
 const MemoryPage = lazy(() => import("@/pages/MemoryPage"));
 const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
 const CreateAgentPage = lazy(() => import("@/pages/CreateAgentPage"));
+const ObservabilityPage = lazy(() => import("@/pages/ObservabilityPage"));
 const ExamplesPage = lazy(() => import("@/pages/ExamplesPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
@@ -138,6 +139,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/memory": MemoryPage,
   "/clients": ClientsPage,
   "/criar": CreateAgentPage,
+  "/observability": ObservabilityPage,
   "/sessions/global": GlobalSessionsPage,
   "/routing": RoutingPage,
   "/profiles": ProfilesPage,
@@ -183,6 +185,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
 
   // 6) Acompanhar
   { path: "/analytics", labelKey: "analytics", label: "Análise", icon: BarChart3, section: "Acompanhar" },
+  { path: "/observability", label: "Observabilidade", icon: Activity, section: "Acompanhar" },
   { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
 
   // 7) Ajustar

@@ -163,6 +163,15 @@ export const api = {
       { method: "POST" },
     ),
 
+  // ── Observabilidade (traces + eval) ──────────────────────────────────────
+  getTraces: (limit = 100, hours = 24) =>
+    fetchJSON<TracesResponse>(`/api/traces?limit=${limit}&hours=${hours}`),
+  setObservabilityEval: (enabled: boolean) =>
+    fetchJSON<{ ok: boolean; eval: boolean }>(
+      `/api/observability?eval=${enabled ? "true" : "false"}`,
+      { method: "PUT" },
+    ),
+
   // ── Uso & custo ──────────────────────────────────────────────────────────
   getUsage: (days = 14) => fetchJSON<UsageResponse>(`/api/usage?days=${days}`),
   setUsageBudget: (daily_token_limit: number, budget_mode: "warn" | "block") =>
@@ -919,6 +928,38 @@ export interface MemoryResponse {
   provider: string;
   memory_enabled: boolean;
   user_profile_enabled: boolean;
+}
+
+export interface TraceRow {
+  id: number;
+  ts: number;
+  platform: string;
+  model: string;
+  provider: string;
+  tenant: string;
+  input_tokens: number;
+  output_tokens: number;
+  latency_ms: number;
+  tool_calls: number;
+  status: "ok" | "partial" | "failed";
+  user_preview: string;
+  reply_preview: string;
+  score: number | null;
+  score_reason: string | null;
+}
+
+export interface TracesResponse {
+  traces: TraceRow[];
+  stats: {
+    turns: number;
+    success_rate: number;
+    avg_latency_ms: number;
+    total_tokens: number;
+    avg_score: number | null;
+    scored: number;
+    hours: number;
+  };
+  eval_enabled: boolean;
 }
 
 export interface AgentTemplate {
