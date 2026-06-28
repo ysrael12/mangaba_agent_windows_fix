@@ -27,7 +27,7 @@ export function getRole(): UserRole {
   } catch {
     // SSR / privacy mode
   }
-  return "dev"; // padrão = acesso total (não esconde nada sem o usuário pedir)
+  return "operador"; // padrão = painel enxuto (5 abas); usuário sobe p/ gestor/dev quando precisa
 }
 
 export function setRole(role: UserRole): void {
