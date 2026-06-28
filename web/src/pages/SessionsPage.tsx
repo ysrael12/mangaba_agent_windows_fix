@@ -598,10 +598,12 @@ export default function SessionsPage() {
     }
   }
 
-  // When searching, filter sessions to those with FTS matches;
-  // when not searching, show all sessions
+  // Durante a busca, renderiza as sessões vindas dos PRÓPRIOS resultados FTS
+  // (cobertura global, não só a página atual). Sem busca, mostra a página.
   const filtered = searchResults
-    ? sessions.filter((s) => snippetMap.has(s.id))
+    ? searchResults
+        .map((r) => r.session)
+        .filter((s): s is SessionInfo => Boolean(s))
     : sessions;
 
   const platformEntries = status

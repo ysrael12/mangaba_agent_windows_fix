@@ -1050,6 +1050,44 @@ async def search_sessions(q: str = "", limit: int = 20):
                         "model": m.get("model"),
                         "session_started": m.get("session_started"),
                     }
+
+            # Enriquece cada match com o SessionInfo completo (título, contadores,
+            # last_active…) para a tela renderizar a linha direto dos resultados,
+            # sem depender da página atual. Indexa a lista rica por id.
+            now = time.time()
+            rich_by_id: dict = {}
+            try:
+                total = db.session_count()
+                rich = db.list_sessions_rich(limit=min(total, 5000), offset=0)
+                for s in rich:
+                    s["is_active"] = (
+                        s.get("ended_at") is None
+                        and (now - s.get("last_active", s.get("started_at", 0))) < 300
+                    )
+                    rich_by_id[s["id"]] = s
+            except Exception:
+                _log.debug("search: list_sessions_rich enrichment failed", exc_info=True)
+
+            for sid, r in seen.items():
+                info = rich_by_id.get(sid)
+                if info is None:
+                    # Fallback mínimo quando a sessão não está na lista rica
+                    # (ex.: sessão-filha/compressão projetada para outro id).
+                    info = {
+                        "id": sid,
+                        "source": r.get("source"),
+                        "model": r.get("model"),
+                        "title": None,
+                        "started_at": r.get("session_started") or 0,
+                        "ended_at": None,
+                        "last_active": r.get("session_started") or 0,
+                        "is_active": False,
+                        "message_count": 0,
+                        "tool_call_count": 0,
+                        "input_tokens": 0,
+                        "output_tokens": 0,
+                    }
+                r["session"] = info
             return {"results": list(seen.values())}
         finally:
             db.close()

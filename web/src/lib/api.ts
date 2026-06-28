@@ -786,6 +786,7 @@ export interface SessionSearchResult {
   source: string | null;
   model: string | null;
   session_started: number | null;
+  session?: SessionInfo;
 }
 
 export interface SessionSearchResponse {
