@@ -16,7 +16,7 @@ import {
 import spinners from "unicode-animations";
 import { H2 } from "@/components/NouiTypography";
 import { api } from "@/lib/api";
-import type { ProfileInfo } from "@/lib/api";
+import type { ProfileInfo, AgentTemplate } from "@/lib/api";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { useToast } from "@/hooks/useToast";
 import { useConfirmDelete } from "@/hooks/useConfirmDelete";
@@ -198,6 +198,10 @@ export default function ProfilesPage() {
   const [editingModelFor, setEditingModelFor] = useState<string | null>(null);
   const [modelText, setModelText] = useState("");
   const [modelSaving, setModelSaving] = useState(false);
+
+  // Catálogo de agentes verticais prontos (templates).
+  const [templates, setTemplates] = useState<AgentTemplate[]>([]);
+  const [installing, setInstalling] = useState<string | null>(null);
   // Tracks the latest SOUL request so out-of-order responses don't overwrite
   // newer state when the user switches profiles or closes the editor.
   const activeSoulRequest = useRef<string | null>(null);
@@ -242,6 +246,23 @@ export default function ProfilesPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    api.getAgentTemplates().then((r) => setTemplates(r.templates)).catch(() => {});
+  }, []);
+
+  const installTemplate = async (tpl: AgentTemplate) => {
+    setInstalling(tpl.id);
+    try {
+      const r = await api.installAgentTemplate(tpl.id);
+      showToast(`Agente "${r.name}" instalado.`, "success");
+      load();
+    } catch (e) {
+      showToast(`${t.status.error}: ${e}`, "error");
+    } finally {
+      setInstalling(null);
+    }
+  };
 
   const handleCreate = async () => {
     const name = newName.trim();
@@ -397,6 +418,52 @@ export default function ProfilesPage() {
   return (
     <div className="flex flex-col gap-6">
       <Toast toast={toast} />
+
+      {templates.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="mb-1 text-sm font-semibold text-foreground">
+              Comece com um agente pronto
+            </div>
+            <p className="mb-3 text-xs text-muted-foreground">
+              Agentes verticais já configurados (persona + base de conhecimento). Instale em 1 clique — vira um perfil que você pode ajustar.
+            </p>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {templates.map((tpl) => (
+                <div
+                  key={tpl.id}
+                  className="flex flex-col gap-2 rounded-lg border border-border bg-background p-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl" aria-hidden>
+                      {tpl.emoji}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium text-foreground">
+                        {tpl.label}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                        {tpl.sector}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="line-clamp-2 text-xs text-muted-foreground">
+                    {tpl.description}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-auto"
+                    disabled={installing === tpl.id}
+                    onClick={() => installTemplate(tpl)}
+                  >
+                    {installing === tpl.id ? "Instalando…" : "Instalar"}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <DeleteConfirmDialog
         open={profileDelete.isOpen}

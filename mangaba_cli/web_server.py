@@ -4109,6 +4109,87 @@ async def set_profile_model(name: str, body: ProfileModelUpdate):
     return {"ok": True, "model": body.model.strip()}
 
 
+# ── Agentes verticais prontos (templates) ───────────────────────────────────
+class TemplateInstall(BaseModel):
+    name: str = ""  # nome do profile (vazio = usa o id do template)
+
+
+@app.get("/api/agent-templates")
+async def agent_templates_list():
+    from mangaba_cli import agent_templates
+
+    return {"templates": agent_templates.list_templates()}
+
+
+@app.post("/api/agent-templates/{template_id}/install")
+async def agent_template_install(template_id: str, body: TemplateInstall):
+    """Cria um profile pré-configurado a partir de um template de setor."""
+    import yaml
+
+    from mangaba_cli import agent_templates
+    from mangaba_cli import profiles as profiles_mod
+    from mangaba_agent.mangaba_constants import get_mangaba_home
+
+    tpl = agent_templates.get_template(template_id)
+    if not tpl:
+        raise HTTPException(status_code=404, detail="template não encontrado")
+
+    name = (body.name or template_id).strip()
+    try:
+        profiles_mod.validate_profile_name(name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if profiles_mod.profile_exists(name):
+        raise HTTPException(status_code=400, detail=f"Já existe um perfil '{name}'.")
+
+    try:
+        # Clona config/.env do profile ativo → herda credenciais e provider.
+        path = profiles_mod.create_profile(
+            name=name, clone_from="default", clone_config=True, no_alias=True
+        )
+        pdir = profiles_mod.get_profile_dir(name)
+
+        # Persona → SOUL.md
+        (pdir / "SOUL.md").write_text((tpl.get("persona") or "") + "\n", encoding="utf-8")
+
+        # config.yaml: modelo (se o template definir) + RAG
+        cfg_path = pdir / "config.yaml"
+        cfg = {}
+        try:
+            cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+        except Exception:
+            cfg = {}
+        if tpl.get("model"):
+            m = cfg.get("model")
+            m = m if isinstance(m, dict) else {}
+            m["default"] = tpl["model"]
+            m["name"] = tpl["model"]
+            cfg["model"] = m
+        cfg.setdefault("memory", {})["provider"] = "mangaba_rag" if tpl.get("rag") else ""
+        cfg_path.write_text(yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False), encoding="utf-8")
+
+        # Copia o índice RAG do profile ativo, se houver.
+        if tpl.get("rag"):
+            src_rag = get_mangaba_home() / "rag"
+            dst_rag = pdir / "rag"
+            if src_rag.is_dir() and not dst_rag.exists():
+                import shutil
+
+                try:
+                    shutil.copytree(src_rag, dst_rag)
+                except Exception:
+                    pass
+
+        if not profiles_mod.check_alias_collision(name):
+            profiles_mod.create_wrapper_script(name)
+    except (ValueError, FileExistsError, FileNotFoundError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:  # noqa: BLE001
+        _log.exception("install template %s failed", template_id)
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"ok": True, "name": name, "path": str(path)}
+
+
 # ---------------------------------------------------------------------------
 # Skills & Tools endpoints
 # ---------------------------------------------------------------------------

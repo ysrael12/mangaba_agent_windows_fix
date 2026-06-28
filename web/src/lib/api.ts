@@ -274,6 +274,17 @@ export const api = {
         body: JSON.stringify({ content }),
       },
     ),
+  getAgentTemplates: () =>
+    fetchJSON<{ templates: AgentTemplate[] }>("/api/agent-templates"),
+  installAgentTemplate: (id: string, name?: string) =>
+    fetchJSON<{ ok: boolean; name: string }>(
+      `/api/agent-templates/${encodeURIComponent(id)}/install`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name ?? "" }),
+      },
+    ),
   getProfileModel: (name: string) =>
     fetchJSON<{ model: string; provider: string }>(
       `/api/profiles/${encodeURIComponent(name)}/model`,
@@ -860,6 +871,16 @@ export interface MemoryResponse {
   provider: string;
   memory_enabled: boolean;
   user_profile_enabled: boolean;
+}
+
+export interface AgentTemplate {
+  id: string;
+  label: string;
+  emoji: string;
+  sector: string;
+  description: string;
+  rag: boolean;
+  model: string;
 }
 
 export interface ApiClient {
