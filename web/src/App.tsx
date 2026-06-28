@@ -68,6 +68,7 @@ import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { RateLimitBanner } from "@/components/RateLimitBanner";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
+import { RouteGuard } from "@/components/RouteGuard";
 import { canSee, useUserRole, type UserRole } from "@/lib/userRole";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
 import { useSystemActions } from "@/contexts/useSystemActions";
@@ -198,6 +199,12 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/config", labelKey: "config", label: "Configuração", icon: Settings, section: "Ajustar", minRole: "dev" },
 ];
 
+// path → perfil mínimo, derivado do nav. Usado pelo RouteGuard para barrar
+// acesso por URL a rotas fora do perfil ativo (consistência de UX).
+const MIN_ROLE_BY_PATH: Record<string, UserRole> = Object.fromEntries(
+  BUILTIN_NAV_REST.filter((n) => n.minRole).map((n) => [n.path, n.minRole as UserRole]),
+);
+
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   Activity,
   BarChart3,
@@ -316,15 +323,20 @@ function buildRoutes(
       // Páginas full-height (chat/docs) não podem ser embrulhadas (quebra o
       // layout flex). As demais ganham uma entrada suave de conteúdo.
       const fullHeight = path === "/chat" || path === "/docs";
+      const minRole = MIN_ROLE_BY_PATH[path];
       routes.push({
         key: `builtin:${path}`,
         path,
-        element: fullHeight ? (
-          <Component />
-        ) : (
-          <Reveal y={10}>
-            <Component />
-          </Reveal>
+        element: (
+          <RouteGuard minRole={minRole}>
+            {fullHeight ? (
+              <Component />
+            ) : (
+              <Reveal y={10}>
+                <Component />
+              </Reveal>
+            )}
+          </RouteGuard>
         ),
       });
     }
