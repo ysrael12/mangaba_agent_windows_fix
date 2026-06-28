@@ -83,6 +83,7 @@ const FleetPage = lazy(() => import("@/pages/FleetPage"));
 const KanbanPage = lazy(() => import("@/pages/KanbanPage"));
 const MemoryPage = lazy(() => import("@/pages/MemoryPage"));
 const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
+const CreateAgentPage = lazy(() => import("@/pages/CreateAgentPage"));
 const ExamplesPage = lazy(() => import("@/pages/ExamplesPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
@@ -136,6 +137,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/kanban": KanbanPage,
   "/memory": MemoryPage,
   "/clients": ClientsPage,
+  "/criar": CreateAgentPage,
   "/sessions/global": GlobalSessionsPage,
   "/routing": RoutingPage,
   "/profiles": ProfilesPage,
@@ -151,6 +153,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
 const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/home", label: "Início", icon: Activity },
   { path: "/setup", label: "Começar", icon: Rocket },
+  { path: "/criar", label: "Criar agente", icon: Sparkles },
 
   // 1) Aprender
   { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },

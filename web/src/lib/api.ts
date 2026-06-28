@@ -276,6 +276,32 @@ export const api = {
     ),
   getAgentTemplates: () =>
     fetchJSON<{ templates: AgentTemplate[] }>("/api/agent-templates"),
+  getAgentTemplate: (id: string) =>
+    fetchJSON<AgentTemplate & { persona: string }>(
+      `/api/agent-templates/${encodeURIComponent(id)}`,
+    ),
+  validateChannel: (platform: string, token: string) =>
+    fetchJSON<{ ok: boolean; name?: string; username?: string; error?: string }>(
+      `/api/channels/${platform}/validate`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      },
+    ),
+  connectChannel: (platform: string, token: string) =>
+    fetchJSON<{ ok: boolean; name?: string; username?: string }>(
+      `/api/channels/${platform}/connect`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      },
+    ),
+  getChannelsStatus: () =>
+    fetchJSON<{ channels: { platform: string; connected: boolean; valid?: boolean; name?: string; username?: string }[] }>(
+      "/api/channels/status",
+    ),
   installAgentTemplate: (id: string, name?: string) =>
     fetchJSON<{ ok: boolean; name: string }>(
       `/api/agent-templates/${encodeURIComponent(id)}/install`,

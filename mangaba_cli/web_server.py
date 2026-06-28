@@ -4121,6 +4121,103 @@ async def agent_templates_list():
     return {"templates": agent_templates.list_templates()}
 
 
+@app.get("/api/agent-templates/{template_id}")
+async def agent_template_get(template_id: str):
+    from mangaba_cli import agent_templates
+
+    tpl = agent_templates.get_template(template_id)
+    if not tpl:
+        raise HTTPException(status_code=404, detail="template não encontrado")
+    return tpl
+
+
+# ── Conexão de canais com validação ao vivo (usabilidade) ───────────────────
+class ChannelToken(BaseModel):
+    token: str
+
+
+_CHANNEL_ENV = {
+    "telegram": "TELEGRAM_BOT_TOKEN",
+    "discord": "DISCORD_BOT_TOKEN",
+}
+
+
+def _validate_channel_token(platform: str, token: str) -> Dict[str, Any]:
+    """Confere o token chamando a API do provedor. Retorna {ok, name, ...}."""
+    import httpx
+
+    token = (token or "").strip()
+    if not token:
+        return {"ok": False, "error": "Token vazio."}
+    try:
+        if platform == "telegram":
+            r = httpx.get(f"https://api.telegram.org/bot{token}/getMe", timeout=12)
+            d = r.json()
+            if r.status_code == 200 and d.get("ok"):
+                b = d["result"]
+                return {"ok": True, "name": b.get("first_name", ""),
+                        "username": b.get("username", "")}
+            return {"ok": False, "error": "Token do Telegram inválido."}
+        if platform == "discord":
+            r = httpx.get(
+                "https://discord.com/api/v10/users/@me",
+                headers={"Authorization": f"Bot {token}"},
+                timeout=12,
+            )
+            if r.status_code == 200:
+                b = r.json()
+                uname = b.get("username", "")
+                disc = b.get("discriminator", "0")
+                return {"ok": True, "name": uname,
+                        "username": uname if disc in ("0", "", None) else f"{uname}#{disc}"}
+            return {"ok": False, "error": "Token do Discord inválido."}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": f"Falha ao validar: {e}"}
+    return {"ok": False, "error": "Canal não suportado."}
+
+
+@app.post("/api/channels/{platform}/validate")
+async def channel_validate(platform: str, body: ChannelToken):
+    if platform not in _CHANNEL_ENV:
+        raise HTTPException(status_code=400, detail="canal não suportado")
+    return _validate_channel_token(platform, body.token)
+
+
+@app.post("/api/channels/{platform}/connect")
+async def channel_connect(platform: str, body: ChannelToken):
+    """Valida, salva o token no .env e reinicia o gateway."""
+    if platform not in _CHANNEL_ENV:
+        raise HTTPException(status_code=400, detail="canal não suportado")
+    res = _validate_channel_token(platform, body.token)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Token inválido."))
+    try:
+        save_env_value(_CHANNEL_ENV[platform], body.token.strip())
+        _spawn_mangaba_action(["gateway", "restart"], "gateway-restart")
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("channel connect failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"ok": True, **res}
+
+
+@app.get("/api/channels/status")
+async def channels_status():
+    """Para cada canal: se há token e (se houver) o nome do bot."""
+    import os as _os
+
+    out = []
+    for plat, env_key in _CHANNEL_ENV.items():
+        tok = _os.getenv(env_key, "")
+        info: Dict[str, Any] = {"platform": plat, "connected": bool(tok)}
+        if tok:
+            v = _validate_channel_token(plat, tok)
+            info["valid"] = bool(v.get("ok"))
+            info["name"] = v.get("name", "")
+            info["username"] = v.get("username", "")
+        out.append(info)
+    return {"channels": out}
+
+
 @app.post("/api/agent-templates/{template_id}/install")
 async def agent_template_install(template_id: str, body: TemplateInstall):
     """Cria um profile pré-configurado a partir de um template de setor."""
