@@ -335,6 +335,34 @@ def _transparencia_ceis(nome_ou_cnpj: str = "", limite: int = 10) -> Any:
         return {"erro": str(e)}
 
 
+def _transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> Any:
+    """EMENDAS PARLAMENTARES (destino de verba: município/função + valores).
+    DIFERENTE dos gastos da cota (CEAP). Requer TRANSPARENCIA_API_KEY."""
+    import os
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key:
+        return {"erro": "Configure TRANSPARENCIA_API_KEY (chave grátis) no .env."}
+    try:
+        params: Dict[str, Any] = {"pagina": 1}
+        if autor:
+            params["nomeAutor"] = autor
+        if ano:
+            params["ano"] = ano
+        r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                      params=params, headers={**_HEADERS, "chave-api-dados": key}, timeout=25)
+        if r.status_code != 200:
+            return {"erro": f"HTTP {r.status_code}: {r.text[:120]}"}
+        d = r.json()[:limite]
+        return [{"autor": x.get("nomeAutor"), "ano": x.get("ano"),
+                 "destino": x.get("localidadeDoGasto"), "funcao": x.get("funcao"),
+                 "subfuncao": x.get("subfuncao"),
+                 "valor_empenhado": x.get("valorEmpenhado"),
+                 "valor_pago": x.get("valorPago")} for x in d]
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
 # ── Registro MCP ────────────────────────────────────────────────────────────
 def _build_server():
     from mcp.server.fastmcp import FastMCP
@@ -417,9 +445,16 @@ def _build_server():
         return _tse_datasets(termo, limite)
 
     @mcp.tool()
-    def _transparencia_ceis(nome_ou_cnpj: str = "", limite: int = 10) -> "Any":
+    def transparencia_sancoes(nome_ou_cnpj: str = "", limite: int = 10) -> "Any":
         """Empresas/pessoas sancionadas (CEIS) no Portal da Transparência. Requer TRANSPARENCIA_API_KEY."""
         return _transparencia_ceis(nome_ou_cnpj, limite)
+
+    @mcp.tool()
+    def transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> "Any":
+        """EMENDAS PARLAMENTARES por autor: destino da verba (município/UF), função e
+        valores (empenhado/pago). IMPORTANTE: emendas são DIFERENTES dos gastos da cota
+        (CEAP) — use ESTA para 'emendas', não o dossiê. Requer TRANSPARENCIA_API_KEY."""
+        return _transparencia_emendas(autor, ano, limite)
 
     return mcp
 
