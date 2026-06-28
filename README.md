@@ -137,6 +137,47 @@ mangaba doctor       # Diagnosticar problemas
 
 ---
 
+## Dashboard (painel web)
+
+O jeito mais simples de operar tudo — criar agentes, conversar, acompanhar
+sessões e métricas — é pelo **dashboard web**.
+
+```bash
+mangaba dashboard          # abre o painel no navegador
+mangaba dashboard --no-open  # sobe sem abrir o navegador (ex.: em servidor)
+```
+
+O dashboard organiza as abas por **perfil de usuário** — você escolhe o seu no
+seletor da sidebar e o menu mostra só o que importa para aquele papel. A escolha
+fica salva no navegador.
+
+### Os 3 perfis
+
+| Perfil | Para quem | O que vê | Abas |
+|--------|-----------|----------|------|
+| 👤 **Operador** | usa e acompanha o bot no dia a dia | Início · **Chat** · Sessões · Análise · Exemplos | 5 |
+| 🧑‍💼 **Gestor** | monta agentes, canais e automações | + Criar agente · Perfis · Roteamento · Frota · Agentes no Teams · Agendamentos · Kanban | 12 |
+| 🛠️ **Dev / Admin** | infraestrutura e sistema | + Modelos · Chaves · Habilidades · Plugins · Memória · Clientes & API · Observabilidade · Logs · Configuração · … | 24 |
+
+Os perfis são **hierárquicos** (Gestor inclui Operador; Dev inclui tudo) e o
+padrão é **Operador** — o painel abre enxuto. Para configurar a IA ou ver logs,
+suba para **Dev** no seletor.
+
+### Fluxo típico no dashboard
+
+1. **Criar agente** (perfil Gestor) → escolha um dos modelos prontos por setor
+   (cada um já vem com nome, saudação e regras — ex.: *Helena* na clínica,
+   *Lícia* em licitações) e instale em 1 clique.
+2. **Chat** (perfil Operador) → converse com o agente direto no painel.
+3. **Sessões** → acompanhe as conversas vindas do Telegram/Discord/WhatsApp.
+4. **Análise** → métricas de uso, custo e desempenho.
+
+> 💡 Quando algum limite de requisições é atingido (provedor do modelo ou uma
+> API pública), um **aviso aparece no topo** do dashboard — você sabe na hora,
+> sem caçar no log.
+
+---
+
 ## Configuração pelos Canais (Telegram, Discord…)
 
 Você configura o agente **sem voltar ao terminal** — direto pelo chat. Ative uma vez no `~/.mangaba/config.yaml`:
