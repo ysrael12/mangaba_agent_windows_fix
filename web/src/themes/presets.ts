@@ -68,40 +68,40 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 export const defaultTheme: DashboardTheme = {
   name: "default",
   label: "Mangaba Noite",
-  description: "Modo escuro — preto puro com texto branco",
+  description: "Modo escuro — grafite quente com laranja da marca",
   palette: {
-    background: { hex: "#000000", alpha: 1 },
-    midground:  { hex: "#ffffff", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow:   "rgba(255, 255, 255, 0.06)",
+    background: { hex: "#1C1916", alpha: 1 },
+    midground:  { hex: "#F3ECE0", alpha: 1 },
+    foreground: { hex: "#F3ECE0", alpha: 0 },
+    warmGlow:   "rgba(245, 132, 31, 0.16)",
     noiseOpacity: 0.5,
   },
   typography: DEFAULT_TYPOGRAPHY,
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    primary:           "#ffffff",
-    primaryForeground: "#000000",
+    primary:           "#F5841F", // laranja manga
+    primaryForeground: "#241A12",
 
-    card:              "#111111",
-    cardForeground:    "#ffffff",
-    popover:           "#0a0a0a",
-    popoverForeground: "#ffffff",
+    card:              "#262220",
+    cardForeground:    "#F3ECE0",
+    popover:           "#211D1A",
+    popoverForeground: "#F3ECE0",
 
-    secondary:          "#1a1a1a",
-    secondaryForeground:"#ffffff",
-    muted:              "#1a1a1a",
-    mutedForeground:    "#a0a0a0",
+    secondary:          "#2C2825",
+    secondaryForeground:"#F3ECE0",
+    muted:              "#2C2825",
+    mutedForeground:    "#A89F92",
 
-    accent:            "#222222",
-    accentForeground:  "#ffffff",
+    accent:            "#332E29",
+    accentForeground:  "#F5A24B",
 
-    border: "#2a2a2a",
-    input:  "#2a2a2a",
-    ring:   "#ffffff",
+    border: "#3A332E",
+    input:  "#3A332E",
+    ring:   "#F5841F",
 
-    success:              "#ffffff",
-    warning:              "#cccccc",
-    destructive:          "#ff3333",
+    success:              "#5BB535", // verde folha (mais claro p/ fundo escuro)
+    warning:              "#E0962B",
+    destructive:          "#E5544A",
     destructiveForeground:"#ffffff",
   },
 };
@@ -122,40 +122,41 @@ export const defaultTheme: DashboardTheme = {
 export const mangabaLightTheme: DashboardTheme = {
   name: "mangaba-light",
   label: "Mangaba Dia",
-  description: "Modo claro — branco puro com texto preto",
+  description: "Modo claro — creme quente com laranja da marca",
   palette: {
-    background: { hex: "#ffffff", alpha: 1 },
-    midground:  { hex: "#000000", alpha: 1 },
-    foreground: { hex: "#000000", alpha: 0 },
-    warmGlow:   "rgba(0, 0, 0, 0.04)",
-    noiseOpacity: 0.2,
+    // Fundo creme + texto grafite quente (cores da logo mangaba.ai).
+    background: { hex: "#FBF4E6", alpha: 1 },
+    midground:  { hex: "#2E2C2A", alpha: 1 },
+    foreground: { hex: "#2E2C2A", alpha: 0 },
+    warmGlow:   "rgba(245, 132, 31, 0.10)",
+    noiseOpacity: 0.18,
   },
   typography: DEFAULT_TYPOGRAPHY,
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    primary:           "#000000",
-    primaryForeground: "#ffffff",
+    primary:           "#F5841F", // laranja manga / ".ai"
+    primaryForeground: "#2A2018", // grafite sobre laranja (legível)
 
-    card:              "#f5f5f5",
-    cardForeground:    "#000000",
-    popover:           "#fafafa",
-    popoverForeground: "#000000",
+    card:              "#FFFFFF",
+    cardForeground:    "#2E2C2A",
+    popover:           "#FFFDF7",
+    popoverForeground: "#2E2C2A",
 
-    secondary:          "#eeeeee",
-    secondaryForeground:"#000000",
-    muted:              "#eeeeee",
-    mutedForeground:    "#666666",
+    secondary:          "#F3EBDB",
+    secondaryForeground:"#2E2C2A",
+    muted:              "#F1E9D8",
+    mutedForeground:    "#6E655A",
 
-    accent:            "#e5e5e5",
-    accentForeground:  "#000000",
+    accent:            "#F6EEDF",
+    accentForeground:  "#8A4A12",
 
-    border: "#d4d4d4",
-    input:  "#d4d4d4",
-    ring:   "#000000",
+    border: "#E8DEC9",
+    input:  "#E8DEC9",
+    ring:   "#F5841F",
 
-    success:              "#000000",
-    warning:              "#555555",
-    destructive:          "#cc0000",
+    success:              "#4CA32E", // verde folha
+    warning:              "#D98A1F",
+    destructive:          "#CC3A2E",
     destructiveForeground:"#ffffff",
   },
 };
