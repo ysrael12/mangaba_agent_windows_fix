@@ -336,6 +336,21 @@ export const api = {
         body: JSON.stringify({ token, phone_number_id }),
       },
     ),
+  validateTeams: (client_id: string, client_secret: string, tenant_id: string) =>
+    fetchJSON<{ ok: boolean; name?: string; error?: string }>("/api/teams/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_id, client_secret, tenant_id }),
+    }),
+  connectTeams: (client_id: string, client_secret: string, tenant_id: string) =>
+    fetchJSON<{ ok: boolean; name?: string; messaging_endpoint: string; internal_port: string }>(
+      "/api/teams/connect",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client_id, client_secret, tenant_id }),
+      },
+    ),
   getChannelsStatus: () =>
     fetchJSON<{ channels: { platform: string; connected: boolean; valid?: boolean; name?: string; username?: string }[] }>(
       "/api/channels/status",

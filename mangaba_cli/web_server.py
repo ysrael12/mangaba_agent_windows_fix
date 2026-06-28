@@ -4341,6 +4341,77 @@ async def whatsapp_cloud_connect(body: WhatsAppCloudCreds):
     }
 
 
+# ── Microsoft Teams (Bot Framework / Azure) ─────────────────────────────────
+class TeamsCreds(BaseModel):
+    client_id: str
+    client_secret: str
+    tenant_id: str
+
+
+def _validate_teams(client_id: str, client_secret: str, tenant_id: str) -> Dict[str, Any]:
+    """Confere as credenciais pegando um token OAuth do Azure AD (Bot Framework)."""
+    import httpx
+
+    cid, sec, tid = client_id.strip(), client_secret.strip(), tenant_id.strip()
+    if not (cid and sec and tid):
+        return {"ok": False, "error": "Informe client_id, client_secret e tenant_id."}
+    try:
+        r = httpx.post(
+            f"https://login.microsoftonline.com/{tid}/oauth2/v2.0/token",
+            data={
+                "grant_type": "client_credentials",
+                "client_id": cid,
+                "client_secret": sec,
+                "scope": "https://api.botframework.com/.default",
+            },
+            timeout=15,
+        )
+        if r.status_code == 200 and r.json().get("access_token"):
+            return {"ok": True, "name": "Bot do Teams"}
+        try:
+            msg = r.json().get("error_description", "").split("\n")[0]
+        except Exception:
+            msg = ""
+        return {"ok": False, "error": msg or f"Credenciais inválidas (HTTP {r.status_code})."}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": f"Falha ao validar: {e}"}
+
+
+@app.post("/api/teams/validate")
+async def teams_validate(body: TeamsCreds):
+    return _validate_teams(body.client_id, body.client_secret, body.tenant_id)
+
+
+@app.post("/api/teams/connect")
+async def teams_connect(body: TeamsCreds):
+    """Valida, salva as credenciais e reinicia o gateway (auto-habilita o Teams).
+
+    Retorna o messaging endpoint para registrar no Azure Bot."""
+    res = _validate_teams(body.client_id, body.client_secret, body.tenant_id)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Credenciais inválidas."))
+    try:
+        save_env_value("TEAMS_CLIENT_ID", body.client_id.strip())
+        save_env_value("TEAMS_CLIENT_SECRET", body.client_secret.strip())
+        save_env_value("TEAMS_TENANT_ID", body.tenant_id.strip())
+        _spawn_mangaba_action(["gateway", "restart"], "gateway-restart")
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("teams connect failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+    # O adapter do Teams escuta em TEAMS_PORT (padrão 3978) no caminho
+    # /api/messages. O endpoint público (a registrar no Azure) deve apontar,
+    # via proxy HTTPS, para essa porta.
+    import os as _os
+
+    port = _os.getenv("TEAMS_PORT", "3978")
+    return {
+        "ok": True,
+        **res,
+        "messaging_endpoint": "https://SEU_DOMINIO/api/messages",
+        "internal_port": port,
+    }
+
+
 # Histórico curto em memória por número (continuidade de conversa).
 _WA_HISTORY: Dict[str, List[Dict[str, str]]] = {}
 _WA_HISTORY_MAX = 12

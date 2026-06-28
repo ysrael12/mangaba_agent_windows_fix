@@ -215,7 +215,7 @@ ele é marcado para **voltar sozinho no boot**. O dashboard reconcilia na subida
 
 Checklist completo para colocar em produção com segurança (chaves, proxy HTTPS,
 canais, billing, auto-restart, backups): **`scripts/deploy/go-live.md`**.
-WhatsApp oficial: `scripts/deploy/whatsapp-cloud.md`.
+WhatsApp: `scripts/deploy/whatsapp-cloud.md`. Teams: `scripts/deploy/teams.md`.
 
 ## 9. Ajuda
 
