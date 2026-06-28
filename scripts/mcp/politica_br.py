@@ -181,9 +181,8 @@ def partidos(limite: int = 40) -> List[Dict[str, Any]]:
 
 def comparar_deputados(nome1: str, nome2: str, ano: int = 0) -> str:
     """Compara dois deputados lado a lado: partido/UF + gastos CEAP do ano.
-    Retorna texto pré-formatado (marcador RESULTADO OBRIGATÓRIO) para o modelo
-    entregar ao usuário sem reinterpretar."""
-    linhas = ["RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:"]
+    Retorna texto pré-formatado, pronto para entregar ao usuário."""
+    linhas = []
     ano_usado = None
     blocos = []
     for nome in (nome1, nome2):
@@ -664,8 +663,7 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
         return f"RESULTADO: 0 beneficiários encontrados para {autor_nome} em {ano_usado}."
 
     # Resposta curta — modelo DEVE entregar estes dados ao usuário sem alteração
-    linhas = [f"RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
-              f"Emendas de {autor_nome} ({ano_usado}) — {len(lista)} entidades receberam verba:"]
+    linhas = [f"Emendas de {autor_nome} ({ano_usado}) — {len(lista)} entidades receberam verba:"]
     for i, b in enumerate(lista[:15], 1):
         cnpj = b["cnpj"] if b["cnpj"] else f"CNES {b.get('cnes','?')}"
         linhas.append(f"{i}. {b['beneficiario']} | {cnpj} | R$ {b['total_recebido_R$']:,.2f}")
@@ -698,8 +696,7 @@ def _transparencia_emendas_x_sancoes(autor: str = "", ano: int = 0) -> Any:
                 if r:
                     sancionados.append(r)
 
-    linhas = ["RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
-              f"Cruzamento emendas × sanções (CEIS) — {autor_nome} ({ano_usado}):",
+    linhas = [f"Cruzamento emendas × sanções (CEIS) — {autor_nome} ({ano_usado}):",
               f"Beneficiários com CNPJ verificados: {len(com_cnpj)} de {len(lista)} "
               f"(demais são empenhos/CNES sem CNPJ direto)."]
     if not sancionados:
