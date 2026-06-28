@@ -132,6 +132,27 @@ def partidos(limite: int = 40) -> List[Dict[str, Any]]:
     return [{"id": x.get("id"), "sigla": x.get("sigla"), "nome": x.get("nome")} for x in d]
 
 
+def comparar_deputados(nome1: str, nome2: str, ano: int = 0) -> Dict[str, Any]:
+    """Compara dois deputados lado a lado: partido/UF + gastos CEAP do ano."""
+    res = {"ano": None, "parlamentares": [], "fonte": "Câmara dos Deputados — Dados Abertos (CEAP)"}
+    for nome in (nome1, nome2):
+        dos = dossie_deputado(nome=nome, ano=ano)
+        if "erro" in dos:
+            res["parlamentares"].append({"nome": nome, "erro": dos["erro"]})
+            continue
+        res["ano"] = dos.get("ano")
+        g = dos["gastos_ceap"]
+        res["parlamentares"].append({
+            "nome": dos["deputado"].get("nome_parlamentar"),
+            "partido": dos["deputado"].get("partido"),
+            "uf": dos["deputado"].get("uf"),
+            "situacao": dos["deputado"].get("situacao"),
+            "gastos_total_amostra": g["total_amostra"],
+            "top_categoria": (g["top_categorias"][0] if g["top_categorias"] else None),
+        })
+    return res
+
+
 def dossie_deputado(nome: str = "", deputado_id: int = 0, ano: int = 0) -> Dict[str, Any]:
     """Dossiê consolidado de um deputado: mandato + resumo de gastos do ano.
 
@@ -358,6 +379,12 @@ def _build_server():
         (CEAP) do ano + principais categorias. Passe 'nome' OU o id. Use isto em vez
         de encadear buscar→detalhes→despesas."""
         return dossie_deputado(nome, deputado_id or id_deputado, ano)
+
+    @mcp.tool()
+    def camara_comparar_deputados(nome1: str, nome2: str, ano: int = 0) -> dict:
+        """Compara DOIS deputados lado a lado (partido/UF + gastos CEAP do ano) em
+        uma única chamada. Passe os dois nomes."""
+        return comparar_deputados(nome1, nome2, ano)
 
     @mcp.tool()
     def camara_partidos(limite: int = 40) -> list:
