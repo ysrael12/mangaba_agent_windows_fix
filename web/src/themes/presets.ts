@@ -298,8 +298,8 @@ export const roseTheme: DashboardTheme = {
  */
 export const defaultLargeTheme: DashboardTheme = {
   name: "default-large",
-  label: "Mangaba Teal (Large)",
-  description: "Mangaba Teal with bigger fonts and roomier spacing",
+  label: "Mangaba Noite (Grande)",
+  description: "Mangaba Noite com fontes maiores e espaçamento confortável",
   palette: defaultTheme.palette,
   typography: {
     ...DEFAULT_TYPOGRAPHY,

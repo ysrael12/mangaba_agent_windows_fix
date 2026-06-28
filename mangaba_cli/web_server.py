@@ -5037,8 +5037,8 @@ def mount_spa(application: FastAPI):
 # Built-in dashboard themes — label + description only.  The actual color
 # definitions live in the frontend (web/src/themes/presets.ts).
 _BUILTIN_DASHBOARD_THEMES = [
-    {"name": "default",       "label": "Mangaba Teal",         "description": "Classic dark teal — the canonical Mangaba look"},
-    {"name": "default-large", "label": "Mangaba Teal (Large)", "description": "Mangaba Teal with bigger fonts and roomier spacing"},
+    {"name": "default",       "label": "Mangaba Noite",          "description": "Modo escuro — grafite quente com laranja da marca"},
+    {"name": "default-large", "label": "Mangaba Noite (Grande)", "description": "Mangaba Noite com fontes maiores e espaçamento confortável"},
     {"name": "claude",    "label": "Claude AI",      "description": "Anthropic Claude — warm coral & cream on deep brown"},
     {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
     {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
