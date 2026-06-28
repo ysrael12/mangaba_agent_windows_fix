@@ -2,6 +2,7 @@ import { ArrowRight, BookOpen, Cpu, MessageSquare, Radio, Users, Zap } from "luc
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { useNavigate } from "react-router-dom";
 import { Stagger, StaggerItem } from "@/components/motion";
+import { AgentStatus } from "@/components/AgentStatus";
 
 const STEPS = [
   {
@@ -63,6 +64,10 @@ export default function HomePage() {
 
   return (
     <Stagger className="space-y-6 pb-6" gap={0.09}>
+      <StaggerItem>
+        <AgentStatus />
+      </StaggerItem>
+
       <StaggerItem>
       <section className="rounded-[2rem] border border-border bg-card p-7 shadow-sm">
         <div className="grid gap-6 lg:grid-cols-[1.2fr_max(320px,0.8fr)] lg:items-center">

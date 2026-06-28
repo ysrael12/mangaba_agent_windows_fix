@@ -298,6 +298,10 @@ export const api = {
         body: JSON.stringify({ token }),
       },
     ),
+  getHealth: () =>
+    fetchJSON<{ ok: boolean; gateway: boolean; gateway_state: string | null; last_activity: string | null }>(
+      "/api/health",
+    ),
   getChannelsStatus: () =>
     fetchJSON<{ channels: { platform: string; connected: boolean; valid?: boolean; name?: string; username?: string }[] }>(
       "/api/channels/status",
