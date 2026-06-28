@@ -58,6 +58,19 @@ Adicione novas funções/ferramentas no mesmo servidor (`politica_br.py`):
 - **Portal da Transparência** — `api.portaldatransparencia.gov.br` (gastos,
   servidores, sanções) — **requer chave grátis** (`x-api-key`).
 
+## Regressão (rodar após mexer em `politica_br.py`)
+Bate nas APIs reais e checa invariantes estruturais (não números exatos):
+```bash
+export TRANSPARENCIA_API_KEY=sua_chave_gratis
+python scripts/mcp/test_politica_br_regressao.py            # só funções (rápido)
+export HF_TOKEN=hf_...                                      # p/ modo agêntico
+python scripts/mcp/test_politica_br_regressao.py --agentico # + valida escolha de tool pelo modelo
+```
+Exit 0 = ok, 1 = falha. Cobre: cruzamento emenda×sanção, empresas/CNPJ,
+resolução fuzzy de nome (typos), comparar deputados, histórico multi-ano e
+ausência de vazamento de marcador interno na resposta.
+Segredos vêm SÓ do ambiente — nunca commite tokens.
+
 ## Observações
 - Respeite os **limites de requisição** de cada órgão.
 - A persona força **citar a fonte** e **fato, não opinião** — importante em política.
