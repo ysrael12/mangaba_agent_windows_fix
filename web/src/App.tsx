@@ -67,6 +67,8 @@ import { Backdrop } from "@/components/Backdrop";
 import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { RateLimitBanner } from "@/components/RateLimitBanner";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
+import { canSee, useUserRole, type UserRole } from "@/lib/userRole";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
 import { useSystemActions } from "@/contexts/useSystemActions";
 import type { SystemAction } from "@/contexts/system-actions-context";
@@ -156,44 +158,44 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
 // 1) aprender → 2) configurar a IA → 3) criar agentes e canais →
 // 4) usar → 5) automatizar → 6) acompanhar → 7) ajustar.
 const BUILTIN_NAV_REST: NavItem[] = [
-  { path: "/home", label: "Início", icon: Activity },
-  { path: "/setup", label: "Começar", icon: Rocket },
-  { path: "/criar", label: "Criar agente", icon: Sparkles },
+  { path: "/home", label: "Início", icon: Activity, minRole: "operador" },
+  { path: "/setup", label: "Começar", icon: Rocket, minRole: "gestor" },
+  { path: "/criar", label: "Criar agente", icon: Sparkles, minRole: "gestor" },
 
   // 1) Aprender
-  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },
-  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb, section: "Aprender" },
+  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender", minRole: "dev" },
+  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb, section: "Aprender", minRole: "gestor" },
 
-  // 2) Configurar a IA
-  { path: "/models", labelKey: "models", label: "Modelos", icon: Cpu, section: "Configurar a IA" },
-  { path: "/env", labelKey: "keys", label: "Chaves", icon: KeyRound, section: "Configurar a IA" },
-  { path: "/skills", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar a IA" },
-  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle, section: "Configurar a IA" },
-  { path: "/memory", labelKey: "memory", label: "Memória", icon: Brain, section: "Configurar a IA" },
+  // 2) Configurar a IA (técnico → dev)
+  { path: "/models", labelKey: "models", label: "Modelos", icon: Cpu, section: "Configurar a IA", minRole: "dev" },
+  { path: "/env", labelKey: "keys", label: "Chaves", icon: KeyRound, section: "Configurar a IA", minRole: "dev" },
+  { path: "/skills", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar a IA", minRole: "dev" },
+  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle, section: "Configurar a IA", minRole: "dev" },
+  { path: "/memory", labelKey: "memory", label: "Memória", icon: Brain, section: "Configurar a IA", minRole: "dev" },
 
-  // 3) Criar agentes e canais
-  { path: "/profiles", labelKey: "profiles", label: "Perfis", icon: Users, section: "Agentes e canais" },
-  { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais" },
-  { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais" },
-  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais" },
-  { path: "/teams-agents", label: "Agentes no Teams", icon: Radio, section: "Agentes e canais" },
+  // 3) Criar agentes e canais (gestor; canais avançados → dev)
+  { path: "/profiles", labelKey: "profiles", label: "Perfis", icon: Users, section: "Agentes e canais", minRole: "gestor" },
+  { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais", minRole: "gestor" },
+  { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais", minRole: "gestor" },
+  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais", minRole: "gestor" },
+  { path: "/teams-agents", label: "Agentes no Teams", icon: Radio, section: "Agentes e canais", minRole: "dev" },
 
-  // 4) Usar
-  { ...CHAT_NAV_ITEM, section: "Usar" },
-  { path: "/sessions", labelKey: "sessions", label: "Sessões", icon: MessageSquare, section: "Usar" },
-  { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe, section: "Usar" },
+  // 4) Usar (operador)
+  { ...CHAT_NAV_ITEM, section: "Usar", minRole: "operador" },
+  { path: "/sessions", labelKey: "sessions", label: "Sessões", icon: MessageSquare, section: "Usar", minRole: "operador" },
+  { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe, section: "Usar", minRole: "dev" },
 
   // 5) Automatizar
-  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar" },
-  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare, section: "Automatizar" },
+  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar", minRole: "operador" },
+  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare, section: "Automatizar", minRole: "gestor" },
 
-  // 6) Acompanhar
-  { path: "/analytics", labelKey: "analytics", label: "Análise", icon: BarChart3, section: "Acompanhar" },
-  { path: "/observability", label: "Observabilidade", icon: Activity, section: "Acompanhar" },
-  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
+  // 6) Acompanhar (Análise p/ operador; diagnóstico → dev)
+  { path: "/analytics", labelKey: "analytics", label: "Análise", icon: BarChart3, section: "Acompanhar", minRole: "operador" },
+  { path: "/observability", label: "Observabilidade", icon: Activity, section: "Acompanhar", minRole: "dev" },
+  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar", minRole: "dev" },
 
   // 7) Ajustar
-  { path: "/config", labelKey: "config", label: "Configuração", icon: Settings, section: "Ajustar" },
+  { path: "/config", labelKey: "config", label: "Configuração", icon: Settings, section: "Ajustar", minRole: "dev" },
 ];
 
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
@@ -395,12 +397,16 @@ export default function App() {
     [],
   );
 
+  const [userRole] = useUserRole();
   const builtinNav = useMemo(() => {
     // BUILTIN_NAV_REST já está na ordem da jornada (Chat incluído).
-    return showTokenAnalytics
-      ? BUILTIN_NAV_REST
-      : BUILTIN_NAV_REST.filter((n) => n.path !== "/analytics");
-  }, [showTokenAnalytics]);
+    // Filtra por perfil de usuário (operador<gestor<dev) e por config de analytics.
+    return BUILTIN_NAV_REST.filter(
+      (n) =>
+        canSee(userRole, n.minRole) &&
+        (showTokenAnalytics || n.path !== "/analytics"),
+    );
+  }, [showTokenAnalytics, userRole]);
 
   const sidebarNav = useMemo(
     () => partitionSidebarNav(builtinNav, manifests),
@@ -610,6 +616,9 @@ export default function App() {
                   ⌘K
                 </kbd>
               </button>
+              <div className="pt-2">
+                <RoleSwitcher />
+              </div>
             </div>
 
             <nav
@@ -936,6 +945,8 @@ interface NavItem {
   path: string;
   /** Cabeçalho de seção da jornada exibido antes deste item na sidebar. */
   section?: string;
+  /** Perfil mínimo que vê esta aba (operador<gestor<dev). Ausente = todos. */
+  minRole?: UserRole;
 }
 
 interface SidebarNavLinkProps {
