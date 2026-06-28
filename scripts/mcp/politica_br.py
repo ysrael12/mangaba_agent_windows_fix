@@ -64,9 +64,20 @@ def detalhes_deputado(deputado_id: int) -> Dict[str, Any]:
     }
 
 
-def despesas_deputado(deputado_id: int, ano: int, mes: int = 0, limite: int = 15) -> List[Dict[str, Any]]:
-    """Despesas da cota parlamentar (CEAP) de um deputado."""
-    p: Dict[str, Any] = {"ano": ano, "ordem": "DESC", "ordenarPor": "dataDocumento", "itens": min(limite, 50)}
+def despesas_deputado(deputado_id: int, ano: int = 0, mes: int = 0, limite: int = 15) -> List[Dict[str, Any]]:
+    """Despesas da cota parlamentar (CEAP) de um deputado. ``ano`` padrão = atual."""
+    from datetime import datetime
+
+    def _int(v, default=0):
+        try:
+            return int(str(v).strip())
+        except Exception:
+            return default
+
+    deputado_id = _int(deputado_id)
+    ano = _int(ano) or datetime.now().year
+    mes = _int(mes)
+    p: Dict[str, Any] = {"ano": ano, "ordem": "DESC", "ordenarPor": "dataDocumento", "itens": min(_int(limite, 15) or 15, 50)}
     if mes:
         p["mes"] = mes
     d = _get(f"/deputados/{deputado_id}/despesas", p).get("dados", [])
@@ -278,8 +289,8 @@ def _build_server():
         return detalhes_deputado(deputado_id)
 
     @mcp.tool()
-    def camara_despesas_deputado(deputado_id: int, ano: int, mes: int = 0, limite: int = 15) -> list:
-        """Despesas da cota parlamentar (CEAP) de um deputado em um ano (e mês opcional)."""
+    def camara_despesas_deputado(deputado_id: int, ano: int = 0, mes: int = 0, limite: int = 15) -> list:
+        """Despesas da cota parlamentar (CEAP) de um deputado. ``ano`` opcional (padrão = ano atual); ``mes`` opcional."""
         return despesas_deputado(deputado_id, ano, mes, limite)
 
     @mcp.tool()
