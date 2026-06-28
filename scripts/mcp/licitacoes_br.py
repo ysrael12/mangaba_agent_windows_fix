@@ -107,15 +107,30 @@ def _resumir(c: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _get(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
-    try:
-        r = httpx.get(url, params=params, headers=_H, timeout=25)
-        if r.status_code == 200:
-            return r.json() if r.text.strip() else {}
-        if r.status_code == 204:
-            return {"data": [], "totalRegistros": 0}
-        return {"erro": f"HTTP {r.status_code}", "detalhe": r.text[:160]}
-    except Exception as e:  # noqa: BLE001
-        return {"erro": str(e)}
+    """GET com tratamento de rate-limit (HTTP 429) do PNCP: backoff e retry.
+    Sinaliza {'rate_limited': True} quando o limite persiste, para o chamador
+    reportar busca parcial em vez de falsa ausência."""
+    import time
+
+    for tentativa in range(3):
+        try:
+            r = httpx.get(url, params=params, headers=_H, timeout=25)
+            if r.status_code == 200:
+                return r.json() if r.text.strip() else {}
+            if r.status_code == 204:
+                return {"data": [], "totalRegistros": 0}
+            if r.status_code == 429:
+                if tentativa < 2:
+                    time.sleep(1.5 * (tentativa + 1))  # 1.5s, 3s
+                    continue
+                return {"erro": "HTTP 429", "rate_limited": True}
+            return {"erro": f"HTTP {r.status_code}", "detalhe": r.text[:160]}
+        except Exception as e:  # noqa: BLE001
+            if tentativa < 2:
+                time.sleep(1.0)
+                continue
+            return {"erro": str(e)}
+    return {"erro": "falha após retries"}
 
 
 # ── Funções de domínio (testáveis sem MCP) ──────────────────────────────────
@@ -129,23 +144,37 @@ def licitacoes_abertas(uf: str = "AL", modalidade: int = 0, objeto: str = "",
     uf = (uf or "AL").upper()
     mods = [modalidade] if modalidade else _MODALIDADES_COMUNS
     data_final = f"{datetime.now().year + 1}1231"
+    # Com filtro de objeto (ex.: telecom — raro) pagina mais fundo p/ não perder
+    # editais enterrados; sem filtro, a 1ª página basta para um panorama geral.
+    max_pag = 5 if (objeto or municipio) else 1
     achados: List[Dict[str, Any]] = []
+    parcial = False
     for mod in mods:
-        d = _get(f"{PNCP}/contratacoes/proposta", {
-            "dataFinal": data_final, "codigoModalidadeContratacao": mod,
-            "uf": uf, "pagina": 1, "tamanhoPagina": 50,
-        })
-        if isinstance(d, dict) and d.get("erro"):
-            continue
-        for c in (d.get("data") or []):
-            r = _resumir(c)
-            if not _match_objeto(objeto, r["objeto"]):
-                continue
-            if municipio and municipio.lower() not in (r["municipio"] or "").lower():
-                continue
-            achados.append(r)
+        for pag in range(1, max_pag + 1):
+            d = _get(f"{PNCP}/contratacoes/proposta", {
+                "dataFinal": data_final, "codigoModalidadeContratacao": mod,
+                "uf": uf, "pagina": pag, "tamanhoPagina": 50,
+            })
+            if isinstance(d, dict) and d.get("erro"):
+                if d.get("rate_limited"):
+                    parcial = True
+                break  # próxima modalidade
+            data = d.get("data") or []
+            for c in data:
+                r = _resumir(c)
+                if not _match_objeto(objeto, r["objeto"]):
+                    continue
+                if municipio and municipio.lower() not in (r["municipio"] or "").lower():
+                    continue
+                achados.append(r)
+            if len(data) < 50:
+                break
     achados.sort(key=lambda x: x.get("encerramento_proposta") or "")
-    return _formatar_lista(achados[:limite], uf, "com proposta aberta", municipio, objeto)
+    texto = _formatar_lista(achados[:limite], uf, "com proposta aberta", municipio, objeto)
+    if parcial:
+        texto += ("\n\n⚠️ Busca parcial: o PNCP limitou as requisições (429). "
+                  "Pode haver mais editais — tente de novo em instantes.")
+    return texto
 
 
 def licitacoes_periodo(uf: str = "AL", data_inicial: str = "", data_final: str = "",
