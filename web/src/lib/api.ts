@@ -302,6 +302,24 @@ export const api = {
     fetchJSON<{ ok: boolean; gateway: boolean; gateway_state: string | null; last_activity: string | null }>(
       "/api/health",
     ),
+  validateWhatsAppCloud: (token: string, phone_number_id: string) =>
+    fetchJSON<{ ok: boolean; name?: string; number?: string; error?: string }>(
+      "/api/whatsapp-cloud/validate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, phone_number_id }),
+      },
+    ),
+  connectWhatsAppCloud: (token: string, phone_number_id: string) =>
+    fetchJSON<{ ok: boolean; name?: string; number?: string; webhook_url: string; verify_token: string }>(
+      "/api/whatsapp-cloud/connect",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, phone_number_id }),
+      },
+    ),
   getChannelsStatus: () =>
     fetchJSON<{ channels: { platform: string; connected: boolean; valid?: boolean; name?: string; username?: string }[] }>(
       "/api/channels/status",

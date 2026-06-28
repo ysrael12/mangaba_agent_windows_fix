@@ -137,6 +137,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 _PUBLIC_API_PATHS: frozenset = frozenset({
     "/api/health",
+    "/api/whatsapp/webhook",  # chamado pela Meta (verificado por verify_token/assinatura)
     "/api/status",
     "/api/config/defaults",
     "/api/config/schema",
@@ -4216,6 +4217,122 @@ async def channels_status():
             info["username"] = v.get("username", "")
         out.append(info)
     return {"channels": out}
+
+
+# ── WhatsApp Cloud API (oficial, Meta) ──────────────────────────────────────
+class WhatsAppCloudCreds(BaseModel):
+    token: str
+    phone_number_id: str
+
+
+@app.post("/api/whatsapp-cloud/validate")
+async def whatsapp_cloud_validate(body: WhatsAppCloudCreds):
+    from mangaba_cli import whatsapp_cloud
+
+    return whatsapp_cloud.validate(body.token, body.phone_number_id)
+
+
+@app.post("/api/whatsapp-cloud/connect")
+async def whatsapp_cloud_connect(body: WhatsAppCloudCreds):
+    """Valida, salva credenciais e gera o verify_token do webhook.
+
+    Retorna a URL do webhook e o verify_token para o operador colar no painel
+    da Meta (App → WhatsApp → Configuration → Webhook)."""
+    import os as _os
+
+    from mangaba_cli import whatsapp_cloud
+
+    res = whatsapp_cloud.validate(body.token, body.phone_number_id)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Credenciais inválidas."))
+    try:
+        save_env_value("WHATSAPP_CLOUD_TOKEN", body.token.strip())
+        save_env_value("WHATSAPP_PHONE_NUMBER_ID", body.phone_number_id.strip())
+        verify = _os.getenv("WHATSAPP_VERIFY_TOKEN", "")
+        if not verify:
+            verify = secrets.token_urlsafe(18)
+            save_env_value("WHATSAPP_VERIFY_TOKEN", verify)
+        _os.environ["WHATSAPP_CLOUD_TOKEN"] = body.token.strip()
+        _os.environ["WHATSAPP_PHONE_NUMBER_ID"] = body.phone_number_id.strip()
+        _os.environ["WHATSAPP_VERIFY_TOKEN"] = verify
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("whatsapp cloud connect failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    base = _api_base_url().replace("/v1", "")  # reaproveita host:porta do operador
+    return {
+        "ok": True,
+        **res,
+        "webhook_url": f"{base}/api/whatsapp/webhook",
+        "verify_token": verify,
+    }
+
+
+# Histórico curto em memória por número (continuidade de conversa).
+_WA_HISTORY: Dict[str, List[Dict[str, str]]] = {}
+_WA_HISTORY_MAX = 12
+
+
+@app.get("/api/whatsapp/webhook")
+async def whatsapp_webhook_verify(request: Request):
+    """Verificação do webhook (Meta envia hub.* num GET)."""
+    import os as _os
+
+    qp = request.query_params
+    mode = qp.get("hub.mode")
+    token = qp.get("hub.verify_token")
+    challenge = qp.get("hub.challenge", "")
+    expected = _os.getenv("WHATSAPP_VERIFY_TOKEN", "")
+    if mode == "subscribe" and expected and token == expected:
+        from fastapi.responses import PlainTextResponse
+
+        return PlainTextResponse(challenge)
+    raise HTTPException(status_code=403, detail="verify_token inválido")
+
+
+@app.post("/api/whatsapp/webhook")
+async def whatsapp_webhook_receive(request: Request):
+    """Recebe mensagens da Meta, roda o agente e responde via Graph API."""
+    import os as _os
+
+    from mangaba_cli import whatsapp_cloud
+
+    token = _os.getenv("WHATSAPP_CLOUD_TOKEN", "")
+    pnid = _os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
+    if not token or not pnid:
+        return {"ok": True}  # não configurado — ignora silenciosamente
+
+    try:
+        payload = await request.json()
+    except Exception:
+        return {"ok": True}
+
+    messages = whatsapp_cloud.parse_inbound(payload)
+    if not messages:
+        return {"ok": True}  # status/evento sem texto
+
+    loop = asyncio.get_running_loop()
+
+    def _handle(frm: str, text: str) -> None:
+        try:
+            agent = _build_chat_agent()
+            hist = _WA_HISTORY.get(frm, [])
+            result = agent.run_conversation(text, conversation_history=list(hist))
+            reply = result.get("final_response", "") if isinstance(result, dict) else str(result)
+            if reply:
+                whatsapp_cloud.send_text(token, pnid, frm, reply)
+                hist = (hist + [
+                    {"role": "user", "content": text},
+                    {"role": "assistant", "content": reply},
+                ])[-_WA_HISTORY_MAX:]
+                _WA_HISTORY[frm] = hist
+        except Exception:  # noqa: BLE001
+            _log.exception("whatsapp inbound handling failed")
+
+    # Processa em background para responder o webhook na hora (a Meta exige 200 rápido).
+    for m in messages:
+        loop.run_in_executor(None, _handle, m["from"], m["text"])
+    return {"ok": True}
 
 
 @app.post("/api/agent-templates/{template_id}/install")

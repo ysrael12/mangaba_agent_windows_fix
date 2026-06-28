@@ -4,7 +4,7 @@
 //   3) testar no chat
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronRight, Rocket, MessageSquare, Loader2, ExternalLink } from "lucide-react";
+import { Check, ChevronRight, Rocket, MessageSquare, Loader2, ExternalLink, Copy } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { H2 } from "@/components/NouiTypography";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,6 +35,16 @@ const CHANNELS = [
       "Ative 'Message Content Intent' na mesma página.",
     ],
     link: "https://discord.com/developers/applications",
+  },
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    help: [
+      "Em developers.facebook.com, crie um App e adicione o produto WhatsApp.",
+      "Em 'API Setup', copie o Token de acesso e o Phone number ID.",
+      "Cole os dois abaixo e valide. Depois conecte para receber a URL do webhook.",
+    ],
+    link: "https://developers.facebook.com/apps/",
   },
 ];
 
@@ -70,9 +80,12 @@ export default function CreateAgentPage() {
   // Passo 2 — canal
   const [channel, setChannel] = useState<string>("telegram");
   const [token, setToken] = useState("");
+  const [phoneId, setPhoneId] = useState(""); // WhatsApp Cloud
   const [validating, setValidating] = useState(false);
   const [validated, setValidated] = useState<{ name?: string; username?: string } | null>(null);
   const [connecting, setConnecting] = useState(false);
+  const [waInfo, setWaInfo] = useState<{ webhook_url: string; verify_token: string } | null>(null);
+  const isWhatsapp = channel === "whatsapp";
 
   useEffect(() => {
     api.getAgentTemplates().then((r) => setTemplates(r.templates)).catch(() => {});
@@ -81,7 +94,8 @@ export default function CreateAgentPage() {
   // reset validação ao trocar token/canal
   useEffect(() => {
     setValidated(null);
-  }, [token, channel]);
+    setWaInfo(null);
+  }, [token, phoneId, channel]);
 
   const applyTemplate = async () => {
     if (!chosen) return;
@@ -102,11 +116,19 @@ export default function CreateAgentPage() {
     setValidating(true);
     setValidated(null);
     try {
-      const r = await api.validateChannel(channel, token.trim());
+      const r = (isWhatsapp
+        ? await api.validateWhatsAppCloud(token.trim(), phoneId.trim())
+        : await api.validateChannel(channel, token.trim())) as {
+        ok: boolean;
+        name?: string;
+        username?: string;
+        number?: string;
+        error?: string;
+      };
       if (r.ok) {
-        setValidated({ name: r.name, username: r.username });
+        setValidated({ name: r.name, username: isWhatsapp ? r.number : r.username });
       } else {
-        showToast(r.error || "Token inválido.", "error");
+        showToast(r.error || "Credenciais inválidas.", "error");
       }
     } catch (e) {
       showToast(`Erro: ${(e as Error).message}`, "error");
@@ -118,14 +140,25 @@ export default function CreateAgentPage() {
   const connect = async () => {
     setConnecting(true);
     try {
-      await api.connectChannel(channel, token.trim());
-      showToast("Canal conectado! O agente está subindo…", "success");
-      setStep(3);
+      if (isWhatsapp) {
+        const r = await api.connectWhatsAppCloud(token.trim(), phoneId.trim());
+        setWaInfo({ webhook_url: r.webhook_url, verify_token: r.verify_token });
+        showToast("Credenciais salvas. Configure o webhook na Meta para concluir.", "success");
+      } else {
+        await api.connectChannel(channel, token.trim());
+        showToast("Canal conectado! O agente está subindo…", "success");
+        setStep(3);
+      }
     } catch (e) {
       showToast(`Erro: ${(e as Error).message}`, "error");
     } finally {
       setConnecting(false);
     }
+  };
+
+  const copy = (s: string) => {
+    navigator.clipboard?.writeText(s);
+    showToast("Copiado.", "success");
   };
 
   const ch = CHANNELS.find((c) => c.id === channel)!;
@@ -212,32 +245,89 @@ export default function CreateAgentPage() {
             </ol>
 
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-foreground">Cole o token do bot</label>
-              <div className="flex flex-wrap items-center gap-2">
-                <input
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder={channel === "telegram" ? "123456:ABC-DEF…" : "MTk4…token do Discord"}
-                  className="flex-1 min-w-[14rem] rounded-md border border-input bg-background px-3 py-2 font-mono-ui text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                />
-                <Button outlined onClick={validate} disabled={!token.trim() || validating}>
+              <label className="text-xs font-medium text-foreground">
+                {isWhatsapp ? "Token de acesso (Cloud API)" : "Cole o token do bot"}
+              </label>
+              <input
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                placeholder={
+                  channel === "telegram"
+                    ? "123456:ABC-DEF…"
+                    : isWhatsapp
+                      ? "EAAG… token da Meta"
+                      : "MTk4…token do Discord"
+                }
+                className="rounded-md border border-input bg-background px-3 py-2 font-mono-ui text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              {isWhatsapp && (
+                <>
+                  <label className="text-xs font-medium text-foreground">Phone number ID</label>
+                  <input
+                    value={phoneId}
+                    onChange={(e) => setPhoneId(e.target.value)}
+                    placeholder="ex.: 123456789012345"
+                    className="rounded-md border border-input bg-background px-3 py-2 font-mono-ui text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </>
+              )}
+              <div className="flex justify-end">
+                <Button
+                  outlined
+                  onClick={validate}
+                  disabled={validating || !token.trim() || (isWhatsapp && !phoneId.trim())}
+                >
                   {validating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Validar"}
                 </Button>
               </div>
               {validated && (
                 <div className="flex items-center gap-2 rounded-md border border-primary/40 bg-primary/5 px-3 py-2 text-sm text-foreground">
                   <Check className="h-4 w-4 text-primary" />
-                  Bot conectado: <b>{validated.name}</b>
-                  {validated.username ? ` (@${validated.username})` : ""}
+                  {isWhatsapp ? "Número verificado: " : "Bot conectado: "}
+                  <b>{validated.name}</b>
+                  {validated.username ? ` (${isWhatsapp ? "" : "@"}${validated.username})` : ""}
                 </div>
               )}
             </div>
 
+            {/* Painel do webhook (WhatsApp Cloud) após conectar */}
+            {waInfo && (
+              <div className="flex flex-col gap-2 rounded-lg border border-warning/40 bg-warning/5 p-3 text-xs">
+                <p className="font-semibold text-foreground">
+                  Último passo: configure o webhook na Meta
+                </p>
+                <p className="text-muted-foreground">
+                  No painel da Meta (App → WhatsApp → Configuration → Webhook), cole:
+                </p>
+                {([
+                  ["Callback URL", waInfo.webhook_url],
+                  ["Verify token", waInfo.verify_token],
+                ] as const).map(([k, v]) => (
+                  <div key={k} className="flex items-center gap-2">
+                    <span className="w-24 shrink-0 text-muted-foreground">{k}</span>
+                    <code className="flex-1 break-all rounded bg-background px-2 py-1 font-mono-ui">{v}</code>
+                    <Button size="sm" outlined onClick={() => copy(v)} prefix={<Copy className="h-3.5 w-3.5" />}>Copiar</Button>
+                  </div>
+                ))}
+                <p className="text-muted-foreground">
+                  Assine o campo <b>messages</b>. A URL precisa ser pública (HTTPS) — use o proxy de exposição.
+                </p>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <Button ghost onClick={() => setStep(1)}>Voltar</Button>
-              <Button onClick={connect} disabled={!validated || connecting}>
-                {connecting ? "Conectando…" : "Conectar e continuar"}
-              </Button>
+              {isWhatsapp && !waInfo ? (
+                <Button onClick={connect} disabled={!validated || connecting}>
+                  {connecting ? "Salvando…" : "Conectar"}
+                </Button>
+              ) : isWhatsapp && waInfo ? (
+                <Button onClick={() => setStep(3)}>Concluí no Meta → testar</Button>
+              ) : (
+                <Button onClick={connect} disabled={!validated || connecting}>
+                  {connecting ? "Conectando…" : "Conectar e continuar"}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
