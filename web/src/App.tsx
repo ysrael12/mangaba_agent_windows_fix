@@ -11,6 +11,8 @@ import {
 } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Reveal } from "@/components/motion";
+import { CommandPalette, type Command } from "@/components/CommandPalette";
+import { Moon as MoonIcon, Sun as SunIcon, Search } from "lucide-react";
 import {
   Routes,
   Route,
@@ -345,6 +347,7 @@ export default function App() {
   const { t } = useI18n();
   const location = useLocation();
   const { pathname } = location;
+  const navigate = useNavigate();
   const { manifests, loading: pluginsLoading } = usePlugins();
   const { theme, isDark, toggleDayNight } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -393,6 +396,29 @@ export default function App() {
     () => partitionSidebarNav(builtinNav, manifests),
     [builtinNav, manifests],
   );
+
+  // Comandos do ⌘K: navegar para cada tela + ações rápidas.
+  const commands = useMemo<Command[]>(() => {
+    const navCmds: Command[] = builtinNav.map((item) => ({
+      id: `nav:${item.path}`,
+      label: item.label,
+      group: item.section ?? "Navegar",
+      icon: item.icon,
+      keywords: item.path,
+      run: () => navigate(item.path),
+    }));
+    const actions: Command[] = [
+      {
+        id: "action:theme",
+        label: isDark ? "Mudar para tema claro" : "Mudar para tema escuro",
+        group: "Ações",
+        icon: isDark ? SunIcon : MoonIcon,
+        keywords: "tema dark light dia noite theme",
+        run: toggleDayNight,
+      },
+    ];
+    return [...navCmds, ...actions];
+  }, [builtinNav, navigate, isDark, toggleDayNight]);
   const routes = useMemo(
     () => buildRoutes(builtinRoutes, manifests),
     [builtinRoutes, manifests],
@@ -556,6 +582,23 @@ export default function App() {
               </Button>
             </div>
 
+            <div className="px-2 pt-3">
+              <button
+                type="button"
+                onClick={() =>
+                  window.dispatchEvent(new Event("mangaba:command-palette"))
+                }
+                className="flex w-full items-center gap-2 rounded-lg border border-current/10 px-3 py-2 text-sm text-text-tertiary transition-colors hover:bg-current/5"
+                aria-label="Abrir busca de comandos"
+              >
+                <Search className="h-4 w-4 shrink-0" />
+                <span className="flex-1 text-left">Buscar…</span>
+                <kbd className="rounded border border-current/15 px-1.5 py-0.5 text-[10px]">
+                  ⌘K
+                </kbd>
+              </button>
+            </div>
+
             <nav
               className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-3"
               aria-label={t.app.navigation}
@@ -713,6 +756,7 @@ export default function App() {
       </div>
 
       <PluginSlot name="overlay" />
+      <CommandPalette commands={commands} />
     </div>
   );
 }
