@@ -467,6 +467,8 @@ function UsagePanel() {
     setSaving(true);
     try {
       await api.setUsageBudget(parseInt(limit || "0", 10) || 0, mode);
+      // Volta a sincronizar os campos com a resposta autoritativa do servidor.
+      setTouched(false);
       await refetch();
     } finally {
       setSaving(false);
