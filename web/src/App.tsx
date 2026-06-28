@@ -159,12 +159,12 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
 // 4) usar → 5) automatizar → 6) acompanhar → 7) ajustar.
 const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/home", label: "Início", icon: Activity, minRole: "operador" },
-  { path: "/setup", label: "Começar", icon: Rocket, minRole: "gestor" },
+  { path: "/setup", label: "Começar", icon: Rocket, minRole: "dev" },
   { path: "/criar", label: "Criar agente", icon: Sparkles, minRole: "gestor" },
 
   // 1) Aprender
   { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender", minRole: "dev" },
-  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb, section: "Aprender", minRole: "gestor" },
+  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb, section: "Aprender", minRole: "operador" },
 
   // 2) Configurar a IA (técnico → dev)
   { path: "/models", labelKey: "models", label: "Modelos", icon: Cpu, section: "Configurar a IA", minRole: "dev" },
@@ -177,8 +177,8 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/profiles", labelKey: "profiles", label: "Perfis", icon: Users, section: "Agentes e canais", minRole: "gestor" },
   { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais", minRole: "gestor" },
   { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais", minRole: "gestor" },
-  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais", minRole: "gestor" },
-  { path: "/teams-agents", label: "Agentes no Teams", icon: Radio, section: "Agentes e canais", minRole: "dev" },
+  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais", minRole: "dev" },
+  { path: "/teams-agents", label: "Agentes no Teams", icon: Radio, section: "Agentes e canais", minRole: "gestor" },
 
   // 4) Usar (operador)
   { ...CHAT_NAV_ITEM, section: "Usar", minRole: "operador" },
@@ -186,7 +186,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe, section: "Usar", minRole: "dev" },
 
   // 5) Automatizar
-  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar", minRole: "operador" },
+  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar", minRole: "gestor" },
   { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare, section: "Automatizar", minRole: "gestor" },
 
   // 6) Acompanhar (Análise p/ operador; diagnóstico → dev)
