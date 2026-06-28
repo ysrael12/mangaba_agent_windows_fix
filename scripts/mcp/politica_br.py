@@ -429,6 +429,139 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
         return {"erro": str(e)}
 
 
+# ── Emendas → empresas (CNPJ + razão social via BrasilAPI) ──────────────────
+
+def _calcular_cnpj(cnpj_12: str) -> str:
+    """Calcula os dois dígitos verificadores e retorna o CNPJ com 14 dígitos."""
+    def _dv(digits: str, pesos: list) -> int:
+        s = sum(int(d) * p for d, p in zip(digits, pesos))
+        r = s % 11
+        return 0 if r < 2 else 11 - r
+    p1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    p2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+    d1 = _dv(cnpj_12, p1)
+    d2 = _dv(cnpj_12 + str(d1), p2)
+    return cnpj_12 + str(d1) + str(d2)
+
+
+def _lookup_cnpj(cnpj14: str) -> Dict[str, Any]:
+    """Consulta razão social, município e situação via BrasilAPI (sem chave)."""
+    try:
+        r = httpx.get(f"https://brasilapi.com.br/api/cnpj/v1/{cnpj14}",
+                      headers={"User-Agent": "MangabaPoliticaBR/1.0"}, timeout=12)
+        if r.status_code == 200:
+            d = r.json()
+            return {"razao_social": d.get("razao_social"), "municipio": d.get("municipio"),
+                    "uf": d.get("uf"), "situacao": d.get("descricao_situacao_cadastral"),
+                    "atividade": (d.get("cnae_fiscal_descricao") or "")}
+    except Exception:
+        pass
+    return {}
+
+
+def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> Any:
+    """EMPRESAS beneficiadas pelas emendas parlamentares com CNPJ e razão social.
+    Cruza: emendas → documentos → itens de empenho → extrai CNPJ da proposta →
+    consulta BrasilAPI (Receita Federal) para obter razão social, município e situação.
+    Requer TRANSPARENCIA_API_KEY. BrasilAPI: pública, sem chave."""
+    import os
+    import re
+    from datetime import datetime
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key:
+        return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
+    H = {**_HEADERS, "chave-api-dados": key}
+    anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
+    try:
+        emendas, ano_usado = [], None
+        for a in anos_tentar:
+            params: Dict[str, Any] = {"pagina": 1, "ano": a}
+            if autor:
+                params["nomeAutor"] = autor
+            r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                          params=params, headers=H, timeout=20)
+            emendas = r.json() if r.status_code == 200 else []
+            if emendas:
+                ano_usado = a
+                break
+        if not emendas:
+            return {"msg": f"Nenhuma emenda encontrada para '{autor}' nos anos 2022-2026."}
+
+        cnpj_cache: Dict[str, Dict] = {}
+        resultados = []
+        for em in emendas:
+            cod = em.get("codigoEmenda", "")
+            rd = httpx.get(
+                f"https://api.portaldatransparencia.gov.br/api-de-dados/emendas/documentos/{cod}",
+                headers=H, timeout=15)
+            docs = rd.json() if rd.status_code == 200 else []
+            for doc in docs:
+                cd = doc.get("codigoDocumento", "")
+                ri = httpx.get(
+                    "https://api.portaldatransparencia.gov.br/api-de-dados/despesas/itens-de-empenho",
+                    params={"codigoDocumento": cd, "pagina": 1}, headers=H, timeout=15)
+                if ri.status_code != 200:
+                    continue
+                for item in ri.json():
+                    desc = item.get("descricao", "")
+                    valor = item.get("valorAtual", "")
+                    empresa: Dict[str, Any] = {}
+                    # extrai CNPJ base (12 dígitos) dos números de proposta
+                    m = re.search(r'PROPOSTA\s+(\d{12})\d{2}', desc)
+                    if m:
+                        cnpj14 = _calcular_cnpj(m.group(1))
+                        if cnpj14 not in cnpj_cache:
+                            cnpj_cache[cnpj14] = _lookup_cnpj(cnpj14)
+                        empresa = cnpj_cache[cnpj14]
+                        empresa["cnpj"] = f"{cnpj14[:2]}.{cnpj14[2:5]}.{cnpj14[5:8]}/{cnpj14[8:12]}-{cnpj14[12:]}"
+                    resultados.append({
+                        "funcao": em.get("funcao"),
+                        "destino": em.get("localidadeDoGasto"),
+                        "ano": ano_usado,
+                        "objeto": desc[:180],
+                        "valor": valor,
+                        "subelemento": item.get("descricaoSubelemento"),
+                        **empresa,
+                    })
+        # agrupa por empresa para facilitar leitura
+        por_empresa: Dict[str, Any] = {}
+        sem_cnpj = []
+        for item in resultados:
+            key_e = item.get("cnpj") or item.get("objeto", "")[:40]
+            if item.get("razao_social"):
+                if key_e not in por_empresa:
+                    por_empresa[key_e] = {
+                        "cnpj": item.get("cnpj"), "razao_social": item.get("razao_social"),
+                        "municipio": item.get("municipio"), "uf": item.get("uf"),
+                        "situacao": item.get("situacao"), "atividade": item.get("atividade"),
+                        "funcoes": set(), "total_valor": 0.0,
+                    }
+                por_empresa[key_e]["funcoes"].add(item.get("funcao", "?"))
+                try:
+                    por_empresa[key_e]["total_valor"] += float(
+                        str(item.get("valor","0")).replace(".", "").replace(",", "."))
+                except Exception:
+                    pass
+            else:
+                sem_cnpj.append({"objeto": item.get("objeto"), "valor": item.get("valor"),
+                                  "funcao": item.get("funcao"), "subelemento": item.get("subelemento")})
+        return {
+            "autor": autor, "ano": ano_usado, "fonte": "Portal da Transparência + Receita Federal (BrasilAPI)",
+            "empresas": [
+                {"cnpj": v["cnpj"], "razao_social": v["razao_social"],
+                 "municipio": f"{v['municipio']}-{v['uf']}", "situacao": v["situacao"],
+                 "atividade": v["atividade"],
+                 "funcoes": list(v["funcoes"]),
+                 "total_recebido": f"R$ {v['total_valor']:,.2f}"}
+                for v in sorted(por_empresa.values(), key=lambda x: -x["total_valor"])
+            ],
+            "outros_sem_cnpj_identificado": sem_cnpj[:10],
+        }
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
 # ── Emendas 2025/2026 — Transparência multi-ano ─────────────────────────────
 
 def _transparencia_emendas_multiperiodo(autor: str = "", anos: str = "") -> Any:
@@ -689,6 +822,15 @@ def _build_server():
         'beneficiários', 'destino em relação a empresas'. DIFERENTE de CEAP/cota.
         Requer TRANSPARENCIA_API_KEY."""
         return _transparencia_emendas_empresas(autor, ano)
+
+    @mcp.tool()
+    def transparencia_emendas_empresas_cnpj(autor: str = "", ano: int = 0) -> "Any":
+        """EMPRESAS com CNPJ e razão social (Receita Federal) que receberam verba
+        das emendas parlamentares. Cruza emendas → empenhos → extrai CNPJ da proposta
+        → consulta BrasilAPI para obter: razão social, município/UF, situação cadastral
+        e total recebido. Use quando perguntar 'quais empresas', 'CNPJ', 'razão social',
+        'quem recebeu'. Requer TRANSPARENCIA_API_KEY."""
+        return _transparencia_emendas_empresas_detalhado(autor, ano)
 
     @mcp.tool()
     def emendas_historico(autor: str = "", anos: str = "") -> "Any":
