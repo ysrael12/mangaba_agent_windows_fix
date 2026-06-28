@@ -147,6 +147,15 @@ def _redact_gateway_user_facing_secrets(text: str) -> str:
     return redacted
 
 
+def _record_provider_rate_limit(detail: str) -> None:
+    """Registra falha/limite do provider do modelo p/ o banner do dashboard."""
+    try:
+        from mangaba_cli import rate_limit_log
+        rate_limit_log.record("modelo", detail)
+    except Exception:
+        pass
+
+
 def _gateway_provider_error_reply(text: str) -> str:
     """Map raw provider/API errors to a short user-safe Telegram reply."""
     if _GATEWAY_AUTH_ERROR_RE.search(text):
@@ -160,7 +169,9 @@ def _gateway_provider_error_reply(text: str) -> str:
             "error out of chat; check gateway logs for details or try rephrasing."
         )
     if _GATEWAY_RATE_LIMIT_RE.search(text):
+        _record_provider_rate_limit("rate-limit do provider do modelo (HF router)")
         return "⏱️ The model provider is rate-limiting requests. Please wait a moment and try again."
+    _record_provider_rate_limit("falha do provider do modelo após retries")
     return (
         "⚠️ The model provider failed after retries. I kept raw provider details "
         "out of chat; check gateway logs for diagnostics."

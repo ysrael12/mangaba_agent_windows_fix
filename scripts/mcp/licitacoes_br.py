@@ -54,6 +54,22 @@ MODALIDADES = {
 _MODALIDADES_COMUNS = [6, 8, 9, 4, 7]
 
 
+def _record_rate_limit(source: str, detail: str = "") -> None:
+    """Anexa evento de rate-limit ao log compartilhado (lido pelo dashboard).
+    Standalone (sem depender de mangaba_cli) — respeita MANGABA_HOME."""
+    try:
+        import json as _json, os as _os, time as _time
+        from pathlib import Path as _Path
+        home = _os.environ.get("MANGABA_HOME") or str(_Path.home() / ".mangaba")
+        p = _Path(home) / "rate_limit_events.jsonl"
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("a", encoding="utf-8") as f:
+            f.write(_json.dumps({"ts": _time.time(), "source": source,
+                                 "detail": detail[:200]}, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
 def _match_objeto(filtro: str, texto: str) -> bool:
     """True se QUALQUER termo de `filtro` (separado por vírgula) está em `texto`.
     Filtro vazio = aceita tudo. Trata 'internet,telefonia' como OR."""
@@ -123,6 +139,7 @@ def _get(url: str, params: Dict[str, Any]) -> Dict[str, Any]:
                 if tentativa < 2:
                     time.sleep(1.5 * (tentativa + 1))  # 1.5s, 3s
                     continue
+                _record_rate_limit("pncp", "HTTP 429 — limite de requisições do PNCP")
                 return {"erro": "HTTP 429", "rate_limited": True}
             return {"erro": f"HTTP {r.status_code}", "detalhe": r.text[:160]}
         except Exception as e:  # noqa: BLE001

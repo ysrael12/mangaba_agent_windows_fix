@@ -698,7 +698,18 @@ async def get_status():
         "gateway_exit_reason": gateway_exit_reason,
         "gateway_updated_at": gateway_updated_at,
         "active_sessions": active_sessions,
+        "rate_limit": _rate_limit_summary(),
     }
+
+
+def _rate_limit_summary() -> dict:
+    """Resumo de eventos de rate-limit (modelo/PNCP/etc.) p/ o banner do dashboard."""
+    try:
+        from mangaba_cli import rate_limit_log
+
+        return rate_limit_log.summary(minutes=15)
+    except Exception:
+        return {"active": False, "count": 0, "by_source": {}, "last": None}
 
 
 # ---------------------------------------------------------------------------

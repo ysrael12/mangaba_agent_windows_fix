@@ -691,6 +691,15 @@ export interface StatusResponse {
   latest_config_version: number;
   release_date: string;
   version: string;
+  rate_limit?: RateLimitSummary;
+}
+
+export interface RateLimitSummary {
+  active: boolean;
+  count: number;
+  by_source: Record<string, number>;
+  last: { ts: number; source: string; detail: string } | null;
+  window_minutes?: number;
 }
 
 export interface SessionInfo {
