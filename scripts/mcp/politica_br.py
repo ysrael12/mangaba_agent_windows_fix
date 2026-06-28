@@ -166,6 +166,56 @@ def detalhes_senador(codigo: int) -> Dict[str, Any]:
             "nascimento": man.get("DataNascimento"), "profissao": man.get("Profissao")}
 
 
+def buscar_materias_senado(termo: str = "", sigla: str = "", ano: int = 0, limite: int = 10) -> List[Dict[str, Any]]:
+    """Matérias (projetos) do Senado por palavra-chave, sigla (PL, PEC…) e/ou ano."""
+    p: Dict[str, Any] = {}
+    if termo:
+        p["palavraChave"] = termo
+    if sigla:
+        p["sigla"] = sigla.upper()
+    if ano:
+        p["ano"] = ano
+    d = _senado_get("/materia/pesquisa/lista", p)
+    mats = ((d.get("PesquisaBasicaMateria", {}) or {}).get("Materias", {}) or {}).get("Materia", [])
+    if isinstance(mats, dict):
+        mats = [mats]
+    return [{"materia": m.get("DescricaoIdentificacao"), "ementa": m.get("Ementa"),
+             "autor": m.get("Autor"), "data": m.get("Data"), "url": m.get("UrlDetalheMateria")}
+            for m in mats[:limite]]
+
+
+# ── Glossário legislativo (local, instantâneo) ──────────────────────────────
+_GLOSSARIO: Dict[str, str] = {
+    "pec": "Proposta de Emenda à Constituição — altera o texto da Constituição; exige quórum qualificado (3/5) em dois turnos nas duas Casas.",
+    "pl": "Projeto de Lei (ordinária) — cria ou altera leis comuns; aprovação por maioria simples.",
+    "plp": "Projeto de Lei Complementar — regula matérias que a Constituição exige por lei complementar; quórum de maioria absoluta.",
+    "mpv": "Medida Provisória — editada pelo Presidente com força de lei imediata; precisa ser convertida em lei pelo Congresso em até 120 dias.",
+    "pdl": "Projeto de Decreto Legislativo — matéria de competência exclusiva do Congresso (ex.: sustar atos do Executivo).",
+    "quórum": "Número mínimo de parlamentares para deliberar/aprovar (maioria simples, absoluta ou qualificada).",
+    "regime de urgência": "Tramitação acelerada que dispensa prazos e algumas exigências regimentais.",
+    "relator": "Parlamentar designado para analisar a matéria e apresentar parecer.",
+    "emenda": "Proposta de alteração ao texto de uma proposição em tramitação.",
+    "destaque": "Pedido para votar separadamente parte de uma proposição.",
+    "veto": "Rejeição (total ou parcial) de um projeto pelo Presidente; pode ser derrubado pelo Congresso.",
+    "sanção": "Aprovação de um projeto pelo Presidente, transformando-o em lei.",
+    "promulgação": "Ato que atesta a existência da lei e ordena seu cumprimento.",
+    "ceap": "Cota para o Exercício da Atividade Parlamentar — verba para despesas do mandato (a 'cota parlamentar').",
+    "ceis": "Cadastro de Empresas Inidôneas e Suspensas — empresas sancionadas (Portal da Transparência).",
+    "cnep": "Cadastro Nacional de Empresas Punidas — sanções da Lei Anticorrupção.",
+}
+
+
+def glossario(termo: str = "") -> Any:
+    """Definições de termos legislativos. Sem termo, lista os disponíveis."""
+    if not termo:
+        return {"termos": sorted(_GLOSSARIO.keys())}
+    t = termo.lower().strip()
+    if t in _GLOSSARIO:
+        return {"termo": termo, "definicao": _GLOSSARIO[t]}
+    hits = {k: v for k, v in _GLOSSARIO.items() if t in k or t in v.lower()}
+    return hits or {"erro": f"Termo '{termo}' não encontrado no glossário."}
+
+
 # ── TSE (dados abertos via CKAN — datasets/arquivos) ────────────────────────
 def _tse_datasets(termo: str, limite: int = 5) -> List[Dict[str, Any]]:
     """Busca conjuntos de dados do TSE (candidatos, resultados, contas). O TSE
@@ -261,6 +311,16 @@ def _build_server():
     def senado_detalhes_senador(codigo: int) -> dict:
         """Detalhes de um senador pelo código (Senado Federal)."""
         return detalhes_senador(codigo)
+
+    @mcp.tool()
+    def senado_buscar_materias(termo: str = "", sigla: str = "", ano: int = 0, limite: int = 10) -> list:
+        """Busca matérias/projetos do Senado por palavra-chave, sigla (PL, PEC…) e/ou ano."""
+        return buscar_materias_senado(termo, sigla, ano, limite)
+
+    @mcp.tool()
+    def glossario_legislativo(termo: str = "") -> "Any":
+        """Define termos legislativos (PEC, PL, MPV, quórum, veto, CEAP, CEIS…). Sem termo, lista todos."""
+        return glossario(termo)
 
     @mcp.tool()
     def _tse_datasets(termo: str, limite: int = 5) -> list:

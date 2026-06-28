@@ -3,7 +3,7 @@
 Agente que consulta e **cruza** dados de **APIs públicas abertas da política
 brasileira** — Câmara, Senado, TSE e Portal da Transparência.
 
-## Ferramentas (MCP `politica-br`) — 11
+## Ferramentas (MCP `politica-br`) — 13
 **Câmara dos Deputados** (sem chave):
 - `camara_buscar_deputados(nome, uf, partido, limite)`
 - `camara_detalhes_deputado(deputado_id)`
@@ -16,6 +16,10 @@ brasileira** — Câmara, Senado, TSE e Portal da Transparência.
 **Senado Federal** (sem chave):
 - `senado_buscar_senadores(nome, uf, partido, limite)`
 - `senado_detalhes_senador(codigo)`
+- `senado_buscar_materias(termo, sigla, ano, limite)` — projetos do Senado
+
+**Glossário legislativo** (local, instantâneo):
+- `glossario_legislativo(termo)` — PEC, PL, MPV, quórum, veto, CEAP, CEIS…
 
 **TSE** (datasets/arquivos — o TSE publica em CSV/ZIP):
 - `tse_buscar_datasets(termo, limite)` → títulos + links
