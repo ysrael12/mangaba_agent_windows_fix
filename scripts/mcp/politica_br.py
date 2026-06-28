@@ -355,10 +355,63 @@ def _transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> A
             return {"erro": f"HTTP {r.status_code}: {r.text[:120]}"}
         d = r.json()[:limite]
         return [{"autor": x.get("nomeAutor"), "ano": x.get("ano"),
+                 "codigo_emenda": x.get("codigoEmenda"),
                  "destino": x.get("localidadeDoGasto"), "funcao": x.get("funcao"),
                  "subfuncao": x.get("subfuncao"),
                  "valor_empenhado": x.get("valorEmpenhado"),
                  "valor_pago": x.get("valorPago")} for x in d]
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
+def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
+    """EMPRESAS/ENTIDADES beneficiadas pelas emendas parlamentares de um autor.
+    Cruza emendas → documentos de execução → itens de empenho (objeto + valor).
+    Use quando perguntar 'quais empresas receberam' ou 'beneficiários das emendas'.
+    Requer TRANSPARENCIA_API_KEY."""
+    import os
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key:
+        return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
+    H = {**_HEADERS, "chave-api-dados": key}
+    try:
+        params: Dict[str, Any] = {"pagina": 1}
+        if autor:
+            params["nomeAutor"] = autor
+        if ano:
+            params["ano"] = ano
+        r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                      params=params, headers=H, timeout=25)
+        if r.status_code != 200:
+            return {"erro": f"HTTP {r.status_code}: {r.text[:80]}"}
+        emendas = r.json()
+        resultados = []
+        for em in emendas:
+            cod = em.get("codigoEmenda", "")
+            rd = httpx.get(
+                f"https://api.portaldatransparencia.gov.br/api-de-dados/emendas/documentos/{cod}",
+                headers=H, timeout=15)
+            docs = rd.json() if rd.status_code == 200 else []
+            for doc in docs:
+                cd = doc.get("codigoDocumento", "")
+                fase = doc.get("fase", "")
+                ri = httpx.get(
+                    "https://api.portaldatransparencia.gov.br/api-de-dados/despesas/itens-de-empenho",
+                    params={"codigoDocumento": cd, "pagina": 1}, headers=H, timeout=15)
+                if ri.status_code == 200:
+                    for item in ri.json():
+                        resultados.append({
+                            "funcao": em.get("funcao"),
+                            "destino": em.get("localidadeDoGasto"),
+                            "ano": em.get("ano"),
+                            "codigo_emenda": cod,
+                            "fase": fase,
+                            "objeto": item.get("descricao", "")[:200],
+                            "subelemento": item.get("descricaoSubelemento"),
+                            "valor": item.get("valorAtual"),
+                        })
+        return resultados if resultados else {"msg": "Nenhum item de empenho encontrado."}
     except Exception as e:  # noqa: BLE001
         return {"erro": str(e)}
 
@@ -455,6 +508,15 @@ def _build_server():
         valores (empenhado/pago). IMPORTANTE: emendas são DIFERENTES dos gastos da cota
         (CEAP) — use ESTA para 'emendas', não o dossiê. Requer TRANSPARENCIA_API_KEY."""
         return _transparencia_emendas(autor, ano, limite)
+
+    @mcp.tool()
+    def transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> "Any":
+        """EMPRESAS/ENTIDADES beneficiadas pelas emendas parlamentares de um autor.
+        Cruza emendas → documentos de execução → itens de empenho (objeto + valor +
+        subelemento). Use quando perguntar 'quais empresas receberam verba da emenda',
+        'beneficiários', 'destino em relação a empresas'. DIFERENTE de CEAP/cota.
+        Requer TRANSPARENCIA_API_KEY."""
+        return _transparencia_emendas_empresas(autor, ano)
 
     return mcp
 
