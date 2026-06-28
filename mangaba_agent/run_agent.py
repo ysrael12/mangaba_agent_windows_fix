@@ -4086,6 +4086,23 @@ class AIAgent:
         )
         _latency_ms = int((_t.time() - _t0) * 1000)
 
+        # Guardrail de saída: redige PII / bloqueia conteúdo inseguro antes de
+        # a resposta sair por qualquer canal. Best-effort, não quebra o fluxo.
+        try:
+            if isinstance(result, dict) and result.get("final_response"):
+                from mangaba_cli import guardrails
+
+                if guardrails.enabled():
+                    g = guardrails.check_output(
+                        result["final_response"],
+                        user_message if isinstance(user_message, str) else "",
+                    )
+                    if g["action"] != "allow":
+                        result["final_response"] = g["text"]
+                        result["guardrail"] = {"action": g["action"], "reasons": g["reasons"]}
+        except Exception:
+            pass
+
         try:
             from mangaba_cli.usage_ledger import record_usage
 

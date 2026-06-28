@@ -171,6 +171,13 @@ export const api = {
       `/api/observability?eval=${enabled ? "true" : "false"}`,
       { method: "PUT" },
     ),
+  getGuardrails: () => fetchJSON<GuardrailsConfig>("/api/guardrails"),
+  setGuardrails: (body: GuardrailsConfig) =>
+    fetchJSON<{ ok: boolean }>("/api/guardrails", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
 
   // ── Uso & custo ──────────────────────────────────────────────────────────
   getUsage: (days = 14) => fetchJSON<UsageResponse>(`/api/usage?days=${days}`),
@@ -928,6 +935,13 @@ export interface MemoryResponse {
   provider: string;
   memory_enabled: boolean;
   user_profile_enabled: boolean;
+}
+
+export interface GuardrailsConfig {
+  enabled: boolean;
+  redact_pii: boolean;
+  mode: "redact" | "block";
+  llm_check: boolean;
 }
 
 export interface TraceRow {

@@ -1723,6 +1723,45 @@ def get_traces(limit: int = 100, hours: int = 24):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+class GuardrailsConfig(BaseModel):
+    enabled: bool = False
+    redact_pii: bool = True
+    mode: str = "redact"  # redact | block
+    llm_check: bool = False
+
+
+@app.get("/api/guardrails")
+def get_guardrails():
+    from mangaba_cli.config import load_config
+
+    g = (load_config().get("guardrails") or {})
+    return {
+        "enabled": bool(g.get("enabled", False)),
+        "redact_pii": bool(g.get("redact_pii", True)),
+        "mode": g.get("mode", "redact"),
+        "llm_check": bool(g.get("llm_check", False)),
+    }
+
+
+@app.put("/api/guardrails")
+def set_guardrails(body: GuardrailsConfig):
+    try:
+        from mangaba_cli.config import load_config, save_config
+
+        cfg = load_config()
+        cfg["guardrails"] = {
+            "enabled": bool(body.enabled),
+            "redact_pii": bool(body.redact_pii),
+            "mode": body.mode if body.mode in ("redact", "block") else "redact",
+            "llm_check": bool(body.llm_check),
+        }
+        save_config(cfg)
+        return {"ok": True, **cfg["guardrails"]}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("PUT /api/guardrails failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
 @app.put("/api/observability")
 def set_observability(eval: bool = False):
     """Liga/desliga a avaliação de qualidade (LLM-juiz) por turno."""
