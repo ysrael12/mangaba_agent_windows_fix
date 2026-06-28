@@ -211,6 +211,12 @@ Regras de ouro:
 ele é marcado para **voltar sozinho no boot**. O dashboard reconcilia na subida
 (o LaunchAgent do macÓS já sobe o dashboard). Parar pelo painel desmarca.
 
+## 8.4 Go-live (produção)
+
+Checklist completo para colocar em produção com segurança (chaves, proxy HTTPS,
+canais, billing, auto-restart, backups): **`scripts/deploy/go-live.md`**.
+WhatsApp oficial: `scripts/deploy/whatsapp-cloud.md`.
+
 ## 9. Ajuda
 
 ```
