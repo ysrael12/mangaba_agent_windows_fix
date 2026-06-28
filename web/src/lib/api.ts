@@ -364,6 +364,23 @@ export const api = {
         body: JSON.stringify({ name: name ?? "" }),
       },
     ),
+  getProfileTeams: (name: string) =>
+    fetchJSON<{ configured: boolean; client_id: string; has_secret: boolean; tenant_id: string; port: number | null }>(
+      `/api/profiles/${encodeURIComponent(name)}/teams`,
+    ),
+  connectProfileTeams: (name: string, client_id: string, client_secret: string, tenant_id: string) =>
+    fetchJSON<{ ok: boolean; port: number; messaging_endpoint: string; note: string }>(
+      `/api/profiles/${encodeURIComponent(name)}/teams/connect`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ client_id, client_secret, tenant_id }),
+      },
+    ),
+  disconnectProfileTeams: (name: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/profiles/${encodeURIComponent(name)}/teams`, {
+      method: "DELETE",
+    }),
   getProfileModel: (name: string) =>
     fetchJSON<{ model: string; provider: string }>(
       `/api/profiles/${encodeURIComponent(name)}/model`,

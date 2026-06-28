@@ -85,6 +85,7 @@ const MemoryPage = lazy(() => import("@/pages/MemoryPage"));
 const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
 const CreateAgentPage = lazy(() => import("@/pages/CreateAgentPage"));
 const ObservabilityPage = lazy(() => import("@/pages/ObservabilityPage"));
+const TeamsAgentsPage = lazy(() => import("@/pages/TeamsAgentsPage"));
 const ExamplesPage = lazy(() => import("@/pages/ExamplesPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
@@ -140,6 +141,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/clients": ClientsPage,
   "/criar": CreateAgentPage,
   "/observability": ObservabilityPage,
+  "/teams-agents": TeamsAgentsPage,
   "/sessions/global": GlobalSessionsPage,
   "/routing": RoutingPage,
   "/profiles": ProfilesPage,
@@ -173,6 +175,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais" },
   { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais" },
   { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais" },
+  { path: "/teams-agents", label: "Agentes no Teams", icon: Radio, section: "Agentes e canais" },
 
   // 4) Usar
   { ...CHAT_NAV_ITEM, section: "Usar" },

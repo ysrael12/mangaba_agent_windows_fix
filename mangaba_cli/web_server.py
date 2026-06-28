@@ -4183,6 +4183,107 @@ async def set_profile_model(name: str, body: ProfileModelUpdate):
     return {"ok": True, "model": body.model.strip()}
 
 
+# ── Teams por agente (1 bot por agente) ─────────────────────────────────────
+class TeamsCreds(BaseModel):
+    client_id: str
+    client_secret: str
+    tenant_id: str
+
+
+def _read_env_file(path: Path) -> Dict[str, str]:
+    out: Dict[str, str] = {}
+    try:
+        if path.exists():
+            for line in path.read_text(encoding="utf-8").splitlines():
+                s = line.strip()
+                if not s or s.startswith("#") or "=" not in s:
+                    continue
+                k, v = s.split("=", 1)
+                out[k.strip()] = v.strip()
+    except Exception:
+        pass
+    return out
+
+
+def _alloc_teams_port() -> int:
+    """Aloca uma porta TEAMS livre (base 3978) varrendo os .env dos profiles."""
+    from mangaba_cli import profiles as profiles_mod
+
+    used = set()
+    try:
+        for p in profiles_mod.list_profiles():
+            pdir = profiles_mod.get_profile_dir(_profile_attr(p, "name", ""))
+            env = _read_env_file(pdir / ".env")
+            if env.get("TEAMS_PORT"):
+                try:
+                    used.add(int(env["TEAMS_PORT"]))
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    port = 3978
+    while port in used:
+        port += 1
+    return port
+
+
+@app.get("/api/profiles/{name}/teams")
+async def get_profile_teams(name: str):
+    env = _read_env_file(_resolve_profile_dir(name) / ".env")
+    cid = env.get("TEAMS_CLIENT_ID", "")
+    return {
+        "configured": bool(cid),
+        "client_id": (cid[:8] + "…") if cid else "",
+        "has_secret": bool(env.get("TEAMS_CLIENT_SECRET")),
+        "tenant_id": env.get("TEAMS_TENANT_ID", ""),
+        "port": int(env["TEAMS_PORT"]) if env.get("TEAMS_PORT") else None,
+    }
+
+
+@app.post("/api/profiles/{name}/teams/connect")
+async def connect_profile_teams(name: str, body: TeamsCreds):
+    """Valida e grava credenciais Teams no .env do profile (1 bot por agente)."""
+    from mangaba_cli.client_profiles import _set_env_lines
+
+    pdir = _resolve_profile_dir(name)
+    res = _validate_teams(body.client_id, body.client_secret, body.tenant_id)
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error", "Credenciais inválidas."))
+    env = _read_env_file(pdir / ".env")
+    port = int(env["TEAMS_PORT"]) if env.get("TEAMS_PORT") else _alloc_teams_port()
+    try:
+        _set_env_lines(
+            pdir / ".env",
+            updates={
+                "TEAMS_CLIENT_ID": body.client_id.strip(),
+                "TEAMS_CLIENT_SECRET": body.client_secret.strip(),
+                "TEAMS_TENANT_ID": body.tenant_id.strip(),
+                "TEAMS_PORT": str(port),
+            },
+            remove_keys=set(),
+        )
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("connect_profile_teams failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {
+        "ok": True,
+        "port": port,
+        "messaging_endpoint": "https://SEU_DOMINIO/api/messages",
+        "note": "Aponte (proxy HTTPS) para 127.0.0.1:%d/api/messages e inicie o agente." % port,
+    }
+
+
+@app.delete("/api/profiles/{name}/teams")
+async def disconnect_profile_teams(name: str):
+    from mangaba_cli.client_profiles import _set_env_lines
+
+    pdir = _resolve_profile_dir(name)
+    _set_env_lines(pdir / ".env", updates={}, remove_keys={
+        "TEAMS_CLIENT_ID", "TEAMS_CLIENT_SECRET", "TEAMS_TENANT_ID", "TEAMS_PORT",
+    })
+    return {"ok": True}
+
+
 # ── Agentes verticais prontos (templates) ───────────────────────────────────
 class TemplateInstall(BaseModel):
     name: str = ""  # nome do profile (vazio = usa o id do template)
@@ -4342,12 +4443,6 @@ async def whatsapp_cloud_connect(body: WhatsAppCloudCreds):
 
 
 # ── Microsoft Teams (Bot Framework / Azure) ─────────────────────────────────
-class TeamsCreds(BaseModel):
-    client_id: str
-    client_secret: str
-    tenant_id: str
-
-
 def _validate_teams(client_id: str, client_secret: str, tenant_id: str) -> Dict[str, Any]:
     """Confere as credenciais pegando um token OAuth do Azure AD (Bot Framework)."""
     import httpx
