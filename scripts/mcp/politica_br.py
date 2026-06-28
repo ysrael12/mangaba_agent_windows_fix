@@ -138,25 +138,34 @@ def partidos(limite: int = 40) -> List[Dict[str, Any]]:
     return [{"id": x.get("id"), "sigla": x.get("sigla"), "nome": x.get("nome")} for x in d]
 
 
-def comparar_deputados(nome1: str, nome2: str, ano: int = 0) -> Dict[str, Any]:
-    """Compara dois deputados lado a lado: partido/UF + gastos CEAP do ano."""
-    res = {"ano": None, "parlamentares": [], "fonte": "Câmara dos Deputados — Dados Abertos (CEAP)"}
+def comparar_deputados(nome1: str, nome2: str, ano: int = 0) -> str:
+    """Compara dois deputados lado a lado: partido/UF + gastos CEAP do ano.
+    Retorna texto pré-formatado (marcador RESULTADO OBRIGATÓRIO) para o modelo
+    entregar ao usuário sem reinterpretar."""
+    linhas = ["RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:"]
+    ano_usado = None
+    blocos = []
     for nome in (nome1, nome2):
         dos = dossie_deputado(nome=nome, ano=ano)
         if "erro" in dos:
-            res["parlamentares"].append({"nome": nome, "erro": dos["erro"]})
+            blocos.append(f"• {nome}: {dos['erro']} (pode não estar em exercício na Câmara)")
             continue
-        res["ano"] = dos.get("ano")
+        ano_usado = dos.get("ano")
         g = dos["gastos_ceap"]
-        res["parlamentares"].append({
-            "nome": dos["deputado"].get("nome_parlamentar"),
-            "partido": dos["deputado"].get("partido"),
-            "uf": dos["deputado"].get("uf"),
-            "situacao": dos["deputado"].get("situacao"),
-            "gastos_total_amostra": g["total_amostra"],
-            "top_categoria": (g["top_categorias"][0] if g["top_categorias"] else None),
-        })
-    return res
+        d = dos["deputado"]
+        top = g["top_categorias"][0] if g["top_categorias"] else None
+        top_txt = (f"{top.get('categoria')} (R$ {top.get('valor'):,.2f})"
+                   if top else "—")
+        blocos.append(
+            f"• {d.get('nome_parlamentar')} ({d.get('partido')}-{d.get('uf')}, "
+            f"{d.get('situacao')})\n"
+            f"  Gastos CEAP (amostra): R$ {g['total_amostra']:,.2f}\n"
+            f"  Maior categoria: {top_txt}"
+        )
+    linhas.append(f"Comparação de cota parlamentar (CEAP) — ano {ano_usado or ano or 'atual'}:")
+    linhas.extend(blocos)
+    linhas.append("Fonte: Câmara dos Deputados — Dados Abertos (CEAP)")
+    return "\n".join(linhas)
 
 
 def dossie_deputado(nome: str = "", deputado_id: int = 0, ano: int = 0) -> Dict[str, Any]:
@@ -503,18 +512,17 @@ def _lookup_cnes(cnes: str) -> Dict[str, Any]:
     return {}
 
 
-def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> Any:
-    """EMPRESAS beneficiadas pelas emendas parlamentares com CNPJ e razão social.
-    Cruza: emendas → documentos → itens de empenho → extrai CNPJ da proposta →
-    consulta BrasilAPI (Receita Federal) para obter razão social, município e situação.
-    Requer TRANSPARENCIA_API_KEY. BrasilAPI: pública, sem chave."""
+def _emendas_beneficiarios_raw(autor: str = "", ano: int = 0):
+    """Núcleo do cruzamento emendas→empenhos→CNPJ/CNES. Retorna
+    (lista_de_dicts, ano_usado) com total_recebido como float — ou (erro_str, None).
+    Usado tanto pelo formatador de texto quanto pela tool de cruzamento com sanções."""
     import os
     import re
     from datetime import datetime
 
     key = os.getenv("TRANSPARENCIA_API_KEY", "")
     if not key:
-        return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
+        return "Configure TRANSPARENCIA_API_KEY no .env.", None
     H = {**_HEADERS, "chave-api-dados": key}
     anos_tentar = [ano] if ano else [datetime.now().year, 2024, 2023, 2022]
     try:
@@ -530,7 +538,7 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
                 ano_usado = a
                 break
         if not emendas:
-            return {"msg": f"Nenhuma emenda encontrada para '{autor}' nos anos 2022-2026."}
+            return f"Nenhuma emenda encontrada para '{autor}' nos anos 2022-2026.", None
 
         cnpj_cache: Dict[str, Dict] = {}
         resultados = []
@@ -595,23 +603,65 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
                 pass
 
         lista = sorted(por_benef.values(), key=lambda x: -x["total_recebido_R$"])
-        # formata valores
-        for b in lista:
-            b["total_recebido_R$"] = f"R$ {b['total_recebido_R$']:,.2f}"
-
-        if not lista:
-            return f"RESULTADO: 0 beneficiários encontrados para {autor} em {ano_usado}."
-
-        # Resposta curta — modelo DEVE entregar estes dados ao usuário sem alteração
-        linhas = [f"RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
-                  f"Emendas de {autor} ({ano_usado}) — {len(lista)} entidades receberam verba:"]
-        for i, b in enumerate(lista[:15], 1):
-            cnpj = b["cnpj"] if b["cnpj"] else f"CNES {b.get('cnes','?')}"
-            linhas.append(f"{i}. {b['beneficiario']} | {cnpj} | {b['total_recebido_R$']}")
-        linhas.append(f"Fonte: Portal da Transparência + CNES/DATASUS")
-        return "\n".join(linhas)
+        return lista, ano_usado
     except Exception as e:  # noqa: BLE001
-        return {"erro": str(e)}
+        return f"Erro ao consultar emendas: {e}", None
+
+
+def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> Any:
+    """EMPRESAS beneficiadas pelas emendas parlamentares com CNPJ e razão social.
+    Cruza: emendas → documentos → itens de empenho → extrai CNPJ da proposta →
+    consulta BrasilAPI (Receita Federal) para obter razão social, município e situação.
+    Requer TRANSPARENCIA_API_KEY. BrasilAPI: pública, sem chave."""
+    lista, ano_usado = _emendas_beneficiarios_raw(autor, ano)
+    if isinstance(lista, str):  # erro/mensagem
+        return lista
+    if not lista:
+        return f"RESULTADO: 0 beneficiários encontrados para {autor} em {ano_usado}."
+
+    # Resposta curta — modelo DEVE entregar estes dados ao usuário sem alteração
+    linhas = [f"RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
+              f"Emendas de {autor} ({ano_usado}) — {len(lista)} entidades receberam verba:"]
+    for i, b in enumerate(lista[:15], 1):
+        cnpj = b["cnpj"] if b["cnpj"] else f"CNES {b.get('cnes','?')}"
+        linhas.append(f"{i}. {b['beneficiario']} | {cnpj} | R$ {b['total_recebido_R$']:,.2f}")
+    linhas.append(f"Fonte: Portal da Transparência + CNES/DATASUS")
+    return "\n".join(linhas)
+
+
+def _transparencia_emendas_x_sancoes(autor: str = "", ano: int = 0) -> Any:
+    """CRUZAMENTO server-side: pega TODOS os beneficiários das emendas de um autor
+    e verifica cada CNPJ no CEIS (sancionados). Garante cobertura 100% — não
+    depende do modelo iterar. Retorna texto pré-formatado."""
+    lista, ano_usado = _emendas_beneficiarios_raw(autor, ano)
+    if isinstance(lista, str):
+        return lista
+    if not lista:
+        return f"RESULTADO: 0 beneficiários para {autor} em {ano_usado} — nada a cruzar."
+
+    com_cnpj = [b for b in lista if b.get("cnpj")]
+    sancionados = []
+    for b in com_cnpj:
+        cnpj = b["cnpj"]
+        res = _transparencia_ceis(nome_ou_cnpj=cnpj, limite=5)
+        if isinstance(res, list) and res:
+            sancionados.append((b, res))
+
+    linhas = ["RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
+              f"Cruzamento emendas × sanções (CEIS) — {autor} ({ano_usado}):",
+              f"Beneficiários com CNPJ verificados: {len(com_cnpj)} de {len(lista)} "
+              f"(demais são empenhos/CNES sem CNPJ direto)."]
+    if not sancionados:
+        linhas.append("✓ NENHUM dos CNPJs verificados está sancionado no CEIS.")
+    else:
+        linhas.append(f"⚠️ {len(sancionados)} beneficiário(s) SANCIONADO(s):")
+        for b, sanc in sancionados:
+            linhas.append(f"• {b['beneficiario']} ({b['cnpj']}) — recebeu R$ "
+                          f"{b['total_recebido_R$']:,.2f}")
+            for s in sanc[:3]:
+                linhas.append(f"    sanção: {s.get('tipo')} | {s.get('orgao')} | {s.get('data_inicio')}")
+    linhas.append("Fonte: Portal da Transparência (emendas + CEIS)")
+    return "\n".join(linhas)
 
 
 # ── Emendas 2025/2026 — Transparência multi-ano ─────────────────────────────
@@ -883,6 +933,15 @@ def _build_server():
         e total recebido. Use quando perguntar 'quais empresas', 'CNPJ', 'razão social',
         'quem recebeu'. Requer TRANSPARENCIA_API_KEY."""
         return _transparencia_emendas_empresas_detalhado(autor, ano)
+
+    @mcp.tool()
+    def transparencia_emendas_x_sancoes(autor: str = "", ano: int = 0) -> "Any":
+        """CRUZAMENTO automático: verifica se os beneficiários das emendas de um autor
+        estão SANCIONADOS no CEIS. Pega TODOS os CNPJs das emendas e cruza cada um com
+        o cadastro de sancionados — cobertura 100%, server-side. Use quando perguntar
+        'alguma empresa que recebeu emenda está sancionada', 'beneficiário sancionado',
+        'cruzar emenda com CEIS'. Requer TRANSPARENCIA_API_KEY."""
+        return _transparencia_emendas_x_sancoes(autor, ano)
 
     @mcp.tool()
     def emendas_historico(autor: str = "", anos: str = "") -> "Any":
