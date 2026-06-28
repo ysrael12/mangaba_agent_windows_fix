@@ -54,6 +54,16 @@ MODALIDADES = {
 _MODALIDADES_COMUNS = [6, 8, 9, 4, 7]
 
 
+def _match_objeto(filtro: str, texto: str) -> bool:
+    """True se QUALQUER termo de `filtro` (separado por vírgula) está em `texto`.
+    Filtro vazio = aceita tudo. Trata 'internet,telefonia' como OR."""
+    if not filtro:
+        return True
+    termos = [t.strip().lower() for t in filtro.split(",") if t.strip()]
+    t = (texto or "").lower()
+    return any(termo in t for termo in termos)
+
+
 def _fmt_dt(s: str) -> str:
     """'2026-07-15T09:00:00' → '15/07/2026 09:00'."""
     if not s or "T" not in s:
@@ -129,7 +139,7 @@ def licitacoes_abertas(uf: str = "AL", modalidade: int = 0, objeto: str = "",
             continue
         for c in (d.get("data") or []):
             r = _resumir(c)
-            if objeto and objeto.lower() not in (r["objeto"] or "").lower():
+            if not _match_objeto(objeto, r["objeto"]):
                 continue
             if municipio and municipio.lower() not in (r["municipio"] or "").lower():
                 continue
@@ -160,7 +170,7 @@ def licitacoes_periodo(uf: str = "AL", data_inicial: str = "", data_final: str =
     achados = []
     for c in (d.get("data") or []):
         r = _resumir(c)
-        if objeto and objeto.lower() not in (r["objeto"] or "").lower():
+        if not _match_objeto(objeto, r["objeto"]):
             continue
         if municipio and municipio.lower() not in (r["municipio"] or "").lower():
             continue
@@ -233,7 +243,7 @@ def contratos_orgao(cnpj_orgao: str = "", data_inicial: str = "", data_final: st
     for c in (d.get("data") or []):
         uo = c.get("unidadeOrgao") or {}
         obj = (c.get("objetoContrato") or "")
-        if objeto and objeto.lower() not in obj.lower():
+        if not _match_objeto(objeto, obj):
             continue
         forn = c.get("nomeRazaoSocialFornecedor") or (c.get("fornecedor") or {}).get("nome")
         achados.append({
@@ -367,6 +377,105 @@ def campeoes_por_area(termos: Optional[List[str]] = None, uf: str = "AL",
     return "\n".join(linhas)
 
 
+def _ceis_sancionado(cnpj: str, nome: str = "") -> List[Dict[str, Any]]:
+    """Verifica se um CNPJ está sancionado no CEIS (Portal da Transparência).
+
+    IMPORTANTE: o CEIS NÃO filtra por CNPJ (os params cnpjSancionado/cpfCnpj são
+    ignorados e devolvem a lista global — fonte de falso positivo). A forma
+    correta é buscar por nomeSancionado e CONFIRMAR pelo cnpjFormatado retornado.
+    Requer TRANSPARENCIA_API_KEY. Retorna só as sanções cujo CNPJ bate (vazio = limpo)."""
+    import os
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key or not nome:
+        return []
+    alvo = "".join(filter(str.isdigit, cnpj or ""))
+    if not alvo:
+        return []
+    # usa as 2-3 primeiras palavras da razão social como termo de busca
+    termo = " ".join([w for w in nome.split() if len(w) > 2][:3]) or nome
+    try:
+        sancoes = []
+        for pag in (1, 2):
+            r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/ceis",
+                          params={"pagina": pag, "nomeSancionado": termo},
+                          headers={**_H, "chave-api-dados": key}, timeout=15)
+            if r.status_code != 200:
+                break
+            data = r.json()
+            for x in data:
+                p = x.get("pessoa") or {}
+                cnpj_reg = "".join(filter(str.isdigit, p.get("cnpjFormatado") or ""))
+                if cnpj_reg and cnpj_reg == alvo:  # confirma pelo CNPJ
+                    sancoes.append({
+                        "tipo": (x.get("tipoSancao") or {}).get("descricaoResumida"),
+                        "orgao": (x.get("orgaoSancionador") or {}).get("nome"),
+                        "inicio": x.get("dataInicioSancao"), "fim": x.get("dataFimSancao")})
+            if len(data) < 15:
+                break
+        return sancoes
+    except Exception:
+        return []
+
+
+def campeoes_telecom_x_sancoes(uf: str = "AL", limite: int = 10) -> Any:
+    """CRUZAMENTO: ranking dos campeões de telecom + verificação de SANÇÕES (CEIS).
+    Para cada empresa vencedora, checa se está sancionada no Portal da Transparência.
+    Flagra a situação crítica: empresa sancionada que mesmo assim vence contratos."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    uf = (uf or "AL").upper()
+    refs = _buscar_contratos_area(TELECOM_TERMOS, uf, paginas=2)
+    if not refs:
+        return f"Nenhum contrato de telecomunicações encontrado em {uf}."
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        detalhes = list(ex.map(_detalhe_contrato, refs[:120]))
+
+    por_forn: Dict[str, Any] = {}
+    for c in detalhes:
+        if not c:
+            continue
+        objeto = (c.get("objetoContrato") or "").lower()
+        if not any(f in objeto for f in _TELECOM_FILTRO):
+            continue
+        cnpj = c.get("niFornecedor") or "?"
+        try:
+            valor = float(c.get("valorGlobal") or 0)
+        except Exception:
+            valor = 0.0
+        if cnpj not in por_forn:
+            por_forn[cnpj] = {"nome": c.get("nomeRazaoSocialFornecedor") or "(sem nome)",
+                              "cnpj": cnpj, "total": 0.0, "contratos": 0}
+        por_forn[cnpj]["total"] += valor
+        por_forn[cnpj]["contratos"] += 1
+
+    if not por_forn:
+        return f"Nenhum contrato confirmado de telecomunicações em {uf}."
+    ranking = sorted(por_forn.values(), key=lambda x: -x["total"])[:limite]
+
+    # checa sanções dos top em paralelo
+    def _chk(f):
+        f["sancoes"] = _ceis_sancionado(f["cnpj"], f["nome"]) if f["cnpj"] != "?" else []
+        return f
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        ranking = list(ex.map(_chk, ranking))
+
+    sancionadas = [f for f in ranking if f.get("sancoes")]
+    linhas = [f"🏆 Campeões de telecom × sanções (CEIS) — {uf}:"]
+    for i, f in enumerate(ranking, 1):
+        flag = "⚠️ SANCIONADA" if f.get("sancoes") else "✓ sem sanção"
+        linhas.append(f"{i}. {f['nome']} ({f['cnpj']}) — {_fmt_money(f['total'])} | "
+                      f"{f['contratos']} contrato(s) | {flag}")
+        for s in (f.get("sancoes") or [])[:2]:
+            linhas.append(f"     ↳ {s.get('tipo')} | {s.get('orgao')} | desde {s.get('inicio')}")
+    if sancionadas:
+        linhas.append(f"\n⚠️ ATENÇÃO: {len(sancionadas)} campeã(s) com sanção no CEIS.")
+    else:
+        linhas.append("\n✓ Nenhum dos campeões verificados está sancionado no CEIS.")
+    linhas.append("Fonte: PNCP (contratos) + Portal da Transparência (CEIS)")
+    return "\n".join(linhas)
+
+
 def modalidades_licitacao() -> Any:
     """Lista os códigos de modalidade de contratação (Lei 14.133/2021)."""
     linhas = ["Modalidades de contratação (Lei 14.133/2021):"]
@@ -453,8 +562,22 @@ def _build_server():
         mais vencem contratos. Passe `termos` separados por vírgula (ex.:
         'merenda,alimentação escolar' ou 'medicamento,fármaco') e um `area_nome`
         para o título. Padrão UF=AL. PNCP."""
-        lista = [t.strip() for t in termos.split(",") if t.strip()] or None
-        return campeoes_por_area(lista, uf, area_nome or (termos or "área"), limite)
+        # Aceita os termos em `termos` OU em `area_nome` (o modelo às vezes troca).
+        bruto = termos or area_nome or ""
+        lista = [t.strip() for t in bruto.split(",") if t.strip()]
+        if not lista:
+            return ("Informe os termos da área (ex.: termos='medicamento,fármaco'). "
+                    "Para telecomunicações use campeoes_telecom_al.")
+        return campeoes_por_area(lista, uf, area_nome or termos or "área", limite)
+
+    @mcp.tool()
+    def campeoes_telecom_x_sancoes(uf: str = "AL", limite: int = 10) -> "Any":
+        """CRUZAMENTO campeões de telecom × SANÇÕES (CEIS): ranking das empresas que
+        mais vencem licitações de telecom na UF JÁ verificando se cada uma está
+        sancionada no Portal da Transparência. Use para 'algum campeão está
+        sancionado', 'empresa irregular vencendo licitação de telecom', 'cruzar
+        vencedores com CEIS'. Requer TRANSPARENCIA_API_KEY. Fonte: PNCP + CEIS."""
+        return campeoes_telecom_x_sancoes(uf, limite)
 
     @mcp.tool()
     def licitacoes_modalidades() -> "Any":
