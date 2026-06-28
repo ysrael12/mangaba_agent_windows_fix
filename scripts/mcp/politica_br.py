@@ -459,6 +459,26 @@ def _lookup_cnpj(cnpj14: str) -> Dict[str, Any]:
     return {}
 
 
+def _lookup_cnes(cnes: str) -> Dict[str, Any]:
+    """Consulta estabelecimento de saúde via CNES (DATASUS/saude.gov.br, sem chave)."""
+    try:
+        r = httpx.get(f"https://apidadosabertos.saude.gov.br/cnes/estabelecimentos/{cnes}",
+                      headers={"Accept": "application/json", "User-Agent": "MangabaPoliticaBR/1.0"},
+                      timeout=12)
+        if r.status_code == 200:
+            d = r.json()
+            cnpj_raw = d.get("numero_cnpj_entidade") or d.get("numero_cnpj", "")
+            cnpj_fmt = (f"{cnpj_raw[:2]}.{cnpj_raw[2:5]}.{cnpj_raw[5:8]}/{cnpj_raw[8:12]}-{cnpj_raw[12:]}"
+                        if len(str(cnpj_raw)) == 14 else str(cnpj_raw))
+            return {"razao_social": d.get("nome_razao_social"), "cnpj": cnpj_fmt,
+                    "esfera": d.get("descricao_esfera_administrativa"),
+                    "tipo_unidade": d.get("codigo_tipo_unidade"),
+                    "cnes": cnes, "fonte_id": "CNES/DATASUS"}
+    except Exception:
+        pass
+    return {}
+
+
 def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> Any:
     """EMPRESAS beneficiadas pelas emendas parlamentares com CNPJ e razão social.
     Cruza: emendas → documentos → itens de empenho → extrai CNPJ da proposta →
@@ -507,14 +527,22 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
                     desc = item.get("descricao", "")
                     valor = item.get("valorAtual", "")
                     empresa: Dict[str, Any] = {}
-                    # extrai CNPJ base (12 dígitos) dos números de proposta
-                    m = re.search(r'PROPOSTA\s+(\d{12})\d{2}', desc)
-                    if m:
-                        cnpj14 = _calcular_cnpj(m.group(1))
+                    # formato 2022-2024: PROPOSTA com 14 dígitos (12 CNPJ base + 2 seq)
+                    # formato 2026: PROPOSTA com 18+ dígitos — NÃO é CNPJ, ignorar
+                    m_cnpj = re.search(r'PROPOSTA\s+(\d{12})\d{2}(?!\d)', desc)
+                    # formato 2026: CNES XXXXXXX
+                    m_cnes = re.search(r'CNES\s+(\d+)', desc)
+                    if m_cnpj:
+                        cnpj14 = _calcular_cnpj(m_cnpj.group(1))
                         if cnpj14 not in cnpj_cache:
                             cnpj_cache[cnpj14] = _lookup_cnpj(cnpj14)
-                        empresa = cnpj_cache[cnpj14]
+                        empresa = dict(cnpj_cache[cnpj14])
                         empresa["cnpj"] = f"{cnpj14[:2]}.{cnpj14[2:5]}.{cnpj14[5:8]}/{cnpj14[8:12]}-{cnpj14[12:]}"
+                    elif m_cnes:
+                        cnes_id = m_cnes.group(1)
+                        if f"cnes_{cnes_id}" not in cnpj_cache:
+                            cnpj_cache[f"cnes_{cnes_id}"] = _lookup_cnes(cnes_id)
+                        empresa = dict(cnpj_cache[f"cnes_{cnes_id}"])
                     resultados.append({
                         "funcao": em.get("funcao"),
                         "destino": em.get("localidadeDoGasto"),
