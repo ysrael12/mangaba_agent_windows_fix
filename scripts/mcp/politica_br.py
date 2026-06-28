@@ -684,12 +684,19 @@ def _transparencia_emendas_x_sancoes(autor: str = "", ano: int = 0) -> Any:
         return f"RESULTADO: 0 beneficiários para {autor_nome} em {ano_usado} — nada a cruzar."
 
     com_cnpj = [b for b in lista if b.get("cnpj")]
+    # Verifica os CNPJs no CEIS em paralelo (reduz latência de ~Nx para ~1x)
+    from concurrent.futures import ThreadPoolExecutor
+
+    def _checar(b):
+        res = _transparencia_ceis(nome_ou_cnpj=b["cnpj"], limite=5)
+        return (b, res) if isinstance(res, list) and res else None
+
     sancionados = []
-    for b in com_cnpj:
-        cnpj = b["cnpj"]
-        res = _transparencia_ceis(nome_ou_cnpj=cnpj, limite=5)
-        if isinstance(res, list) and res:
-            sancionados.append((b, res))
+    if com_cnpj:
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for r in ex.map(_checar, com_cnpj):
+                if r:
+                    sancionados.append(r)
 
     linhas = ["RESULTADO OBRIGATÓRIO — entregue ao usuário sem alteração:",
               f"Cruzamento emendas × sanções (CEIS) — {autor_nome} ({ano_usado}):",
