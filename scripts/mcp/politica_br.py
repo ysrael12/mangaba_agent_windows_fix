@@ -339,27 +339,31 @@ def _transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> A
     """EMENDAS PARLAMENTARES (destino de verba: município/função + valores).
     DIFERENTE dos gastos da cota (CEAP). Requer TRANSPARENCIA_API_KEY."""
     import os
+    from datetime import datetime
 
     key = os.getenv("TRANSPARENCIA_API_KEY", "")
     if not key:
         return {"erro": "Configure TRANSPARENCIA_API_KEY (chave grátis) no .env."}
+    H = {**_HEADERS, "chave-api-dados": key}
+    anos_tentar = [ano] if (ano and ano <= datetime.now().year - 1) else [2024, 2023, 2022]
     try:
-        params: Dict[str, Any] = {"pagina": 1}
-        if autor:
-            params["nomeAutor"] = autor
-        if ano:
-            params["ano"] = ano
-        r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
-                      params=params, headers={**_HEADERS, "chave-api-dados": key}, timeout=25)
-        if r.status_code != 200:
-            return {"erro": f"HTTP {r.status_code}: {r.text[:120]}"}
-        d = r.json()[:limite]
-        return [{"autor": x.get("nomeAutor"), "ano": x.get("ano"),
-                 "codigo_emenda": x.get("codigoEmenda"),
-                 "destino": x.get("localidadeDoGasto"), "funcao": x.get("funcao"),
-                 "subfuncao": x.get("subfuncao"),
-                 "valor_empenhado": x.get("valorEmpenhado"),
-                 "valor_pago": x.get("valorPago")} for x in d]
+        for a in anos_tentar:
+            params: Dict[str, Any] = {"pagina": 1, "ano": a}
+            if autor:
+                params["nomeAutor"] = autor
+            r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                          params=params, headers=H, timeout=25)
+            if r.status_code != 200:
+                return {"erro": f"HTTP {r.status_code}: {r.text[:120]}"}
+            d = r.json()
+            if d:
+                return [{"autor": x.get("nomeAutor"), "ano": x.get("ano"),
+                         "codigo_emenda": x.get("codigoEmenda"),
+                         "destino": x.get("localidadeDoGasto"), "funcao": x.get("funcao"),
+                         "subfuncao": x.get("subfuncao"),
+                         "valor_empenhado": x.get("valorEmpenhado"),
+                         "valor_pago": x.get("valorPago")} for x in d[:limite]]
+        return {"msg": f"Nenhuma emenda encontrada para '{autor}' nos anos 2022-2024."}
     except Exception as e:  # noqa: BLE001
         return {"erro": str(e)}
 
@@ -370,22 +374,31 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
     Use quando perguntar 'quais empresas receberam' ou 'beneficiários das emendas'.
     Requer TRANSPARENCIA_API_KEY."""
     import os
+    from datetime import datetime
 
     key = os.getenv("TRANSPARENCIA_API_KEY", "")
     if not key:
         return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
     H = {**_HEADERS, "chave-api-dados": key}
+    # Se ano não especificado ou futuro, tenta anos recentes disponíveis
+    anos_tentar = [ano] if (ano and ano <= datetime.now().year - 1) else [2024, 2023, 2022]
     try:
-        params: Dict[str, Any] = {"pagina": 1}
-        if autor:
-            params["nomeAutor"] = autor
-        if ano:
-            params["ano"] = ano
-        r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
-                      params=params, headers=H, timeout=25)
-        if r.status_code != 200:
-            return {"erro": f"HTTP {r.status_code}: {r.text[:80]}"}
-        emendas = r.json()
+        emendas = []
+        ano_usado = None
+        for a in anos_tentar:
+            params: Dict[str, Any] = {"pagina": 1, "ano": a}
+            if autor:
+                params["nomeAutor"] = autor
+            r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                          params=params, headers=H, timeout=25)
+            if r.status_code != 200:
+                return {"erro": f"HTTP {r.status_code}: {r.text[:80]}"}
+            emendas = r.json()
+            if emendas:
+                ano_usado = a
+                break
+        if not emendas:
+            return {"msg": f"Nenhuma emenda encontrada para {autor or 'autor'} nos anos 2022-2024."}
         resultados = []
         for em in emendas:
             cod = em.get("codigoEmenda", "")
@@ -404,14 +417,14 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
                         resultados.append({
                             "funcao": em.get("funcao"),
                             "destino": em.get("localidadeDoGasto"),
-                            "ano": em.get("ano"),
+                            "ano": ano_usado,
                             "codigo_emenda": cod,
                             "fase": fase,
                             "objeto": item.get("descricao", "")[:200],
                             "subelemento": item.get("descricaoSubelemento"),
                             "valor": item.get("valorAtual"),
                         })
-        return resultados if resultados else {"msg": "Nenhum item de empenho encontrado."}
+        return resultados if resultados else {"msg": f"Nenhum item de empenho encontrado (ano={ano_usado})."}
     except Exception as e:  # noqa: BLE001
         return {"erro": str(e)}
 
