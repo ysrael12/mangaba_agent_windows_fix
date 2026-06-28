@@ -503,6 +503,7 @@ export default function App() {
           <img
             src="/logo-mangaba.svg"
             alt="Mangaba"
+            className={cn(isDark && "rounded-md bg-[#FBF4E6] p-0.5")}
             style={{ height: "34px", width: "auto" }}
           />
           <span className="text-sm font-semibold tracking-[0.08em] text-midground">
@@ -567,6 +568,7 @@ export default function App() {
                 <img
                   src="/logo-mangaba.svg"
                   alt="Mangaba Agent"
+                  className={cn(isDark && "rounded-md bg-[#FBF4E6] p-0.5")}
                   style={{ height: "42px", width: "auto", display: "block" }}
                 />
                 <div className="min-w-0">
