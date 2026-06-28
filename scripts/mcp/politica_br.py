@@ -570,39 +570,37 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
                         "subelemento": item.get("descricaoSubelemento"),
                         **empresa,
                     })
-        # agrupa por empresa para facilitar leitura
-        por_empresa: Dict[str, Any] = {}
-        sem_cnpj = []
+        # agrupa por beneficiário (CNPJ ou CNES) somando valores
+        por_benef: Dict[str, Any] = {}
         for item in resultados:
-            key_e = item.get("cnpj") or item.get("objeto", "")[:40]
-            if item.get("razao_social"):
-                if key_e not in por_empresa:
-                    por_empresa[key_e] = {
-                        "cnpj": item.get("cnpj"), "razao_social": item.get("razao_social"),
-                        "municipio": item.get("municipio"), "uf": item.get("uf"),
-                        "situacao": item.get("situacao"), "atividade": item.get("atividade"),
-                        "funcoes": set(), "total_valor": 0.0,
-                    }
-                por_empresa[key_e]["funcoes"].add(item.get("funcao", "?"))
-                try:
-                    por_empresa[key_e]["total_valor"] += float(
-                        str(item.get("valor","0")).replace(".", "").replace(",", "."))
-                except Exception:
-                    pass
-            else:
-                sem_cnpj.append({"objeto": item.get("objeto"), "valor": item.get("valor"),
-                                  "funcao": item.get("funcao"), "subelemento": item.get("subelemento")})
+            chave = item.get("cnpj") or item.get("cnes") or item.get("objeto", "")[:50]
+            if chave not in por_benef:
+                por_benef[chave] = {
+                    "beneficiario": item.get("razao_social") or item.get("objeto", "")[:80],
+                    "cnpj": item.get("cnpj", ""),
+                    "cnes": item.get("cnes", ""),
+                    "funcao": item.get("funcao", ""),
+                    "total_recebido_R$": 0.0,
+                }
+            try:
+                por_benef[chave]["total_recebido_R$"] += float(
+                    str(item.get("valor", "0")).replace(".", "").replace(",", "."))
+            except Exception:
+                pass
+
+        lista = sorted(por_benef.values(), key=lambda x: -x["total_recebido_R$"])
+        # formata valores
+        for b in lista:
+            b["total_recebido_R$"] = f"R$ {b['total_recebido_R$']:,.2f}"
+
+        if not lista:
+            return {"msg": f"Nenhum beneficiário identificado para {autor} em {ano_usado}."}
+
         return {
-            "autor": autor, "ano": ano_usado, "fonte": "Portal da Transparência + Receita Federal (BrasilAPI)",
-            "empresas": [
-                {"cnpj": v["cnpj"], "razao_social": v["razao_social"],
-                 "municipio": f"{v['municipio']}-{v['uf']}", "situacao": v["situacao"],
-                 "atividade": v["atividade"],
-                 "funcoes": list(v["funcoes"]),
-                 "total_recebido": f"R$ {v['total_valor']:,.2f}"}
-                for v in sorted(por_empresa.values(), key=lambda x: -x["total_valor"])
-            ],
-            "outros_sem_cnpj_identificado": sem_cnpj[:10],
+            "autor": autor, "ano": ano_usado,
+            "fonte": "Portal da Transparência + CNES/DATASUS + Receita Federal",
+            "total_beneficiarios": len(lista),
+            "beneficiarios": lista,
         }
     except Exception as e:  # noqa: BLE001
         return {"erro": str(e)}
