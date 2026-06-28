@@ -132,6 +132,48 @@ def partidos(limite: int = 40) -> List[Dict[str, Any]]:
     return [{"id": x.get("id"), "sigla": x.get("sigla"), "nome": x.get("nome")} for x in d]
 
 
+def dossie_deputado(nome: str = "", deputado_id: int = 0, ano: int = 0) -> Dict[str, Any]:
+    """Dossiê consolidado de um deputado: mandato + resumo de gastos do ano.
+
+    Resolve o id pelo nome se necessário e faz as chamadas em sequência —
+    pensado para o modelo usar UMA tool em vez de encadear várias.
+    """
+    from datetime import datetime
+
+    try:
+        deputado_id = int(deputado_id)
+    except Exception:
+        deputado_id = 0
+    if not deputado_id and nome:
+        cands = buscar_deputados(nome=nome, limite=1)
+        if not cands:
+            return {"erro": f"Deputado '{nome}' não encontrado."}
+        deputado_id = cands[0]["id"]
+    if not deputado_id:
+        return {"erro": "Informe 'nome' ou 'deputado_id'."}
+
+    ano = int(ano) if str(ano).strip().isdigit() else 0
+    ano = ano or datetime.now().year
+    det = detalhes_deputado(deputado_id)
+    desp = despesas_deputado(deputado_id, ano, limite=50)
+    total = sum((x.get("valor") or 0) for x in desp)
+    por_cat: Dict[str, float] = {}
+    for x in desp:
+        por_cat[x.get("tipo", "?")] = por_cat.get(x.get("tipo", "?"), 0) + (x.get("valor") or 0)
+    top = sorted(por_cat.items(), key=lambda kv: kv[1], reverse=True)[:3]
+    return {
+        "deputado": det,
+        "ano": ano,
+        "gastos_ceap": {
+            "amostra_qtd": len(desp),
+            "total_amostra": round(total, 2),
+            "top_categorias": [{"categoria": k, "valor": round(v, 2)} for k, v in top],
+            "obs": "Soma das despesas mais recentes retornadas (amostra); para o total exato, paginar todas.",
+        },
+        "fonte": "Câmara dos Deputados — Dados Abertos (CEAP)",
+    }
+
+
 # ── Senado Federal (Dados Abertos) ──────────────────────────────────────────
 _SENADO = "https://legis.senado.leg.br/dadosabertos"
 
@@ -301,14 +343,21 @@ def _build_server():
         return buscar_proposicoes(termo, tipo, numero, ano, limite)
 
     @mcp.tool()
-    def camara_detalhes_proposicao(proposicao_id: int) -> dict:
-        """Detalhes de uma proposição pelo id (ementa, situação, tramitação)."""
-        return detalhes_proposicao(proposicao_id)
+    def camara_detalhes_proposicao(proposicao_id: int = 0, id_proposicao: int = 0) -> dict:
+        """Detalhes de uma proposição pelo id. Aceita 'proposicao_id' ou 'id_proposicao'."""
+        return detalhes_proposicao(proposicao_id or id_proposicao)
 
     @mcp.tool()
-    def camara_votacoes_proposicao(proposicao_id: int, limite: int = 10) -> list:
-        """Votações de uma proposição pelo id (data, descrição, se foi aprovada)."""
-        return votacoes_proposicao(proposicao_id, limite)
+    def camara_votacoes_proposicao(proposicao_id: int = 0, limite: int = 10, id_proposicao: int = 0) -> list:
+        """Votações de uma proposição pelo id. Aceita 'proposicao_id' ou 'id_proposicao'."""
+        return votacoes_proposicao(proposicao_id or id_proposicao, limite)
+
+    @mcp.tool()
+    def camara_dossie_deputado(nome: str = "", deputado_id: int = 0, ano: int = 0, id_deputado: int = 0) -> dict:
+        """DOSSIÊ de um deputado em UMA chamada: dados do mandato + resumo de gastos
+        (CEAP) do ano + principais categorias. Passe 'nome' OU o id. Use isto em vez
+        de encadear buscar→detalhes→despesas."""
+        return dossie_deputado(nome, deputado_id or id_deputado, ano)
 
     @mcp.tool()
     def camara_partidos(limite: int = 40) -> list:
@@ -321,9 +370,9 @@ def _build_server():
         return buscar_senadores(nome, uf, partido, limite)
 
     @mcp.tool()
-    def senado_detalhes_senador(codigo: int) -> dict:
-        """Detalhes de um senador pelo código (Senado Federal)."""
-        return detalhes_senador(codigo)
+    def senado_detalhes_senador(codigo: int = 0, senador_id: int = 0, codigo_senador: int = 0) -> dict:
+        """Detalhes de um senador pelo código. Aceita 'codigo', 'senador_id' ou 'codigo_senador'."""
+        return detalhes_senador(codigo or senador_id or codigo_senador)
 
     @mcp.tool()
     def senado_buscar_materias(termo: str = "", sigla: str = "", ano: int = 0, limite: int = 10) -> list:

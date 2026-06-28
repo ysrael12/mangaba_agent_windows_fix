@@ -3,7 +3,7 @@
 Agente que consulta e **cruza** dados de **APIs públicas abertas da política
 brasileira** — Câmara, Senado, TSE e Portal da Transparência.
 
-## Ferramentas (MCP `politica-br`) — 13
+## Ferramentas (MCP `politica-br`) — 14
 **Câmara dos Deputados** (sem chave):
 - `camara_buscar_deputados(nome, uf, partido, limite)`
 - `camara_detalhes_deputado(deputado_id)`
