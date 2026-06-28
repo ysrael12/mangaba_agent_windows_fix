@@ -274,6 +274,19 @@ export const api = {
         body: JSON.stringify({ content }),
       },
     ),
+  getProfileModel: (name: string) =>
+    fetchJSON<{ model: string; provider: string }>(
+      `/api/profiles/${encodeURIComponent(name)}/model`,
+    ),
+  setProfileModel: (name: string, model: string) =>
+    fetchJSON<{ ok: boolean; model: string }>(
+      `/api/profiles/${encodeURIComponent(name)}/model`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model }),
+      },
+    ),
 
   // Skills & Toolsets
   getSkills: () => fetchJSON<SkillInfo[]>("/api/skills"),

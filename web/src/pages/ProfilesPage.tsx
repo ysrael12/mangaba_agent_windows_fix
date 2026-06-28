@@ -65,6 +65,108 @@ function ProfilesLoadingSpinner() {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Organograma: infere a hierarquia pelos nomes dos profiles.
+//   default            → orquestrador (Diretor) no topo
+//   <area>             → gerente da área (nó nível 2)
+//   <area>-<especial.> → especialista (nível 3, filho de <area>)
+// ---------------------------------------------------------------------------
+interface OrgProfile {
+  name: string;
+  is_default?: boolean;
+  model?: string | null;
+  provider?: string | null;
+}
+
+function OrgNode({ p, label, kind }: { p?: OrgProfile; label?: string; kind: "root" | "area" | "leaf" }) {
+  const ring =
+    kind === "root"
+      ? "border-primary/50 bg-primary/5"
+      : kind === "area"
+        ? "border-primary/25"
+        : "border-border";
+  return (
+    <div className={`inline-flex flex-col gap-0.5 rounded-lg border ${ring} bg-card px-3 py-1.5`}>
+      <span className="text-sm font-semibold text-foreground">
+        {p?.name ?? label}
+      </span>
+      <span className="text-[11px] text-muted-foreground">
+        {kind === "root"
+          ? "Orquestrador"
+          : p?.model
+            ? p.model.split("/").slice(-1)[0]
+            : "modelo padrão"}
+      </span>
+    </div>
+  );
+}
+
+function OrgChart({ profiles }: { profiles: OrgProfile[] }) {
+  const root = profiles.find((p) => p.is_default);
+  const groups = new Map<string, { manager?: OrgProfile; children: OrgProfile[] }>();
+  const leaves: OrgProfile[] = [];
+
+  for (const p of profiles) {
+    if (p.is_default) continue;
+    const i = p.name.indexOf("-");
+    if (i > 0) {
+      const prefix = p.name.slice(0, i);
+      const g = groups.get(prefix) ?? { children: [] };
+      g.children.push(p);
+      groups.set(prefix, g);
+    } else {
+      const g = groups.get(p.name) ?? { children: [] };
+      g.manager = p;
+      groups.set(p.name, g);
+    }
+  }
+  // Áreas sem nenhum filho e sem nome composto viram folhas diretas do topo.
+  for (const [key, g] of [...groups.entries()]) {
+    if (g.manager && g.children.length === 0) {
+      leaves.push(g.manager);
+      groups.delete(key);
+    }
+  }
+
+  const areas = [...groups.entries()];
+
+  return (
+    <Card>
+      <CardContent className="overflow-x-auto p-4">
+        <div className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          Organograma dos agentes
+        </div>
+        <div className="flex flex-col items-start gap-3">
+          <OrgNode p={root} label="Diretor" kind="root" />
+          {(areas.length > 0 || leaves.length > 0) && (
+            <div className="ml-4 flex flex-col gap-3 border-l border-primary/20 pl-5">
+              {areas.map(([prefix, g]) => (
+                <div key={prefix} className="flex flex-col gap-2">
+                  <OrgNode p={g.manager} label={prefix} kind="area" />
+                  {g.children.length > 0 && (
+                    <div className="ml-3 flex flex-wrap gap-2 border-l border-border pl-4">
+                      {g.children.map((c) => (
+                        <OrgNode key={c.name} p={c} kind="leaf" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {leaves.map((l) => (
+                <OrgNode key={l.name} p={l} kind="leaf" />
+              ))}
+            </div>
+          )}
+        </div>
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          Hierarquia inferida pelos nomes: <code>area</code> = gerente,{" "}
+          <code>area-especialista</code> = especialista. <code>default</code> é o orquestrador.
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function ProfilesPage() {
   const [profiles, setProfiles] = useState<ProfileInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,6 +193,11 @@ export default function ProfilesPage() {
   const [editingSoulFor, setEditingSoulFor] = useState<string | null>(null);
   const [soulText, setSoulText] = useState("");
   const [soulSaving, setSoulSaving] = useState(false);
+
+  // Editor inline de modelo por profile (sem trocar o profile ativo).
+  const [editingModelFor, setEditingModelFor] = useState<string | null>(null);
+  const [modelText, setModelText] = useState("");
+  const [modelSaving, setModelSaving] = useState(false);
   // Tracks the latest SOUL request so out-of-order responses don't overwrite
   // newer state when the user switches profiles or closes the editor.
   const activeSoulRequest = useRef<string | null>(null);
@@ -102,6 +209,35 @@ export default function ProfilesPage() {
       .catch((e) => showToast(`${t.status.error}: ${e}`, "error"))
       .finally(() => setLoading(false));
   }, [showToast, t.status.error]);
+
+  const openModelEditor = async (name: string) => {
+    if (editingModelFor === name) {
+      setEditingModelFor(null);
+      return;
+    }
+    setEditingModelFor(name);
+    setModelText("");
+    try {
+      const r = await api.getProfileModel(name);
+      setModelText(r.model || "");
+    } catch {
+      /* mantém vazio */
+    }
+  };
+
+  const saveModel = async (name: string) => {
+    setModelSaving(true);
+    try {
+      await api.setProfileModel(name, modelText.trim());
+      showToast(`Modelo do perfil "${name}" salvo.`, "success");
+      setEditingModelFor(null);
+      load();
+    } catch (e) {
+      showToast(`${t.status.error}: ${e}`, "error");
+    } finally {
+      setModelSaving(false);
+    }
+  };
 
   useEffect(() => {
     load();
@@ -371,6 +507,8 @@ export default function ProfilesPage() {
           {t.profiles.allProfiles} ({profiles.length})
         </H2>
 
+        {profiles.length > 1 && <OrgChart profiles={profiles} />}
+
         {profiles.length === 0 && (
           <Card>
             <CardContent className="py-8 text-center text-sm text-muted-foreground">
@@ -438,12 +576,16 @@ export default function ProfilesPage() {
                       );
                     })()}
                   <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
-                    {p.model && (
-                      <span>
-                        {t.profiles.model}: {p.model}
-                        {p.provider ? ` (${p.provider})` : ""}
-                      </span>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => openModelEditor(p.name)}
+                      className="inline-flex items-center gap-1 rounded px-1 -mx-1 hover:bg-muted/50 hover:text-foreground"
+                      title="Editar modelo deste agente"
+                    >
+                      {t.profiles.model}: {p.model || "padrão"}
+                      {p.provider ? ` (${p.provider})` : ""}
+                      <Pencil className="h-3 w-3 opacity-60" />
+                    </button>
                     <span>
                       {t.profiles.skills}: {p.skill_count}
                     </span>
@@ -451,6 +593,28 @@ export default function ProfilesPage() {
                       {p.path}
                     </span>
                   </div>
+
+                  {editingModelFor === p.name && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <Input
+                        autoFocus
+                        value={modelText}
+                        onChange={(e) => setModelText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveModel(p.name);
+                          if (e.key === "Escape") setEditingModelFor(null);
+                        }}
+                        placeholder="ex.: Qwen/Qwen2.5-72B-Instruct"
+                        className="max-w-sm font-mono text-xs"
+                      />
+                      <Button size="sm" onClick={() => saveModel(p.name)} disabled={modelSaving}>
+                        {modelSaving ? "Salvando…" : t.common.save}
+                      </Button>
+                      <Button size="sm" ghost onClick={() => setEditingModelFor(null)}>
+                        {t.common.cancel}
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">

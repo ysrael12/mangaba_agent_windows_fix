@@ -4066,6 +4066,49 @@ async def update_profile_soul(name: str, body: ProfileSoulUpdate):
     return {"ok": True}
 
 
+class ProfileModelUpdate(BaseModel):
+    model: str  # ex.: "Qwen/Qwen2.5-7B-Instruct" — default+name
+
+
+@app.get("/api/profiles/{name}/model")
+async def get_profile_model(name: str):
+    """Lê o modelo configurado no config.yaml de um profile específico,
+    sem precisar trocar o profile ativo."""
+    import yaml
+
+    cfg_path = _resolve_profile_dir(name) / "config.yaml"
+    try:
+        cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
+    except Exception:
+        cfg = {}
+    m = (cfg or {}).get("model")
+    if isinstance(m, dict):
+        return {"model": m.get("default") or m.get("name") or "", "provider": m.get("provider", "")}
+    return {"model": m or "", "provider": ""}
+
+
+@app.put("/api/profiles/{name}/model")
+async def set_profile_model(name: str, body: ProfileModelUpdate):
+    """Grava model.default/name no config.yaml do profile (preserva o resto)."""
+    import yaml
+
+    cfg_path = _resolve_profile_dir(name) / "config.yaml"
+    try:
+        cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
+        cfg = cfg or {}
+        m = cfg.get("model")
+        if not isinstance(m, dict):
+            m = {} if not m else {"default": str(m), "name": str(m)}
+        m["default"] = body.model.strip()
+        m["name"] = body.model.strip()
+        cfg["model"] = m
+        cfg_path.write_text(yaml.safe_dump(cfg, allow_unicode=True, sort_keys=False), encoding="utf-8")
+    except Exception as e:  # noqa: BLE001
+        _log.exception("PUT /api/profiles/%s/model failed", name)
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"ok": True, "model": body.model.strip()}
+
+
 # ---------------------------------------------------------------------------
 # Skills & Tools endpoints
 # ---------------------------------------------------------------------------
