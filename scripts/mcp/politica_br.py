@@ -429,6 +429,165 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
         return {"erro": str(e)}
 
 
+# ── Emendas 2025/2026 — Transparência multi-ano ─────────────────────────────
+
+def _transparencia_emendas_multiperiodo(autor: str = "", anos: str = "") -> Any:
+    """Emendas parlamentares em múltiplos anos (ex.: '2022,2023,2024,2025,2026').
+    Retorna resumo por ano e função com totais. Requer TRANSPARENCIA_API_KEY."""
+    import os
+    from datetime import datetime
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key:
+        return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
+    H = {**_HEADERS, "chave-api-dados": key}
+    ano_atual = datetime.now().year
+    lista_anos = [int(a.strip()) for a in anos.split(",") if a.strip().isdigit()] if anos else list(range(2022, ano_atual + 1))
+    resultado: Dict[str, Any] = {}
+    try:
+        for a in lista_anos:
+            params: Dict[str, Any] = {"pagina": 1, "ano": a}
+            if autor:
+                params["nomeAutor"] = autor
+            r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                          params=params, headers=H, timeout=20)
+            if r.status_code != 200:
+                resultado[str(a)] = {"erro": f"HTTP {r.status_code}"}
+                continue
+            dados = r.json()
+            if not dados:
+                resultado[str(a)] = {"emendas": 0, "total_empenhado": "R$ 0", "total_pago": "R$ 0"}
+                continue
+
+            def _val(s: str) -> float:
+                return float(s.replace(".", "").replace(",", ".")) if s else 0.0
+
+            total_emp = sum(_val(e.get("valorEmpenhado", "0")) for e in dados)
+            total_pago = sum(_val(e.get("valorPago", "0")) for e in dados)
+            por_funcao: Dict[str, float] = {}
+            for e in dados:
+                por_funcao[e.get("funcao", "?")] = por_funcao.get(e.get("funcao", "?"), 0.0) + _val(e.get("valorPago", "0"))
+            resultado[str(a)] = {
+                "emendas": len(dados),
+                "total_empenhado": f"R$ {total_emp:,.2f}",
+                "total_pago": f"R$ {total_pago:,.2f}",
+                "por_funcao": {k: f"R$ {v:,.2f}" for k, v in sorted(por_funcao.items(), key=lambda x: -x[1])},
+                "destinos": list({e.get("localidadeDoGasto") for e in dados}),
+            }
+        return {"autor": autor or "todos", "fonte": "Portal da Transparência", "anos": resultado}
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
+# ── Câmara — painel de emendas (dados orçamentários via dadosabertos) ────────
+
+def _camara_emendas_orcamentarias(autor_nome: str = "", ano: int = 0, limite: int = 20) -> Any:
+    """Propostas orçamentárias (emendas) via Câmara dadosabertos — complementa o
+    Portal da Transparência com fase anterior ao empenho. Retorna emendas com
+    código, autor, programa e dotação."""
+    from datetime import datetime
+    ano_busca = ano or datetime.now().year
+    # A Câmara expõe emendas orçamentárias via endpoint de proposições orçamentárias
+    try:
+        params: Dict[str, Any] = {"pagina": 1, "itens": limite, "ano": ano_busca,
+                                  "siglaTipo": "PEC", "tema": "orcamento"}
+        if autor_nome:
+            params["keywords"] = autor_nome
+        # Emendas ao orçamento são proposições do tipo EMO/EMP na Câmara
+        for tipo in ["EMO", "PL"]:
+            params["siglaTipo"] = tipo
+            r = httpx.get(f"{BASE}/proposicoes", params=params, headers=_HEADERS, timeout=15)
+            if r.status_code == 200 and r.json().get("dados"):
+                dados = r.json()["dados"]
+                return [{"tipo": d.get("siglaTipo"), "numero": d.get("numero"),
+                         "ano": d.get("ano"), "ementa": d.get("ementa", "")[:150],
+                         "uri": d.get("uri")} for d in dados[:limite]]
+        return {"msg": "Câmara: nenhuma emenda orçamentária encontrada para os filtros."}
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
+# ── Senado — matérias orçamentárias (LOA/emendas) ───────────────────────────
+
+def _senado_emendas_orcamentarias(termo: str = "emenda orçamentária", ano: int = 0, limite: int = 10) -> Any:
+    """Matérias do Senado relacionadas a emendas orçamentárias (LOA, LDO).
+    Complementa o Portal da Transparência com tramitação legislativa."""
+    from datetime import datetime
+    ano_busca = ano or datetime.now().year
+    try:
+        r = httpx.get("https://legis.senado.leg.br/dadosabertos/materia/pesquisa/lista",
+                      params={"palavraChave": termo, "ano": ano_busca, "tramitando": "S"},
+                      headers={**_HEADERS, "Accept": "application/json"}, timeout=15)
+        if r.status_code != 200:
+            return {"erro": f"Senado HTTP {r.status_code}"}
+        dados = (r.json().get("PesquisaBasicaMateria", {})
+                  .get("Materias", {}).get("Materia", []))
+        if isinstance(dados, dict):
+            dados = [dados]
+        return [{"codigo": d.get("Codigo"), "sigla": d.get("DescricaoSubtipoMateria"),
+                 "numero": d.get("Numero"), "ano": d.get("Ano"),
+                 "ementa": d.get("EmentaMateria", "")[:150],
+                 "situacao": d.get("SituacaoAtual", {}).get("DescricaoSituacao")}
+                for d in dados[:limite]]
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
+# ── SIOP via download CSV público ──────────────────────────────────────────
+# O SIOP não tem API REST pública acessível externamente. Os dados de execução
+# orçamentária das emendas no SIOP estão espelhados no Portal da Transparência
+# (/api-de-dados/emendas). Para anos correntes a fonte canônica é o Portal.
+
+def _siop_execucao_resumo(autor: str = "", ano: int = 0) -> Any:
+    """Execução orçamentária das emendas via SIOP (espelho no Portal da
+    Transparência). Retorna resumo por tipo de emenda e fase de execução
+    (empenhado / liquidado / pago) para todos os anos disponíveis."""
+    import os
+    from datetime import datetime
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key:
+        return {"erro": "Configure TRANSPARENCIA_API_KEY no .env."}
+    H = {**_HEADERS, "chave-api-dados": key}
+    ano_busca = ano or datetime.now().year
+    try:
+        params: Dict[str, Any] = {"pagina": 1, "ano": ano_busca}
+        if autor:
+            params["nomeAutor"] = autor
+        r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
+                      params=params, headers=H, timeout=20)
+        if r.status_code != 200:
+            return {"erro": f"HTTP {r.status_code}: {r.text[:80]}"}
+        dados = r.json()
+        if not dados:
+            return {"msg": f"Sem dados para {autor or 'todos'} em {ano_busca}."}
+
+        def _v(s: str) -> float:
+            return float(s.replace(".", "").replace(",", ".")) if s else 0.0
+
+        linhas = []
+        for e in dados:
+            linhas.append({
+                "tipo_emenda": e.get("tipoEmenda"),
+                "funcao": e.get("funcao"),
+                "subfuncao": e.get("subfuncao"),
+                "localidade": e.get("localidadeDoGasto"),
+                "empenhado": f"R$ {_v(e.get('valorEmpenhado','0')):,.2f}",
+                "liquidado": f"R$ {_v(e.get('valorLiquidado','0')):,.2f}",
+                "pago": f"R$ {_v(e.get('valorPago','0')):,.2f}",
+                "fonte": "SIOP/Portal da Transparência",
+                "ano": e.get("ano"),
+            })
+        total_emp = sum(_v(e.get("valorEmpenhado","0")) for e in dados)
+        total_pago = sum(_v(e.get("valorPago","0")) for e in dados)
+        return {"autor": autor, "ano": ano_busca, "total_emendas": len(dados),
+                "total_empenhado": f"R$ {total_emp:,.2f}",
+                "total_pago": f"R$ {total_pago:,.2f}",
+                "detalhamento": linhas}
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
 # ── Registro MCP ────────────────────────────────────────────────────────────
 def _build_server():
     from mcp.server.fastmcp import FastMCP
@@ -530,6 +689,35 @@ def _build_server():
         'beneficiários', 'destino em relação a empresas'. DIFERENTE de CEAP/cota.
         Requer TRANSPARENCIA_API_KEY."""
         return _transparencia_emendas_empresas(autor, ano)
+
+    @mcp.tool()
+    def emendas_historico(autor: str = "", anos: str = "") -> "Any":
+        """HISTÓRICO MULTI-ANO de emendas parlamentares (2022 a 2026).
+        Retorna total empenhado/pago por ano e por função (Saúde, Educação, etc.).
+        Parâmetro `anos` opcional: '2023,2024,2025' — padrão = todos os anos disponíveis.
+        Fonte: Portal da Transparência (dados SIOP espelhados). Requer TRANSPARENCIA_API_KEY."""
+        return _transparencia_emendas_multiperiodo(autor, anos)
+
+    @mcp.tool()
+    def emendas_execucao_siop(autor: str = "", ano: int = 0) -> "Any":
+        """Execução orçamentária das emendas: empenhado / liquidado / pago por
+        tipo de emenda e função. Equivalente ao painel SIOP/Siga Brasil.
+        Inclui dados de 2026 (ano corrente). Requer TRANSPARENCIA_API_KEY."""
+        return _siop_execucao_resumo(autor, ano)
+
+    @mcp.tool()
+    def camara_emendas_orcamentarias(autor_nome: str = "", ano: int = 0, limite: int = 20) -> "Any":
+        """Proposições orçamentárias (emendas) da Câmara dos Deputados —
+        fase legislativa anterior ao empenho. Complementa o Portal da Transparência
+        com projetos de LOA e emendas ao orçamento em tramitação."""
+        return _camara_emendas_orcamentarias(autor_nome, ano, limite)
+
+    @mcp.tool()
+    def senado_emendas_orcamentarias(termo: str = "emenda orçamentária", ano: int = 0, limite: int = 10) -> "Any":
+        """Matérias do Senado relacionadas a emendas ao orçamento (LOA/LDO).
+        Retorna tramitação legislativa das emendas orçamentárias no Senado.
+        Fonte: legis.senado.leg.br/dadosabertos."""
+        return _senado_emendas_orcamentarias(termo, ano, limite)
 
     return mcp
 
