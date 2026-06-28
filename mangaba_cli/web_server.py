@@ -10,6 +10,7 @@ Usage:
 """
 
 import asyncio
+import hashlib
 import hmac
 import importlib.util
 import json
@@ -4302,8 +4303,22 @@ async def whatsapp_webhook_receive(request: Request):
     if not token or not pnid:
         return {"ok": True}  # não configurado — ignora silenciosamente
 
+    raw = await request.body()
+
+    # Verificação de assinatura (defesa contra POSTs forjados na rota pública).
+    # A Meta assina o corpo com HMAC-SHA256 usando o App Secret. Só é
+    # ENFORÇADA se WHATSAPP_APP_SECRET estiver configurado.
+    app_secret = _os.getenv("WHATSAPP_APP_SECRET", "")
+    if app_secret:
+        sig = request.headers.get("X-Hub-Signature-256", "")
+        expected = "sha256=" + hmac.new(
+            app_secret.encode(), raw, hashlib.sha256
+        ).hexdigest()
+        if not (sig and hmac.compare_digest(sig, expected)):
+            raise HTTPException(status_code=403, detail="assinatura inválida")
+
     try:
-        payload = await request.json()
+        payload = json.loads(raw or b"{}")
     except Exception:
         return {"ok": True}
 
