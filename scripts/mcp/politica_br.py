@@ -284,14 +284,16 @@ def _build_server():
         return buscar_deputados(nome, uf, partido, limite)
 
     @mcp.tool()
-    def camara_detalhes_deputado(deputado_id: int) -> dict:
-        """Detalhes de um deputado pelo id (nome, partido, UF, situação, gabinete)."""
-        return detalhes_deputado(deputado_id)
+    def camara_detalhes_deputado(deputado_id: int = 0, id_deputado: int = 0) -> dict:
+        """Detalhes de um deputado pelo id (nome, partido, UF, situação, gabinete).
+        Aceita 'deputado_id' ou 'id_deputado'."""
+        return detalhes_deputado(deputado_id or id_deputado)
 
     @mcp.tool()
-    def camara_despesas_deputado(deputado_id: int, ano: int = 0, mes: int = 0, limite: int = 15) -> list:
-        """Despesas da cota parlamentar (CEAP) de um deputado. ``ano`` opcional (padrão = ano atual); ``mes`` opcional."""
-        return despesas_deputado(deputado_id, ano, mes, limite)
+    def camara_despesas_deputado(deputado_id: int = 0, ano: int = 0, mes: int = 0, limite: int = 15, id_deputado: int = 0) -> list:
+        """Despesas da cota parlamentar (CEAP) de um deputado. Aceita 'deputado_id' ou
+        'id_deputado'. 'ano' opcional (padrão = ano atual); 'mes' opcional."""
+        return despesas_deputado(deputado_id or id_deputado, ano, mes, limite)
 
     @mcp.tool()
     def camara_buscar_proposicoes(termo: str = "", tipo: str = "", numero: int = 0, ano: int = 0, limite: int = 10) -> list:
