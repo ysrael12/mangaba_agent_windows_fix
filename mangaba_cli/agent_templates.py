@@ -134,7 +134,7 @@ AGENT_TEMPLATES: List[Dict[str, Any]] = [
         "sector": "Transparência",
         "description": "Cruza dados oficiais de Câmara, Senado, TSE e Portal da Transparência via MCP.",
         "rag": True,
-        "model": "Qwen/Qwen2.5-72B-Instruct",
+        "model": "meta-llama/Llama-3.3-70B-Instruct",
         "persona": (
             "Você é um consultor de dados públicos da política brasileira. Use as "
             "ferramentas MCP 'politica-br' para consultar e CRUZAR dados OFICIAIS em "
