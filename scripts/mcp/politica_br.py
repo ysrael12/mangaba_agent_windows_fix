@@ -414,15 +414,33 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
                     params={"codigoDocumento": cd, "pagina": 1}, headers=H, timeout=15)
                 if ri.status_code == 200:
                     for item in ri.json():
+                        desc = item.get("descricao", "")
+                        empresa: Dict[str, Any] = {}
+                        import re as _re
+                        m_cnpj = _re.search(r'PROPOSTA\s+(\d{12})\d{2}(?!\d)', desc)
+                        m_cnes = _re.search(r'CNES\s+(\d+)', desc)
+                        if m_cnpj:
+                            cnpj14 = _calcular_cnpj(m_cnpj.group(1))
+                            info = _lookup_cnpj(cnpj14)
+                            if info:
+                                empresa = {"razao_social": info.get("razao_social"),
+                                           "cnpj": f"{cnpj14[:2]}.{cnpj14[2:5]}.{cnpj14[5:8]}/{cnpj14[8:12]}-{cnpj14[12:]}",
+                                           "municipio": info.get("municipio"), "uf": info.get("uf")}
+                        elif m_cnes:
+                            info = _lookup_cnes(m_cnes.group(1))
+                            if info:
+                                empresa = {"razao_social": info.get("razao_social"),
+                                           "cnpj": info.get("cnpj"), "cnes": m_cnes.group(1)}
                         resultados.append({
                             "funcao": em.get("funcao"),
                             "destino": em.get("localidadeDoGasto"),
                             "ano": ano_usado,
                             "codigo_emenda": cod,
                             "fase": fase,
-                            "objeto": item.get("descricao", "")[:200],
+                            "objeto": desc[:200],
                             "subelemento": item.get("descricaoSubelemento"),
                             "valor": item.get("valorAtual"),
+                            **empresa,
                         })
         return resultados if resultados else {"msg": f"Nenhum item de empenho encontrado (ano={ano_usado})."}
     except Exception as e:  # noqa: BLE001
