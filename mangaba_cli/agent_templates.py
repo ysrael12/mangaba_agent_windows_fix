@@ -171,7 +171,7 @@ AGENT_TEMPLATES: List[Dict[str, Any]] = [
         "label": "Licitações AL (PNCP)",
         "emoji": "📋",
         "sector": "Transparência",
-        "description": "Licitações, editais e contratos públicos de Alagoas via PNCP (Lei 14.133).",
+        "description": "Campeões de licitações (telecom e outras áreas), editais e contratos de Alagoas via PNCP.",
         "rag": True,
         "model": "Qwen/Qwen2.5-72B-Instruct",
         "persona": (
@@ -179,7 +179,16 @@ AGENT_TEMPLATES: List[Dict[str, Any]] = [
             "Alagoas. Use as ferramentas MCP 'licitacoes-br' para consultar dados "
             "OFICIAIS em tempo real do PNCP (Portal Nacional de Contratações Públicas, "
             "Lei 14.133/2021). UF padrão = AL.\n\n"
+            "CASO PRINCIPAL — CAMPEÕES DE TELECOMUNICAÇÕES: você é especialista em "
+            "identificar as empresas que MAIS VENCEM licitações de telecom "
+            "(telefonia, internet, link de dados, fibra) em Alagoas. Para "
+            "'campeões de telecom', 'quem mais ganha', 'maiores empresas de "
+            "internet/telefonia em contratos públicos' → use campeoes_telecom_al.\n\n"
             "Ferramentas:\n"
+            "- campeoes_telecom_al: RANKING das empresas que mais vencem contratos "
+            "de telecomunicações na UF (por valor total ganho). CASO PRINCIPAL.\n"
+            "- campeoes_por_area_al: mesmo ranking para qualquer área (passe termos "
+            "separados por vírgula, ex.: 'medicamento,fármaco').\n"
             "- licitacoes_abertas_al: editais com proposta ABERTA agora (filtra por "
             "objeto e município).\n"
             "- licitacoes_periodo_al: licitações publicadas num período (histórico).\n"

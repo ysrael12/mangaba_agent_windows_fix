@@ -19,7 +19,28 @@ import httpx
 
 PNCP = "https://pncp.gov.br/api/consulta/v1"
 PNCP_ITENS = "https://pncp.gov.br/api/pncp/v1"
+PNCP_SEARCH = "https://pncp.gov.br/api/search/"
 _H = {"Accept": "application/json", "User-Agent": "MangabaLicitacoesBR/1.0"}
+# O endpoint de busca textual do PNCP exige User-Agent de navegador.
+_H_SEARCH = {
+    "Accept": "application/json",
+    "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"),
+}
+
+# Termos que caracterizam a área de TELECOMUNICAÇÕES — usados tanto para BUSCAR
+# (cada termo é uma query separada; o PNCP faz AND entre palavras numa só query)
+# quanto para FILTRAR ruído no objeto do contrato.
+TELECOM_TERMOS = [
+    "telefonia", "internet", "link de dados", "banda larga", "fibra óptica",
+    "telecomunicações", "conectividade", "dados móveis", "link de internet",
+]
+# Filtro de confirmação no objeto — evita falsos positivos da busca textual.
+_TELECOM_FILTRO = [
+    "telefon", "telecomunic", "internet", "link de dados", "banda larga",
+    "fibra", "dados móveis", "dados moveis", "voip", "conectividade",
+    "link de internet", "circuito de dados", "rede de dados",
+]
 
 # Modalidades de contratação (Lei 14.133/2021) — código → nome
 MODALIDADES = {
@@ -240,6 +261,112 @@ def contratos_orgao(cnpj_orgao: str = "", data_inicial: str = "", data_final: st
     return "\n".join(linhas)
 
 
+def _buscar_contratos_area(termos: List[str], uf: str, paginas: int = 1,
+                           tam_pagina: int = 20) -> List[Dict[str, str]]:
+    """Busca contratos por uma lista de termos (cada um uma query) e devolve
+    item_urls distintos no formato {cnpj, ano, seq}. Tolera falhas por termo."""
+    import re
+
+    vistos: set = set()
+    refs: List[Dict[str, str]] = []
+    for termo in termos:
+        for pag in range(1, paginas + 1):
+            d = _get_search({"q": termo, "tipos_documento": "contrato", "ufs": uf,
+                             "ordenacao": "-data", "pagina": pag, "tam_pagina": tam_pagina})
+            itens = (d or {}).get("items") or []
+            for it in itens:
+                m = re.match(r"/contratos/(\d+)/(\d+)/(\d+)", it.get("item_url", ""))
+                if not m:
+                    continue
+                key = m.group(0)
+                if key in vistos:
+                    continue
+                vistos.add(key)
+                refs.append({"cnpj": m.group(1), "ano": m.group(2), "seq": m.group(3)})
+            if len(itens) < tam_pagina:
+                break
+    return refs
+
+
+def _get_search(params: Dict[str, Any]) -> Dict[str, Any]:
+    try:
+        r = httpx.get(PNCP_SEARCH, params=params, headers=_H_SEARCH, timeout=25)
+        return r.json() if r.status_code == 200 and r.text.strip() else {}
+    except Exception:
+        return {}
+
+
+def _detalhe_contrato(ref: Dict[str, str]) -> Dict[str, Any]:
+    d = _get(f"{PNCP_ITENS}/orgaos/{ref['cnpj']}/contratos/{ref['ano']}/{ref['seq']}", {})
+    if not isinstance(d, dict) or d.get("erro"):
+        return {}
+    return d
+
+
+def campeoes_por_area(termos: Optional[List[str]] = None, uf: str = "AL",
+                      area_nome: str = "telecomunicações", limite: int = 10,
+                      paginas: int = 2) -> Any:
+    """RANKING dos fornecedores que mais VENCEM contratos de uma área na UF.
+
+    Busca contratos por cada termo, confirma a área no objeto (anti-ruído),
+    agrega por CNPJ do fornecedor e ranqueia por valor total ganho. É o coração
+    do caso 'campeões de licitações em telecomunicações de Alagoas'."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    uf = (uf or "AL").upper()
+    termos = termos or TELECOM_TERMOS
+    filtro = _TELECOM_FILTRO if termos is TELECOM_TERMOS else [t.lower() for t in termos]
+
+    refs = _buscar_contratos_area(termos, uf, paginas=paginas)
+    if not refs:
+        return f"Nenhum contrato de {area_nome} encontrado em {uf}."
+
+    # busca os detalhes em paralelo (cada um traz o fornecedor vencedor)
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        detalhes = list(ex.map(_detalhe_contrato, refs[:120]))
+
+    por_forn: Dict[str, Any] = {}
+    n_contratos = 0
+    for c in detalhes:
+        if not c:
+            continue
+        objeto = (c.get("objetoContrato") or "").lower()
+        if not any(f in objeto for f in filtro):
+            continue  # confirma que é da área (descarta falso positivo da busca)
+        cnpj = c.get("niFornecedor") or "?"
+        nome = c.get("nomeRazaoSocialFornecedor") or "(sem nome)"
+        try:
+            valor = float(c.get("valorGlobal") or 0)
+        except Exception:
+            valor = 0.0
+        uo = c.get("unidadeOrgao") or {}
+        orgao = (c.get("orgaoEntidade") or {}).get("razaoSocial") or uo.get("nomeUnidade")
+        n_contratos += 1
+        if cnpj not in por_forn:
+            por_forn[cnpj] = {"nome": nome, "cnpj": cnpj, "total": 0.0,
+                              "contratos": 0, "orgaos": set()}
+        por_forn[cnpj]["total"] += valor
+        por_forn[cnpj]["contratos"] += 1
+        if orgao:
+            por_forn[cnpj]["orgaos"].add(orgao)
+
+    if not por_forn:
+        return (f"Encontrei contratos na busca, mas nenhum confirmou ser de "
+                f"{area_nome} no objeto, em {uf}.")
+
+    ranking = sorted(por_forn.values(), key=lambda x: -x["total"])
+    linhas = [f"🏆 Campeões de licitações em {area_nome} — {uf} "
+              f"({n_contratos} contratos, {len(ranking)} empresas):"]
+    for i, f in enumerate(ranking[:limite], 1):
+        linhas.append(
+            f"{i}. {f['nome']} ({f['cnpj']})\n"
+            f"   Total ganho: {_fmt_money(f['total'])} | {f['contratos']} contrato(s) | "
+            f"{len(f['orgaos'])} órgão(s)"
+        )
+    linhas.append("Fonte: PNCP — contratos firmados (Lei 14.133/2021)")
+    return "\n".join(linhas)
+
+
 def modalidades_licitacao() -> Any:
     """Lista os códigos de modalidade de contratação (Lei 14.133/2021)."""
     linhas = ["Modalidades de contratação (Lei 14.133/2021):"]
@@ -309,6 +436,25 @@ def _build_server():
         Use para 'quem ganhou', 'contratos assinados', 'quanto a prefeitura X gastou'.
         Pegue o cnpj_orgao numa busca de licitações primeiro. Fonte: PNCP."""
         return contratos_orgao(cnpj_orgao, data_inicial, data_final, objeto, limite)
+
+    @mcp.tool()
+    def campeoes_telecom_al(uf: str = "AL", limite: int = 10) -> "Any":
+        """CAMPEÕES de licitações em TELECOMUNICAÇÕES — ranking das empresas que
+        mais vencem contratos de telefonia/internet/link de dados/fibra na UF
+        (padrão Alagoas). Agrega por CNPJ do fornecedor e ordena por valor total
+        ganho. Use para 'quem mais ganha licitação de telecom', 'maiores empresas
+        de internet em contratos públicos', 'campeões de telecomunicações'. PNCP."""
+        return campeoes_por_area(None, uf, "telecomunicações", limite)
+
+    @mcp.tool()
+    def campeoes_por_area_al(termos: str = "", area_nome: str = "", uf: str = "AL",
+                             limite: int = 10) -> "Any":
+        """CAMPEÕES de licitações em QUALQUER área — ranking de fornecedores que
+        mais vencem contratos. Passe `termos` separados por vírgula (ex.:
+        'merenda,alimentação escolar' ou 'medicamento,fármaco') e um `area_nome`
+        para o título. Padrão UF=AL. PNCP."""
+        lista = [t.strip() for t in termos.split(",") if t.strip()] or None
+        return campeoes_por_area(lista, uf, area_nome or (termos or "área"), limite)
 
     @mcp.tool()
     def licitacoes_modalidades() -> "Any":

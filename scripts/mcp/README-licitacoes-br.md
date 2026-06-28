@@ -6,8 +6,18 @@ do **PNCP** (Portal Nacional de Contratações Públicas, Lei 14.133/2021). Foco
 
 Fonte: `https://pncp.gov.br/api/consulta` — REST **público, sem chave**.
 
-## Ferramentas (MCP `licitacoes-br`) — 5
+## Ferramentas (MCP `licitacoes-br`) — 7
 
+**Caso principal — campeões por área:**
+- `campeoes_telecom_al(uf=AL, limite)` — **RANKING das empresas que mais vencem
+  contratos de TELECOMUNICAÇÕES** (telefonia, internet, link de dados, fibra) na
+  UF. Agrega por CNPJ do fornecedor, ordena por valor total ganho. Busca via
+  PNCP search (texto) → detalhe do contrato (vencedor) → filtra ruído pelo objeto.
+- `campeoes_por_area_al(termos, area_nome, uf=AL, limite)` — mesmo ranking para
+  **qualquer área**: passe `termos` separados por vírgula (ex.:
+  'medicamento,fármaco' ou 'merenda,alimentação escolar').
+
+**Consulta de licitações/contratos:**
 - `licitacoes_abertas_al(uf=AL, modalidade, objeto, municipio, limite)` —
   editais com **proposta aberta agora**. `modalidade=0` varre as comuns
   (pregão, dispensa, inexigibilidade, concorrência). Filtra por palavra no
