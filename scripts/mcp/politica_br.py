@@ -121,6 +121,96 @@ def partidos(limite: int = 40) -> List[Dict[str, Any]]:
     return [{"id": x.get("id"), "sigla": x.get("sigla"), "nome": x.get("nome")} for x in d]
 
 
+# ── Senado Federal (Dados Abertos) ──────────────────────────────────────────
+_SENADO = "https://legis.senado.leg.br/dadosabertos"
+
+
+def _senado_get(path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    try:
+        r = httpx.get(f"{_SENADO}{path}", params=params or {}, headers=_HEADERS, timeout=20, follow_redirects=True)
+        if r.status_code == 200 and "json" in r.headers.get("content-type", ""):
+            return r.json()
+        return {"erro": f"HTTP {r.status_code}"}
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
+def buscar_senadores(nome: str = "", uf: str = "", partido: str = "", limite: int = 15) -> List[Dict[str, Any]]:
+    """Senadores em exercício, filtrando por nome/UF/partido."""
+    pl = (_senado_get("/senador/lista/atual")
+          .get("ListaParlamentarEmExercicio", {})
+          .get("Parlamentares", {}).get("Parlamentar", []))
+    out = []
+    for x in pl:
+        idp = x.get("IdentificacaoParlamentar", {}) or {}
+        n, uf_, pt = idp.get("NomeParlamentar", ""), idp.get("UfParlamentar", ""), idp.get("SiglaPartidoParlamentar", "")
+        if nome and nome.lower() not in (n or "").lower():
+            continue
+        if uf and uf.upper() != (uf_ or "").upper():
+            continue
+        if partido and partido.upper() != (pt or "").upper():
+            continue
+        out.append({"codigo": idp.get("CodigoParlamentar"), "nome": n, "partido": pt, "uf": uf_,
+                    "email": idp.get("EmailParlamentar")})
+        if len(out) >= limite:
+            break
+    return out
+
+
+def detalhes_senador(codigo: int) -> Dict[str, Any]:
+    d = _senado_get(f"/senador/{codigo}").get("DetalheParlamentar", {}).get("Parlamentar", {})
+    idp = d.get("IdentificacaoParlamentar", {}) or {}
+    man = (d.get("DadosBasicosParlamentar", {}) or {})
+    return {"codigo": idp.get("CodigoParlamentar"), "nome": idp.get("NomeCompletoParlamentar"),
+            "partido": idp.get("SiglaPartidoParlamentar"), "uf": idp.get("UfParlamentar"),
+            "nascimento": man.get("DataNascimento"), "profissao": man.get("Profissao")}
+
+
+# ── TSE (dados abertos via CKAN — datasets/arquivos) ────────────────────────
+def _tse_datasets(termo: str, limite: int = 5) -> List[Dict[str, Any]]:
+    """Busca conjuntos de dados do TSE (candidatos, resultados, contas). O TSE
+    publica dados em arquivos (CSV/ZIP), não consulta por registro — retorna os
+    datasets e seus links."""
+    try:
+        r = httpx.get("https://dadosabertos.tse.jus.br/api/3/action/package_search",
+                      params={"q": termo, "rows": min(limite, 20)}, headers=_HEADERS, timeout=20)
+        res = r.json().get("result", {})
+        out = []
+        for p in res.get("results", []):
+            out.append({"titulo": p.get("title"),
+                        "url": f"https://dadosabertos.tse.jus.br/dataset/{p.get('name')}",
+                        "recursos": len(p.get("resources", []))})
+        return out
+    except Exception as e:  # noqa: BLE001
+        return [{"erro": str(e)}]
+
+
+# ── Portal da Transparência (requer chave grátis) ───────────────────────────
+def _transparencia_ceis(nome_ou_cnpj: str = "", limite: int = 10) -> Any:
+    """Empresas/pessoas sancionadas (CEIS). Requer TRANSPARENCIA_API_KEY
+    (grátis em portaldatransparencia.gov.br/api-de-dados/cadastrar-email)."""
+    import os
+
+    key = os.getenv("TRANSPARENCIA_API_KEY", "")
+    if not key:
+        return {"erro": "Configure TRANSPARENCIA_API_KEY (chave grátis) no .env para usar o Portal da Transparência."}
+    try:
+        params: Dict[str, Any] = {"pagina": 1}
+        if nome_ou_cnpj:
+            params["nomeSancionado"] = nome_ou_cnpj
+        r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/ceis",
+                      params=params, headers={**_HEADERS, "chave-api-dados": key}, timeout=20)
+        if r.status_code != 200:
+            return {"erro": f"HTTP {r.status_code}: {r.text[:120]}"}
+        d = r.json()[:limite]
+        return [{"sancionado": (x.get("pessoa") or {}).get("nome"),
+                 "tipo": (x.get("tipoSancao") or {}).get("descricaoResumida"),
+                 "orgao": (x.get("orgaoSancionador") or {}).get("nome"),
+                 "data_inicio": x.get("dataInicioSancao")} for x in d]
+    except Exception as e:  # noqa: BLE001
+        return {"erro": str(e)}
+
+
 # ── Registro MCP ────────────────────────────────────────────────────────────
 def _build_server():
     from mcp.server.fastmcp import FastMCP
@@ -161,6 +251,26 @@ def _build_server():
     def camara_partidos(limite: int = 40) -> list:
         """Lista os partidos com representação na Câmara."""
         return partidos(limite)
+
+    @mcp.tool()
+    def senado_buscar_senadores(nome: str = "", uf: str = "", partido: str = "", limite: int = 15) -> list:
+        """Busca senadores em exercício por nome, UF e/ou partido (Senado Federal)."""
+        return buscar_senadores(nome, uf, partido, limite)
+
+    @mcp.tool()
+    def senado_detalhes_senador(codigo: int) -> dict:
+        """Detalhes de um senador pelo código (Senado Federal)."""
+        return detalhes_senador(codigo)
+
+    @mcp.tool()
+    def _tse_datasets(termo: str, limite: int = 5) -> list:
+        """Busca conjuntos de dados do TSE (candidatos, resultados, prestação de contas) — retorna títulos e links."""
+        return _tse_datasets(termo, limite)
+
+    @mcp.tool()
+    def _transparencia_ceis(nome_ou_cnpj: str = "", limite: int = 10) -> "Any":
+        """Empresas/pessoas sancionadas (CEIS) no Portal da Transparência. Requer TRANSPARENCIA_API_KEY."""
+        return _transparencia_ceis(nome_ou_cnpj, limite)
 
     return mcp
 

@@ -1,9 +1,10 @@
 # Agente "Política BR" — dados públicos via MCP
 
-Starter de um agente que consulta **APIs públicas abertas da política brasileira**.
-Começa pela **Câmara dos Deputados** (Dados Abertos, sem chave) e é expansível.
+Agente que consulta e **cruza** dados de **APIs públicas abertas da política
+brasileira** — Câmara, Senado, TSE e Portal da Transparência.
 
-## Ferramentas (MCP `politica-br`)
+## Ferramentas (MCP `politica-br`) — 11
+**Câmara dos Deputados** (sem chave):
 - `camara_buscar_deputados(nome, uf, partido, limite)`
 - `camara_detalhes_deputado(deputado_id)`
 - `camara_despesas_deputado(deputado_id, ano, mes)` — cota parlamentar (CEAP)
@@ -12,7 +13,20 @@ Começa pela **Câmara dos Deputados** (Dados Abertos, sem chave) e é expansív
 - `camara_votacoes_proposicao(proposicao_id)`
 - `camara_partidos()`
 
-Fonte: https://dadosabertos.camara.leg.br — dados em tempo real.
+**Senado Federal** (sem chave):
+- `senado_buscar_senadores(nome, uf, partido, limite)`
+- `senado_detalhes_senador(codigo)`
+
+**TSE** (datasets/arquivos — o TSE publica em CSV/ZIP):
+- `tse_buscar_datasets(termo, limite)` → títulos + links
+
+**Portal da Transparência** (requer chave grátis `TRANSPARENCIA_API_KEY`):
+- `transparencia_sancoes(nome_ou_cnpj, limite)` → sancionados (CEIS)
+
+**Cruzamento:** o agente combina as fontes — ex. cruzar o nome de um parlamentar
+com sanções no Portal da Transparência, ou comparar deputados × senadores de um
+partido/UF. Fontes: dadosabertos.camara.leg.br · legis.senado.leg.br/dadosabertos
+· dadosabertos.tse.jus.br · api.portaldatransparencia.gov.br
 
 ## Como ativar
 1. **Registrar o servidor MCP** em `~/.mangaba/config.yaml`:
