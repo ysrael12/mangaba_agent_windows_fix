@@ -3,7 +3,7 @@
 Agente que consulta e **cruza** dados de **APIs públicas abertas da política
 brasileira** — Câmara, Senado, TSE e Portal da Transparência.
 
-## Ferramentas (MCP `politica-br`) — 14
+## Ferramentas (MCP `politica-br`) — 15
 **Câmara dos Deputados** (sem chave):
 - `camara_buscar_deputados(nome, uf, partido, limite)`
 - `camara_detalhes_deputado(deputado_id)`
@@ -25,6 +25,8 @@ brasileira** — Câmara, Senado, TSE e Portal da Transparência.
 - `tse_buscar_datasets(termo, limite)` → títulos + links
 
 **Portal da Transparência** (requer chave grátis `TRANSPARENCIA_API_KEY`):
+- `transparencia_emendas(autor, ano, limite)` → **emendas parlamentares** — destino
+  (município/UF), função/subfunção, valorEmpenhado/valorPago. **≠ CEAP.**
 - `transparencia_sancoes(nome_ou_cnpj, limite)` → sancionados (CEIS)
 
 **Cruzamento:** o agente combina as fontes — ex. cruzar o nome de um parlamentar
