@@ -163,6 +163,13 @@ Os perfis são **hierárquicos** (Gestor inclui Operador; Dev inclui tudo) e o
 padrão é **Operador** — o painel abre enxuto. Para configurar a IA ou ver logs,
 suba para **Dev** no seletor.
 
+Uma seção fora do perfil ativo fica **bloqueada também por URL**: ao abrir, por
+exemplo, `/config` como Operador, o painel mostra um aviso "indisponível neste
+perfil" com atalho para trocar — não a página. É um **guardrail de organização**
+para equipes internas (o perfil é uma preferência por navegador), não um
+controle de segurança: o acesso real é protegido pelo token de sessão. Para
+expor a usuários externos com permissões reais, use autenticação por usuário.
+
 ### Fluxo típico no dashboard
 
 1. **Criar agente** (perfil Gestor) → escolha um dos modelos prontos por setor
