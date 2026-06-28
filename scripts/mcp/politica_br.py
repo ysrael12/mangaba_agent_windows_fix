@@ -35,6 +35,12 @@ def _get(path: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         return {"erro": str(e)}
 
 
+def _norm_autor(autor: str) -> str:
+    """Portal da Transparência é case-sensitive em nomeAutor — exige MAIÚSCULAS.
+    O modelo costuma passar 'Arthur Lira'; normalizamos para 'ARTHUR LIRA'."""
+    return (autor or "").strip().upper()
+
+
 # ── Funções de domínio (testáveis sem MCP) ──────────────────────────────────
 def buscar_deputados(nome: str = "", uf: str = "", partido: str = "", limite: int = 10) -> List[Dict[str, Any]]:
     p: Dict[str, Any] = {"ordem": "ASC", "ordenarPor": "nome", "itens": min(limite, 50)}
@@ -350,7 +356,7 @@ def _transparencia_emendas(autor: str = "", ano: int = 0, limite: int = 15) -> A
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
             if autor:
-                params["nomeAutor"] = autor
+                params["nomeAutor"] = _norm_autor(autor)
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=25)
             if r.status_code != 200:
@@ -388,7 +394,7 @@ def _transparencia_emendas_empresas(autor: str = "", ano: int = 0) -> Any:
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
             if autor:
-                params["nomeAutor"] = autor
+                params["nomeAutor"] = _norm_autor(autor)
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=25)
             if r.status_code != 200:
@@ -516,7 +522,7 @@ def _transparencia_emendas_empresas_detalhado(autor: str = "", ano: int = 0) -> 
         for a in anos_tentar:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
             if autor:
-                params["nomeAutor"] = autor
+                params["nomeAutor"] = _norm_autor(autor)
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=20)
             emendas = r.json() if r.status_code == 200 else []
@@ -627,7 +633,7 @@ def _transparencia_emendas_multiperiodo(autor: str = "", anos: str = "") -> Any:
         for a in lista_anos:
             params: Dict[str, Any] = {"pagina": 1, "ano": a}
             if autor:
-                params["nomeAutor"] = autor
+                params["nomeAutor"] = _norm_autor(autor)
             r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                           params=params, headers=H, timeout=20)
             if r.status_code != 200:
@@ -732,7 +738,7 @@ def _siop_execucao_resumo(autor: str = "", ano: int = 0) -> Any:
     try:
         params: Dict[str, Any] = {"pagina": 1, "ano": ano_busca}
         if autor:
-            params["nomeAutor"] = autor
+            params["nomeAutor"] = _norm_autor(autor)
         r = httpx.get("https://api.portaldatransparencia.gov.br/api-de-dados/emendas",
                       params=params, headers=H, timeout=20)
         if r.status_code != 200:
