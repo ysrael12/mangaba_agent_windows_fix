@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Square, RotateCw } from "lucide-react";
-import { MANGABA_BASE_PATH, api, wsBase } from "@/lib/api";
+import { MANGABA_BASE_PATH, api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { StatusDot } from "@/components/StatusDot";
 import { brandModel } from "@/lib/modelBrand";
@@ -21,7 +21,8 @@ interface Msg {
 }
 
 function buildChatWsUrl(token: string): string {
-  return `${wsBase()}${MANGABA_BASE_PATH}/api/chat?token=${encodeURIComponent(token)}`;
+  const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${proto}//${window.location.host}${MANGABA_BASE_PATH}/api/chat?token=${encodeURIComponent(token)}`;
 }
 
 function Avatar({ who }: { who: "user" | "assistant" }) {

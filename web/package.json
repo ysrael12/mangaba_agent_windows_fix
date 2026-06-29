@@ -9,8 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.ts",
-    "test:watch": "vitest --config vitest.config.ts",
-    "build:vercel": "tsc -b && vite build --outDir dist --emptyOutDir"
+    "test:watch": "vitest --config vitest.config.ts"
   },
   "dependencies": {
     "@observablehq/plot": "^0.6.17",

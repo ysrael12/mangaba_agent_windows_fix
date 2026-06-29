@@ -15,46 +15,7 @@ function readBasePath(): string {
 }
 
 export const MANGABA_BASE_PATH = readBasePath();
-
-// Remote/standalone hosting (e.g. dashboard on Vercel, FastAPI backend behind a
-// public tunnel). Resolution order, most→least preferred:
-//   1. localStorage  — set once in the browser, NOTHING is baked into the
-//      public bundle (the safe default for a public deploy).
-//   2. build-time env (VITE_API_BASE / VITE_SESSION_TOKEN) — convenient but the
-//      token ends up readable in the static JS, so only use behind access
-//      control (e.g. Vercel password protection).
-//   3. same-origin / server-injected token — the classic local dashboard.
-const LS_API_BASE = "mangaba_api_base";
-const LS_SESSION_TOKEN = "mangaba_session_token";
-
-function lsGet(key: string): string {
-  try {
-    return (typeof localStorage !== "undefined" && localStorage.getItem(key)) || "";
-  } catch {
-    return "";
-  }
-}
-
-/** Absolute backend origin, or "" for same-origin. */
-export function apiOrigin(): string {
-  const raw = lsGet(LS_API_BASE) || import.meta.env.VITE_API_BASE || "";
-  return raw.replace(/\/+$/, "");
-}
-
-/** Resolve the session token: server-injected → localStorage → build-time env. */
-export function resolveSessionToken(): string {
-  const injected =
-    typeof window !== "undefined" ? window.__MANGABA_SESSION_TOKEN__ : undefined;
-  return injected || lsGet(LS_SESSION_TOKEN) || import.meta.env.VITE_SESSION_TOKEN || "";
-}
-
-/** ws(s):// base for the configured origin (or same-origin fallback). */
-export function wsBase(): string {
-  const origin = apiOrigin();
-  if (origin) return origin.replace(/^http/, "ws");
-  const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-  return `${proto}//${window.location.host}`;
-}
+const BASE = MANGABA_BASE_PATH;
 
 import type { DashboardTheme } from "@/themes/types";
 
@@ -78,11 +39,11 @@ function setSessionHeader(headers: Headers, token: string): void {
 export async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
   // Inject the session token into all /api/ requests.
   const headers = new Headers(init?.headers);
-  const token = resolveSessionToken();
+  const token = window.__MANGABA_SESSION_TOKEN__;
   if (token) {
     setSessionHeader(headers, token);
   }
-  const res = await fetch(`${apiOrigin()}${MANGABA_BASE_PATH}${url}`, { ...init, headers });
+  const res = await fetch(`${BASE}${url}`, { ...init, headers });
   if (!res.ok) {
     const text = await res.text().catch(() => res.statusText);
     throw new Error(`${res.status}: ${text}`);
@@ -97,7 +58,7 @@ function pluginPath(name: string): string {
 
 async function getSessionToken(): Promise<string> {
   if (_sessionToken) return _sessionToken;
-  const injected = resolveSessionToken();
+  const injected = window.__MANGABA_SESSION_TOKEN__;
   if (injected) {
     _sessionToken = injected;
     return _sessionToken;
