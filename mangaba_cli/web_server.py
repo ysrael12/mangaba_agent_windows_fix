@@ -120,15 +120,29 @@ _reveal_timestamps: List[float] = []
 _REVEAL_MAX_PER_WINDOW = 5
 _REVEAL_WINDOW_SECONDS = 30
 
-# CORS: restrict to localhost origins only.  The web UI is intended to run
-# locally; binding to 0.0.0.0 with allow_origins=["*"] would let any website
-# read/modify config and secrets.
+# CORS: restrict to localhost origins by default.  The web UI is intended to
+# run locally; binding to 0.0.0.0 with allow_origins=["*"] would let any
+# website read/modify config and secrets.
+#
+# For remote/standalone hosting (e.g. dashboard served from Vercel, this
+# backend behind a public tunnel), set MANGABA_DASHBOARD_CORS_ORIGINS to a
+# comma-separated allowlist of exact origins, e.g.:
+#   MANGABA_DASHBOARD_CORS_ORIGINS=https://meu-painel.vercel.app
+# Only those exact origins are added — never "*". The session token still
+# gates every protected endpoint, so a leaked origin alone grants nothing.
+_extra_cors = [
+    o.strip()
+    for o in os.environ.get("MANGABA_DASHBOARD_CORS_ORIGINS", "").split(",")
+    if o.strip()
+]
 
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=_extra_cors,
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=True,
 )
 
 # ---------------------------------------------------------------------------

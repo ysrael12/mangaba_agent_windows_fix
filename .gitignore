@@ -74,4 +74,5 @@ website/static/api/skills-index.json
 models-dev-upstream/
 mangaba_cli/tui_dist/*
 mangaba_cli/scripts/
-docs/superpowers/*
+docs/superpowers/*web/dist
+.vercel

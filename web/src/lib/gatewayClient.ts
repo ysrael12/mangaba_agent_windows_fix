@@ -13,7 +13,7 @@
  *   await gw.request("prompt.submit", { session_id, text: "hi" })
  */
 
-import { MANGABA_BASE_PATH } from "@/lib/api";
+import { MANGABA_BASE_PATH, resolveSessionToken, wsBase } from "@/lib/api";
 
 export type GatewayEventName =
   | "gateway.ready"
@@ -109,7 +109,7 @@ export class GatewayClient {
     if (this._state === "open" || this._state === "connecting") return;
     this.setState("connecting");
 
-    const resolved = token ?? window.__MANGABA_SESSION_TOKEN__ ?? "";
+    const resolved = token ?? resolveSessionToken();
     if (!resolved) {
       this.setState("error");
       throw new Error(
@@ -117,9 +117,8 @@ export class GatewayClient {
       );
     }
 
-    const scheme = location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(
-      `${scheme}//${location.host}${MANGABA_BASE_PATH}/api/ws?token=${encodeURIComponent(resolved)}`,
+      `${wsBase()}${MANGABA_BASE_PATH}/api/ws?token=${encodeURIComponent(resolved)}`,
     );
     this.ws = ws;
 
