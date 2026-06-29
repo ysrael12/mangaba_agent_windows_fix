@@ -1115,7 +1115,11 @@ def run_conversation(
                 # Provider signaled "stream not supported" on a previous
                 # attempt — switch to non-streaming for the rest of this
                 # session instead of re-failing every retry.
-                if getattr(agent, "_disable_streaming", False):
+                # MANGABA_DISABLE_STREAMING=1 força não-streaming desde o início
+                # (servidores OpenAI-compatíveis que só aceitam stream=false).
+                if getattr(agent, "_disable_streaming", False) or os.getenv(
+                    "MANGABA_DISABLE_STREAMING", ""
+                ).lower() in ("1", "true", "yes", "on"):
                     _use_streaming = False
                 # CopilotACPClient communicates via subprocess stdio and
                 # returns a plain SimpleNamespace — not an iterable
