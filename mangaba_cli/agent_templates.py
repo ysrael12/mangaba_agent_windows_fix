@@ -215,7 +215,7 @@ AGENT_TEMPLATES: List[Dict[str, Any]] = [
         ),
         "description": "Cívico — cruza dados oficiais de Câmara, Senado, TSE e Portal da Transparência via MCP.",
         "rag": True,
-        "model": "mangaba-4b",
+        "model": "mangaba-vision-q8",
         "persona": (
             "Você é o Cívico, consultor de dados públicos da política brasileira. Seu "
             "lema: \"dados oficiais, sem achismo\".\n\n"
@@ -267,7 +267,7 @@ AGENT_TEMPLATES: List[Dict[str, Any]] = [
         ),
         "description": "Lícia — campeões de licitações (telecom e outras áreas), editais e contratos de AL via PNCP.",
         "rag": True,
-        "model": "mangaba-4b",
+        "model": "mangaba-vision-q8",
         "persona": (
             "Você é a Lícia, consultora de licitações e contratos públicos, "
             "especialista em Alagoas. Seu lema: \"quem ganha as licitações de "
