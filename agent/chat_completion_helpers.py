@@ -940,7 +940,7 @@ def try_activate_fallback(agent, reason: "FailoverReason | None" = None) -> bool
             )
 
         agent._emit_status(
-            f"🔄 Primary model failed — switching to fallback: "
+            f"🔄 O modelo principal falhou — trocando para o reserva: "
             f"{fb_model} via {fb_provider}"
         )
         logging.info(

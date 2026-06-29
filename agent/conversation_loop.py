@@ -1256,7 +1256,7 @@ def run_conversation(
                     # rate-limit symptom.  Switch to fallback immediately
                     # rather than retrying with extended backoff.
                     if agent._fallback_index < len(agent._fallback_chain):
-                        agent._emit_status("⚠️ Empty/malformed response — switching to fallback...")
+                        agent._emit_status("⚠️ Resposta vazia ou malformada — trocando para o modelo reserva...")
                     if agent._try_activate_fallback():
                         retry_count = 0
                         compression_attempts = 0
@@ -2427,7 +2427,7 @@ def run_conversation(
                         base_url=getattr(agent, "base_url", None),
                     )
                     if not pool_may_recover:
-                        agent._emit_status("⚠️ Rate limited — switching to fallback provider...")
+                        agent._emit_status("⚠️ Limite de requisições atingido — trocando para o provedor reserva...")
                         if agent._try_activate_fallback(reason=classified.reason):
                             retry_count = 0
                             compression_attempts = 0
@@ -3610,8 +3610,8 @@ def run_conversation(
                             "to continue processing"
                         )
                         agent._emit_status(
-                            "⚠️ Model returned empty after tool calls — "
-                            "nudging to continue"
+                            "⚠️ O modelo retornou vazio após as ferramentas — "
+                            "incentivando a continuar"
                         )
                         # Append the empty assistant message first so the
                         # message sequence stays valid:
@@ -3691,7 +3691,7 @@ def run_conversation(
                             agent._empty_content_retries, agent.model,
                         )
                         agent._emit_status(
-                            f"⚠️ Empty response from model — retrying "
+                            f"⚠️ Resposta vazia do modelo — tentando de novo "
                             f"({agent._empty_content_retries}/3)"
                         )
                         continue
@@ -3710,8 +3710,8 @@ def run_conversation(
                             agent.provider,
                         )
                         agent._emit_status(
-                            "⚠️ Model returning empty responses — "
-                            "switching to fallback provider..."
+                            "⚠️ O modelo está retornando respostas vazias — "
+                            "trocando para o provedor reserva..."
                         )
                         if agent._try_activate_fallback():
                             agent._empty_content_retries = 0
@@ -3762,9 +3762,9 @@ def run_conversation(
                             agent.provider,
                         )
                         agent._emit_status(
-                            "❌ Model returned no content after all retries"
-                            + (" and fallback attempts." if agent._fallback_chain else
-                               ". No fallback providers configured.")
+                            "❌ O modelo não retornou conteúdo após todas as tentativas"
+                            + (" e os modelos reserva." if agent._fallback_chain else
+                               ". Nenhum provedor reserva configurado.")
                         )
 
                     final_response = "(empty)"

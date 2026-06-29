@@ -160,21 +160,21 @@ def _gateway_provider_error_reply(text: str) -> str:
     """Map raw provider/API errors to a short user-safe Telegram reply."""
     if _GATEWAY_AUTH_ERROR_RE.search(text):
         return (
-            "⚠️ Provider authentication failed. Check the configured credentials; "
-            "raw provider details are in the gateway logs."
+            "⚠️ Falha de autenticação do provedor. Verifique as credenciais "
+            "configuradas; os detalhes técnicos estão nos logs do gateway."
         )
     if _GATEWAY_PROVIDER_POLICY_RE.search(text):
         return (
-            "⚠️ The model provider rejected the request. I kept the raw provider "
-            "error out of chat; check gateway logs for details or try rephrasing."
+            "⚠️ O provedor do modelo rejeitou a solicitação. Mantive os detalhes "
+            "técnicos fora do chat; veja os logs do gateway ou tente reformular."
         )
     if _GATEWAY_RATE_LIMIT_RE.search(text):
         _record_provider_rate_limit("rate-limit do provider do modelo (HF router)")
-        return "⏱️ The model provider is rate-limiting requests. Please wait a moment and try again."
+        return "⏱️ O provedor do modelo está limitando as requisições. Aguarde um instante e tente de novo."
     _record_provider_rate_limit("falha do provider do modelo após retries")
     return (
-        "⚠️ The model provider failed after retries. I kept raw provider details "
-        "out of chat; check gateway logs for diagnostics."
+        "⚠️ O provedor do modelo falhou após várias tentativas. Mantive os detalhes "
+        "técnicos fora do chat; consulte os logs do gateway para diagnóstico."
     )
 
 
@@ -3175,14 +3175,14 @@ class GatewayRunner:
         """
         active = self._snapshot_running_agents()
 
-        action = "restarting" if self._restart_requested else "shutting down"
+        action = "reiniciando" if self._restart_requested else "encerrando"
         hint = (
-            "Your current task will be interrupted. "
-            "Send any message after restart and I'll try to resume where you left off."
+            "Sua tarefa atual será interrompida. "
+            "Mande qualquer mensagem após o reinício que eu tento continuar de onde parou."
             if self._restart_requested
-            else "Your current task will be interrupted."
+            else "Sua tarefa atual será interrompida."
         )
-        msg = f"⚠️ Gateway {action} — {hint}"
+        msg = f"⚠️ O gateway está {action} — {hint}"
 
         notified: set[tuple[str, str, Optional[str]]] = set()
         for session_key in active:
@@ -8667,9 +8667,9 @@ class GatewayRunner:
             # looks like a bug; a short explanation is more helpful.
             if response == "(empty)":
                 response = (
-                    "⚠️ The model returned no response after processing tool "
-                    "results. This can happen with some models — try again or "
-                    "rephrase your question."
+                    "⚠️ O modelo não retornou resposta após processar as "
+                    "ferramentas. Isso acontece com alguns modelos — tente de "
+                    "novo ou reformule a pergunta."
                 )
             agent_messages = agent_result.get("messages", [])
             _response_time = time.time() - _msg_start_time
@@ -17239,7 +17239,7 @@ class GatewayRunner:
                 )
             except Exception as exc:
                 return {
-                    "final_response": f"⚠️ Provider authentication failed: {exc}",
+                    "final_response": f"⚠️ Falha de autenticação do provedor: {exc}",
                     "messages": [],
                     "api_calls": 0,
                     "tools": [],
