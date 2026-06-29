@@ -402,6 +402,32 @@ mangaba model set openai/gpt-4o
 mangaba model set openrouter/meta-llama/llama-3.3-70b-instruct
 ```
 
+### Gateway próprio (OpenAI-compatível) com descoberta de modelos
+
+Aponte para um endpoint OpenAI-compatível (ex.: seu pool de modelos atrás de um
+túnel) usando `provider: custom`. Registre-o como provider no dashboard com
+`discover_models: true` e o painel lista os modelos sozinho via `/v1/models`:
+
+```yaml
+model:
+  provider: custom
+  base_url: https://SEU-ENDPOINT/v1
+  api_key: x
+  default: mangaba-vision-q8
+custom_providers:
+  - name: mangaba-gateway
+    base_url: https://SEU-ENDPOINT/v1
+    api_key: x
+    discover_models: true        # lista os modelos automaticamente
+    default_model: mangaba-vision-q8
+```
+
+> ⚠️ **Agentes de dados precisam de modelo _tool-capable_.** Os agentes que
+> chamam MCP (Cívico/política, Lícia/licitações) só funcionam com um modelo que
+> emita `tool_calls` (ex.: `mangaba-vision-q8`). Modelos só-chat (ex.:
+> `mangaba-lite-q4`) servem para os agentes conversacionais. Os templates já
+> nascem com o modelo certo por tipo.
+
 ---
 
 ## Ferramentas Integradas (40+)
