@@ -75,6 +75,7 @@ O [`bootstrap.sh`](bootstrap.sh) faz, em sequência:
 5. **Canais + gateway** — abre o [`setup-channels.sh`](setup-channels.sh) interativo: você **escolhe quais canais ativar** (os 13 suportados — Telegram, WhatsApp, Discord, Slack, Email, Signal, Matrix, Mattermost, SMS/Twilio, DingTalk, Feishu/Lark, WeCom, WeChat), informa os tokens, e sobe o gateway em primeiro plano ou como **serviço 24/7** (launchd/systemd: inicia no login e reinicia sozinho).
 
 > Trocar o modelo baixado: `MANGABA_MODEL=qwen3:4b ./bootstrap.sh`
+> Usar um gateway remoto OpenAI-compatível em vez de Ollama local (pula o passo 3): `MANGABA_PROVIDER=gateway MANGABA_GATEWAY_URL=https://seu-endpoint ./bootstrap.sh` — veja [Gateway próprio](#gateway-próprio-openai-compatível-com-descoberta-de-modelos) para o formato do endpoint e a nota sobre modelos tool-capable.
 > O script é **idempotente** — rode quantas vezes quiser para adicionar canais ou reconfigurar.
 
 > **Telegram sem descobrir o ID manualmente:** ao escolher o Telegram, o `setup-channels.sh` pede só o token, manda você enviar uma mensagem ao bot e **detecta seu user ID automaticamente** via API do Telegram (`getUpdates`). Requisitos: o gateway **não** pode estar rodando ainda (ele consumiria os updates) e a mensagem deve ser recente. Se a detecção falhar, ele pede o ID manualmente como fallback.

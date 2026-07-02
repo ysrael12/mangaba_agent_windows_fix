@@ -15,6 +15,12 @@
 #   5. Chama setup-channels.sh para escolher e configurar os canais,
 #      e subir o gateway (em primeiro plano ou como serviço 24/7).
 #
+# Windows nativo (Git Bash/MSYS2): suportado nos passos 2-5 (uv, venv, Ollama
+# via winget, config, canais). O passo 1 não auto-instala git/node/ripgrep/
+# ffmpeg por aqui — para isso, use scripts/install.ps1 antes ou depois.
+#   MANGABA_PROVIDER=gateway MANGABA_GATEWAY_URL=https://seu-endpoint ./bootstrap.sh
+#      pula o Ollama por completo e usa um gateway OpenAI-compatível remoto.
+#
 set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,8 +34,22 @@ err()  { echo -e "${R}✗${N} $*"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 OS="$(uname -s)"
+IS_WINDOWS=false
+case "$OS" in MINGW*|MSYS*|CYGWIN*) IS_WINDOWS=true ;; esac   # Git Bash/MSYS2 no Windows nativo
 MODEL="${MANGABA_MODEL:-gemma4:e4b}"   # override: MANGABA_MODEL=... ./bootstrap.sh
 SKIP_BROWSER="${SKIP_BROWSER:-false}"           # SKIP_BROWSER=true pula o Chromium/Playwright (download pesado)
+
+# PROVIDER=gateway pula o Ollama local e aponta para um gateway OpenAI-compatível
+# próprio (ex.: seu pool de modelos Mangaba atrás de um túnel). Requer MANGABA_GATEWAY_URL.
+#   MANGABA_PROVIDER=gateway MANGABA_GATEWAY_URL=https://seu-endpoint ./bootstrap.sh
+PROVIDER="${MANGABA_PROVIDER:-ollama}"
+GATEWAY_URL="${MANGABA_GATEWAY_URL:-}"
+GATEWAY_KEY="${MANGABA_GATEWAY_KEY:-x}"
+GATEWAY_MODEL="${MANGABA_GATEWAY_MODEL:-mangaba-vision-q8}"
+if [ "$PROVIDER" = "gateway" ] && [ -z "$GATEWAY_URL" ]; then
+  err "MANGABA_PROVIDER=gateway exige MANGABA_GATEWAY_URL (ex.: https://seu-endpoint)."
+  exit 1
+fi
 
 # =============================================================================
 step "1/5  Pré-requisitos do sistema"
@@ -77,13 +97,20 @@ elif [ "$OS" = "Linux" ] && have apt-get; then
   sudo apt-get install -y git nodejs npm ripgrep ffmpeg curl \
        build-essential python3-dev libffi-dev || warn "Alguns pacotes apt falharam."
   ok "Pacotes de sistema + build tools instalados (apt)."
+elif $IS_WINDOWS; then
+  warn "Windows nativo detectado — git/node/ripgrep/ffmpeg não são auto-instalados por aqui."
+  warn "Para suporte completo (inclui esses pacotes via winget), use o instalador PowerShell:"
+  warn "  iex (irm https://raw.githubusercontent.com/dheiver2/mangaba-agent/main/scripts/install.ps1)"
+  ok "Seguindo com uv/venv/Ollama, que funcionam em Windows nativo."
 else
   warn "SO não reconhecido para auto-instalação ($OS). Garanta git/node/ripgrep/ffmpeg manualmente."
 fi
 
 # --- delega ao instalador oficial as deps extras (node bridges + browser) ----
 # O modo --ensure NÃO clona nem recria venv: só instala dependências testadas.
-if [ -f scripts/install.sh ]; then
+# No Windows nativo, scripts/install.sh já recusa e aponta para install.ps1 — pular
+# evita ruído (um "✗" vermelho redundante com o aviso acima).
+if ! $IS_WINDOWS && [ -f scripts/install.sh ]; then
   echo "  garantindo dependências extras via instalador oficial (--ensure)..."
   ENSURE_LIST="node,ripgrep,ffmpeg"
   [ "$SKIP_BROWSER" = "true" ] || ENSURE_LIST="node,browser,ripgrep,ffmpeg"
@@ -106,8 +133,27 @@ if [ ! -d ".venv" ]; then
   uv venv --python 3.11 .venv
 fi
 # ativa o venv para os passos seguintes (config, gateway)
+# Windows (uv venv nativo) usa .venv/Scripts/activate; Unix usa .venv/bin/activate.
 # shellcheck disable=SC1091
-source .venv/bin/activate
+if [ -f ".venv/Scripts/activate" ]; then
+  source .venv/Scripts/activate
+else
+  source .venv/bin/activate
+fi
+# Resolve o interpretador do venv por caminho absoluto (reusado no passo 4).
+# NÃO usar "have python3"/PATH aqui: no Windows, python3 no PATH costuma ser o
+# stub da Microsoft Store (App Execution Alias) — "existe" mas não roda nada,
+# e mascararia o python real do venv (.venv/Scripts/python.exe só tem "python").
+if [ -x "$PROJECT_DIR/.venv/Scripts/python.exe" ]; then
+  PY_CMD="$PROJECT_DIR/.venv/Scripts/python.exe"
+elif [ -x "$PROJECT_DIR/.venv/bin/python3" ]; then
+  PY_CMD="$PROJECT_DIR/.venv/bin/python3"
+elif [ -x "$PROJECT_DIR/.venv/bin/python" ]; then
+  PY_CMD="$PROJECT_DIR/.venv/bin/python"
+else
+  err "Interpretador Python do venv não encontrado."
+  exit 1
+fi
 echo "  instalando o pacote (pode demorar na 1ª vez)..."
 uv pip install -e . >/dev/null
 ok "Mangaba instalado no venv."
@@ -119,32 +165,53 @@ uv pip install ddgs pypdf pdfplumber python-docx openpyxl "qrcode[pil]" "mcp==1.
   || warn "Alguns extras falharam (siga mesmo assim)."
 
 # =============================================================================
-step "3/5  Ollama + modelo local ($MODEL)"
-
-if ! have ollama; then
-  warn "Ollama não encontrado — instalando..."
-  if [ "$OS" = "Darwin" ]; then
-    brew install ollama || { err "Falha ao instalar Ollama. Veja https://ollama.com/download"; }
-  else
-    curl -fsSL https://ollama.com/install.sh | sh || err "Falha ao instalar Ollama."
-  fi
-fi
-
-# garante o servidor no ar
-if ! curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
-  echo "  iniciando o servidor Ollama..."
-  if [ "$OS" = "Darwin" ]; then brew services start ollama >/dev/null 2>&1 || (ollama serve >/dev/null 2>&1 &)
-  else (ollama serve >/dev/null 2>&1 &); fi
-  sleep 4
-fi
-curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1 && ok "Ollama no ar." || warn "Ollama não respondeu — verifique 'ollama serve'."
-
-# baixa o modelo se ainda não existir
-if ollama list 2>/dev/null | grep -q "${MODEL%%:*}"; then
-  ok "Modelo $MODEL já baixado."
+if [ "$PROVIDER" = "gateway" ]; then
+  step "3/5  Modelo remoto (gateway) — pulando Ollama local"
+  ok "PROVIDER=gateway — usando $GATEWAY_URL, modelo padrão $GATEWAY_MODEL."
 else
-  echo "  baixando $MODEL (download grande, aguarde)..."
-  ollama pull "$MODEL" && ok "Modelo baixado." || warn "Falha ao baixar $MODEL."
+  step "3/5  Ollama + modelo local ($MODEL)"
+
+  if ! have ollama; then
+    warn "Ollama não encontrado — instalando..."
+    if [ "$OS" = "Darwin" ]; then
+      brew install ollama || { err "Falha ao instalar Ollama. Veja https://ollama.com/download"; }
+    elif $IS_WINDOWS; then
+      if have winget; then
+        winget install --id Ollama.Ollama -e --silent \
+          --accept-package-agreements --accept-source-agreements \
+          || err "Falha ao instalar Ollama via winget. Baixe manualmente: https://ollama.com/download/windows"
+        # winget acabou de instalar o binário; este shell ainda não tem o PATH
+        # atualizado (isso só acontece em uma sessão nova), então adiciona o
+        # diretório padrão de instalação para o restante desta execução.
+        if have cygpath; then
+          export PATH="$PATH:$(cygpath -u "$LOCALAPPDATA/Programs/Ollama")"
+        else
+          export PATH="$PATH:$LOCALAPPDATA/Programs/Ollama"
+        fi
+      else
+        err "winget não encontrado. Instale o Ollama manualmente: https://ollama.com/download/windows"
+      fi
+    else
+      curl -fsSL https://ollama.com/install.sh | sh || err "Falha ao instalar Ollama."
+    fi
+  fi
+
+  # garante o servidor no ar
+  if ! curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
+    echo "  iniciando o servidor Ollama..."
+    if [ "$OS" = "Darwin" ]; then brew services start ollama >/dev/null 2>&1 || (ollama serve >/dev/null 2>&1 &)
+    else (ollama serve >/dev/null 2>&1 &); fi
+    sleep 4
+  fi
+  curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1 && ok "Ollama no ar." || warn "Ollama não respondeu — verifique 'ollama serve'."
+
+  # baixa o modelo se ainda não existir
+  if ollama list 2>/dev/null | grep -q "${MODEL%%:*}"; then
+    ok "Modelo $MODEL já baixado."
+  else
+    echo "  baixando $MODEL (download grande, aguarde)..."
+    ollama pull "$MODEL" && ok "Modelo baixado." || warn "Falha ao baixar $MODEL."
+  fi
 fi
 
 # =============================================================================
@@ -154,28 +221,54 @@ CFG_DIR="$HOME/.mangaba"; CFG="$CFG_DIR/config.yaml"
 mkdir -p "$CFG_DIR"
 [ -f "$CFG" ] || echo "onboarding:\n  seen:\n    busy_input_prompt: true" > "$CFG"
 
-# remove bloco model: antigo (se houver) e regrava — simples e idempotente
-python3 - "$CFG" "$MODEL" <<'PY'
+# remove blocos model:/custom_providers: antigos (se houver) e regrava — simples e idempotente
+"$PY_CMD" - "$CFG" "$PROVIDER" "$MODEL" "$GATEWAY_URL" "$GATEWAY_KEY" "$GATEWAY_MODEL" <<'PY'
 import sys, re, pathlib
-cfg, model = pathlib.Path(sys.argv[1]), sys.argv[2]
+cfg, provider, model, gateway_url, gateway_key, gateway_model = sys.argv[1:7]
+cfg = pathlib.Path(cfg)
 text = cfg.read_text() if cfg.exists() else ""
-# remove um bloco "model:" existente (linhas indentadas que o seguem)
+# remove blocos "model:" e "custom_providers:" existentes (linhas indentadas que os seguem)
 text = re.sub(r'(?ms)^model:\n(?:[ \t]+.*\n?)*', '', text)
-block = (
-    "model:\n"
-    f"  default: {model}\n"
-    "  provider: ollama\n"
-    "  base_url: http://localhost:11434/v1\n"
-    "  api_key: ollama\n"
-    "  context_length: 65536\n"
-    "  ollama_num_ctx: 65536\n"
-)
+text = re.sub(r'(?ms)^custom_providers:\n(?:[ \t]+.*\n?)*', '', text)
+
+if provider == "gateway":
+    base_url = gateway_url.rstrip("/") + "/v1"
+    block = (
+        "model:\n"
+        "  provider: custom\n"
+        f"  base_url: {base_url}\n"
+        f"  api_key: {gateway_key}\n"
+        f"  default: {gateway_model}\n"
+        "custom_providers:\n"
+        "  - name: mangaba-gateway\n"
+        f"    base_url: {base_url}\n"
+        f"    api_key: {gateway_key}\n"
+        "    discover_models: true\n"
+        f"    default_model: {gateway_model}\n"
+    )
+else:
+    block = (
+        "model:\n"
+        f"  default: {model}\n"
+        "  provider: ollama\n"
+        "  base_url: http://localhost:11434/v1\n"
+        "  api_key: ollama\n"
+        "  context_length: 65536\n"
+        "  ollama_num_ctx: 65536\n"
+    )
+
 if not text.endswith("\n") and text:
     text += "\n"
 cfg.write_text(text + block)
 print("config.yaml atualizado")
 PY
-ok "Modelo apontado para Ollama local."
+if [ "$PROVIDER" = "gateway" ]; then
+  ok "Modelo apontado para o gateway $GATEWAY_URL ($GATEWAY_MODEL)."
+  warn "Agentes que chamam MCP/ferramentas exigem um modelo tool-capable (ex.: mangaba-vision-q8)."
+  warn "Modelos só-chat (ex.: mangaba-lite-q4) servem apenas para agentes conversacionais."
+else
+  ok "Modelo apontado para Ollama local."
+fi
 
 # =============================================================================
 # Quando chamado por outro script (ex: telegram.sh), pula o configurador
