@@ -400,11 +400,74 @@ export const claudeTheme: DashboardTheme = {
   },
 };
 
+/**
+ * Enterprise — slate & steel-blue on deep navy.
+ *
+ * Palette aimed at a corporate SaaS dashboard look (Stripe/Linear/Vercel
+ * dark-mode family) rather than the playful Mangaba coral/cream — muted
+ * slates for surfaces, a single restrained blue accent, no warm glow.
+ * This is the default theme for the agent-builder wizard and its
+ * post-creation dashboard (`/criar/wizard`, `/dashboard/agent/:id`).
+ *
+ * Contrast checked (WCAG AA):
+ *   #E2E8F0 on #0B1220 → 14.7:1 ✓ (texto primário)
+ *   #94A3B8 on #0B1220 →  6.6:1 ✓ (texto secundário/mutedForeground)
+ *   #60A5FA on #0B1220 →  7.2:1 ✓ (accent/primary, texto/ícones)
+ */
+export const enterpriseTheme: DashboardTheme = {
+  name: "enterprise",
+  label: "Enterprise",
+  description: "Slate e azul-aço sobre navy profundo — visual corporativo",
+  palette: {
+    background: { hex: "#0B1220", alpha: 1 },
+    midground: { hex: "#E2E8F0", alpha: 1 },
+    foreground: { hex: "#ffffff", alpha: 0 },
+    warmGlow: "rgba(59, 130, 246, 0.14)",
+    noiseOpacity: 0.3,
+  },
+  typography: {
+    ...DEFAULT_TYPOGRAPHY,
+    fontSans: `"Inter", ${SYSTEM_SANS}`,
+    fontMono: `"JetBrains Mono", ${SYSTEM_MONO}`,
+    fontUrl:
+      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap",
+    letterSpacing: "-0.005em",
+  },
+  layout: { radius: "0.5rem", density: "comfortable" },
+  colorOverrides: {
+    primary: "#3B82F6", // blue-500
+    primaryForeground: "#0B1220",
+
+    card: "#111A2C",
+    cardForeground: "#E2E8F0",
+    popover: "#0F1729",
+    popoverForeground: "#E2E8F0",
+
+    secondary: "#1B2536",
+    secondaryForeground: "#E2E8F0",
+    muted: "#1B2536",
+    mutedForeground: "#94A3B8", // slate-400
+
+    accent: "#16233B",
+    accentForeground: "#93C5FD", // blue-300
+
+    border: "#243044",
+    input: "#243044",
+    ring: "#3B82F6",
+
+    success: "#22C55E",
+    warning: "#F59E0B",
+    destructive: "#EF4444",
+    destructiveForeground: "#ffffff",
+  },
+};
+
 export const BUILTIN_THEMES: Record<string, DashboardTheme> = {
   default: defaultTheme,
   "mangaba-light": mangabaLightTheme,
   "default-large": defaultLargeTheme,
   claude: claudeTheme,
+  enterprise: enterpriseTheme,
   midnight: midnightTheme,
   ember: emberTheme,
   mono: monoTheme,

@@ -52,7 +52,7 @@ from gateway.status import get_running_pid, read_runtime_status
 from mangaba_agent.utils import env_var_enabled
 
 try:
-    from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+    from fastapi import FastAPI, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
     from fastapi.middleware.cors import CORSMiddleware
     from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
     from fastapi.staticfiles import StaticFiles
@@ -64,7 +64,7 @@ except ImportError:
     try:
         from tools.lazy_deps import ensure as _lazy_ensure
         _lazy_ensure("tool.dashboard", prompt=False)
-        from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+        from fastapi import FastAPI, File, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
         from fastapi.middleware.cors import CORSMiddleware
         from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
         from fastapi.staticfiles import StaticFiles
@@ -1713,6 +1713,94 @@ def rag_enable(enable: bool = True):
         return {"ok": True, "enabled": bool(enable)}
     except Exception as exc:  # noqa: BLE001
         _log.exception("POST /api/rag/enable failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+_RAG_UPLOAD_EXTS = {".txt", ".md"}
+_RAG_MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # 2 MB
+
+
+@app.post("/api/rag/upload")
+async def rag_upload(file: UploadFile = File(...)):
+    """Indexa um documento (.txt/.md) enviado pelo usuário na base RAG.
+
+    Reaproveita o mesmo pipeline de chunking + TF-IDF do crawler de
+    mangaba.ia.br (ver `plugins/memory/mangaba_rag`), sem descartar os
+    trechos já indexados — os chunks ficam marcados com `source: "upload"`.
+    """
+    name = file.filename or "documento.txt"
+    ext = Path(name).suffix.lower()
+    if ext not in _RAG_UPLOAD_EXTS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Formato '{ext or '(sem extensão)'}' não suportado. Use .txt ou .md.",
+        )
+    raw = await file.read()
+    if len(raw) > _RAG_MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=400, detail="Arquivo maior que 2MB.")
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        raise HTTPException(
+            status_code=400, detail="Não foi possível ler o arquivo como texto UTF-8."
+        )
+
+    try:
+        mod = _load_rag_module()
+        stats = mod.ingest_upload(name, text)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/rag/upload failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"ok": True, **stats}
+
+
+@app.get("/api/rag/files")
+def rag_list_files():
+    try:
+        mod = _load_rag_module()
+        return {"files": mod.list_uploaded_files()}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("GET /api/rag/files failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.delete("/api/rag/files/{filename}")
+def rag_delete_file(filename: str):
+    try:
+        mod = _load_rag_module()
+        removed = mod.remove_uploaded_file(filename)
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("DELETE /api/rag/files/%s failed", filename)
+        raise HTTPException(status_code=500, detail=str(exc))
+    if not removed:
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado no índice.")
+    return {"ok": True}
+
+
+class AgentIdentityUpdate(BaseModel):
+    display_name: str
+
+
+@app.get("/api/agent/identity")
+def get_agent_identity():
+    """Nome de exibição do agente default — mostrado no wizard e no dashboard."""
+    cfg = load_config()
+    agent_cfg = (cfg or {}).get("agent") or {}
+    return {"display_name": str(agent_cfg.get("display_name") or "")}
+
+
+@app.put("/api/agent/identity")
+def set_agent_identity(body: AgentIdentityUpdate):
+    try:
+        cfg = load_config()
+        agent_cfg = cfg.setdefault("agent", {})
+        agent_cfg["display_name"] = body.display_name.strip()
+        save_config(cfg)
+        return {"ok": True, "display_name": agent_cfg["display_name"]}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("PUT /api/agent/identity failed")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -3830,6 +3918,44 @@ async def get_cron_job(job_id: str, profile: Optional[str] = None):
     return job
 
 
+class CronInterpretRequest(BaseModel):
+    text: str
+
+
+@app.post("/api/cron/interpret")
+async def interpret_cron_schedule(body: CronInterpretRequest):
+    """Converte uma frase em PT-BR (Slide 8 · Heartbeat dinâmico) na string
+    de schedule real do cron, e já retorna o preview do próximo horário —
+    sem criar nenhum job. Erro de parsing volta como `ok: false` (não 4xx),
+    pois é chamado a cada edição do texto pela UI."""
+    from cron.jobs import preview_schedule
+    from cron.nl_schedule import parse_natural_schedule
+
+    try:
+        schedule = parse_natural_schedule(body.text)
+        preview = preview_schedule(schedule)
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
+    return {"ok": True, "schedule": schedule, **preview}
+
+
+class CronValidateRequest(BaseModel):
+    schedule: str
+
+
+@app.post("/api/cron/validate")
+async def validate_cron_schedule(body: CronValidateRequest):
+    """Valida uma expressão de schedule já resolvida (fallback de edição
+    manual) sem criar o job — mesmo formato de resposta de `interpret`."""
+    from cron.jobs import preview_schedule
+
+    try:
+        preview = preview_schedule(body.schedule)
+    except ValueError as e:
+        return {"ok": False, "error": str(e)}
+    return {"ok": True, **preview}
+
+
 @app.post("/api/cron/jobs")
 async def create_cron_job(body: CronJobCreate, profile: str = "default"):
     try:
@@ -4733,6 +4859,143 @@ async def get_toolsets():
             "tools": tools,
         })
     return result
+
+
+class SkillForgeCreate(BaseModel):
+    name: str
+    tool: str
+    instruction: str
+    action: str
+
+
+@app.post("/api/skills/forge")
+async def forge_skill(body: SkillForgeCreate):
+    """Cria uma skill de instrução simples (sem código) a partir do
+    construtor visual do wizard (Slide 6 · Forja de skills): Ferramenta +
+    Instrução + Ação viram um SKILL.md em ``$MANGABA_HOME/skills/<slug>/``,
+    no mesmo formato que qualquer skill escrita à mão."""
+    import re as _re
+
+    from mangaba_agent.mangaba_constants import get_mangaba_home
+
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Nome da skill é obrigatório.")
+    if not body.instruction.strip():
+        raise HTTPException(status_code=400, detail="Instrução é obrigatória.")
+
+    slug = _re.sub(r"[^a-z0-9-]+", "-", name.lower()).strip("-") or "skill"
+    skill_dir = get_mangaba_home() / "skills" / slug
+    skill_dir.mkdir(parents=True, exist_ok=True)
+
+    description = body.instruction.strip().splitlines()[0][:180].replace('"', "'")
+    content = (
+        "---\n"
+        f"name: {slug}\n"
+        f'description: "{description}"\n'
+        "version: 1.0.0\n"
+        "metadata:\n"
+        "  mangaba:\n"
+        "    tags: [wizard-forge]\n"
+        "---\n\n"
+        f"# {name}\n\n"
+        "## Ferramenta\n\n"
+        f"{body.tool.strip() or '(não especificada)'}\n\n"
+        "## Instrução\n\n"
+        f"{body.instruction.strip()}\n\n"
+        "## Ação esperada\n\n"
+        f"{body.action.strip() or '(não especificada)'}\n"
+    )
+    try:
+        (skill_dir / "SKILL.md").write_text(content, encoding="utf-8")
+    except OSError as e:
+        _log.exception("POST /api/skills/forge failed")
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"ok": True, "name": slug, "path": str(skill_dir / "SKILL.md")}
+
+
+# ---------------------------------------------------------------------------
+# MCP servers (cliente) — envelope REST sobre mangaba_cli/mcp_config.py
+# ---------------------------------------------------------------------------
+
+
+class McpServerCreate(BaseModel):
+    name: str
+    url: str = ""
+    command: str = ""
+    args: List[str] = []
+
+
+@app.get("/api/mcp/servers")
+async def list_mcp_servers():
+    from mangaba_cli.mcp_config import _get_mcp_servers
+
+    servers = _get_mcp_servers()
+    return {
+        "servers": [
+            {
+                "name": name,
+                "url": cfg.get("url", ""),
+                "command": cfg.get("command", ""),
+                "args": cfg.get("args", []),
+            }
+            for name, cfg in servers.items()
+        ]
+    }
+
+
+@app.post("/api/mcp/servers")
+async def add_mcp_server(body: McpServerCreate):
+    from mangaba_cli.mcp_config import _save_mcp_server
+
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Nome do servidor MCP é obrigatório.")
+    url = body.url.strip()
+    command = body.command.strip()
+    if not url and not command:
+        raise HTTPException(status_code=400, detail="Informe uma URL ou um comando (stdio).")
+
+    server_config: Dict[str, Any] = {}
+    if url:
+        server_config["url"] = url
+    if command:
+        server_config["command"] = command
+        if body.args:
+            server_config["args"] = body.args
+    try:
+        _save_mcp_server(name, server_config)
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/mcp/servers failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+    return {"ok": True, "name": name}
+
+
+@app.delete("/api/mcp/servers/{name}")
+async def delete_mcp_server(name: str):
+    from mangaba_cli.mcp_config import _remove_mcp_server
+
+    if not _remove_mcp_server(name):
+        raise HTTPException(status_code=404, detail="Servidor MCP não encontrado.")
+    return {"ok": True}
+
+
+@app.post("/api/mcp/servers/{name}/test")
+async def test_mcp_server(name: str):
+    """Conecta de verdade ao servidor MCP e lista as ferramentas expostas."""
+    from mangaba_cli.mcp_config import _get_mcp_servers, _probe_single_server
+
+    servers = _get_mcp_servers()
+    cfg = servers.get(name)
+    if not cfg:
+        raise HTTPException(status_code=404, detail="Servidor MCP não encontrado.")
+
+    loop = asyncio.get_event_loop()
+    try:
+        tools = await loop.run_in_executor(None, _probe_single_server, name, cfg, 20)
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "error": str(exc)}
+    return {"ok": True, "tools": [{"name": t[0], "description": t[1]} for t in tools]}
 
 
 # ---------------------------------------------------------------------------
@@ -5642,6 +5905,7 @@ _BUILTIN_DASHBOARD_THEMES = [
     {"name": "default",       "label": "Mangaba Noite",          "description": "Modo escuro — grafite quente com laranja da marca"},
     {"name": "default-large", "label": "Mangaba Noite (Grande)", "description": "Mangaba Noite com fontes maiores e espaçamento confortável"},
     {"name": "claude",    "label": "Claude AI",      "description": "Anthropic Claude — warm coral & cream on deep brown"},
+    {"name": "enterprise", "label": "Enterprise",    "description": "Slate e azul-aço sobre navy profundo — visual corporativo"},
     {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
     {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
     {"name": "mono",      "label": "Mono",           "description": "Clean grayscale — minimal and focused"},

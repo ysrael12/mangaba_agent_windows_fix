@@ -273,6 +273,21 @@ def parse_schedule(schedule: str) -> Dict[str, Any]:
     )
 
 
+def preview_schedule(schedule: str) -> Dict[str, Any]:
+    """Parse e resolve uma string de schedule sem criar um job de verdade.
+
+    Usado pelo wizard do dashboard (Slide 8 · Heartbeat) para mostrar o
+    próximo horário de execução antes do usuário confirmar a criação do job.
+    """
+    parsed = parse_schedule(schedule)
+    next_run_at = compute_next_run(parsed)
+    return {
+        "kind": parsed.get("kind"),
+        "display": parsed.get("display"),
+        "next_run_at": next_run_at,
+    }
+
+
 def _ensure_aware(dt: datetime) -> datetime:
     """Return a timezone-aware datetime in Mangaba configured timezone.
 

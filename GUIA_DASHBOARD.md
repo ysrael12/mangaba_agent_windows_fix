@@ -1,8 +1,12 @@
-# Guia do Painel do Mangaba — bem simples, sem termos técnicos
+# Guia do Painel do Mangaba (via gateway) — bem simples, sem termos técnicos
 
 Este guia te ensina a instalar e abrir o painel (dashboard) do Mangaba, passo
-a passo. Você não precisa entender de tecnologia para seguir — só ir copiando
-e colando o que está nas caixinhas cinzas.
+a passo, usando o **PowerShell** (a telinha azul que já vem no Windows —
+procure "PowerShell" no menu Iniciar) e conectado a um **gateway** (um
+servidor de IA já pronto, em vez de baixar um modelo de IA gigante para o
+seu computador). Você não precisa entender de tecnologia para seguir — só ir
+copiando e colando o que está nas caixinhas cinzas, uma de cada vez, e
+apertando Enter.
 
 ---
 
@@ -20,90 +24,110 @@ Tudo fica guardado no seu próprio computador.
 
 ---
 
-## 2. Baixando o programa pela primeira vez
+## 2. O que instalar antes de começar (pré-requisitos)
 
-1. Instale o **Git**: entre em https://git-scm.com/downloads, baixe e
-   instale. Pode ir clicando em "Next" em tudo, as opções padrão servem.
+Antes de baixar o Mangaba, seu computador precisa ter 3 programas
+instalados. No Windows eles **não** vêm instalados de fábrica — então faça
+esses 3 passos primeiro, na ordem:
 
-2. Instale o **Git Bash** — ele já vem junto com o Git do passo anterior.
-   É um "terminal" (uma telinha preta onde você digita comandos) que vamos
-   usar do começo ao fim deste guia.
+1. **Python** — entre em https://www.python.org/downloads/ e clique no botão
+   grande de download. Ao instalar, **marque a caixinha "Add python.exe to
+   PATH"** logo na primeira tela do instalador (isso é importante) e depois
+   clique em "Install Now".
 
-3. Abra o **Git Bash**: procure "Git Bash" no menu Iniciar do Windows e
-   clique para abrir. (Dica: você também pode clicar com o botão direito
-   dentro de uma pasta no Explorador de Arquivos e escolher "Git Bash Here".)
+2. **Node.js** — entre em https://nodejs.org/, baixe a versão **LTS**
+   (é a recomendada, escrito bem grande na página) e instale clicando
+   "Next" em tudo, as opções padrão servem.
 
-4. Na janela que abriu, cole este comando e aperte Enter:
-   ```bash
-   git clone https://github.com/dheiver2/Mangaba-Agent.git mangaba-agent
-   ```
-   Isso baixa todos os arquivos do programa para uma pasta chamada
-   `mangaba-agent`.
+3. **Git** — entre em https://git-scm.com/downloads, baixe e instale. Pode
+   ir clicando em "Next" em tudo, as opções padrão servem.
 
-5. Entre nessa pasta:
-   ```bash
-   cd mangaba-agent
-   ```
-
-6. Agora rode o instalador — ele prepara tudo sozinho (pode demorar alguns
-   minutos, é normal):
-   ```bash
-   ./bootstrap.sh
-   ```
-
-> **Importante:** o mais simples é fazer tudo isso dentro do **Git Bash**,
-> sempre. Se você prefere usar o terminal que já vem no Windows (a telinha
-> azul chamada **PowerShell**), também dá certo — só que os comandos ficam
-> um pouco diferentes. Toda vez que este guia mostrar uma caixinha de
-> comando, logo abaixo vai ter uma versão "🔵 Se você usa o PowerShell" com o
-> comando equivalente pra esse terminal.
-
-> 🔵 **Se você usa o PowerShell:** o passo do instalador (item 6 acima) é o
-> único que muda — o resto (instalar o Git, baixar o projeto, entrar na
-> pasta) funciona igual. No lugar de `./bootstrap.sh`, cole:
-> ```powershell
-> & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
-> ```
-
-Quando o instalador terminar, ele mostra uma mensagem de sucesso — mas o
-painel **ainda não abriu sozinho**. Vá para a próxima seção para abri-lo.
+> Depois de instalar os 3, é uma boa ideia **reiniciar o computador** antes
+> de continuar — evita problemas do Windows "não reconhecer" os programas
+> recém-instalados.
 
 ---
 
-## 3. Abrindo o painel no navegador
+## 3. Baixando o programa pela primeira vez
 
-Sempre que quiser usar o Mangaba, faça isto:
+1. Abra o **PowerShell**: procure "PowerShell" no menu Iniciar do Windows e
+   clique para abrir.
 
-1. Abra o **Git Bash** dentro da pasta `mangaba-agent` (se já estava aberto
-   de antes, ótimo).
-2. Cole este comando e aperte Enter:
-   ```bash
-   source .venv/Scripts/activate
-   mangaba dashboard
+2. Cole este comando e aperte Enter (isso baixa o programa para uma pasta
+   chamada `mangaba-agent`):
+   ```powershell
+   git clone https://github.com/dheiver2/Mangaba-Agent.git mangaba-agent
    ```
+
+3. Entre nessa pasta:
+   ```powershell
+   cd mangaba-agent
+   ```
+
+4. Agora rode o instalador — ele prepara tudo sozinho (pode demorar alguns
+   minutos, é normal). Este comando já configura o Mangaba para usar o
+   **gateway** (um servidor de IA já pronto, em vez de baixar um modelo
+   gigante para o seu computador) e, ao terminar, **já abre o painel
+   sozinho** no navegador:
+   ```powershell
+   $env:MANGABA_PROVIDER = "gateway"
+   $env:MANGABA_GATEWAY_URL = "https://walton-undepreciatory-tracee.ngrok-free.dev"
+   $env:BOOTSTRAP_NO_CHANNELS = "true"
+   $env:BOOTSTRAP_OPEN_DASHBOARD = "true"
+   & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
+   ```
+   (Se algum dia te passarem outro endereço de gateway, é só trocar a
+   segunda linha por ele.)
+
+   Quando terminar de preparar tudo, essa mesma janela do PowerShell fica
+   "ocupada" rodando o painel (é esperado — é o painel funcionando). Uma aba
+   do navegador abre sozinha em alguns segundos. Para fechar o painel depois,
+   volte nessa janela e aperte `Ctrl + C` (veja a seção 7).
+
+> ℹ️ **Por que usar o gateway:** é bem mais rápido de configurar do que
+> baixar um modelo de IA inteiro para o seu computador. A desvantagem: esse
+> endereço é um link de um computador de outra pessoa — pode parar de
+> funcionar se aquele computador desligar, e o assistente completo (com
+> todas as ferramentas) às vezes não responde direito nele, porque o modelo
+> por trás tem uma "memória de conversa" mais curta do que o assistente
+> precisa. Serve muito bem para conversar e testar. Se um dia isso te
+> incomodar, dá pra trocar para um modelo local rodando no seu próprio
+> computador — rode o comando de novo, mas sem as linhas
+> `$env:MANGABA_PROVIDER` e `$env:MANGABA_GATEWAY_URL`:
+> ```powershell
+> $env:BOOTSTRAP_NO_CHANNELS = "true"
+> $env:BOOTSTRAP_OPEN_DASHBOARD = "true"
+> & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
+> ```
+
+---
+
+## 4. Reabrindo o painel depois (nas próximas vezes)
+
+Na primeira vez, o instalador (seção 3) já deixa o painel aberto sozinho.
+Mas depois que você fechar (seção 7) e quiser usar de novo, faça isto:
+
+1. Abra o **PowerShell** dentro da pasta `mangaba-agent` (se já estava
+   aberto de antes, ótimo — senão abra o PowerShell e cole
+   `cd mangaba-agent` primeiro, ou clique com o botão direito dentro da
+   pasta no Explorador de Arquivos e escolha "Abrir no Terminal").
+
+2. Cole este comando e aperte Enter:
+   ```powershell
+   .\.venv\Scripts\mangaba.exe dashboard
+   ```
+
 3. Espere alguns segundos. Uma aba do navegador abre sozinha já com o painel
    pronto pra usar.
 
 > Se preferir que o navegador não abra sozinho:
-> ```bash
-> mangaba dashboard --no-open
-> ```
-
-**Dica para não esquecer:** sempre que abrir uma janela nova do Git Bash pra
-usar o Mangaba, rode primeiro `source .venv/Scripts/activate` (isso "liga" o
-programa) e só depois `mangaba dashboard`.
-
-> 🔵 **Se você usa o PowerShell:** cole isto, dentro da pasta do projeto:
 > ```powershell
-> .\.venv\Scripts\mangaba.exe dashboard
+> .\.venv\Scripts\mangaba.exe dashboard --no-open
 > ```
-> Repare que aqui **não precisa** "ligar" nada antes (o `activate` do Git
-> Bash) — já vem embutido no comando. Para não abrir o navegador sozinho,
-> use `.\.venv\Scripts\mangaba.exe dashboard --no-open`.
 
 ---
 
-## 4. Escolhendo seu perfil
+## 5. Escolhendo seu perfil
 
 Na primeira vez que o painel abrir, escolha na barra do lado esquerdo o
 perfil que combina com você. Fica salvo, não precisa escolher de novo.
@@ -118,7 +142,7 @@ Errou o perfil? Sem problema, troca a qualquer momento no mesmo lugar.
 
 ---
 
-## 5. Como usar no dia a dia
+## 6. Como usar no dia a dia
 
 1. **Criar um assistente** (perfil Gestor) → escolha um modelo pronto para o
    seu setor (clínica, licitações, etc.) e instale com um clique.
@@ -128,96 +152,52 @@ Errou o perfil? Sem problema, troca a qualquer momento no mesmo lugar.
 
 ---
 
-## 6. Como fechar o painel
+## 7. Como fechar o painel
 
-Volte na janela do Git Bash onde ele está rodando e aperte `Ctrl + C`.
+Volte na janela do PowerShell onde ele está rodando e aperte `Ctrl + C`.
 
 Se você já fechou a janela sem querer e o painel continua funcionando no
-navegador, abra o Git Bash de novo e cole:
+navegador, abra o PowerShell de novo, entre na pasta do projeto e cole:
 
-```bash
-mangaba dashboard --stop
+```powershell
+.\.venv\Scripts\mangaba.exe dashboard --stop
 ```
-
-> 🔵 **Se você usa o PowerShell:**
-> ```powershell
-> .\.venv\Scripts\mangaba.exe dashboard --stop
-> ```
-
----
-
-## 7. Usando um servidor de IA de teste (opcional)
-
-Por padrão, o instalador baixa um modelo de IA para rodar **no seu próprio
-computador**. Se alguém já te passou um endereço de um servidor de IA pronto
-(um "gateway"), você pode usar ele em vez do modelo local — é mais rápido de
-configurar, mas pense nisso como algo **para testar**, não para depender no
-dia a dia (explico o porquê logo abaixo).
-
-No **Git Bash**, dentro da pasta do projeto, cole:
-
-```bash
-MANGABA_PROVIDER=gateway \
-MANGABA_GATEWAY_URL=https://walton-undepreciatory-tracee.ngrok-free.dev \
-BOOTSTRAP_NO_CHANNELS=true \
-./bootstrap.sh
-```
-
-(Troque o endereço acima se te passarem outro.)
-
-> 🔵 **Se você usa o PowerShell**, cole estas 4 linhas em vez do bloco acima:
-> ```powershell
-> $env:MANGABA_PROVIDER = "gateway"
-> $env:MANGABA_GATEWAY_URL = "https://walton-undepreciatory-tracee.ngrok-free.dev"
-> $env:BOOTSTRAP_NO_CHANNELS = "true"
-> & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
-> ```
-
-> **Isso é só para teste porque:** esse endereço é um link temporário de um
-> computador de outra pessoa. Ele pode parar de funcionar se aquele
-> computador desligar, e o assistente completo (com todas as ferramentas)
-> pode não responder direito nele, porque o modelo por trás tem uma
-> "memória de conversa" mais curta do que o assistente precisa. Serve bem
-> para testar perguntas simples. Se algo não funcionar direito, volte para
-> o modelo local: rode `./bootstrap.sh` de novo, sem essas linhas de cima.
 
 ---
 
 ## 8. Se der algum problema
 
-**"Apareceu uma mensagem vermelha dizendo que `mangaba` não existe"**
-Se você está no Git Bash: você esqueceu de "ligar" o programa nessa janela.
-Cole:
-```bash
-source .venv/Scripts/activate
-```
-e tente de novo.
+**"O instalador reclamou de `python` ou `node`/`npm` não encontrado"**
+Falta instalar um dos 3 programas da seção 2 (Python, Node.js ou Git), ou o
+computador ainda não "percebeu" que eles foram instalados. Confira se
+instalou os 3, reinicie o computador e rode o instalador de novo.
 
-Se você está no **PowerShell** (a telinha azul), o jeito mais simples é
-sempre chamar pelo caminho completo:
+**"Apareceu uma mensagem vermelha dizendo que `mangaba` não existe"**
+Você digitou só `mangaba` em vez do caminho completo. Use sempre:
 ```powershell
 .\.venv\Scripts\mangaba.exe dashboard
 ```
+(repare no `.\` bem no começo — sem ele o PowerShell não acha o programa).
 
 **"Rodei o instalador e terminou, mas não abriu nada no navegador"**
-Normal — o instalador só prepara tudo, ele não abre o painel sozinho. Depois
-que ele terminar, siga a seção 3 (`source .venv/Scripts/activate` e depois
-`mangaba dashboard`).
+Confira se colou as 4 linhas `$env:...` inteiras da seção 3 antes do comando
+final — em especial a linha `$env:BOOTSTRAP_OPEN_DASHBOARD = "true"`, que é
+a que faz o painel abrir sozinho no final. Se faltou, é só rodar a seção 4
+manualmente.
 
 **"Cliquei duas vezes no arquivo `bootstrap.sh` e abriu um editor de texto/código em vez de instalar"**
-Isso é esperado — não dê duplo-clique nesse arquivo. Em vez disso, abra o
-**Git Bash** (seção 2) e cole `./bootstrap.sh` lá dentro.
+Isso é esperado — não dê duplo-clique nesse arquivo. Em vez disso, use o
+comando da seção 3, item 4, colado no PowerShell.
 
 **"O instalador pediu uma senha que eu não sei qual é"**
-Isso acontece se o comando `bash bootstrap.sh` foi digitado dentro do
-PowerShell em vez de usar o caminho indicado neste guia. Feche essa janela e
-siga de novo o passo certo: **Git Bash** com `./bootstrap.sh`, ou
-**PowerShell** com `& "C:\Program Files\Git\bin\bash.exe" bootstrap.sh`
-(seção 2).
+Isso acontece se o comando `bootstrap.sh` foi rodado de um jeito diferente
+do que este guia mostra. Feche a janela, abra o PowerShell de novo e use
+exatamente o comando da seção 3 (com `& "C:\Program Files\Git\bin\bash.exe"`
+na frente).
 
 **"A página do painel não abre / dá erro de conexão"**
 Veja se a janela do terminal ainda está aberta, sem mensagens em vermelho.
-Se você fechou sem querer, abra o Git Bash de novo e repita a seção 3.
+Se você fechou sem querer, abra o PowerShell de novo e repita a seção 4.
 
 **"Apareceu um aviso de limite no topo da página"**
 Normal — o modelo de IA (ou uma API gratuita) atingiu o limite de uso do
@@ -228,14 +208,13 @@ momento. Não é um erro do painel; espere um pouco ou troque de modelo na aba
 Dá pra fazer, mas com cuidado — isso deixa o painel visível pra outros
 computadores da mesma rede, incluindo as chaves de acesso guardadas nele. Só
 faça isso numa rede em que você confia:
-```bash
-mangaba dashboard --host 0.0.0.0 --insecure
+```powershell
+.\.venv\Scripts\mangaba.exe dashboard --host 0.0.0.0 --insecure
 ```
-> 🔵 PowerShell: `.\.venv\Scripts\mangaba.exe dashboard --host 0.0.0.0 --insecure`
 
 **"Quero recomeçar do zero"**
-Feche o painel (`mangaba dashboard --stop`) e abra de novo (seção 3). Suas
-configurações continuam salvas, nada se perde.
+Feche o painel (`.\.venv\Scripts\mangaba.exe dashboard --stop`) e abra de
+novo (seção 4). Suas configurações continuam salvas, nada se perde.
 
 ---
 
@@ -244,7 +223,6 @@ configurações continuam salvas, nada se perde.
 - Site com a documentação completa: https://mangaba-agent.online
 - Se alguma coisa travar, cole este comando — ele descobre sozinho o que
   está errado:
-  ```bash
-  mangaba doctor
+  ```powershell
+  .\.venv\Scripts\mangaba.exe doctor
   ```
-  > 🔵 PowerShell: `.\.venv\Scripts\mangaba.exe doctor`

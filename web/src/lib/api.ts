@@ -162,6 +162,28 @@ export const api = {
       `/api/rag/enable?enable=${enable ? "true" : "false"}`,
       { method: "POST" },
     ),
+  uploadRagFile: (file: File) => {
+    const form = new FormData();
+    form.append("file", file);
+    return fetchJSON<RagUploadResponse>("/api/rag/upload", {
+      method: "POST",
+      body: form,
+    });
+  },
+  getRagFiles: () => fetchJSON<{ files: RagFileInfo[] }>("/api/rag/files"),
+  deleteRagFile: (filename: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/rag/files/${encodeURIComponent(filename)}`, {
+      method: "DELETE",
+    }),
+
+  // ── Identidade do agente (nome de exibição) ──────────────────────────────
+  getAgentIdentity: () => fetchJSON<{ display_name: string }>("/api/agent/identity"),
+  setAgentIdentity: (display_name: string) =>
+    fetchJSON<{ ok: boolean; display_name: string }>("/api/agent/identity", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ display_name }),
+    }),
 
   // ── Observabilidade (traces + eval) ──────────────────────────────────────
   getTraces: (limit = 100, hours = 24) =>
@@ -404,6 +426,43 @@ export const api = {
       body: JSON.stringify({ name, enabled }),
     }),
   getToolsets: () => fetchJSON<ToolsetInfo[]>("/api/tools/toolsets"),
+  forgeSkill: (body: { name: string; tool: string; instruction: string; action: string }) =>
+    fetchJSON<{ ok: boolean; name: string; path: string }>("/api/skills/forge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+
+  // MCP (cliente) — conexões com servidores externos
+  listMcpServers: () => fetchJSON<{ servers: McpServerInfo[] }>("/api/mcp/servers"),
+  addMcpServer: (body: { name: string; url?: string; command?: string; args?: string[] }) =>
+    fetchJSON<{ ok: boolean; name: string }>("/api/mcp/servers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
+  deleteMcpServer: (name: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/mcp/servers/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    }),
+  testMcpServer: (name: string) =>
+    fetchJSON<McpTestResponse>(`/api/mcp/servers/${encodeURIComponent(name)}/test`, {
+      method: "POST",
+    }),
+
+  // Cron — heartbeat em linguagem natural (PT-BR) e validação de schedule
+  interpretHeartbeat: (text: string) =>
+    fetchJSON<CronScheduleResolution>("/api/cron/interpret", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    }),
+  validateCronSchedule: (schedule: string) =>
+    fetchJSON<CronScheduleResolution>("/api/cron/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ schedule }),
+    }),
 
   // Session search (FTS5)
   searchSessions: (q: string) =>
@@ -908,6 +967,28 @@ export interface ToolsetInfo {
   tools: string[];
 }
 
+export interface McpServerInfo {
+  name: string;
+  url: string;
+  command: string;
+  args: string[];
+}
+
+export interface McpTestResponse {
+  ok: boolean;
+  tools?: { name: string; description: string }[];
+  error?: string;
+}
+
+export interface CronScheduleResolution {
+  ok: boolean;
+  schedule?: string;
+  kind?: string;
+  display?: string;
+  next_run_at?: string | null;
+  error?: string;
+}
+
 export interface SessionSearchResult {
   session_id: string;
   snippet: string;
@@ -1093,6 +1174,18 @@ export interface RagStatus {
   pages: number;
   chunks: number;
   built_at: number | null;
+}
+
+export interface RagUploadResponse {
+  ok: boolean;
+  filename: string;
+  chunks: number;
+  total_chunks: number;
+}
+
+export interface RagFileInfo {
+  name: string;
+  chunks: number;
 }
 
 export interface AuxiliaryTaskAssignment {

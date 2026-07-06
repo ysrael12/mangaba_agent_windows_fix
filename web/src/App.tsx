@@ -12,7 +12,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { Reveal } from "@/components/motion";
 import { CommandPalette, type Command } from "@/components/CommandPalette";
-import { Moon as MoonIcon, Sun as SunIcon, Search } from "lucide-react";
+import { Moon as MoonIcon, Sun as SunIcon } from "lucide-react";
 import {
   Routes,
   Route,
@@ -36,7 +36,6 @@ import {
   GitBranch,
   Globe,
   KanbanSquare,
-  Lightbulb,
   Heart,
   KeyRound,
   Menu,
@@ -45,8 +44,8 @@ import {
   Package,
   Puzzle,
   Radio,
-  Rocket,
   RotateCw,
+  Search,
   Settings,
   Shield,
   Sparkles,
@@ -67,50 +66,34 @@ import { Backdrop } from "@/components/Backdrop";
 import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { RateLimitBanner } from "@/components/RateLimitBanner";
-import { RoleSwitcher } from "@/components/RoleSwitcher";
-import { RouteGuard } from "@/components/RouteGuard";
-import { canSee, useUserRole, type UserRole } from "@/lib/userRole";
-import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useSystemActions } from "@/contexts/useSystemActions";
 import type { SystemAction } from "@/contexts/system-actions-context";
+import { useI18n } from "@/i18n";
+import type { Translations } from "@/i18n/types";
+import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
+import { PluginPage, PluginSlot, usePlugins } from "@/plugins";
+import type { PluginManifest } from "@/plugins";
+import { useTheme } from "@/themes";
 // Páginas carregadas sob demanda (code-splitting por rota) — cada uma vira um
 // chunk separado, então o carregamento inicial não baixa todas as telas.
 const ConfigPage = lazy(() => import("@/pages/ConfigPage"));
 const DocsPage = lazy(() => import("@/pages/DocsPage"));
-const EnvPage = lazy(() => import("@/pages/EnvPage"));
-const SessionsPage = lazy(() => import("@/pages/SessionsPage"));
 const LogsPage = lazy(() => import("@/pages/LogsPage"));
-const AnalyticsPage = lazy(() => import("@/pages/AnalyticsPage"));
-const ModelsPage = lazy(() => import("@/pages/ModelsPage"));
 const CronPage = lazy(() => import("@/pages/CronPage"));
 const FleetPage = lazy(() => import("@/pages/FleetPage"));
 const KanbanPage = lazy(() => import("@/pages/KanbanPage"));
-const MemoryPage = lazy(() => import("@/pages/MemoryPage"));
 const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
-const CreateAgentPage = lazy(() => import("@/pages/CreateAgentPage"));
-const ObservabilityPage = lazy(() => import("@/pages/ObservabilityPage"));
-const TeamsAgentsPage = lazy(() => import("@/pages/TeamsAgentsPage"));
-const ExamplesPage = lazy(() => import("@/pages/ExamplesPage"));
-const HomePage = lazy(() => import("@/pages/HomePage"));
+const AgentWizardPage = lazy(() => import("@/pages/AgentWizardPage"));
+const AgentDashboardPage = lazy(() => import("@/pages/AgentDashboardPage"));
 const SetupPage = lazy(() => import("@/pages/SetupPage"));
 const GlobalSessionsPage = lazy(() => import("@/pages/GlobalSessionsPage"));
-const RoutingPage = lazy(() => import("@/pages/RoutingPage"));
-const ProfilesPage = lazy(() => import("@/pages/ProfilesPage"));
 const SkillsPage = lazy(() => import("@/pages/SkillsPage"));
-const PluginsPage = lazy(() => import("@/pages/PluginsPage"));
-const ChatPage = lazy(() => import("@/pages/ChatPage"));
-import { OnboardingChecklist } from "@/components/OnboardingChecklist";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { useI18n } from "@/i18n";
-import type { Translations } from "@/i18n/types";
-import { PluginPage, PluginSlot, usePlugins } from "@/plugins";
-import type { PluginManifest } from "@/plugins";
-import { useTheme } from "@/themes";
-import { api } from "@/lib/api";
+
 
 function RootRedirect() {
-  return <Navigate to="/home" replace />;
+  return <Navigate to="/criar" replace />;
 }
 
 function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
@@ -121,89 +104,40 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
   return <Navigate to="/home" replace />;
 }
 
-const CHAT_NAV_ITEM: NavItem = {
-  path: "/chat",
-  labelKey: "chat",
-  label: "Chat",
-  icon: Terminal,
-};
-
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
-  "/home": HomePage,
   "/setup": SetupPage,
-  "/sessions": SessionsPage,
-  "/analytics": AnalyticsPage,
-  "/models": ModelsPage,
+  "/sessions": GlobalSessionsPage,
   "/logs": LogsPage,
   "/cron": CronPage,
   "/skills": SkillsPage,
-  "/plugins": PluginsPage,
   "/fleet": FleetPage,
   "/kanban": KanbanPage,
-  "/memory": MemoryPage,
   "/clients": ClientsPage,
-  "/criar": CreateAgentPage,
-  "/observability": ObservabilityPage,
-  "/teams-agents": TeamsAgentsPage,
-  "/sessions/global": GlobalSessionsPage,
-  "/routing": RoutingPage,
-  "/profiles": ProfilesPage,
+  "/criar": AgentWizardPage,
+  "/dashboard/agent/:id": AgentDashboardPage,
   "/config": ConfigPage,
-  "/env": EnvPage,
   "/docs": DocsPage,
-  "/examples": ExamplesPage,
+
 };
 
-// Ordem da jornada do usuário, passo a passo:
-// 1) aprender → 2) configurar a IA → 3) criar agentes e canais →
-// 4) usar → 5) automatizar → 6) acompanhar → 7) ajustar.
+// Navegação única — somente o essencial.
 const BUILTIN_NAV_REST: NavItem[] = [
-  { path: "/home", label: "Início", icon: Activity, minRole: "operador" },
-  { path: "/setup", label: "Começar", icon: Rocket, minRole: "dev" },
-  { path: "/criar", label: "Criar agente", icon: Sparkles, minRole: "gestor" },
+  { path: "/criar", label: "Início", icon: Activity },
 
-  // 1) Aprender
-  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender", minRole: "dev" },
-  { path: "/examples", labelKey: "examples", label: "Exemplos", icon: Lightbulb, section: "Aprender", minRole: "operador" },
+  { path: "/sessions", labelKey: "sessions", label: "Sessões", icon: MessageSquare, section: "Agentes" },
+  { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes" },
+  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes" },
 
-  // 2) Configurar a IA (técnico → dev)
-  { path: "/models", labelKey: "models", label: "Modelos", icon: Cpu, section: "Configurar a IA", minRole: "dev" },
-  { path: "/env", labelKey: "keys", label: "Chaves", icon: KeyRound, section: "Configurar a IA", minRole: "dev" },
-  { path: "/skills", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar a IA", minRole: "dev" },
-  { path: "/plugins", labelKey: "plugins", label: "Plugins", icon: Puzzle, section: "Configurar a IA", minRole: "dev" },
-  { path: "/memory", labelKey: "memory", label: "Memória", icon: Brain, section: "Configurar a IA", minRole: "dev" },
+  { path: "/skills", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar" },
+  { path: "/config", labelKey: "config", label: "Configuração", icon: Settings, section: "Configurar" },
 
-  // 3) Criar agentes e canais (gestor; canais avançados → dev)
-  { path: "/profiles", labelKey: "profiles", label: "Perfis", icon: Users, section: "Agentes e canais", minRole: "gestor" },
-  { path: "/routing", labelKey: "routing", label: "Roteamento", icon: GitBranch, section: "Agentes e canais", minRole: "gestor" },
-  { path: "/fleet", labelKey: "fleet", label: "Frota", icon: Radio, section: "Agentes e canais", minRole: "gestor" },
-  { path: "/clients", label: "Clientes & API", icon: Code, section: "Agentes e canais", minRole: "dev" },
-  { path: "/teams-agents", label: "Agentes no Teams", icon: Radio, section: "Agentes e canais", minRole: "gestor" },
+  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar" },
+  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare, section: "Automatizar" },
 
-  // 4) Usar (operador)
-  { ...CHAT_NAV_ITEM, section: "Usar", minRole: "operador" },
-  { path: "/sessions", labelKey: "sessions", label: "Sessões", icon: MessageSquare, section: "Usar", minRole: "operador" },
-  { path: "/sessions/global", labelKey: "globalSessions", label: "Sessões Globais", icon: Globe, section: "Usar", minRole: "dev" },
-
-  // 5) Automatizar
-  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar", minRole: "gestor" },
-  { path: "/kanban", labelKey: "kanban", label: "Kanban", icon: KanbanSquare, section: "Automatizar", minRole: "gestor" },
-
-  // 6) Acompanhar (Análise p/ operador; diagnóstico → dev)
-  { path: "/analytics", labelKey: "analytics", label: "Análise", icon: BarChart3, section: "Acompanhar", minRole: "operador" },
-  { path: "/observability", label: "Observabilidade", icon: Activity, section: "Acompanhar", minRole: "dev" },
-  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar", minRole: "dev" },
-
-  // 7) Ajustar
-  { path: "/config", labelKey: "config", label: "Configuração", icon: Settings, section: "Ajustar", minRole: "dev" },
+  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
+  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },
 ];
-
-// path → perfil mínimo, derivado do nav. Usado pelo RouteGuard para barrar
-// acesso por URL a rotas fora do perfil ativo (consistência de UX).
-const MIN_ROLE_BY_PATH: Record<string, UserRole> = Object.fromEntries(
-  BUILTIN_NAV_REST.filter((n) => n.minRole).map((n) => [n.path, n.minRole as UserRole]),
-);
 
 const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
   Activity,
@@ -323,12 +257,11 @@ function buildRoutes(
       // Páginas full-height (chat/docs) não podem ser embrulhadas (quebra o
       // layout flex). As demais ganham uma entrada suave de conteúdo.
       const fullHeight = path === "/chat" || path === "/docs";
-      const minRole = MIN_ROLE_BY_PATH[path];
       routes.push({
         key: `builtin:${path}`,
         path,
         element: (
-          <RouteGuard minRole={minRole}>
+          <>
             {fullHeight ? (
               <Component />
             ) : (
@@ -336,7 +269,7 @@ function buildRoutes(
                 <Component />
               </Reveal>
             )}
-          </RouteGuard>
+          </>
         ),
       });
     }
@@ -377,48 +310,16 @@ export default function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
-  const normalizedPath = pathname.replace(/\/$/, "") || "/";
-  const isChatRoute = normalizedPath === "/chat";
-  const isHomeRoute = normalizedPath === "/home";
 
-  // `dashboard.show_token_analytics` gates the Analytics nav item.  The
-  // page itself remains reachable by URL (it renders an explanation when
-  // the flag is off — see AnalyticsPage), but hiding the nav entry avoids
-  // surfacing misleading token/cost numbers in the sidebar.  Default off.
-  const [showTokenAnalytics, setShowTokenAnalytics] = useState(false);
-  useEffect(() => {
-    api
-      .getConfig()
-      .then((cfg) => {
-        const dash = (cfg?.dashboard ?? {}) as {
-          show_token_analytics?: unknown;
-        };
-        setShowTokenAnalytics(dash.show_token_analytics === true);
-      })
-      .catch(() => setShowTokenAnalytics(false));
-  }, []);
-
-  // Chat is a normal route now — the ChatGPT-style ChatPage talks to the
-  // agent over the /api/chat WebSocket, so no persistent PTY host or --tui
-  // gating is needed.
   const builtinRoutes = useMemo(
-    () => ({
-      ...BUILTIN_ROUTES_CORE,
-      "/chat": ChatPage,
-    }),
+    () => BUILTIN_ROUTES_CORE,
     [],
   );
 
-  const [userRole] = useUserRole();
-  const builtinNav = useMemo(() => {
-    // BUILTIN_NAV_REST já está na ordem da jornada (Chat incluído).
-    // Filtra por perfil de usuário (operador<gestor<dev) e por config de analytics.
-    return BUILTIN_NAV_REST.filter(
-      (n) =>
-        canSee(userRole, n.minRole) &&
-        (showTokenAnalytics || n.path !== "/analytics"),
-    );
-  }, [showTokenAnalytics, userRole]);
+  const builtinNav = useMemo(
+    () => BUILTIN_NAV_REST,
+    [],
+  );
 
   const sidebarNav = useMemo(
     () => partitionSidebarNav(builtinNav, manifests),
@@ -628,9 +529,6 @@ export default function App() {
                   ⌘K
                 </kbd>
               </button>
-              <div className="pt-2">
-                <RoleSwitcher />
-              </div>
             </div>
 
             <nav
@@ -728,10 +626,7 @@ export default function App() {
             <div
               className={cn(
                 "relative z-2 flex min-w-0 min-h-0 flex-1 flex-col",
-                "px-3 sm:px-6",
-                isChatRoute
-                  ? "pb-0 pt-1 sm:pt-2 lg:pt-4"
-                  : "pt-2 sm:pt-4 lg:pt-6",
+                "px-3 sm:px-6 pt-2 sm:pt-4 lg:pt-6",
                 isDocsRoute && "min-h-0 flex-1",
               )}
             >
@@ -739,26 +634,20 @@ export default function App() {
               <div
                 className={cn(
                   "w-full min-w-0",
-                  !isChatRoute &&
-                    "pb-[calc(2rem+env(safe-area-inset-bottom,0px))] lg:pb-8",
-                  (isDocsRoute || isChatRoute) &&
-                    "min-h-0 flex flex-1 flex-col",
+                  "pb-[calc(2rem+env(safe-area-inset-bottom,0px))] lg:pb-8",
+                  isDocsRoute && "min-h-0 flex flex-1 flex-col",
                 )}
               >
-                {!isChatRoute && !isDocsRoute && !isHomeRoute && (
-                  <OnboardingChecklist />
-                )}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={pathname}
                     className={cn(
                       "w-full min-w-0",
-                      (isDocsRoute || isChatRoute) &&
-                        "flex min-h-0 flex-1 flex-col",
+                      isDocsRoute && "flex min-h-0 flex-1 flex-col",
                     )}
-                    initial={{ opacity: 0, y: isDocsRoute || isChatRoute ? 0 : 8 }}
+                    initial={{ opacity: 0, y: isDocsRoute ? 0 : 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: isDocsRoute || isChatRoute ? 0 : -6 }}
+                    exit={{ opacity: 0, y: isDocsRoute ? 0 : -6 }}
                     transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <Suspense
@@ -955,10 +844,7 @@ interface NavItem {
   label: string;
   labelKey?: string;
   path: string;
-  /** Cabeçalho de seção da jornada exibido antes deste item na sidebar. */
   section?: string;
-  /** Perfil mínimo que vê esta aba (operador<gestor<dev). Ausente = todos. */
-  minRole?: UserRole;
 }
 
 interface SidebarNavLinkProps {

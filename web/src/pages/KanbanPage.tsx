@@ -26,7 +26,7 @@ import type {
 
 // As colunas do quadro, na ordem do fluxo. `archived` fica oculto.
 const COLUMNS: { key: string; label: string; tone: BadgeTone }[] = [
-  { key: "triage", label: "Triagem", tone: "secondary" },
+  { key: "triage", label: "Análise", tone: "secondary" },
   { key: "todo", label: "A fazer", tone: "secondary" },
   { key: "ready", label: "Pronto", tone: "outline" },
   { key: "running", label: "Rodando", tone: "warning" },
@@ -315,11 +315,11 @@ function TaskDetailModal({
                     onClick={() =>
                       run("specify", async () => {
                         await api.kanbanLlmAction(t.id, "specify");
-                        showToast("Especificação iniciada (IA) — atualize em instantes", "success");
+                        showToast("Descrição iniciada (IA) — atualize em instantes", "success");
                       })
                     }
                   >
-                    <Sparkles className="h-4 w-4" /> Especificar (IA)
+                    <Sparkles className="h-4 w-4" /> Descrever (IA)
                   </Button>
                   <Button
                     outlined
@@ -328,11 +328,11 @@ function TaskDetailModal({
                     onClick={() =>
                       run("decompose", async () => {
                         await api.kanbanLlmAction(t.id, "decompose");
-                        showToast("Decomposição iniciada (IA) — atualize em instantes", "success");
+                        showToast("Detalhamento iniciado (IA) — atualize em instantes", "success");
                       })
                     }
                   >
-                    <GitFork className="h-4 w-4" /> Decompor (IA)
+                    <GitFork className="h-4 w-4" /> Detalhar (IA)
                   </Button>
                 </>
               )}
@@ -661,7 +661,7 @@ export default function KanbanPage() {
             <p className="text-sm font-medium">Exemplos de tarefas — clique para usar</p>
             <p className="text-xs text-muted-foreground">
               Preenche o formulário de nova tarefa. As marcadas com "IA" entram em
-              triagem para você usar Especificar/Decompor depois.
+              análise para você usar Descrever/Detalhar depois.
             </p>
             <div className="mt-1 grid gap-2 sm:grid-cols-2">
               {TASK_EXAMPLES.map((ex, i) => (

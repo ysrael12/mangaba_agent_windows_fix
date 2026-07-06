@@ -20,6 +20,11 @@
 # ffmpeg por aqui — para isso, use scripts/install.ps1 antes ou depois.
 #   MANGABA_PROVIDER=gateway MANGABA_GATEWAY_URL=https://seu-endpoint ./bootstrap.sh
 #      pula o Ollama por completo e usa um gateway OpenAI-compatível remoto.
+#   BOOTSTRAP_OPEN_DASHBOARD=true ./bootstrap.sh
+#      ao final, já builda e sobe o painel web (`mangaba dashboard`) e abre o
+#      navegador sozinho — ver GUIA_DASHBOARD.md. Combine com
+#      BOOTSTRAP_NO_CHANNELS=true para pular o configurador interativo de
+#      canais (o painel também permite configurar canais depois).
 #
 set -euo pipefail
 
@@ -50,6 +55,21 @@ if [ "$PROVIDER" = "gateway" ] && [ -z "$GATEWAY_URL" ]; then
   err "MANGABA_PROVIDER=gateway exige MANGABA_GATEWAY_URL (ex.: https://seu-endpoint)."
   exit 1
 fi
+
+# BOOTSTRAP_OPEN_DASHBOARD=true faz o bootstrap terminar já com o painel web
+# no ar (builda o front, sobe o backend e abre o navegador) — ver
+# GUIA_DASHBOARD.md. Fica desligado por padrão para não quebrar scripts que
+# chamam este bootstrap.sh e esperam o controle de volta (ex.: telegram.sh).
+OPEN_DASHBOARD="${BOOTSTRAP_OPEN_DASHBOARD:-false}"
+DASHBOARD_NO_OPEN="${BOOTSTRAP_DASHBOARD_NO_OPEN:-false}"
+
+open_dashboard() {
+  step "Abrindo o dashboard"
+  echo "  Buildando o painel web e subindo o servidor (mangaba dashboard)..."
+  local flags=()
+  [ "$DASHBOARD_NO_OPEN" = "true" ] && flags+=(--no-open)
+  "$PY_CMD" -m mangaba_cli.main dashboard "${flags[@]}"
+}
 
 # =============================================================================
 step "1/5  Pré-requisitos do sistema"
@@ -275,9 +295,19 @@ fi
 # interativo de canais — quem chamou cuida do canal.
 if [ "${BOOTSTRAP_NO_CHANNELS:-false}" = "true" ]; then
   ok "Instalação base concluída."
+  if [ "$OPEN_DASHBOARD" = "true" ]; then
+    open_dashboard
+  fi
   exit 0
 fi
 
 step "5/5  Canais + gateway"
 echo "  Abrindo o configurador de canais..."
-exec ./setup-channels.sh
+if [ "$OPEN_DASHBOARD" = "true" ]; then
+  # não usa exec aqui: precisamos voltar pro script depois do configurador
+  # de canais para então subir o dashboard.
+  ./setup-channels.sh
+  open_dashboard
+else
+  exec ./setup-channels.sh
+fi

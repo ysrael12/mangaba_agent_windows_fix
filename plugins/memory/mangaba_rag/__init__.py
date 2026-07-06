@@ -63,6 +63,17 @@ def _index_path() -> Path:
     return _rag_dir() / INDEX_FILENAME
 
 
+def _load_index_raw() -> Dict[str, Any]:
+    """Lê o índice salvo em disco sem popular o provider. `{}` se não existir."""
+    path = _index_path()
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 # ── Extração de HTML ───────────────────────────────────────────────────────
 class _TextExtractor(HTMLParser):
     """Extrai texto visível e links, ignorando script/style/svg."""
@@ -229,25 +240,13 @@ def _tokenize(text: str) -> List[str]:
 
 
 # ── Ingestão / construção do índice ────────────────────────────────────────
-def reindex() -> Dict[str, Any]:
-    """(Re)constrói a base de conhecimento a partir do site. Retorna stats."""
-    pages = _crawl()
-    raw_chunks: List[Dict[str, str]] = []
-    for pg in pages:
-        for c in _chunk(pg["text"]):
-            raw_chunks.append({"url": pg["url"], "title": pg["title"], "text": c})
+def _build_index(chunks: List[Dict[str, Any]], pages: int) -> Dict[str, Any]:
+    """Constrói o índice TF-IDF a partir de uma lista de chunks {url,title,text}.
 
-    # remove chunks duplicados (mesmo texto)
-    seen: set = set()
-    chunks: List[Dict[str, str]] = []
-    for c in raw_chunks:
-        key = c["text"][:200]
-        if key in seen:
-            continue
-        seen.add(key)
-        chunks.append(c)
-
-    # TF-IDF
+    Compartilhado entre o crawler (`reindex`) e o upload de documentos
+    (`ingest_upload`) — os dois populam a mesma base, só a origem dos chunks
+    (`source: "crawl" | "upload"`) muda.
+    """
     docs_tokens = [_tokenize(c["text"]) for c in chunks]
     df: Dict[str, int] = {}
     for toks in docs_tokens:
@@ -264,18 +263,101 @@ def reindex() -> Dict[str, Any]:
         norm = math.sqrt(sum(w * w for w in vec.values())) or 1.0
         c["vec"] = {t: w / norm for t, w in vec.items()}
 
-    index = {
+    return {
         "source": SOURCE_BASE,
         "label": SOURCE_LABEL,
         "built_at": int(time.time()),
-        "pages": len(pages),
+        "pages": pages,
         "chunks": chunks,
         "idf": idf,
     }
+
+
+def reindex() -> Dict[str, Any]:
+    """(Re)constrói a base a partir do site. Preserva uploads já indexados."""
+    pages = _crawl()
+    raw_chunks: List[Dict[str, str]] = []
+    for pg in pages:
+        for c in _chunk(pg["text"]):
+            raw_chunks.append({"url": pg["url"], "title": pg["title"], "text": c, "source": "crawl"})
+
+    # remove chunks duplicados (mesmo texto)
+    seen: set = set()
+    chunks: List[Dict[str, str]] = []
+    for c in raw_chunks:
+        key = c["text"][:200]
+        if key in seen:
+            continue
+        seen.add(key)
+        chunks.append(c)
+
+    # O crawler só re-rastreia o site — documentos enviados pelo usuário
+    # (`source: "upload"`) sobrevivem ao reindex.
+    upload_chunks = [c for c in (_load_index_raw().get("chunks") or []) if c.get("source") == "upload"]
+
+    index = _build_index(chunks + upload_chunks, len(pages))
     path = _index_path()
     path.write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
-    logger.info("RAG mangaba.ia.br reindexado: %d páginas, %d chunks", len(pages), len(chunks))
-    return {"pages": len(pages), "chunks": len(chunks), "path": str(path)}
+    logger.info(
+        "RAG mangaba.ia.br reindexado: %d páginas, %d chunks (+%d de uploads)",
+        len(pages), len(chunks), len(upload_chunks),
+    )
+    return {"pages": len(pages), "chunks": len(chunks) + len(upload_chunks), "path": str(path)}
+
+
+MAX_UPLOAD_CHARS = 400_000  # teto de segurança por arquivo enviado
+
+
+def ingest_upload(filename: str, text: str) -> Dict[str, Any]:
+    """Indexa um documento enviado pelo usuário (.txt/.md) na base RAG.
+
+    Reaproveita o mesmo pipeline de chunking + TF-IDF do crawler. Reenviar o
+    mesmo nome de arquivo substitui a versão anterior (não duplica).
+    """
+    text = text.strip()[:MAX_UPLOAD_CHARS]
+    if not text:
+        raise ValueError("Arquivo vazio ou sem texto extraível.")
+
+    url = f"upload://{filename}"
+    new_chunks = [
+        {"url": url, "title": filename, "text": c, "source": "upload"}
+        for c in _chunk(text)
+    ]
+    if not new_chunks:
+        raise ValueError("Não foi possível extrair trechos do arquivo.")
+
+    existing = _load_index_raw()
+    prior_chunks = [c for c in (existing.get("chunks") or []) if c.get("url") != url]
+    all_chunks = prior_chunks + new_chunks
+
+    index = _build_index(all_chunks, int(existing.get("pages") or 0))
+    _index_path().write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+    logger.info("RAG upload indexado: %s (%d chunks)", filename, len(new_chunks))
+    return {"filename": filename, "chunks": len(new_chunks), "total_chunks": len(all_chunks)}
+
+
+def list_uploaded_files() -> List[Dict[str, Any]]:
+    """Lista os documentos enviados pelo usuário já indexados (nome + nº de chunks)."""
+    by_file: Dict[str, int] = {}
+    for c in _load_index_raw().get("chunks") or []:
+        if c.get("source") != "upload":
+            continue
+        name = c.get("title") or c.get("url", "")
+        by_file[name] = by_file.get(name, 0) + 1
+    return [{"name": name, "chunks": n} for name, n in sorted(by_file.items())]
+
+
+def remove_uploaded_file(filename: str) -> bool:
+    """Remove um documento enviado da base RAG. `False` se não encontrado."""
+    url = f"upload://{filename}"
+    existing = _load_index_raw()
+    chunks = existing.get("chunks") or []
+    remaining = [c for c in chunks if c.get("url") != url]
+    if len(remaining) == len(chunks):
+        return False
+    index = _build_index(remaining, int(existing.get("pages") or 0))
+    _index_path().write_text(json.dumps(index, ensure_ascii=False), encoding="utf-8")
+    return True
 
 
 # ── Provider ───────────────────────────────────────────────────────────────
