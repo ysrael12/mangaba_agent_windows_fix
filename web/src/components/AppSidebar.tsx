@@ -1,8 +1,7 @@
-import { Fragment, useMemo, useState, type ComponentType } from "react";
+import { Fragment, useMemo, type ComponentType } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Download,
-  MoreHorizontal,
   Moon,
   RotateCw,
   Search,
@@ -17,14 +16,12 @@ import { SidebarFooter } from "@/components/SidebarFooter";
 import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { useSystemActions } from "@/contexts/useSystemActions";
 import type { SystemAction } from "@/contexts/system-actions-context";
 import { useI18n } from "@/i18n";
 import type { Translations } from "@/i18n/types";
 import { PluginSlot } from "@/plugins";
 import { useTheme } from "@/themes";
-import { canSee, setRole, useUserRole, type UserRole } from "@/lib/userRole";
 
 export interface NavItem {
   icon: ComponentType<{ className?: string }>;
@@ -32,8 +29,6 @@ export interface NavItem {
   labelKey?: string;
   path: string;
   section?: string;
-  /** Perfil mínimo para ver o item; ausente = visível a todos. */
-  minRole?: UserRole;
 }
 
 interface AppSidebarProps {
@@ -45,14 +40,11 @@ interface AppSidebarProps {
 export function AppSidebar({ mobileOpen, onClose, navItems }: AppSidebarProps) {
   const { t } = useI18n();
   const { isDark, toggleDayNight } = useTheme();
-  const [role] = useUserRole();
-  const [moreOpen, setMoreOpen] = useState(false);
 
   const visibleCore = useMemo(
-    () => navItems.coreItems.filter((item) => canSee(role, item.minRole)),
-    [navItems.coreItems, role],
+    () => navItems.coreItems,
+    [navItems.coreItems],
   );
-  const hiddenCount = navItems.coreItems.length - visibleCore.length;
 
   return (
     <aside
@@ -121,8 +113,6 @@ export function AppSidebar({ mobileOpen, onClose, navItems }: AppSidebarProps) {
         </button>
       </div>
 
-      <RoleSwitcher />
-
       <nav
         className="min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden border-t border-current/10 py-3"
         aria-label={t.app.navigation}
@@ -148,24 +138,6 @@ export function AppSidebar({ mobileOpen, onClose, navItems }: AppSidebarProps) {
               );
             });
           })()}
-
-          {hiddenCount > 0 && (
-            <li>
-              <button
-                type="button"
-                onClick={() => setMoreOpen(true)}
-                className={cn(
-                  "group relative flex w-full items-center gap-3 rounded-2xl px-4 py-2.5",
-                  "text-text-tertiary transition-colors duration-150 hover:bg-midground/5 hover:text-midground",
-                )}
-              >
-                <MoreHorizontal className="h-4 w-4 shrink-0" />
-                <span className="truncate text-sm font-medium tracking-tight">
-                  Mais opções…
-                </span>
-              </button>
-            </li>
-          )}
         </ul>
 
         {navItems.pluginItems.length > 0 && (
@@ -230,61 +202,7 @@ export function AppSidebar({ mobileOpen, onClose, navItems }: AppSidebarProps) {
       </div>
 
       <SidebarFooter />
-
-      {moreOpen && (
-        <MoreOptionsModal
-          hiddenCount={hiddenCount}
-          onClose={() => setMoreOpen(false)}
-        />
-      )}
     </aside>
-  );
-}
-
-function MoreOptionsModal({
-  hiddenCount,
-  onClose,
-}: {
-  hiddenCount: number;
-  onClose: () => void;
-}) {
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="Mais opções"
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4"
-    >
-      <button
-        type="button"
-        aria-label="Fechar"
-        onClick={onClose}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-      />
-      <div className="relative z-10 w-full max-w-sm rounded-2xl border border-current/15 bg-background-base p-6 shadow-xl">
-        <h2 className="text-base font-semibold text-midground">
-          Mais opções no modo Dev
-        </h2>
-        <p className="mt-2 text-sm text-text-secondary">
-          Há {hiddenCount} {hiddenCount === 1 ? "área avançada" : "áreas avançadas"} (configuração,
-          logs, habilidades e mais) disponíveis apenas no perfil{" "}
-          <strong>Dev</strong>. Você pode trocar de perfil a qualquer momento.
-        </p>
-        <div className="mt-5 flex justify-end gap-2">
-          <Button ghost onClick={onClose}>
-            Agora não
-          </Button>
-          <Button
-            onClick={() => {
-              setRole("dev");
-              onClose();
-            }}
-          >
-            Trocar para Dev
-          </Button>
-        </div>
-      </div>
-    </div>
   );
 }
 

@@ -5491,6 +5491,8 @@ async def chat_ws(ws: WebSocket) -> None:
             model = (data.get("model") or "").strip() or None
             provider = (data.get("provider") or "").strip() or None
 
+            _log.info("chat_ws: received message model=%s provider=%s len=%d", model, provider, len(message))
+
             # (Re)constrói o agente na primeira mensagem ou quando o modelo muda.
             if agent is None or model != built_model:
                 await ws.send_json({"type": "status", "text": "Carregando modelo…"})
@@ -5499,8 +5501,11 @@ async def chat_ws(ws: WebSocket) -> None:
                         None, lambda: _build_chat_agent(model, provider)
                     )
                     built_model = model
+                    _log.info("chat_ws: agent built model=%s provider=%s",
+                              getattr(agent, '_model', None),
+                              getattr(agent, '_provider_name', None))
                 except Exception as exc:  # noqa: BLE001
-                    _log.exception("chat_ws: build agent failed")
+                    _log.exception("chat_ws: build agent failed for model=%s provider=%s", model, provider)
                     await ws.send_json({"type": "error", "text": f"Falha ao iniciar o agente: {exc}"})
                     continue
 
@@ -5519,13 +5524,24 @@ async def chat_ws(ws: WebSocket) -> None:
                         conversation_history=list(history),
                         stream_callback=on_delta,
                     )
-                    final = (
-                        result.get("final_response", "")
-                        if isinstance(result, dict)
-                        else str(result)
-                    )
-                    loop.call_soon_threadsafe(queue.put_nowait, {"done": final})
+                    if isinstance(result, dict) and result.get("failed"):
+                        err_text = result.get("error", "erro desconhecido")
+                        _log.warning("chat_ws: agent turn failed for model=%s provider=%s: %s",
+                                      built_model, provider, err_text)
+                        loop.call_soon_threadsafe(queue.put_nowait, {"error": err_text})
+                    else:
+                        final = (
+                            result.get("final_response", "")
+                            if isinstance(result, dict)
+                            else str(result)
+                        )
+                        if final is None:
+                            _log.warning("chat_ws: agent turn returned final_response=None for model=%s provider=%s",
+                                          built_model, provider)
+                        loop.call_soon_threadsafe(queue.put_nowait, {"done": final or ""})
                 except Exception as exc:  # noqa: BLE001
+                    _log.warning("chat_ws: agent turn raised for model=%s provider=%s: %s",
+                                  built_model, provider, exc)
                     loop.call_soon_threadsafe(queue.put_nowait, {"error": str(exc)})
 
             threading.Thread(target=run_turn, daemon=True).start()
@@ -5533,15 +5549,20 @@ async def chat_ws(ws: WebSocket) -> None:
             while True:
                 item = await queue.get()
                 if "delta" in item:
-                    await ws.send_json({"type": "delta", "text": item["delta"]})
+                    delta_text = item["delta"]
+                    _log.debug("chat_ws: delta %d chars", len(delta_text))
+                    await ws.send_json({"type": "delta", "text": delta_text})
                 elif "done" in item:
                     final = item["done"]
                     history.append({"role": "user", "content": message})
                     history.append({"role": "assistant", "content": final})
+                    _log.info("chat_ws: done model=%s len=%d", built_model, len(final))
                     await ws.send_json({"type": "done", "text": final})
                     break
                 else:  # error
-                    await ws.send_json({"type": "error", "text": item.get("error", "erro desconhecido")})
+                    err_text = item.get("error", "erro desconhecido")
+                    _log.warning("chat_ws: error model=%s err=%s", built_model, err_text)
+                    await ws.send_json({"type": "error", "text": err_text})
                     break
     except WebSocketDisconnect:
         return

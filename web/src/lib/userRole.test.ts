@@ -39,8 +39,8 @@ describe("canSee", () => {
 });
 
 describe("persistência", () => {
-  it("padrão é operador quando não há nada salvo", () => {
-    expect(getRole()).toBe("operador");
+  it("padrão é dev quando não há nada salvo", () => {
+    expect(getRole()).toBe("dev");
   });
 
   it("setRole/getRole faz roundtrip via localStorage", () => {
@@ -51,7 +51,7 @@ describe("persistência", () => {
 
   it("valor inválido no storage cai no padrão", () => {
     localStorage.setItem("mangaba-perfil", "hacker");
-    expect(getRole()).toBe("operador");
+    expect(getRole()).toBe("dev");
   });
 
   it("setRole dispara evento para re-render reativo", () => {

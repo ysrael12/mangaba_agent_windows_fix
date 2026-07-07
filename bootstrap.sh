@@ -8,9 +8,9 @@
 #
 # O que ele faz, do zero:
 #   1. Instala pré-requisitos do sistema (Homebrew, git, node, ripgrep,
-#      ffmpeg) — macOS (brew) ou Linux (apt).
+#      ffmpeg, @openai/codex) — macOS (brew) ou Linux (apt).
 #   2. Instala o uv (gerenciador Python) e cria o ambiente + o pacote.
-#   3. Instala o Ollama e baixa um modelo local.
+#   3. Prepara o modelo: Ollama (local) ou ChatGPT (Codex) ou gateway remoto.
 #   4. Escreve a config do modelo em ~/.mangaba/config.yaml.
 #   5. Chama setup-channels.sh para escolher e configurar os canais,
 #      e subir o gateway (em primeiro plano ou como serviço 24/7).
@@ -18,6 +18,9 @@
 # Windows nativo (Git Bash/MSYS2): suportado nos passos 2-5 (uv, venv, Ollama
 # via winget, config, canais). O passo 1 não auto-instala git/node/ripgrep/
 # ffmpeg por aqui — para isso, use scripts/install.ps1 antes ou depois.
+#   MANGABA_PROVIDER=openai-codex MANGABA_MODEL=gpt-5.5 ./bootstrap.sh
+#      pula o Ollama e usa ChatGPT (Codex) como cérebro.
+#      Conecte sua conta no dashboard depois da instalação.
 #   MANGABA_PROVIDER=gateway MANGABA_GATEWAY_URL=https://seu-endpoint ./bootstrap.sh
 #      pula o Ollama por completo e usa um gateway OpenAI-compatível remoto.
 #   BOOTSTRAP_OPEN_DASHBOARD=true ./bootstrap.sh
@@ -44,6 +47,10 @@ case "$OS" in MINGW*|MSYS*|CYGWIN*) IS_WINDOWS=true ;; esac   # Git Bash/MSYS2 n
 MODEL="${MANGABA_MODEL:-gemma4:e4b}"   # override: MANGABA_MODEL=... ./bootstrap.sh
 SKIP_BROWSER="${SKIP_BROWSER:-false}"           # SKIP_BROWSER=true pula o Chromium/Playwright (download pesado)
 
+# PROVIDER=openai-codex pula o Ollama local e usa o ChatGPT (Codex) como cérebro.
+# Requer uma conta ChatGPT (Plus/Pro para o modelo completo; Free funciona com
+# modelos limitados). Conecte a conta no dashboard depois da instalação.
+#   MANGABA_PROVIDER=openai-codex MANGABA_MODEL=gpt-5.5 ./bootstrap.sh
 # PROVIDER=gateway pula o Ollama local e aponta para um gateway OpenAI-compatível
 # próprio (ex.: seu pool de modelos Mangaba atrás de um túnel). Requer MANGABA_GATEWAY_URL.
 #   MANGABA_PROVIDER=gateway MANGABA_GATEWAY_URL=https://seu-endpoint ./bootstrap.sh
@@ -138,6 +145,19 @@ if ! $IS_WINDOWS && [ -f scripts/install.sh ]; then
   ok "Dependências extras verificadas (browser/Playwright incluído salvo SKIP_BROWSER=true)."
 fi
 
+# --- OpenAI Codex CLI (login por dispositivo p/ ChatGPT Plus/Pro) -----------
+# Necessário para o provider "openai-codex" no gateway (OAuth device_code).
+if have npm; then
+  if npm ls -g @openai/codex >/dev/null 2>&1; then
+    ok "Codex CLI já instalado."
+  else
+    echo "  instalando Codex CLI (npm install -g @openai/codex)..."
+    npm install -g @openai/codex >/dev/null 2>&1 \
+      && ok "Codex CLI instalado ($(codex --version 2>/dev/null))." \
+      || warn "Falha ao instalar Codex CLI (siga mesmo assim)."
+  fi
+fi
+
 # =============================================================================
 step "2/5  Ambiente Python (uv) + pacote Mangaba"
 
@@ -188,6 +208,9 @@ uv pip install ddgs pypdf pdfplumber python-docx openpyxl "qrcode[pil]" "mcp==1.
 if [ "$PROVIDER" = "gateway" ]; then
   step "3/5  Modelo remoto (gateway) — pulando Ollama local"
   ok "PROVIDER=gateway — usando $GATEWAY_URL, modelo padrão $GATEWAY_MODEL."
+elif [ "$PROVIDER" = "openai-codex" ]; then
+  step "3/5  ChatGPT (Codex) — pulando Ollama local"
+  ok "PROVIDER=openai-codex — usando ChatGPT ($MODEL). Conecte sua conta no dashboard depois (seção 4 do GUIA_DASHBOARD.md)."
 else
   step "3/5  Ollama + modelo local ($MODEL)"
 
@@ -266,6 +289,13 @@ if provider == "gateway":
         "    discover_models: true\n"
         f"    default_model: {gateway_model}\n"
     )
+elif provider == "openai-codex":
+    block = (
+        "model:\n"
+        "  provider: openai-codex\n"
+        f"  default: {model}\n"
+        f"  name: {model}\n"
+    )
 else:
     block = (
         "model:\n"
@@ -286,6 +316,8 @@ if [ "$PROVIDER" = "gateway" ]; then
   ok "Modelo apontado para o gateway $GATEWAY_URL ($GATEWAY_MODEL)."
   warn "Agentes que chamam MCP/ferramentas exigem um modelo tool-capable (ex.: mangaba-vision-q8)."
   warn "Modelos só-chat (ex.: mangaba-lite-q4) servem apenas para agentes conversacionais."
+elif [ "$PROVIDER" = "openai-codex" ]; then
+  ok "Modelo apontado para ChatGPT ($MODEL). Conecte sua conta no dashboard (seção 4 do GUIA_DASHBOARD.md)."
 else
   ok "Modelo apontado para Ollama local."
 fi

@@ -1,11 +1,10 @@
-# Guia do Painel do Mangaba (via gateway) — bem simples, sem termos técnicos
+# Guia do Painel do Mangaba (via ChatGPT) — bem simples, sem termos técnicos
 
 Este guia te ensina a instalar e abrir o painel (dashboard) do Mangaba, passo
 a passo, usando o **PowerShell** (a telinha azul que já vem no Windows —
-procure "PowerShell" no menu Iniciar) e conectado a um **gateway** (um
-servidor de IA já pronto, em vez de baixar um modelo de IA gigante para o
-seu computador). Você não precisa entender de tecnologia para seguir — só ir
-copiando e colando o que está nas caixinhas cinzas, uma de cada vez, e
+procure "PowerShell" no menu Iniciar) e sua própria conta do **ChatGPT** como
+cérebro do assistente. Você não precisa entender de tecnologia para seguir —
+só ir copiando e colando o que está nas caixinhas cinzas, uma de cada vez, e
 apertando Enter.
 
 ---
@@ -48,7 +47,7 @@ esses 3 passos primeiro, na ordem:
 
 ---
 
-## 3. Baixando o programa pela primeira vez
+## 3. Baixando e instalando o programa
 
 1. Abra o **PowerShell**: procure "PowerShell" no menu Iniciar do Windows e
    clique para abrir.
@@ -66,64 +65,41 @@ esses 3 passos primeiro, na ordem:
 
 4. Agora rode o instalador — ele prepara tudo sozinho (pode demorar alguns
    minutos, é normal). Este comando já configura o Mangaba para usar o
-   **gateway** (um servidor de IA já pronto, em vez de baixar um modelo
-   gigante para o seu computador) e, ao terminar, **já abre o painel
-   sozinho** no navegador:
+   **ChatGPT** como cérebro e, ao terminar, **já abre o painel sozinho** no
+   navegador:
    ```powershell
-   $env:MANGABA_PROVIDER = "gateway"
-   $env:MANGABA_GATEWAY_URL = "https://walton-undepreciatory-tracee.ngrok-free.dev"
+   $env:MANGABA_PROVIDER = "openai-codex"
+   $env:MANGABA_MODEL = "gpt-5.5"
    $env:BOOTSTRAP_NO_CHANNELS = "true"
    $env:BOOTSTRAP_OPEN_DASHBOARD = "true"
    & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
    ```
-   (Se algum dia te passarem outro endereço de gateway, é só trocar a
-   segunda linha por ele.)
 
    Quando terminar de preparar tudo, essa mesma janela do PowerShell fica
    "ocupada" rodando o painel (é esperado — é o painel funcionando). Uma aba
-   do navegador abre sozinha em alguns segundos. Para fechar o painel depois,
-   volte nessa janela e aperte `Ctrl + C` (veja a seção 7).
-
-> ℹ️ **Por que usar o gateway:** é bem mais rápido de configurar do que
-> baixar um modelo de IA inteiro para o seu computador. A desvantagem: esse
-> endereço é um link de um computador de outra pessoa — pode parar de
-> funcionar se aquele computador desligar, e o assistente completo (com
-> todas as ferramentas) às vezes não responde direito nele, porque o modelo
-> por trás tem uma "memória de conversa" mais curta do que o assistente
-> precisa. Serve muito bem para conversar e testar. Se um dia isso te
-> incomodar, dá pra trocar para um modelo local rodando no seu próprio
-> computador — rode o comando de novo, mas sem as linhas
-> `$env:MANGABA_PROVIDER` e `$env:MANGABA_GATEWAY_URL`:
-> ```powershell
-> $env:BOOTSTRAP_NO_CHANNELS = "true"
-> $env:BOOTSTRAP_OPEN_DASHBOARD = "true"
-> & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
-> ```
+   do navegador abre sozinha em alguns segundos.
 
 ---
 
-## 4. Reabrindo o painel depois (nas próximas vezes)
+## 4. Conectando sua conta ChatGPT
 
-Na primeira vez, o instalador (seção 3) já deixa o painel aberto sozinho.
-Mas depois que você fechar (seção 7) e quiser usar de novo, faça isto:
+Com o painel aberto no navegador:
 
-1. Abra o **PowerShell** dentro da pasta `mangaba-agent` (se já estava
-   aberto de antes, ótimo — senão abra o PowerShell e cole
-   `cd mangaba-agent` primeiro, ou clique com o botão direito dentro da
-   pasta no Explorador de Arquivos e escolha "Abrir no Terminal").
+1. No menu lateral esquerdo, clique em **Chaves** (se não achar, troque para
+   o perfil **Dev/Admin** — veja a seção 5).
+2. Procure por **OpenAI Codex (ChatGPT)** e clique em **Conectar**.
+3. Uma janela vai aparecer com um **código** e um **link**. Anote o código
+   (números e letras).
+4. Abra uma nova aba no navegador, entre no link que apareceu na janela.
+5. Faça login na sua conta ChatGPT (se ainda não estiver logado).
+6. Cole o código e autorize.
+7. Volte para o painel — ele detecta sozinho que você autorizou e fecha a
+   janela. Pronto, sua conta está conectada.
 
-2. Cole este comando e aperte Enter:
-   ```powershell
-   .\.venv\Scripts\mangaba.exe dashboard
-   ```
-
-3. Espere alguns segundos. Uma aba do navegador abre sozinha já com o painel
-   pronto pra usar.
-
-> Se preferir que o navegador não abra sozinho:
-> ```powershell
-> .\.venv\Scripts\mangaba.exe dashboard --no-open
-> ```
+> ⚠️ **Conta gratuita vs. paga:** se sua conta ChatGPT é **gratuita (Free)**,
+> o modelo gpt-5.5 pode não funcionar — você vai ver uma mensagem de erro ao
+> tentar conversar. Nesse caso, você precisa de uma assinatura **ChatGPT Plus**
+> (US$ 20/mês) ou **Pro** (US$ 200/mês) para usar o Codex.
 
 ---
 
@@ -165,7 +141,26 @@ navegador, abra o PowerShell de novo, entre na pasta do projeto e cole:
 
 ---
 
-## 8. Se der algum problema
+## 8. Reabrindo o painel depois (nas próximas vezes)
+
+Depois que você fechar (seção 7) e quiser usar de novo:
+
+1. Abra o **PowerShell** dentro da pasta `mangaba-agent`.
+2. Cole este comando e aperte Enter:
+   ```powershell
+   .\.venv\Scripts\mangaba.exe dashboard
+   ```
+3. Espere alguns segundos. Uma aba do navegador abre sozinha já com o painel
+   pronto pra usar.
+
+> Se preferir que o navegador não abra sozinho:
+> ```powershell
+> .\.venv\Scripts\mangaba.exe dashboard --no-open
+> ```
+
+---
+
+## 9. Se der algum problema
 
 **"O instalador reclamou de `python` ou `node`/`npm` não encontrado"**
 Falta instalar um dos 3 programas da seção 2 (Python, Node.js ou Git), ou o
@@ -177,32 +172,21 @@ Você digitou só `mangaba` em vez do caminho completo. Use sempre:
 ```powershell
 .\.venv\Scripts\mangaba.exe dashboard
 ```
-(repare no `.\` bem no começo — sem ele o PowerShell não acha o programa).
 
-**"Rodei o instalador e terminou, mas não abriu nada no navegador"**
-Confira se colou as 4 linhas `$env:...` inteiras da seção 3 antes do comando
-final — em especial a linha `$env:BOOTSTRAP_OPEN_DASHBOARD = "true"`, que é
-a que faz o painel abrir sozinho no final. Se faltou, é só rodar a seção 4
-manualmente.
+**"Conectei minha conta ChatGPT mas o chat dá erro"**
+Pode ser que sua conta seja **gratuita (Free)**. O modelo gpt-5.5 precisa de
+uma assinatura **ChatGPT Plus** (US$ 20/mês) ou **Pro** (US$ 200/mês).
 
-**"Cliquei duas vezes no arquivo `bootstrap.sh` e abriu um editor de texto/código em vez de instalar"**
-Isso é esperado — não dê duplo-clique nesse arquivo. Em vez disso, use o
-comando da seção 3, item 4, colado no PowerShell.
-
-**"O instalador pediu uma senha que eu não sei qual é"**
-Isso acontece se o comando `bootstrap.sh` foi rodado de um jeito diferente
-do que este guia mostra. Feche a janela, abra o PowerShell de novo e use
-exatamente o comando da seção 3 (com `& "C:\Program Files\Git\bin\bash.exe"`
-na frente).
+**"O painel não mostra a opção 'OpenAI Codex' em Chaves"**
+Mude para o perfil **Dev/Admin** (seção 5) e tente de novo.
 
 **"A página do painel não abre / dá erro de conexão"**
 Veja se a janela do terminal ainda está aberta, sem mensagens em vermelho.
-Se você fechou sem querer, abra o PowerShell de novo e repita a seção 4.
+Se você fechou sem querer, abra o PowerShell de novo e repita a seção 8.
 
 **"Apareceu um aviso de limite no topo da página"**
-Normal — o modelo de IA (ou uma API gratuita) atingiu o limite de uso do
-momento. Não é um erro do painel; espere um pouco ou troque de modelo na aba
-**Modelos** (perfil Dev).
+Sua conta ChatGPT atingiu o limite de uso do momento. Espere um pouco ou
+faça upgrade para Plus/Pro.
 
 **"Preciso usar o painel de outro computador da mesma casa/escritório"**
 Dá pra fazer, mas com cuidado — isso deixa o painel visível pra outros
@@ -214,11 +198,11 @@ faça isso numa rede em que você confia:
 
 **"Quero recomeçar do zero"**
 Feche o painel (`.\.venv\Scripts\mangaba.exe dashboard --stop`) e abra de
-novo (seção 4). Suas configurações continuam salvas, nada se perde.
+novo (seção 8). Suas configurações continuam salvas, nada se perde.
 
 ---
 
-## 9. Onde pedir mais ajuda
+## 10. Onde pedir mais ajuda
 
 - Site com a documentação completa: https://mangaba-agent.online
 - Se alguma coisa travar, cole este comando — ele descobre sozinho o que

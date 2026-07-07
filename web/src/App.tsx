@@ -41,14 +41,12 @@ import { SelectionSwitcher } from "@dheiver2/ui/ui/components/selection-switcher
 import { cn } from "@/lib/utils";
 import { Backdrop } from "@/components/Backdrop";
 import { AppSidebar, type NavItem } from "@/components/AppSidebar";
-import { RouteGuard } from "@/components/RouteGuard";
 import { RateLimitBanner } from "@/components/RateLimitBanner";
 import { useI18n } from "@/i18n";
 import { PageHeaderProvider } from "@/contexts/PageHeaderProvider";
 import { PluginPage, PluginSlot, usePlugins } from "@/plugins";
 import type { PluginManifest } from "@/plugins";
 import { useTheme } from "@/themes";
-import { canSee, useUserRole, type UserRole } from "@/lib/userRole";
 import { resolveIcon } from "@/lib/navIcons";
 // Páginas carregadas sob demanda (code-splitting por rota) — cada uma vira um
 // chunk separado, então o carregamento inicial não baixa todas as telas.
@@ -99,38 +97,25 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
 
 };
 
-// Perfil mínimo por rota — rotas ausentes são visíveis a todos.
-const BUILTIN_ROUTE_MIN_ROLE: Record<string, UserRole> = {
-  "/setup": "dev",
-  "/config": "dev",
-  "/skills": "dev",
-  "/logs": "dev",
-  "/clients": "dev",
-  "/docs": "dev",
-  "/criar": "gestor",
-  "/fleet": "gestor",
-  "/cron": "gestor",
-  "/kanban": "gestor",
-};
 
-// Navegação única — o essencial primeiro; áreas avançadas exigem gestor/dev.
+// Navegação — tudo visível por padrão (dev invisível)
 const BUILTIN_NAV_REST: NavItem[] = [
-  { path: "/home", label: "Início", icon: Home, minRole: "operador" },
+  { path: "/home", label: "Início", icon: Home },
 
-  { path: "/sessions", labelKey: "sessions", label: "Minhas Sessões", icon: MessageSquare, section: "Conversar", minRole: "operador" },
-  { path: "/criar", label: "Criar agente", icon: Sparkles, section: "Agentes", minRole: "gestor" },
-  { path: "/fleet", labelKey: "fleet", label: "Agentes ativos", icon: Radio, section: "Agentes", minRole: "gestor" },
-  { path: "/clients", label: "Conectar serviços", icon: Code, section: "Agentes", minRole: "dev" },
+  { path: "/sessions", labelKey: "sessions", label: "Minhas Sessões", icon: MessageSquare, section: "Conversar" },
+  { path: "/criar", label: "Criar agente", icon: Sparkles, section: "Agentes" },
+  { path: "/fleet", labelKey: "fleet", label: "Agentes ativos", icon: Radio, section: "Agentes" },
+  { path: "/clients", label: "Conectar serviços", icon: Code, section: "Agentes" },
 
-  { path: "/configuracoes", label: "Configurações", icon: SlidersHorizontal, section: "Configurar", minRole: "operador" },
-  { path: "/skills", labelKey: "skills", label: "O que sabe fazer", icon: Package, section: "Configurar", minRole: "dev" },
-  { path: "/config", labelKey: "config", label: "Avançado", icon: Settings, section: "Configurar", minRole: "dev" },
+  { path: "/configuracoes", label: "Configurações", icon: SlidersHorizontal, section: "Configurar" },
+  { path: "/skills", labelKey: "skills", label: "O que sabe fazer", icon: Package, section: "Configurar" },
+  { path: "/config", labelKey: "config", label: "Avançado", icon: Settings, section: "Configurar" },
 
-  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar", minRole: "gestor" },
-  { path: "/kanban", labelKey: "kanban", label: "Tarefas", icon: KanbanSquare, section: "Automatizar", minRole: "gestor" },
+  { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar" },
+  { path: "/kanban", labelKey: "kanban", label: "Tarefas", icon: KanbanSquare, section: "Automatizar" },
 
-  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar", minRole: "dev" },
-  { path: "/docs", labelKey: "documentation", label: "Ajuda", icon: BookOpen, section: "Aprender", minRole: "dev" },
+  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
+  { path: "/docs", labelKey: "documentation", label: "Ajuda", icon: BookOpen, section: "Aprender" },
 ];
 
 function buildNavItems(
@@ -210,17 +195,12 @@ function buildRoutes(
   }> = [];
 
   for (const [path, Component] of Object.entries(builtinRoutes)) {
-    const minRole = BUILTIN_ROUTE_MIN_ROLE[path];
     const om = byOverride.get(path);
     if (om) {
       routes.push({
         key: `override:${om.name}`,
         path,
-        element: (
-          <RouteGuard minRole={minRole}>
-            <PluginPage name={om.name} />
-          </RouteGuard>
-        ),
+        element: <PluginPage name={om.name} />,
       });
     } else {
       // Páginas full-height (chat/docs) não podem ser embrulhadas (quebra o
@@ -229,16 +209,12 @@ function buildRoutes(
       routes.push({
         key: `builtin:${path}`,
         path,
-        element: (
-          <RouteGuard minRole={minRole}>
-            {fullHeight ? (
-              <Component />
-            ) : (
-              <Reveal y={10}>
-                <Component />
-              </Reveal>
-            )}
-          </RouteGuard>
+        element: fullHeight ? (
+          <Component />
+        ) : (
+          <Reveal y={10}>
+            <Component />
+          </Reveal>
         ),
       });
     }
@@ -276,7 +252,6 @@ export default function App() {
   const navigate = useNavigate();
   const { manifests, loading: pluginsLoading } = usePlugins();
   const { theme, isDark, toggleDayNight } = useTheme();
-  const [role] = useUserRole();
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const isDocsRoute = pathname === "/docs" || pathname === "/docs/";
@@ -296,18 +271,16 @@ export default function App() {
     [builtinNav, manifests],
   );
 
-  // Comandos do ⌘K: navegar para cada tela (respeitando o perfil) + ações rápidas.
+  // Comandos do ⌘K: navegar para cada tela + ações rápidas.
   const commands = useMemo<Command[]>(() => {
-    const navCmds: Command[] = builtinNav
-      .filter((item) => canSee(role, item.minRole))
-      .map((item) => ({
-        id: `nav:${item.path}`,
-        label: item.label,
-        group: item.section ?? "Navegar",
-        icon: item.icon,
-        keywords: item.path,
-        run: () => navigate(item.path),
-      }));
+    const navCmds: Command[] = builtinNav.map((item) => ({
+      id: `nav:${item.path}`,
+      label: item.label,
+      group: item.section ?? "Navegar",
+      icon: item.icon,
+      keywords: item.path,
+      run: () => navigate(item.path),
+    }));
     const actions: Command[] = [
       {
         id: "action:theme",
@@ -319,7 +292,7 @@ export default function App() {
       },
     ];
     return [...navCmds, ...actions];
-  }, [builtinNav, navigate, isDark, toggleDayNight, role]);
+  }, [builtinNav, navigate, isDark, toggleDayNight]);
   const routes = useMemo(
     () => buildRoutes(builtinRoutes, manifests),
     [builtinRoutes, manifests],

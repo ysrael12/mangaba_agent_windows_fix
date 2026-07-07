@@ -28,13 +28,14 @@ function isRole(value: unknown): value is UserRole {
 }
 
 export function getRole(): UserRole {
+  // Por padrão, sempre "dev" — usuário não vê roles na UI
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (isRole(stored)) return stored;
   } catch {
     /* storage indisponível (SSR/privacidade) — cai no padrão */
   }
-  return "operador";
+  return "dev";
 }
 
 export function setRole(role: UserRole): void {

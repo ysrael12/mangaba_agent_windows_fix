@@ -27,6 +27,7 @@ export function Slide2DryRun() {
   const sendingRef = useRef(false);
   const listRef = useRef<HTMLDivElement>(null);
   const streamTextRef = useRef("");
+  const pendingSendRef = useRef<string | null>(null);
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -43,7 +44,13 @@ export function Slide2DryRun() {
     const ws = new WebSocket(`${scheme}//${location.host}${MANGABA_BASE_PATH}/api/chat?token=${encodeURIComponent(token)}`);
     wsRef.current = ws;
 
-    ws.onopen = () => setStatus("Pronto para conversar");
+    ws.onopen = () => {
+      setStatus("Pronto para conversar");
+      if (pendingSendRef.current) {
+        ws.send(pendingSendRef.current);
+        pendingSendRef.current = null;
+      }
+    };
     ws.onclose = () => {
       if (!sendingRef.current) setStatus("Conexão fechada");
     };
@@ -96,7 +103,7 @@ export function Slide2DryRun() {
     setInput("");
 
     let ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) {
+    if (!ws || ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
       ws = connect();
     }
 
@@ -106,11 +113,17 @@ export function Slide2DryRun() {
     sendingRef.current = true;
     setStatus("Aguardando resposta...");
 
-    ws?.send(JSON.stringify({
+    const payload = JSON.stringify({
       message: text,
       model: draft.model_config.model || undefined,
       provider: draft.model_config.provider || undefined,
-    }));
+    });
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(payload);
+    } else if (ws && ws.readyState === WebSocket.CONNECTING) {
+      pendingSendRef.current = payload;
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
