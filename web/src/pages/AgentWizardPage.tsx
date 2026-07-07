@@ -35,7 +35,7 @@ function DeployMenu() {
 
         <div className="flex w-full flex-col gap-2">
           <Button
-            size="lg"
+            size="md"
             className="w-full justify-start gap-3 px-5 py-6 text-base"
             onClick={() =>
               navigate(`/dashboard/agent/${AGENT_ID}`, { replace: true })
@@ -46,7 +46,7 @@ function DeployMenu() {
           </Button>
 
           <Button
-            size="lg"
+            size="md"
             className="w-full justify-start gap-3 px-5 py-6 text-base"
             onClick={() =>
               navigate(`/dashboard/agent/${AGENT_ID}`, { replace: true })
@@ -57,7 +57,7 @@ function DeployMenu() {
           </Button>
 
           <Button
-            size="lg"
+            size="md"
             outlined
             className="w-full justify-start gap-3 px-5 py-6 text-base"
             onClick={() => {
@@ -75,7 +75,6 @@ function DeployMenu() {
 
 function WizardWithNavigation() {
   const [deployed, setDeployed] = useState(false);
-  const navigate = useNavigate();
 
   if (deployed) return <DeployMenu />;
 

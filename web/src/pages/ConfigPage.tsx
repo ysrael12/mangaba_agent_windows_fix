@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, useMemo } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo } from "react";
 import {
   Code,
   Download,
@@ -35,8 +35,13 @@ import {
   Shield,
   FileOutput,
   RefreshCw,
+  Key,
+  Eye,
+  EyeOff,
+  Plus,
+  Trash2,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import { api, type EnvVarInfo } from "@/lib/api";
 import { getNestedValue, setNestedValue } from "@/lib/nested";
 import { useToast } from "@/hooks/useToast";
 import { Toast } from "@/components/Toast";
@@ -120,10 +125,148 @@ export default function ConfigPage() {
   const [configPath, setConfigPath] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [confirmReset, setConfirmReset] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [confirmModeSwitch, setConfirmModeSwitch] = useState(false);
+  const [pendingYamlMode, setPendingYamlMode] = useState(false);
+  const [envVars, setEnvVars] = useState<Record<string, EnvVarInfo> | null>(null);
+  const [newEnvKey, setNewEnvKey] = useState("");
+  const [newEnvValue, setNewEnvValue] = useState("");
+  const [revealedVars, setRevealedVars] = useState<Set<string>>(new Set());
+  const [revealedValues, setRevealedValues] = useState<Record<string, string>>({});
+  const [loadingEnv, setLoadingEnv] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast, showToast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useI18n();
   const { setEnd } = usePageHeader();
+
+  /* ---- Dirty tracking ---- */
+  const updateConfig = useCallback(
+    (next: Record<string, unknown>) => {
+      setConfig(next);
+      setDirty(true);
+    },
+    [],
+  );
+
+  const updateConfigField = useCallback(
+    (key: string, value: unknown) => {
+      if (!config) return;
+      // Inline validation
+      const newErrors = { ...errors };
+      const schemaField = schema?.[key];
+      if (schemaField) {
+        const expectedType = String(schemaField.type ?? "string");
+        if (expectedType === "number" && value !== "" && value !== undefined && value !== null) {
+          const num = Number(value);
+          if (isNaN(num)) {
+            newErrors[key] = "Must be a number";
+          } else {
+            delete newErrors[key];
+          }
+        } else if (expectedType === "select" && value && schemaField.options) {
+          const opts = schemaField.options as string[];
+          if (!opts.includes(String(value))) {
+            newErrors[key] = `Must be one of: ${opts.join(", ")}`;
+          } else {
+            delete newErrors[key];
+          }
+        } else {
+          delete newErrors[key];
+        }
+      } else {
+        delete newErrors[key];
+      }
+      setErrors(newErrors);
+      const next = setNestedValue(config, key, value);
+      updateConfig(next);
+    },
+    [config, schema, errors, updateConfig],
+  );
+
+  /* ---- beforeunload ---- */
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
+
+  /* ---- Load env vars ---- */
+  const loadEnvVars = useCallback(async () => {
+    setLoadingEnv(true);
+    try {
+      const vars = await api.getEnvVars();
+      setEnvVars(vars);
+    } catch {
+      // ignore
+    } finally {
+      setLoadingEnv(false);
+    }
+  }, []);
+
+  const handleSetEnvVar = async (key: string, value: string) => {
+    try {
+      await api.setEnvVar(key, value);
+      showToast(`${key} saved`, "success");
+      await loadEnvVars();
+    } catch {
+      showToast(`Failed to save ${key}`, "error");
+    }
+  };
+
+  const handleDeleteEnvVar = async (key: string) => {
+    try {
+      await api.deleteEnvVar(key);
+      showToast(`${key} cleared`, "success");
+      setRevealedVars((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      await loadEnvVars();
+    } catch {
+      showToast(`Failed to clear ${key}`, "error");
+    }
+  };
+
+  const handleRevealEnvVar = async (key: string) => {
+    if (revealedVars.has(key)) {
+      setRevealedVars((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      return;
+    }
+    try {
+      const resp = await api.revealEnvVar(key);
+      setRevealedVars((prev) => new Set(prev).add(key));
+      setRevealedValues((prev) => ({ ...prev, [key]: resp.value }));
+      setNewEnvKey(key);
+      setNewEnvValue(resp.value);
+    } catch {
+      showToast(`Failed to reveal ${key}`, "error");
+    }
+  };
+
+  /* ---- Confirm mode switch when dirty ---- */
+  const switchYamlMode = (toYaml: boolean) => {
+    if (dirty) {
+      setPendingYamlMode(toYaml);
+      setConfirmModeSwitch(true);
+    } else {
+      setYamlMode(toYaml);
+    }
+  };
+
+  const executeModeSwitch = () => {
+    setDirty(false);
+    setYamlMode(pendingYamlMode);
+    setConfirmModeSwitch(false);
+  };
 
   useLayoutEffect(() => {
     if (!config || !schema) {
@@ -181,6 +324,7 @@ export default function ConfigPage() {
       .getStatus()
       .then((resp) => setConfigPath(resp.config_path))
       .catch(() => {});
+    loadEnvVars();
   }, []);
 
   // Set active category when categories load
@@ -256,12 +400,20 @@ export default function ConfigPage() {
     );
   }, [schema, activeCategory, isSearching]);
 
+  /* ---- Validation helper ---- */
+  const hasErrors = Object.keys(errors).length > 0;
+
   /* ---- Handlers ---- */
   const handleSave = async () => {
     if (!config) return;
+    if (hasErrors) {
+      showToast("Fix validation errors before saving", "error");
+      return;
+    }
     setSaving(true);
     try {
       await api.saveConfig(config);
+      setDirty(false);
       showToast(t.config.configSaved, "success");
     } catch (e) {
       showToast(`${t.config.failedToSave}: ${e}`, "error");
@@ -274,10 +426,11 @@ export default function ConfigPage() {
     setYamlSaving(true);
     try {
       await api.saveConfigRaw(yamlText);
+      setDirty(false);
       showToast(t.config.yamlConfigSaved, "success");
       api
         .getConfig()
-        .then(setConfig)
+        .then((c) => { setConfig(c); setDirty(false); })
         .catch(() => {});
     } catch (e) {
       showToast(`${t.config.failedToSaveYaml}: ${e}`, "error");
@@ -288,12 +441,6 @@ export default function ConfigPage() {
 
   const handleReset = () => {
     if (!defaults || !config) return;
-    // Scope the reset to what the user is currently looking at:
-    //   - search mode → the matched fields
-    //   - form mode   → the active category's fields
-    // Resetting the whole config here was a footgun (issue reported by @ykmfb001):
-    // the button sits next to the category tabs and users reasonably assumed
-    // "reset this tab", not "wipe my entire config.yaml".
     const scopedFields = isSearching ? searchMatchedFields : activeFields;
     if (scopedFields.length === 0) return;
     setConfirmReset(true);
@@ -304,16 +451,18 @@ export default function ConfigPage() {
     setConfirmReset(false);
     const scopedFields = isSearching ? searchMatchedFields : activeFields;
     if (scopedFields.length === 0) return;
-    const scopeLabel = isSearching
-      ? t.config.searchResults
-      : prettyCategoryName(activeCategory);
     let next: Record<string, unknown> = config;
     for (const [key] of scopedFields) {
       next = setNestedValue(next, key, getNestedValue(defaults, key));
     }
-    setConfig(next);
+    updateConfig(next);
     showToast(
-      t.config.resetScopeToast.replace("{scope}", scopeLabel),
+      t.config.resetScopeToast.replace(
+        "{scope}",
+        isSearching
+          ? t.config.searchResults
+          : prettyCategoryName(activeCategory),
+      ),
       "success",
     );
   };
@@ -338,7 +487,7 @@ export default function ConfigPage() {
     reader.onload = () => {
       try {
         const imported = JSON.parse(reader.result as string);
-        setConfig(imported);
+        updateConfig(imported);
         showToast(t.config.configImported, "success");
       } catch {
         showToast(t.config.invalidJson, "error");
@@ -403,7 +552,7 @@ export default function ConfigPage() {
               schemaKey={key}
               schema={s}
               value={getNestedValue(config, key)}
-              onChange={(v) => setConfig(setNestedValue(config, key, v))}
+              onChange={(v) => updateConfigField(key, v)}
             />
           </div>
         </div>
@@ -476,15 +625,19 @@ export default function ConfigPage() {
           <Button
             size="sm"
             outlined={!yamlMode}
-            onClick={() => setYamlMode(!yamlMode)}
+            onClick={() => switchYamlMode(!yamlMode)}
             prefix={yamlMode ? <FormInput /> : <Code />}
           >
             {yamlMode ? t.common.form : "YAML"}
           </Button>
 
+          {dirty && (
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" title="Unsaved changes" />
+          )}
           {yamlMode ? (
             <Button
               size="sm"
+              variant={dirty ? "default" : "outline"}
               className="uppercase"
               onClick={handleYamlSave}
               disabled={yamlSaving}
@@ -494,6 +647,7 @@ export default function ConfigPage() {
           ) : (
             <Button
               size="sm"
+              variant={dirty ? "default" : "outline"}
               className="uppercase"
               onClick={handleSave}
               disabled={saving}
@@ -521,7 +675,7 @@ export default function ConfigPage() {
               <textarea
                 className="flex min-h-[600px] w-full bg-transparent px-4 py-3 text-sm font-mono leading-relaxed placeholder:text-muted-foreground focus-visible:outline-none border-t border-border"
                 value={yamlText}
-                onChange={(e) => setYamlText(e.target.value)}
+                onChange={(e) => { setYamlText(e.target.value); setDirty(true); }}
                 spellCheck={false}
               />
             )}
@@ -576,13 +730,115 @@ export default function ConfigPage() {
                       </ListItem>
                     );
                   })}
+                  <div className="border-t border-border my-1" />
+                  <ListItem
+                    active={!isSearching && activeCategory === "__env__"}
+                    onClick={() => { setSearchQuery(""); setActiveCategory("__env__"); }}
+                    className="rounded-none whitespace-nowrap px-2 py-1 text-xs"
+                  >
+                    <Key className="h-3.5 w-3.5 shrink-0" />
+                    <span className="flex-1 truncate">Environment Variables</span>
+                    <span className="text-xs tabular-nums text-text-tertiary">
+                      {envVars ? Object.keys(envVars).length : 0}
+                    </span>
+                  </ListItem>
                 </div>
               </div>
             </div>
           </aside>
 
           <div className="flex-1 min-w-0">
-            {isSearching ? (
+            {activeCategory === "__env__" ? (
+              <Card>
+                <CardHeader className="py-3 px-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Key className="h-4 w-4" />
+                      Environment Variables
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      <Button size="xs" ghost onClick={() => loadEnvVars()}>
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="px-4 pb-4 space-y-3">
+                  {loadingEnv ? (
+                    <div className="flex justify-center py-6"><Spinner /></div>
+                  ) : !envVars ? (
+                    <p className="text-sm text-muted-foreground">Click refresh to load environment variables.</p>
+                  ) : Object.keys(envVars).length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No environment variables set.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {Object.entries(envVars).map(([key, info]) => (
+                        <div key={key} className="flex items-center gap-2 border border-border rounded px-3 py-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-medium">{key}</div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {revealedVars.has(key) ? (revealedValues[key] ?? info.redacted_value ?? "") : "••••••••"}
+                            </div>
+                            {info.description && (
+                              <div className="text-xs text-text-tertiary mt-0.5">{info.description}</div>
+                            )}
+                          </div>
+                          <Button size="xs" ghost onClick={() => handleRevealEnvVar(key)}>
+                            {revealedVars.has(key) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                          </Button>
+                          <Button size="xs" ghost onClick={() => {
+                            setNewEnvKey(key);
+                            setNewEnvValue(revealedValues[key] ?? "");
+                          }}>
+                            <Settings2 className="h-3 w-3" />
+                          </Button>
+                          <Button size="xs" ghost onClick={() => handleDeleteEnvVar(key)}>
+                            <Trash2 className="h-3 w-3 text-red-400" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="border-t border-border pt-3">
+                    <p className="text-xs font-medium mb-2">Set / Update</p>
+                    <div className="flex items-end gap-2">
+                      <div className="flex-1">
+                        <label className="text-xs text-muted-foreground mb-1 block">Key</label>
+                        <Input
+                          className="h-8 text-xs"
+                          placeholder="MY_API_KEY"
+                          value={newEnvKey}
+                          onChange={(e) => setNewEnvKey(e.target.value.toUpperCase())}
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-xs text-muted-foreground mb-1 block">Value</label>
+                        <Input
+                          className="h-8 text-xs"
+                          placeholder="sk-..."
+                          value={newEnvValue}
+                          onChange={(e) => setNewEnvValue(e.target.value)}
+                        />
+                      </div>
+                      <Button
+                        size="xs"
+                        disabled={!newEnvKey || !newEnvValue}
+                        onClick={() => {
+                          handleSetEnvVar(newEnvKey.trim(), newEnvValue.trim());
+                          setNewEnvKey("");
+                          setNewEnvValue("");
+                        }}
+                      >
+                        <Plus className="h-3 w-3 mr-1" /> Save
+                      </Button>
+                    </div>
+                    <p className="text-xs text-text-tertiary mt-2">
+                      Only API keys, tokens, and passwords — non-secret settings go in config.yaml.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : isSearching ? (
               <Card>
                 <CardHeader className="py-3 px-4">
                   <div className="flex items-center justify-between">
@@ -654,6 +910,15 @@ export default function ConfigPage() {
         } field(s) to their default values.`}
         destructive
         confirmLabel={t.config.resetDefaults}
+      />
+      <ConfirmDialog
+        open={confirmModeSwitch}
+        onCancel={() => setConfirmModeSwitch(false)}
+        onConfirm={executeModeSwitch}
+        title="Unsaved changes"
+        description="You have unsaved changes. Switching modes will discard them. Continue?"
+        confirmLabel="Discard & Switch"
+        destructive
       />
     </div>
   );

@@ -1,4 +1,4 @@
-import { Brain, Folder, Wrench, Radio, Settings, Copy, Loader2 } from "lucide-react";
+import { Brain, Folder, Wrench, Radio, Settings, Copy } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { StatusDot } from "@/components/StatusDot";
 

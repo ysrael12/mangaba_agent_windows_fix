@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   BrainCircuit,
@@ -135,11 +135,17 @@ export function Slide1CognitiveEngine() {
 
         if (found.status.logged_in) {
           setConnectionState("connected");
-          setUserLabel(
+          const label =
             found.status.source_label ||
               found.status.token_preview ||
-              "ChatGPT Plus",
-          );
+              "ChatGPT Plus";
+          setUserLabel(label);
+          syncToContext({
+            engine_type: "gpt-plus-oauth",
+            oauth_status: "connected",
+            oauth_user_id: label,
+            model_configs: config,
+          });
         }
       })
       .catch((err) => {
@@ -156,8 +162,8 @@ export function Slide1CognitiveEngine() {
     (overrides: Partial<EngineOAuthDraft>) => {
       updateDraft({
         model_config: {
-          provider: "openai",
-          model: "gpt-4o",
+          provider: "openai-codex",
+          model: "gpt-5.5",
         },
         engine_oauth: {
           ...draft.engine_oauth,
@@ -331,7 +337,7 @@ export function Slide1CognitiveEngine() {
 
               {showConnectButton && (
                 <Button
-                  size="lg"
+                  size="md"
                   className="gap-2 px-6 py-2.5 text-sm"
                   onClick={handleConnect}
                   prefix={<Plug className="h-4 w-4" />}
