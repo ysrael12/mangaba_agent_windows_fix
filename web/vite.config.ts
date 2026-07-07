@@ -89,7 +89,6 @@ export default defineConfig({
       "@observablehq/plot",
       "three",
       "leva",
-      "gsap",
     ],
   },
   build: {
@@ -102,7 +101,7 @@ export default defineConfig({
         // raramente) e fora do bundle de entrada.
         manualChunks: {
           react: ["react", "react-dom", "react-router-dom"],
-          motion: ["motion", "gsap"],
+          motion: ["motion"],
         },
       },
     },
