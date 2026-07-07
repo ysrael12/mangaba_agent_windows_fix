@@ -1,3 +1,4 @@
+import { useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import {
   Code,
@@ -9,9 +10,9 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
-import type { ComponentType, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { OnboardingHint } from "@/components/OnboardingHint";
 import { canSee, useUserRole, type UserRole } from "@/lib/userRole";
 
 /**
@@ -20,9 +21,51 @@ import { canSee, useUserRole, type UserRole } from "@/lib/userRole";
  */
 export default function HomePage() {
   const [role] = useUserRole();
+  const [hints, setHints] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Mostra hints contextuais baseado no perfil
+    try {
+      const dismissed = JSON.parse(localStorage.getItem("mangaba:hints-dismissed") || "[]");
+      const dismissedSet = new Set(dismissed);
+      const toShow: string[] = [];
+
+      if (!dismissedSet.has("first-visit-welcome")) {
+        toShow.push("first-visit-welcome");
+      }
+      if (canSee(role, "gestor") && !dismissedSet.has("can-create-agents")) {
+        toShow.push("can-create-agents");
+      }
+      setHints(toShow);
+    } catch {
+      /* ignore */
+    }
+  }, [role]);
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+      {hints.includes("first-visit-welcome") && (
+        <OnboardingHint
+          id="first-visit-welcome"
+          title="👋 Bem-vindo ao Mangaba!"
+          description="Seu agente de IA está pronto. Comece conversando para entender as capacidades."
+          variant="info"
+        />
+      )}
+
+      {hints.includes("can-create-agents") && (
+        <OnboardingHint
+          id="can-create-agents"
+          title="🚀 Você pode criar agentes personalizados"
+          description="Cada agente pode ter sua própria personalidade e habilidades. Explore a criação quando estiver pronto."
+          action={{
+            label: "Saber mais",
+            onClick: () => {},
+          }}
+          variant="success"
+        />
+      )}
+
       <OnboardingChecklist />
 
       <section aria-label="Ações rápidas" className="flex flex-col gap-4">
