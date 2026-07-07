@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { AlertCircle, Bot, Palette, Settings as SettingsIcon, Sparkles, Wrench } from "lucide-react";
+import { AlertCircle, Bot, RotateCcw, Palette, Settings as SettingsIcon, Sparkles, Wrench } from "lucide-react";
 import { Select, SelectOption } from "@dheiver2/ui/ui/components/select";
 import { Checkbox } from "@dheiver2/ui/ui/components/checkbox";
+import { Button } from "@dheiver2/ui/ui/components/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { OAuthProvidersCard } from "@/components/OAuthProvidersCard";
+import { SetupResetDialog } from "@/components/SetupResetDialog";
 import { api, type ChatModelsResponse, type ModelInfoResponse } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +22,7 @@ export default function SimpleSettings() {
   const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [config, setConfig] = useState<Record<string, unknown>>({});
   const [configSaving, setConfigSaving] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -201,6 +204,22 @@ export default function SimpleSettings() {
         </div>
       )}
 
+      {/* Reset Section */}
+      <Section icon={RotateCcw} title="Reiniciar" description="Limpe o setup se quiser começar do zero">
+        <p className="text-sm text-text-secondary mb-4">
+          Limpe o checklist de primeiros passos, dicas e/ou o agente em criação para
+          recomeçar do zero.
+        </p>
+        <Button
+          outlined
+          onClick={() => setResetDialogOpen(true)}
+          className="w-full sm:w-auto"
+        >
+          <RotateCcw className="h-4 w-4" />
+          Reiniciar Setup
+        </Button>
+      </Section>
+
       {/* Footer */}
       <footer className="flex items-start gap-2 rounded-lg border border-current/10 px-4 py-3 text-sm text-text-tertiary">
         <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -210,6 +229,8 @@ export default function SimpleSettings() {
           <strong>Dev</strong> no menu lateral.
         </span>
       </footer>
+
+      <SetupResetDialog open={resetDialogOpen} onClose={() => setResetDialogOpen(false)} />
     </div>
   );
 }
