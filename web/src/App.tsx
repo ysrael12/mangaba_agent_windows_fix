@@ -50,6 +50,7 @@ import { useTheme } from "@/themes";
 import { resolveIcon } from "@/lib/navIcons";
 // Páginas carregadas sob demanda (code-splitting por rota) — cada uma vira um
 // chunk separado, então o carregamento inicial não baixa todas as telas.
+const ChatPage = lazy(() => import("@/pages/ChatPage"));
 const ConfigPage = lazy(() => import("@/pages/ConfigPage"));
 const DocsPage = lazy(() => import("@/pages/DocsPage"));
 const LogsPage = lazy(() => import("@/pages/LogsPage"));
@@ -81,6 +82,7 @@ function UnknownRouteFallback({ pluginsLoading }: { pluginsLoading: boolean }) {
 const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/": RootRedirect,
   "/home": HomePage,
+  "/chat": ChatPage,
   "/configuracoes": SimpleSettings,
   "/setup": SetupPage,
   "/sessions": GlobalSessionsPage,
