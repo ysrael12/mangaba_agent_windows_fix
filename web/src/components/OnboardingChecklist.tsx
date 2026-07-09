@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, PartyPopper } from "lucide-react";
+import { Check, PartyPopper, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
+import { SLIDE_DEFS } from "@/components/wizard/slideDefs";
 
 /**
  * Checklist de primeiros passos com verificação automática via API.
+ * Cada item corresponde a um slide do wizard de criação.
  * O resultado da última verificação fica em localStorage("mangaba:onboarding")
  * para render imediato; uma nova verificação roda em background a cada mount.
  */
 
 const STORAGE_KEY = "mangaba:onboarding";
 
-type StepId = "chat" | "channel" | "agent" | "task" | "provider";
+type StepId = number;
 
 interface StepDef {
   id: StepId;
@@ -22,13 +24,13 @@ interface StepDef {
   actionPath: string;
 }
 
-const STEPS: StepDef[] = [
-  { id: "chat", label: "Converse com o agente", hint: "Sua primeira conversa", actionLabel: "Abrir Chat", actionPath: "/chat" },
-  { id: "channel", label: "Conecte um canal", hint: "Telegram, WhatsApp…", actionLabel: "Conectar", actionPath: "/criar" },
-  { id: "agent", label: "Crie um agente", hint: "Personalidade própria", actionLabel: "Criar", actionPath: "/criar" },
-  { id: "task", label: "Crie uma tarefa", hint: "Kanban", actionLabel: "Abrir Kanban", actionPath: "/kanban" },
-  { id: "provider", label: "Configure um provedor", hint: "Chave de API ou OAuth", actionLabel: "Configurar", actionPath: "/configuracoes" },
-];
+const STEPS: StepDef[] = SLIDE_DEFS.map((s) => ({
+  id: s.id,
+  label: s.title,
+  hint: s.description,
+  actionLabel: "Configurar",
+  actionPath: "/criar",
+}));
 
 type DoneMap = Partial<Record<StepId, boolean>>;
 
@@ -43,38 +45,52 @@ function loadCached(): DoneMap {
 }
 
 async function detect(): Promise<DoneMap> {
-  const [sessions, channels, profiles, boards, model] = await Promise.allSettled([
-    api.getSessions(1, 0),
-    api.getChannelsStatus(),
-    api.getProfiles(),
-    api.getKanbanBoards(),
-    api.getModelInfo(),
-  ]);
+  const [model, identity, channels, skills, toolsets, rag, mcp, cron, sessions] =
+    await Promise.allSettled([
+      api.getModelInfo(),
+      api.getAgentIdentity(),
+      api.getChannelsStatus(),
+      api.getSkills(),
+      api.getToolsets(),
+      api.getRagFiles(),
+      api.listMcpServers(),
+      api.getCronJobs(),
+      api.getSessions(1, 0),
+    ]);
 
   const done: DoneMap = {};
-  if (sessions.status === "fulfilled") {
-    done.chat = (sessions.value.total ?? sessions.value.sessions.length) > 0;
+
+  if (model.status === "fulfilled") {
+    done[1] = Boolean(model.value.provider && model.value.model);
+  }
+  if (identity.status === "fulfilled") {
+    done[4] = Boolean(identity.value.display_name);
+  }
+  if (rag.status === "fulfilled") {
+    done[5] = rag.value.files.length > 0;
+  }
+  if (toolsets.status === "fulfilled") {
+    done[6] = toolsets.value.some((t) => t.enabled);
+  }
+  if (skills.status === "fulfilled") {
+    done[7] = skills.value.some((s) => s.enabled);
+  }
+  if (mcp.status === "fulfilled") {
+    done[8] = mcp.value.servers.length > 0;
+  }
+  if (cron.status === "fulfilled") {
+    done[9] = cron.value.length > 0;
   }
   if (channels.status === "fulfilled") {
-    done.channel = channels.value.channels.some((c) => c.connected);
+    done[10] = channels.value.channels.some((c) => c.connected);
   }
-  if (profiles.status === "fulfilled") {
-    done.agent = profiles.value.profiles.length > 1;
-  }
-  if (boards.status === "fulfilled") {
-    const current = boards.value.current || boards.value.boards[0]?.slug;
-    if (current) {
-      try {
-        const tasks = await api.getKanbanTasks(current);
-        done.task = tasks.tasks.length > 0;
-      } catch {
-        /* deixa indefinido */
-      }
+  if (sessions.status === "fulfilled") {
+    if ((sessions.value.total ?? sessions.value.sessions.length) > 0) {
+      done[2] = true;
+      done[3] = true;
     }
   }
-  if (model.status === "fulfilled") {
-    done.provider = Boolean(model.value.provider && model.value.model);
-  }
+
   return done;
 }
 
@@ -105,7 +121,6 @@ export function OnboardingChecklist() {
     [done],
   );
   const allDone = completed === STEPS.length;
-  // "Pronto!" conta como passo final — total exibido é STEPS + 1.
   const total = STEPS.length + 1;
   const shown = completed + (allDone ? 1 : 0);
   const pct = Math.round((shown / total) * 100);
@@ -193,6 +208,20 @@ export function OnboardingChecklist() {
           })}
         </ul>
       )}
+
+      <div className="mt-4 border-t border-current/10 pt-4">
+        <Link
+          to="/criar"
+          className={cn(
+            "inline-flex items-center gap-2 rounded-lg border border-midground/30 bg-midground/10",
+            "px-4 py-2 text-sm font-medium text-midground",
+            "transition-colors hover:bg-midground/20",
+          )}
+        >
+          Iniciar Criação de Agentes
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      </div>
     </section>
   );
 }

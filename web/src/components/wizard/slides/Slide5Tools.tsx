@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Loader2, KeyRound } from "lucide-react";
 import { Switch } from "@dheiver2/ui/ui/components/switch";
 import { Badge } from "@dheiver2/ui/ui/components/badge";
+import { Button } from "@dheiver2/ui/ui/components/button";
 import { api } from "@/lib/api";
 import type { SkillInfo, ToolsetInfo } from "@/lib/api";
 import { useAgentDraft } from "@/contexts/useAgentDraft";
@@ -18,21 +19,38 @@ export function Slide5Tools() {
   const [skills, setSkills] = useState<SkillInfo[]>([]);
   const [toolsets, setToolsets] = useState<ToolsetInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [applyingPreset, setApplyingPreset] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const loadToolsets = () =>
+    api.getToolsets().then((t) => {
+      setToolsets(t);
+      updateDraft({
+        internal_tools: Object.fromEntries(t.map((ts) => [ts.name, ts.enabled])),
+      });
+      return t;
+    });
+
   useEffect(() => {
-    Promise.all([api.getSkills(), api.getToolsets()])
-      .then(([s, t]) => {
-        setSkills(s);
-        setToolsets(t);
-        updateDraft({
-          internal_tools: Object.fromEntries(t.map((ts) => [ts.name, ts.enabled])),
-        });
-      })
+    Promise.all([api.getSkills(), loadToolsets()])
+      .then(([s]) => setSkills(s))
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const applyPreset = async (preset: "all" | "minimal") => {
+    setApplyingPreset(true);
+    setError(null);
+    try {
+      await api.setToolsetsPreset(preset);
+      await loadToolsets();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setApplyingPreset(false);
+    }
+  };
 
   const toggle = async (skill: SkillInfo) => {
     const next = !skill.enabled;
@@ -81,7 +99,27 @@ export function Slide5Tools() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-text-primary">Ferramentas do ecossistema</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-medium text-text-primary">Ferramentas do ecossistema</h3>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={applyingPreset}
+              onClick={() => applyPreset("minimal")}
+            >
+              {applyingPreset ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Setup mínimo"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={applyingPreset}
+              onClick={() => applyPreset("all")}
+            >
+              {applyingPreset ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Ativar tudo"}
+            </Button>
+          </div>
+        </div>
         <p className="text-xs text-text-tertiary">
           Ficam disponíveis automaticamente quando a chave de API correspondente
           está configurada em <a href="/env" className="underline">Chaves</a>.

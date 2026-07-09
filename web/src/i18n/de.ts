@@ -412,6 +412,7 @@ export const de: Translations = {
     pasteCode: "Autorisierungscode einfügen (mit #state-Suffix ist okay)",
     waitingAuth: "Warte, bis du im Browser autorisierst…",
     enterCodePrompt: "Ein neuer Tab wurde geöffnet. Gib bei Aufforderung diesen Code ein:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "Ein neuer Tab wurde zu claude.ai geöffnet. Melde dich an und klicke auf Autorisieren.",
     pkceStep2: "Kopiere den Autorisierungscode, der nach der Autorisierung angezeigt wird.",
     pkceStep3: "Füge ihn unten ein und sende ab.",

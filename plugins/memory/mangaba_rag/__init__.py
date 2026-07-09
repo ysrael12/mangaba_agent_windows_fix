@@ -305,6 +305,23 @@ def reindex() -> Dict[str, Any]:
     return {"pages": len(pages), "chunks": len(chunks) + len(upload_chunks), "path": str(path)}
 
 
+def extract_pdf_text(content: bytes) -> str:
+    """Extrai texto de um PDF binário usando PyMuPDF."""
+    import fitz  # PyMuPDF
+    doc = fitz.open(stream=content, filetype="pdf")
+    texts: list[str] = []
+    for page in doc:
+        texts.append(page.get_text())
+    doc.close()
+    result = "\n".join(texts).strip()
+    if not result:
+        raise ValueError(
+            "Não foi possível extrair texto do PDF. "
+            "O arquivo pode conter apenas imagens ou estar escaneado."
+        )
+    return result[:MAX_UPLOAD_CHARS]
+
+
 MAX_UPLOAD_CHARS = 400_000  # teto de segurança por arquivo enviado
 
 

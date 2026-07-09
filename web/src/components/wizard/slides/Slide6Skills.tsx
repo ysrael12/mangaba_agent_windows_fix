@@ -1,31 +1,33 @@
-import { useState } from "react";
-import { Check, Wrench } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AlertTriangle, Check, Cloud, Loader2, Search, Wrench, X } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
+import { Badge } from "@dheiver2/ui/ui/components/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api } from "@/lib/api";
+import { api, type ClawHubSkillResult } from "@/lib/api";
 import { useAgentDraft } from "@/contexts/useAgentDraft";
+import { cn } from "@/lib/utils";
 
-// Sempre válido — a forja de skills é opcional; o wizard não obriga o
-// usuário a criar uma skill customizada para publicar o agente.
 export function slide6IsValid(): boolean {
   return true;
 }
 
 export function Slide6Skills() {
   const { draft, updateDraft } = useAgentDraft();
+
+  // — formulário de forja manual
   const [tool, setTool] = useState("");
   const [instruction, setInstruction] = useState("");
   const [action, setAction] = useState("");
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [forgeError, setForgeError] = useState<string | null>(null);
 
   const canSave = name.trim().length > 0 && instruction.trim().length > 0 && !saving;
 
   const save = async () => {
-    setError(null);
+    setForgeError(null);
     setSaving(true);
     try {
       const r = await api.forgeSkill({
@@ -37,7 +39,14 @@ export function Slide6Skills() {
       updateDraft({
         skills: [
           ...draft.skills,
-          { id: r.name, tool: tool.trim(), instruction: instruction.trim(), action: action.trim() },
+          {
+            id: r.name,
+            tool: tool.trim(),
+            instruction: instruction.trim(),
+            action: action.trim(),
+            source: "forge",
+            slug: r.name,
+          },
         ],
       });
       setName("");
@@ -45,15 +54,94 @@ export function Slide6Skills() {
       setInstruction("");
       setAction("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setForgeError(e instanceof Error ? e.message : String(e));
     } finally {
       setSaving(false);
     }
   };
 
+  // — status do ClawHub
+  const [clawhubConnected, setClawhubConnected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api.checkClawhubStatus().then((s) => setClawhubConnected(s.connected)).catch(() => setClawhubConnected(false));
+  }, []);
+
+  // — busca no ClawHub
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<ClawHubSkillResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [installing, setInstalling] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const installedSlugs = new Set(
+    draft.skills.filter((s) => s.source === "clawhub").map((s) => s.slug),
+  );
+
+  const doSearch = useCallback(async (q: string) => {
+    setLoading(true);
+    setSearchError(null);
+    try {
+      const res = await api.searchClawHub(q, 20);
+      setResults(res.results);
+    } catch (e) {
+      setSearchError(e instanceof Error ? e.message : String(e));
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (clawhubConnected !== false) doSearch("");
+  }, [doSearch, clawhubConnected]);
+
+  useEffect(() => {
+    if (clawhubConnected === false) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => doSearch(query || ""), 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, doSearch, clawhubConnected]);
+
+  const install = async (slug: string) => {
+    setInstalling(slug);
+    setSearchError(null);
+    try {
+      const r = await api.installClawHubSkill(slug);
+      const meta = results.find((s) => s.slug === slug);
+      updateDraft({
+        skills: [
+          ...draft.skills,
+          {
+            id: r.name,
+            tool: "",
+            instruction: meta?.description ?? "",
+            action: "",
+            source: "clawhub",
+            slug,
+            description: meta?.description,
+          },
+        ],
+      });
+    } catch (e) {
+      setSearchError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setInstalling(null);
+    }
+  };
+
+  const removeInstalled = (slug: string) => {
+    updateDraft({
+      skills: draft.skills.filter((s) => s.slug !== slug),
+    });
+  };
+
   return (
     <div className="grid h-full grid-cols-1 lg:grid-cols-2">
-      {/* Esquerda — construtor de prompt */}
+      {/* ── Esquerda: construtor manual ───────────────────────────── */}
       <div className="flex flex-col gap-4 overflow-y-auto border-b border-border/60 p-6 lg:border-b-0 lg:border-r">
         <div className="grid gap-1.5">
           <Label htmlFor="skill-name">Nome da skill</Label>
@@ -97,38 +185,172 @@ export function Slide6Skills() {
           />
         </div>
 
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {forgeError && <p className="text-sm text-destructive">{forgeError}</p>}
 
         <Button onClick={save} disabled={!canSave} prefix={saving ? <Spinner /> : undefined}>
           {saving ? "Salvando…" : "Salvar skill"}
         </Button>
       </div>
 
-      {/* Direita — histórico de skills criadas */}
+      {/* ── Direita: busca ClawHub + skills instaladas ────────────── */}
       <div className="flex min-h-0 flex-col">
-        <div className="min-h-0 flex-1 p-6">
-          <p className="text-sm text-text-tertiary">
-            As skills criadas aqui ficam disponíveis para o agente após a publicação.
-          </p>
+        {/* Banner de desconexão */}
+        {clawhubConnected === false && (
+          <div className="flex items-start gap-2 border-b border-border/60 bg-warning/10 px-4 py-3 text-xs text-warning">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>
+              Conecte-se ao ClawHub para buscar skills. Configure sua conta em{" "}
+              <a
+                href="https://clawhub.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
+                clawhub.ai
+              </a>
+              .
+            </span>
+          </div>
+        )}
+
+        {/* Busca */}
+        <div className="relative border-b border-border/60 p-4">
+          <Search className="absolute left-6 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar no ClawHub…"
+            className="pl-9 text-sm"
+          />
         </div>
 
-        <div className="max-h-40 shrink-0 overflow-y-auto border-t border-border/60 p-4">
-          <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-text-tertiary">
-            Skills criadas nesta sessão
-          </h3>
-          {draft.skills.length === 0 ? (
-            <p className="text-xs italic text-text-tertiary">Nenhuma ainda.</p>
-          ) : (
-            <ul className="flex flex-col gap-1.5">
-              {draft.skills.map((s) => (
-                <li key={s.id} className="flex items-center gap-2 text-xs text-text-secondary">
-                  <Check className="h-3.5 w-3.5 shrink-0 text-success" />
-                  <Wrench className="h-3.5 w-3.5 shrink-0 text-text-tertiary" />
-                  <span className="truncate">{s.id}</span>
-                </li>
-              ))}
-            </ul>
+        <div className="flex-1 overflow-y-auto p-4 pt-3">
+          {/* Skills instaladas */}
+          {draft.skills.length > 0 && (
+            <div className="mb-4">
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-text-tertiary">
+                Instaladas ({draft.skills.length})
+              </h3>
+              <div className="flex flex-col gap-1.5">
+                {draft.skills.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center gap-2 rounded-lg border border-border/40 px-3 py-2 text-xs text-text-secondary"
+                  >
+                    {s.source === "clawhub" ? (
+                      <Cloud className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    ) : (
+                      <Wrench className="h-3.5 w-3.5 shrink-0 text-text-tertiary" />
+                    )}
+                    <Check className="h-3.5 w-3.5 shrink-0 text-success" />
+                    <span className="flex-1 truncate font-medium text-text-primary">{s.id}</span>
+                    <Badge tone={s.source === "clawhub" ? "secondary" : "outline"}>
+                      {s.source === "clawhub" ? "ClawHub" : "Forjada"}
+                    </Badge>
+                    <button
+                      type="button"
+                      onClick={() => removeInstalled(s.slug ?? s.id)}
+                      className="ml-1 rounded p-0.5 text-text-tertiary hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
+
+          {/* Resultados do ClawHub */}
+          <div>
+            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-text-tertiary">
+              {query ? `Resultados para "${query}"` : "Em alta no ClawHub"}
+            </h3>
+
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-5 w-5 animate-spin text-text-tertiary" />
+              </div>
+            )}
+
+            {searchError && (
+              <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                {searchError}
+              </p>
+            )}
+
+            {!loading && !searchError && results.length === 0 && (
+              <p className="py-8 text-center text-xs italic text-text-tertiary">
+                Nenhuma skill encontrada.
+              </p>
+            )}
+
+            {!loading && results.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {results.map((skill) => {
+                  const isInstalled = installedSlugs.has(skill.slug);
+                  return (
+                    <div
+                      key={skill.slug}
+                      className={cn(
+                        "flex items-start gap-3 rounded-xl border p-3 transition-colors",
+                        isInstalled
+                          ? "border-primary/40 bg-primary/5"
+                          : "border-border/60 hover:border-border",
+                      )}
+                    >
+                      <Cloud className="mt-0.5 h-4 w-4 shrink-0 text-text-tertiary" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-text-primary">
+                            {skill.name}
+                          </span>
+                          {skill.tags?.slice(0, 2).map((tag) => (
+                            <Badge key={tag} tone="outline" className="text-[10px]">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-text-secondary">
+                          {skill.description}
+                        </p>
+                        {skill.stats && (
+                          <div className="mt-1 flex gap-3 text-[10px] text-text-tertiary">
+                            {skill.stats.downloads != null && (
+                              <span>⬇ {skill.stats.downloads.toLocaleString()}</span>
+                            )}
+                            {skill.stats.stars != null && (
+                              <span>⭐ {skill.stats.stars}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="shrink-0">
+                        {isInstalled ? (
+                          <Badge tone="success" className="whitespace-nowrap text-[11px]">
+                            ✔ Instalada
+                          </Badge>
+                        ) : (
+                          <Button
+                            size="sm"
+                            outlined
+                            onClick={() => install(skill.slug)}
+                            disabled={installing === skill.slug}
+                            prefix={
+                              installing === skill.slug ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : undefined
+                            }
+                          >
+                            {installing === skill.slug ? "…" : "Instalar"}
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

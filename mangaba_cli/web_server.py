@@ -12,6 +12,7 @@ Usage:
 import asyncio
 import hashlib
 import hmac
+import http.server
 import importlib.util
 import json
 import logging
@@ -501,6 +502,15 @@ class ModelAssignment(BaseModel):
     task: str = ""
 
 
+class ModelValidateRequest(BaseModel):
+    """Payload for POST /api/model/validate — test a model config before saving."""
+    provider: str = ""
+    model: str = ""
+    base_url: str = ""
+    api_key: str = ""
+    api_mode: str = "chat_completions"
+
+
 _GATEWAY_HEALTH_URL = os.getenv("GATEWAY_HEALTH_URL")
 try:
     _GATEWAY_HEALTH_TIMEOUT = float(os.getenv("GATEWAY_HEALTH_TIMEOUT", "3"))
@@ -563,12 +573,15 @@ def _probe_gateway_health() -> tuple[bool, dict | None]:
 
 @app.get("/api/health")
 async def get_health():
-    """Healthcheck leve e sem autenticação para monitoramento externo.
+    """Healthcheck completo — gateway, modelo principal e providers auxiliares.
 
-    Retorna 200 com ``{"ok": true}`` quando o dashboard está no ar e o gateway
-    está rodando; ``ok: false`` (ainda HTTP 200) quando o gateway caiu — assim
-    um supervisor consegue distinguir "processo vivo" de "serviço saudável".
+    Retorna 200 com ``{"ok": true}`` quando o dashboard e o gateway estão no ar
+    E o modelo principal responde; ``ok: false`` quando algum componente falhou.
+    A estrutura é backward-compatible com o healthcheck leve anterior.
     """
+    loop = asyncio.get_running_loop()
+
+    # --- Gateway liveness (mesmo que antes) ---
     try:
         pid = get_running_pid()
     except Exception:
@@ -585,14 +598,163 @@ async def get_health():
     except Exception:
         pass
 
+    # --- Model diagnostics (roda em executor para não travar o event loop) ---
+    primary_diag, aux_diag = await loop.run_in_executor(None, _run_health_diagnostics)
+
+    system_ok = gateway_up and primary_diag.get("responds") is True
+
     return {
-        "ok": gateway_up,
+        "ok": system_ok,
         "dashboard": True,
         "gateway": gateway_up,
         "gateway_pid": pid,
         "gateway_state": gateway_state,
         "last_activity": last_activity,
+        "model": {
+            "primary": primary_diag,
+        },
+        "auxiliary": aux_diag,
+        "system": {
+            "config_version": check_config_version()[0],
+            "mangaba_home": str(get_mangaba_home()),
+        },
     }
+
+
+def _run_health_diagnostics() -> tuple[dict, dict]:
+    """Check connectivity + inference for the primary model and all auxiliary slots.
+
+    Returns ``(primary_diag, aux_diag)`` — both dicts suitable for JSON serialization.
+    Every exception is caught and reported inline so the health endpoint never 500s.
+    """
+    from mangaba_cli.config import load_config
+
+    cfg = load_config()
+    model_cfg = cfg.get("model") or {}
+    aux_cfg = cfg.get("auxiliary") or {}
+
+    primary = _test_single_model(
+        provider=str(model_cfg.get("provider", "")),
+        model=str(model_cfg.get("default", "") or model_cfg.get("name", "")),
+        base_url=str(model_cfg.get("base_url", "")),
+        api_mode=str(model_cfg.get("api_mode", "chat_completions")),
+    )
+
+    aux_result: dict[str, dict] = {}
+    for slot in _AUX_TASK_SLOTS:
+        slot_cfg = aux_cfg.get(slot)
+        if not isinstance(slot_cfg, dict):
+            continue
+        sp = str(slot_cfg.get("provider", "") or "").strip()
+        sm = str(slot_cfg.get("model", "") or "").strip()
+        if not sp or sp == "auto":
+            aux_result[slot] = {"provider": "auto", "responds": None, "error": None}
+            continue
+        aux_result[slot] = _test_single_model(
+            provider=sp,
+            model=sm or primary.get("model", ""),
+            base_url=str(slot_cfg.get("base_url", "")),
+            api_mode=str(slot_cfg.get("api_mode", "chat_completions")),
+        )
+
+    return primary, aux_result
+
+
+def _test_single_model(
+    provider: str,
+    model: str,
+    base_url: str = "",
+    api_key: str = "",
+    api_mode: str = "chat_completions",
+) -> dict:
+    """Probe a single model — connectivity, model existence, tiny inference.
+
+    Returns a dict suitable for JSON; never raises.
+    """
+    import time as _time
+
+    result: dict[str, Any] = {
+        "provider": provider,
+        "model": model,
+        "server_type": None,
+        "reachable": False,
+        "responds": False,
+        "response_time_ms": None,
+        "error": None,
+    }
+    if not provider or not model:
+        result["error"] = "No provider or model configured"
+        return result
+
+    try:
+        from mangaba_cli.runtime_provider import resolve_runtime_provider
+
+        runtime = resolve_runtime_provider(
+            requested=provider,
+            explicit_base_url=base_url or None,
+            explicit_api_key=api_key or None,
+            target_model=model,
+        )
+        eff_base = (base_url or runtime.get("base_url") or "").strip()
+        eff_key = api_key or runtime.get("api_key", "") or "no-key-required"
+    except Exception as exc:
+        result["error"] = f"Provider resolution failed: {exc}"
+        return result
+
+    # --- Server type detection ---
+    try:
+        from agent.model_metadata import detect_local_server_type
+
+        result["server_type"] = detect_local_server_type(eff_base, eff_key)
+    except Exception:
+        pass
+
+    # --- Reachability + model existence (local servers) ---
+    if result["server_type"] == "ollama":
+        try:
+            import json as _json
+            import urllib.request
+
+            host = eff_base.rstrip("/")
+            if host.endswith("/v1"):
+                host = host[:-3]
+            if not host:
+                host = "http://localhost:11434"
+            req = urllib.request.Request(f"{host}/api/tags")
+            with urllib.request.urlopen(req, timeout=5.0) as resp:
+                data = _json.loads(resp.read().decode("utf-8"))
+            result["reachable"] = True
+            for m in data.get("models", []):
+                name = m.get("name") or m.get("model")
+                if name and (name == model or name.startswith(model + ":")):
+                    result["model_exists"] = True
+                    break
+        except Exception as exc:
+            result["error"] = f"Ollama unreachable at {host}: {exc}"
+            return result
+    elif result["server_type"] in ("lm-studio", "vllm", "llamacpp"):
+        result["reachable"] = True
+
+    # --- Tiny inference test (definitive check) ---
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=eff_key, base_url=eff_base, timeout=10.0, max_retries=0)
+        t0 = _time.monotonic()
+        resp = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": "OK"}],
+            max_tokens=3,
+            temperature=0,
+        )
+        elapsed = (_time.monotonic() - t0) * 1000
+        result["responds"] = True
+        result["reachable"] = True  # inference succeeds → server is reachable
+        result["response_time_ms"] = round(elapsed, 1)
+    except Exception as exc:
+        result["error"] = f"Inference failed: {exc}"
+
+    return result
 
 
 @app.get("/api/status")
@@ -1346,10 +1508,21 @@ async def set_model_assignment(body: ModelAssignment):
             model_cfg = cfg.get("model", {})
             if not isinstance(model_cfg, dict):
                 model_cfg = {}
+            old_provider = str(model_cfg.get("provider") or "").strip().lower()
+            new_provider = provider.strip().lower()
             model_cfg["provider"] = provider
             model_cfg["default"] = model
-            # Clear stale base_url so the resolver picks the provider's own default.
-            if "base_url" in model_cfg and model_cfg.get("base_url"):
+            # Clear stale base_url so the resolver picks the provider's own
+            # default — but ONLY when switching to a *cloud* provider that has a
+            # known default endpoint. Local servers (ollama/vllm/llamacpp/
+            # lm-studio/custom) have no discoverable default: clearing their
+            # base_url makes resolve_runtime_provider() fall back to the cloud
+            # default (openrouter), silently pointing every request at the wrong
+            # host. Same-provider model swaps (e.g. ollama → ollama) must also
+            # keep the base_url the user configured.
+            _LOCAL_ALIASES = {"ollama", "vllm", "llamacpp", "lm-studio", "lmstudio", "custom"}
+            _keep_base_url = new_provider == old_provider or new_provider in _LOCAL_ALIASES
+            if not _keep_base_url and model_cfg.get("base_url"):
                 model_cfg["base_url"] = ""
             # Also clear hardcoded context_length override — new model may have
             # a different context window.
@@ -1407,6 +1580,41 @@ async def set_model_assignment(body: ModelAssignment):
         raise HTTPException(status_code=500, detail="Failed to save model assignment")
 
 
+@app.post("/api/model/validate")
+async def validate_model(body: ModelValidateRequest):
+    """Validate a model configuration before saving.
+
+    Tests connectivity, model existence (local servers) and runs a tiny
+    inference to confirm the model responds. Returns structured diagnostics
+    so the web dashboard can show the user exactly what's wrong.
+    """
+    loop = asyncio.get_running_loop()
+
+    def _validate_sync() -> dict:
+        return _test_single_model(
+            provider=(body.provider or "").strip(),
+            model=(body.model or "").strip(),
+            base_url=(body.base_url or "").strip(),
+            api_key=(body.api_key or "").strip(),
+            api_mode=(body.api_mode or "chat_completions").strip(),
+        )
+
+    try:
+        diag = await loop.run_in_executor(None, _validate_sync)
+        if diag.get("responds"):
+            diag["ok"] = True
+        else:
+            diag["ok"] = False
+        return diag
+    except Exception as exc:
+        return {
+            "ok": False,
+            "provider": body.provider,
+            "model": body.model,
+            "error": f"Validation failed: {exc}",
+            "reachable": False,
+            "responds": False,
+        }
 
 
 def _denormalize_config_from_web(config: Dict[str, Any]) -> Dict[str, Any]:
@@ -1716,13 +1924,13 @@ def rag_enable(enable: bool = True):
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-_RAG_UPLOAD_EXTS = {".txt", ".md"}
-_RAG_MAX_UPLOAD_BYTES = 2 * 1024 * 1024  # 2 MB
+_RAG_UPLOAD_EXTS = {".txt", ".md", ".pdf"}
+_RAG_MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 @app.post("/api/rag/upload")
 async def rag_upload(file: UploadFile = File(...)):
-    """Indexa um documento (.txt/.md) enviado pelo usuário na base RAG.
+    """Indexa um documento (.txt/.md/.pdf) enviado pelo usuário na base RAG.
 
     Reaproveita o mesmo pipeline de chunking + TF-IDF do crawler de
     mangaba.ia.br (ver `plugins/memory/mangaba_rag`), sem descartar os
@@ -1733,20 +1941,32 @@ async def rag_upload(file: UploadFile = File(...)):
     if ext not in _RAG_UPLOAD_EXTS:
         raise HTTPException(
             status_code=400,
-            detail=f"Formato '{ext or '(sem extensão)'}' não suportado. Use .txt ou .md.",
+            detail=f"Formato '{ext or '(sem extensão)'}' não suportado. Use .txt, .md ou .pdf.",
         )
     raw = await file.read()
     if len(raw) > _RAG_MAX_UPLOAD_BYTES:
-        raise HTTPException(status_code=400, detail="Arquivo maior que 2MB.")
-    try:
-        text = raw.decode("utf-8")
-    except UnicodeDecodeError:
-        raise HTTPException(
-            status_code=400, detail="Não foi possível ler o arquivo como texto UTF-8."
-        )
+        raise HTTPException(status_code=400, detail="Arquivo maior que 10MB.")
 
     try:
         mod = _load_rag_module()
+    except Exception as exc:
+        _log.exception("POST /api/rag/upload failed to load module")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    if ext == ".pdf":
+        try:
+            text = mod.extract_pdf_text(raw)
+        except (ValueError, ImportError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        try:
+            text = raw.decode("utf-8")
+        except UnicodeDecodeError:
+            raise HTTPException(
+                status_code=400, detail="Não foi possível ler o arquivo como texto UTF-8."
+            )
+
+    try:
         stats = mod.ingest_upload(name, text)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -2705,6 +2925,25 @@ _OAUTH_PROVIDER_CATALOG: tuple[Dict[str, Any], ...] = (
         "docs_url": "https://www.minimax.io",
         "status_fn": None,  # dispatched via auth.get_minimax_oauth_auth_status
     },
+    # loopback_pkce providers — back-end starts a local callback server;
+    # the user authorises in the browser and the redirect is captured
+    # automatically.
+    {
+        "id": "google-gemini-cli",
+        "name": "Gemini (Google OAuth)",
+        "flow": "loopback_pkce",
+        "cli_command": "mangaba auth add google-gemini-cli",
+        "docs_url": "https://cloud.google.com/gemini",
+        "status_fn": None,  # dispatched via auth.get_gemini_oauth_auth_status
+    },
+    {
+        "id": "xai-oauth",
+        "name": "Grok (xAI OAuth)",
+        "flow": "loopback_pkce",
+        "cli_command": "mangaba auth add xai-oauth",
+        "docs_url": "https://x.ai/grok",
+        "status_fn": None,  # dispatched via auth.get_xai_oauth_auth_status
+    },
 )
 
 
@@ -2756,6 +2995,26 @@ def _resolve_provider_status(provider_id: str, status_fn) -> Dict[str, Any]:
                 "source_label": f"MiniMax ({raw.get('region', 'global')})",
                 "token_preview": None,
                 "expires_at": raw.get("expires_at"),
+                "has_refresh_token": True,
+            }
+        if provider_id == "google-gemini-cli":
+            raw = hauth.get_gemini_oauth_auth_status()
+            return {
+                "logged_in": bool(raw.get("logged_in")),
+                "source": "google-oauth",
+                "source_label": raw.get("email") or "Gemini (Google)",
+                "token_preview": _truncate_token(raw.get("api_key")),
+                "expires_at": raw.get("expires_at_ms"),
+                "has_refresh_token": True,
+            }
+        if provider_id == "xai-oauth":
+            raw = hauth.get_xai_oauth_auth_status()
+            return {
+                "logged_in": bool(raw.get("logged_in")),
+                "source": "xai-oauth",
+                "source_label": raw.get("auth_mode") or "xAI OAuth",
+                "token_preview": _truncate_token(raw.get("api_key")),
+                "expires_at": raw.get("last_refresh"),
                 "has_refresh_token": True,
             }
     except Exception as e:
@@ -3523,6 +3782,269 @@ def _codex_full_login_worker(session_id: str) -> None:
                 s["error_message"] = str(e)
 
 
+# ---------------------------------------------------------------------------
+# Loopback PKCE flow — back-end starts a local HTTP server to capture the
+# OAuth redirect automatically (Gemini, xAI).
+# ---------------------------------------------------------------------------
+
+class _LoopbackPKCEHandler(http.server.BaseHTTPRequestHandler):
+    """Callback handler for loopback PKCE flows.
+
+    The session_id is stored on the server object (``self.server._oauth_session_id``)
+    so each handler instance looks up the expected state from the session dict
+    directly — no shared class-level state or path manipulation.
+    """
+
+    def _resolve_session(self) -> tuple[Optional[str], Optional[Dict]]:
+        """Look up the session from the server's stored session_id."""
+        sid: Optional[str] = getattr(self.server, "_oauth_session_id", None)
+        if not sid:
+            return None, None
+        with _oauth_sessions_lock:
+            sess = _oauth_sessions.get(sid)
+        if sess:
+            return sid, sess
+        return None, None
+
+    def do_GET(self) -> None:
+        parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
+        state = (params.get("state") or [""])[0]
+        error = (params.get("error") or [""])[0]
+        code = (params.get("code") or [""])[0]
+
+        # Non-OAuth requests (favicon, etc.) — respond silently without
+        # polluting the session with a false error.
+        if not code and not error and not state:
+            self._respond(404)
+            return
+
+        sid, sess = self._resolve_session()
+        if not sess:
+            self._respond(404)
+            return
+
+        expected = sess.get("state", "")
+        if state != expected:
+            self._set_error(sid, "State mismatch — aborting for safety.")
+            self._respond(400)
+        elif error:
+            self._set_error(sid, error)
+            self._respond(400)
+        elif code:
+            self._handle_code(sid, sess, code, state)
+        else:
+            self._set_error(sid, "Callback received no authorization code.")
+            self._respond(400)
+
+    def _handle_code(self, sid: str, sess: Dict, code: str, state: str) -> None:
+        try:
+            from agent.google_oauth import exchange_code as _gemini_exchange
+            from mangaba_cli.auth import _xai_oauth_exchange_code_for_tokens, _save_xai_oauth_tokens, _xai_validate_inference_base_url, DEFAULT_XAI_OAUTH_BASE_URL
+            provider = sess.get("provider", "")
+            verifier = sess.get("verifier", "")
+            redirect_uri = sess.get("redirect_uri", "")
+            if provider == "google-gemini-cli":
+                client_id = sess.get("client_id", "")
+                client_secret = sess.get("client_secret", "")
+                token_resp = _gemini_exchange(
+                    code, verifier, redirect_uri,
+                    client_id=client_id, client_secret=client_secret,
+                )
+                access_token = token_resp.get("access_token", "")
+                refresh_token = token_resp.get("refresh_token", "")
+                expires_in = int(token_resp.get("expires_in", 0) or 0)
+                from agent.google_oauth import save_credentials as _gemini_save, GoogleCredentials, _fetch_user_email
+                creds = GoogleCredentials(
+                    access_token=access_token,
+                    refresh_token=refresh_token,
+                    expires_ms=int((time.time() + max(60, expires_in)) * 1000),
+                    email=_fetch_user_email(access_token),
+                )
+                _gemini_save(creds)
+            elif provider == "xai-oauth":
+                token_endpoint = sess.get("token_endpoint", "")
+                challenge = sess.get("challenge", "")
+                token_resp = _xai_oauth_exchange_code_for_tokens(
+                    token_endpoint=token_endpoint,
+                    code=code,
+                    redirect_uri=redirect_uri,
+                    code_verifier=verifier,
+                    code_challenge=challenge,
+                )
+                base_url = _xai_validate_inference_base_url(
+                    os.getenv("MANGABA_XAI_BASE_URL", "").strip().rstrip("/")
+                    or os.getenv("XAI_BASE_URL", "").strip().rstrip("/"),
+                    fallback=DEFAULT_XAI_OAUTH_BASE_URL,
+                )
+                _save_xai_oauth_tokens(
+                    {
+                        "access_token": token_resp.get("access_token", ""),
+                        "refresh_token": token_resp.get("refresh_token", ""),
+                        "id_token": token_resp.get("id_token", ""),
+                        "expires_in": token_resp.get("expires_in"),
+                        "token_type": token_resp.get("token_type", "Bearer"),
+                    },
+                    redirect_uri=redirect_uri,
+                )
+            with _oauth_sessions_lock:
+                if sid in _oauth_sessions:
+                    _oauth_sessions[sid]["status"] = "approved"
+            self._respond(200)
+        except Exception as e:
+            _log.exception("loopback PKCE exchange failed for session %s", sid)
+            with _oauth_sessions_lock:
+                if sid in _oauth_sessions:
+                    _oauth_sessions[sid]["status"] = "error"
+                    _oauth_sessions[sid]["error_message"] = str(e)
+            self._respond(500)
+
+    def _set_error(self, sid: Optional[str], msg: str) -> None:
+        if not sid:
+            return
+        with _oauth_sessions_lock:
+            sess = _oauth_sessions.get(sid)
+            if sess:
+                sess["status"] = "error"
+                sess["error_message"] = msg
+
+    def _respond(self, status: int) -> None:
+        if status == 200:
+            title = "Authorization received"
+            detail = "You can close this tab and return to Mangaba."
+        elif status >= 500:
+            title = "Token exchange failed"
+            detail = "Mangaba could not exchange the authorization code. Check the dashboard."
+        else:
+            title = "Authorization failed"
+            detail = "Something went wrong. Try again from the dashboard."
+        body = (
+            f"<!doctype html><html><head><meta charset='utf-8'>"
+            f"<title>{title}</title></head><body>"
+            f"<h1>{title}</h1><p>{detail}</p></body></html>"
+        ).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def log_message(self, format: str, *args: Any) -> None:
+        pass
+
+
+def _start_loopback_pkce_flow(provider_id: str) -> Dict[str, Any]:
+    """Start a loopback PKCE flow — local callback server captures the redirect."""
+    if provider_id == "google-gemini-cli":
+        return _start_gemini_loopback_pkce()
+    if provider_id == "xai-oauth":
+        return _start_xai_loopback_pkce()
+    raise HTTPException(status_code=400, detail=f"Unsupported loopback provider: {provider_id}")
+
+
+def _start_gemini_loopback_pkce() -> Dict[str, Any]:
+    from agent.google_oauth import (
+        _generate_pkce_pair, _get_client_id,
+        _get_client_secret, AUTH_ENDPOINT as _AUTH_URL, OAUTH_SCOPES,
+        REDIRECT_HOST, CALLBACK_PATH,
+    )
+
+    client_id = _get_client_id()
+    client_secret = _get_client_secret()
+    verifier, challenge = _generate_pkce_pair()
+    state = secrets.token_urlsafe(16)
+
+    sid, sess = _new_oauth_session("google-gemini-cli", "loopback_pkce")
+    sess["verifier"] = verifier
+    sess["state"] = state
+    sess["client_id"] = client_id
+    sess["client_secret"] = client_secret
+    sess["challenge"] = challenge
+
+    server = http.server.HTTPServer((REDIRECT_HOST, 0), _LoopbackPKCEHandler)
+    server._oauth_session_id = sid
+    port = server.server_address[1]
+    redirect_uri = f"http://{REDIRECT_HOST}:{port}{CALLBACK_PATH}"
+
+    sess["redirect_uri"] = redirect_uri
+    sess["_server"] = server
+
+    params = {
+        "client_id": client_id,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": OAUTH_SCOPES,
+        "state": state,
+        "code_challenge": challenge,
+        "code_challenge_method": "S256",
+        "access_type": "offline",
+        "prompt": "consent",
+    }
+    auth_url = _AUTH_URL + "?" + urllib.parse.urlencode(params)
+
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    return {
+        "session_id": sid,
+        "flow": "loopback_pkce",
+        "auth_url": auth_url,
+        "expires_in": _OAUTH_SESSION_TTL_SECONDS,
+    }
+
+
+def _start_xai_loopback_pkce() -> Dict[str, Any]:
+    from mangaba_cli.auth import (
+        _xai_oauth_discovery, _xai_oauth_build_authorize_url,
+        _oauth_pkce_code_verifier, _oauth_pkce_code_challenge,
+        XAI_OAUTH_REDIRECT_HOST, XAI_OAUTH_REDIRECT_PATH,
+    )
+
+    discovery = _xai_oauth_discovery()
+    authorization_endpoint = discovery["authorization_endpoint"]
+    token_endpoint = discovery["token_endpoint"]
+
+    host = XAI_OAUTH_REDIRECT_HOST
+    expected_path = XAI_OAUTH_REDIRECT_PATH
+    state = secrets.token_urlsafe(16)
+    nonce = secrets.token_urlsafe(16)
+    code_verifier = _oauth_pkce_code_verifier()
+    code_challenge = _oauth_pkce_code_challenge(code_verifier)
+
+    sid, sess = _new_oauth_session("xai-oauth", "loopback_pkce")
+    sess["verifier"] = code_verifier
+    sess["state"] = state
+    sess["nonce"] = nonce
+    sess["challenge"] = code_challenge
+    sess["token_endpoint"] = token_endpoint
+
+    server = http.server.HTTPServer((host, 0), _LoopbackPKCEHandler)
+    server._oauth_session_id = sid
+    port = server.server_address[1]
+    redirect_uri = f"http://{host}:{port}{expected_path}"
+
+    sess["redirect_uri"] = redirect_uri
+    sess["_server"] = server
+
+    auth_url = _xai_oauth_build_authorize_url(
+        authorization_endpoint=authorization_endpoint,
+        redirect_uri=redirect_uri,
+        code_challenge=code_challenge,
+        state=state,
+        nonce=nonce,
+    )
+
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    return {
+        "session_id": sid,
+        "flow": "loopback_pkce",
+        "auth_url": auth_url,
+        "expires_in": _OAUTH_SESSION_TTL_SECONDS,
+    }
+
+
 @app.post("/api/providers/oauth/{provider_id}/start")
 async def start_oauth_login(provider_id: str, request: Request):
     """Initiate an OAuth login flow. Token-protected."""
@@ -3548,6 +4070,8 @@ async def start_oauth_login(provider_id: str, request: Request):
             return _start_anthropic_pkce()
         if catalog_entry["flow"] == "device_code":
             return await _start_device_code_flow(provider_id)
+        if catalog_entry["flow"] == "loopback_pkce":
+            return _start_loopback_pkce_flow(provider_id)
     except HTTPException:
         raise
     except Exception as e:
@@ -3597,6 +4121,13 @@ async def cancel_oauth_session(session_id: str, request: Request):
         sess = _oauth_sessions.pop(session_id, None)
     if sess is None:
         return {"ok": False, "message": "session not found"}
+    # Shutdown loopback callback server if one was started
+    server = sess.get("_server")
+    if server is not None:
+        try:
+            server.shutdown()
+        except Exception:
+            pass
     return {"ok": True, "session_id": session_id}
 
 
@@ -4861,6 +5392,39 @@ async def get_toolsets():
     return result
 
 
+class ToolsetsBulkUpdate(BaseModel):
+    preset: Optional[str] = None
+    enabled: Optional[list] = None
+
+
+@app.patch("/api/tools/toolsets")
+async def update_toolsets_bulk(body: ToolsetsBulkUpdate):
+    from mangaba_cli.tools_config import (
+        _get_effective_configurable_toolsets,
+        resolve_toolset_preset,
+    )
+
+    if body.preset is not None:
+        try:
+            enabled_set = resolve_toolset_preset(body.preset)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+    elif body.enabled is not None:
+        enabled_set = set(body.enabled)
+    else:
+        raise HTTPException(status_code=400, detail="Provide either 'preset' or 'enabled'")
+
+    all_toolsets = {name for name, _, _ in _get_effective_configurable_toolsets()}
+    disabled = sorted(all_toolsets - enabled_set)
+
+    config = load_config()
+    agent_cfg = config.setdefault("agent", {})
+    agent_cfg["disabled_toolsets"] = disabled
+    save_config(config)
+
+    return {"ok": True, "enabled": sorted(all_toolsets & enabled_set), "disabled": disabled}
+
+
 class SkillForgeCreate(BaseModel):
     name: str
     tool: str
@@ -4912,6 +5476,79 @@ async def forge_skill(body: SkillForgeCreate):
         _log.exception("POST /api/skills/forge failed")
         raise HTTPException(status_code=500, detail=str(e))
     return {"ok": True, "name": slug, "path": str(skill_dir / "SKILL.md")}
+
+
+# ── ClawHub ──────────────────────────────────────────────────────────────
+
+
+@app.get("/api/clawhub/status")
+async def clawhub_status():
+    """Verifica se o ClawHub está acessível."""
+    import httpx
+    try:
+        resp = httpx.get("https://clawhub.ai/api/v1/skills", params={"limit": 1}, timeout=10)
+        if resp.status_code == 200:
+            return {"connected": True}
+        return {"connected": False, "error": f"API retornou status {resp.status_code}"}
+    except httpx.HTTPError as exc:
+        return {"connected": False, "error": f"Não foi possível conectar: {exc}"}
+
+
+@app.get("/api/clawhub/search")
+async def clawhub_search(q: str = "", limit: int = 20):
+    """Busca skills no catálogo do ClawHub."""
+    from tools.skills_hub import ClawHubSource
+
+    source = ClawHubSource()
+    results = source.search(q, limit=limit)
+    return {
+        "results": [
+            {
+                "slug": r.identifier,
+                "name": r.name,
+                "description": r.description,
+                "tags": r.tags or [],
+                "stats": r.extra.get("stats", {}),
+                "owner": {
+                    "handle": r.extra.get("owner", {}).get("handle", ""),
+                    "displayName": r.extra.get("owner", {}).get("displayName", ""),
+                } if r.extra.get("owner") else None,
+            }
+            for r in results
+        ]
+    }
+
+
+@app.post("/api/clawhub/install")
+async def clawhub_install(body: dict):
+    """Faz fetch, quarentena, scan e instala uma skill do ClawHub."""
+    slug = (body.get("slug") or "").strip()
+    if not slug:
+        raise HTTPException(status_code=400, detail="slug é obrigatório")
+
+    from tools.skills_hub import ClawHubSource, quarantine_bundle, install_from_quarantine, SKILLS_DIR
+    from tools.skills_guard import scan_skill
+
+    source = ClawHubSource()
+    bundle = source.fetch(slug)
+    if bundle is None:
+        raise HTTPException(status_code=404, detail=f"Skill '{slug}' não encontrada no ClawHub")
+
+    q_path = quarantine_bundle(bundle)
+    if q_path is None:
+        raise HTTPException(status_code=500, detail="Falha ao colocar skill em quarentena")
+
+    result = scan_skill(q_path, source="clawhub")
+
+    try:
+        install_dir = install_from_quarantine(q_path, bundle.name, "", bundle, result)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+    from agent.prompt_builder import clear_skills_system_prompt_cache
+    clear_skills_system_prompt_cache(clear_snapshot=True)
+
+    return {"ok": True, "name": bundle.name, "path": str(install_dir.relative_to(SKILLS_DIR))}
 
 
 # ---------------------------------------------------------------------------
@@ -5490,6 +6127,7 @@ async def chat_ws(ws: WebSocket) -> None:
 
             model = (data.get("model") or "").strip() or None
             provider = (data.get("provider") or "").strip() or None
+            system_message = (data.get("system") or "").strip() or None
 
             _log.info("chat_ws: received message model=%s provider=%s len=%d", model, provider, len(message))
 
@@ -5519,8 +6157,15 @@ async def chat_ws(ws: WebSocket) -> None:
 
             def run_turn() -> None:
                 try:
+                    # When a system message is provided (e.g. wizard dry run),
+                    # override the cached prompt so the agent uses ONLY the
+                    # creator info — not the default SOUL.md / agent identity.
+                    if system_message:
+                        agent._cached_system_prompt = system_message
+                        _log.info("chat_ws: system prompt overridden (%d chars)", len(system_message))
                     result = agent.run_conversation(
                         message,
+                        system_message=system_message,
                         conversation_history=list(history),
                         stream_callback=on_delta,
                     )
@@ -6832,11 +7477,18 @@ def start_server(
             or bool(os.environ.get("WAYLAND_DISPLAY"))
         )
 
+        # Optional landing path for the auto-opened browser tab. Bootstrap sets
+        # MANGABA_DASHBOARD_OPEN_PATH=/criar so first-time setup lands on the
+        # "Criar agente" wizard; a plain `mangaba dashboard` opens the root.
+        _open_path = os.environ.get("MANGABA_DASHBOARD_OPEN_PATH", "").strip()
+        if _open_path and not _open_path.startswith("/"):
+            _open_path = "/" + _open_path
+
         if _has_display:
             def _open():
                 try:
                     time.sleep(1.0)
-                    webbrowser.open(f"http://{host}:{port}")
+                    webbrowser.open(f"http://{host}:{port}{_open_path}")
                 except Exception:
                     pass
 

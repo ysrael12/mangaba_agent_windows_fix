@@ -10,10 +10,9 @@
 #   1. Instala pré-requisitos do sistema (Homebrew, git, node, ripgrep,
 #      ffmpeg, @openai/codex) — macOS (brew) ou Linux (apt).
 #   2. Instala o uv (gerenciador Python) e cria o ambiente + o pacote.
-#   3. Prepara o modelo: Ollama (local) ou ChatGPT (Codex) ou gateway remoto.
+#   3. Verifica se Ollama está rodando e baixa o modelo se faltar (ollama pull).
 #   4. Escreve a config do modelo em ~/.mangaba/config.yaml.
-#   5. Chama setup-channels.sh para escolher e configurar os canais,
-#      e subir o gateway (em primeiro plano ou como serviço 24/7).
+#   5. Abre o dashboard — configure o modelo via interface web.
 #
 # Windows nativo (Git Bash/MSYS2): suportado nos passos 2-5 (uv, venv, Ollama
 # via winget, config, canais). O passo 1 não auto-instala git/node/ripgrep/
@@ -65,17 +64,21 @@ fi
 
 # BOOTSTRAP_OPEN_DASHBOARD=true faz o bootstrap terminar já com o painel web
 # no ar (builda o front, sobe o backend e abre o navegador) — ver
-# GUIA_DASHBOARD.md. Fica desligado por padrão para não quebrar scripts que
-# chamam este bootstrap.sh e esperam o controle de volta (ex.: telegram.sh).
-OPEN_DASHBOARD="${BOOTSTRAP_OPEN_DASHBOARD:-false}"
+# GUIA_DASHBOARD.md. Ligado por padrão agora (ir direto ao dashboard).
+OPEN_DASHBOARD="${BOOTSTRAP_OPEN_DASHBOARD:-true}"
 DASHBOARD_NO_OPEN="${BOOTSTRAP_DASHBOARD_NO_OPEN:-false}"
+# BOOTSTRAP_NO_CHANNELS=true pula o configurador interativo — o dashboard
+# permite configurar canais depois. Ligado por padrão agora.
+BOOTSTRAP_NO_CHANNELS="${BOOTSTRAP_NO_CHANNELS:-true}"
 
 open_dashboard() {
   step "Abrindo o dashboard"
   echo "  Buildando o painel web e subindo o servidor (mangaba dashboard)..."
   local flags=()
   [ "$DASHBOARD_NO_OPEN" = "true" ] && flags+=(--no-open)
-  "$PY_CMD" -m mangaba_cli.main dashboard "${flags[@]}"
+  # Primeira tela do setup deve ser o wizard "Criar agente" (/criar).
+  MANGABA_DASHBOARD_OPEN_PATH="${MANGABA_DASHBOARD_OPEN_PATH:-/criar}" \
+    "$PY_CMD" -m mangaba_cli.main dashboard "${flags[@]}"
 }
 
 # =============================================================================
@@ -212,48 +215,32 @@ elif [ "$PROVIDER" = "openai-codex" ]; then
   step "3/5  ChatGPT (Codex) — pulando Ollama local"
   ok "PROVIDER=openai-codex — usando ChatGPT ($MODEL). Conecte sua conta no dashboard depois (seção 4 do GUIA_DASHBOARD.md)."
 else
-  step "3/5  Ollama + modelo local ($MODEL)"
+  step "3/5  Verificando Ollama local"
 
-  if ! have ollama; then
-    warn "Ollama não encontrado — instalando..."
-    if [ "$OS" = "Darwin" ]; then
-      brew install ollama || { err "Falha ao instalar Ollama. Veja https://ollama.com/download"; }
-    elif $IS_WINDOWS; then
-      if have winget; then
-        winget install --id Ollama.Ollama -e --silent \
-          --accept-package-agreements --accept-source-agreements \
-          || err "Falha ao instalar Ollama via winget. Baixe manualmente: https://ollama.com/download/windows"
-        # winget acabou de instalar o binário; este shell ainda não tem o PATH
-        # atualizado (isso só acontece em uma sessão nova), então adiciona o
-        # diretório padrão de instalação para o restante desta execução.
-        if have cygpath; then
-          export PATH="$PATH:$(cygpath -u "$LOCALAPPDATA/Programs/Ollama")"
-        else
-          export PATH="$PATH:$LOCALAPPDATA/Programs/Ollama"
-        fi
+  # Verifica se Ollama está rodando E se o modelo configurado existe. Sem o
+  # segundo passo, a instalação nasce apontando para um modelo ausente e toda
+  # mensagem falha com "provedor falhou" (o config aponta pra um modelo que o
+  # Ollama não tem baixado).
+  if curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
+    ok "Ollama está rodando."
+    if curl -s -m 4 http://localhost:11434/api/tags 2>/dev/null | grep -q "\"$MODEL\""; then
+      ok "Modelo $MODEL já está baixado."
+    elif have ollama; then
+      echo "  modelo $MODEL não encontrado localmente — baixando (ollama pull $MODEL)..."
+      if ollama pull "$MODEL"; then
+        ok "Modelo $MODEL baixado."
       else
-        err "winget não encontrado. Instale o Ollama manualmente: https://ollama.com/download/windows"
+        warn "Falha ao baixar $MODEL. Baixe manualmente: ollama pull $MODEL"
+        warn "Ou escolha outro modelo pela interface do dashboard."
       fi
     else
-      curl -fsSL https://ollama.com/install.sh | sh || err "Falha ao instalar Ollama."
+      warn "Modelo $MODEL não está baixado e o CLI 'ollama' não está no PATH."
+      warn "Baixe com: ollama pull $MODEL — ou escolha outro modelo no dashboard."
     fi
-  fi
-
-  # garante o servidor no ar
-  if ! curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
-    echo "  iniciando o servidor Ollama..."
-    if [ "$OS" = "Darwin" ]; then brew services start ollama >/dev/null 2>&1 || (ollama serve >/dev/null 2>&1 &)
-    else (ollama serve >/dev/null 2>&1 &); fi
-    sleep 4
-  fi
-  curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1 && ok "Ollama no ar." || warn "Ollama não respondeu — verifique 'ollama serve'."
-
-  # baixa o modelo se ainda não existir
-  if ollama list 2>/dev/null | grep -q "${MODEL%%:*}"; then
-    ok "Modelo $MODEL já baixado."
   else
-    echo "  baixando $MODEL (download grande, aguarde)..."
-    ollama pull "$MODEL" && ok "Modelo baixado." || warn "Falha ao baixar $MODEL."
+    warn "Ollama não está respondendo em http://localhost:11434"
+    warn "Certifique-se de que Ollama está sendo executado (ollama serve)."
+    warn "Você também pode configurar um modelo diferente via interface do dashboard."
   fi
 fi
 
@@ -323,11 +310,12 @@ else
 fi
 
 # =============================================================================
-# Quando chamado por outro script (ex: telegram.sh), pula o configurador
-# interativo de canais — quem chamou cuida do canal.
-if [ "${BOOTSTRAP_NO_CHANNELS:-false}" = "true" ]; then
+# Quando BOOTSTRAP_NO_CHANNELS=true, pula o configurador interativo de canais
+# — o dashboard permite configurar canais depois.
+if [ "$BOOTSTRAP_NO_CHANNELS" = "true" ]; then
   ok "Instalação base concluída."
   if [ "$OPEN_DASHBOARD" = "true" ]; then
+    step "5/5  Abrindo dashboard"
     open_dashboard
   fi
   exit 0

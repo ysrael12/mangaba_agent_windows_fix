@@ -412,6 +412,7 @@ export const es: Translations = {
     pasteCode: "Pega el código de autorización (con el sufijo #state está bien)",
     waitingAuth: "Esperando que autorices en el navegador…",
     enterCodePrompt: "Se abrió una nueva pestaña. Introduce este código si se solicita:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "Se abrió una nueva pestaña en claude.ai. Inicia sesión y haz clic en Autorizar.",
     pkceStep2: "Copia el código de autorización mostrado tras autorizar.",
     pkceStep3: "Pégalo abajo y envía.",

@@ -412,6 +412,7 @@ export const af: Translations = {
     pasteCode: "Plak magtigingskode (met #state agtervoegsel is in die haak)",
     waitingAuth: "Wag vir jou om in die blaaier te magtig…",
     enterCodePrompt: "'n Nuwe oortjie het oopgegaan. Voer hierdie kode in indien gevra:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "'n Nuwe oortjie het na claude.ai oopgegaan. Meld aan en klik Magtig.",
     pkceStep2: "Kopieer die magtigingskode wat ná magtiging vertoon word.",
     pkceStep3: "Plak dit hieronder en dien in.",

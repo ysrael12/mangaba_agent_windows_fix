@@ -96,6 +96,30 @@ CONFIGURABLE_TOOLSETS = [
 # model if the credential later goes missing or expires.
 _DEFAULT_OFF_TOOLSETS = {"moa", "homeassistant", "spotify", "discord", "discord_admin", "video", "video_gen", "x_search"}
 
+# The "minimal setup" preset offered by the web dashboard's toolset bulk
+# selector (Settings/Wizard → "Setup mínimo"). Limited to toolsets that work
+# out of the box with no API key, OAuth, or per-platform credential — every
+# other toolset in CONFIGURABLE_TOOLSETS requires a provider choice and/or a
+# secret (see TOOL_CATEGORIES / TOOLSET_ENV_REQUIREMENTS below).
+_MINIMAL_TOOLSETS = {
+    "terminal", "file", "code_execution", "todo", "memory",
+    "session_search", "clarify", "delegation", "cronjob", "skills",
+}
+
+
+def resolve_toolset_preset(preset: str) -> Set[str]:
+    """Resolve a bulk-selector preset name to a concrete set of toolset keys.
+
+    ``"all"`` enables every toolset the platform currently exposes;
+    ``"minimal"`` enables only the no-config core set (``_MINIMAL_TOOLSETS``).
+    """
+    effective = {ts_key for ts_key, _, _ in _get_effective_configurable_toolsets()}
+    if preset == "all":
+        return effective
+    if preset == "minimal":
+        return _MINIMAL_TOOLSETS & effective
+    raise ValueError(f"Unknown toolset preset: {preset!r}")
+
 
 def _xai_credentials_present() -> bool:
     """Cheap, side-effect-free check for usable xAI credentials.

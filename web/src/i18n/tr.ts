@@ -412,6 +412,7 @@ export const tr: Translations = {
     pasteCode: "Yetkilendirme kodunu yapıştırın (#state ekiyle de olabilir)",
     waitingAuth: "Tarayıcıda yetkilendirmeniz bekleniyor…",
     enterCodePrompt: "Yeni bir sekme açıldı. İstenirse bu kodu girin:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "claude.ai için yeni bir sekme açıldı. Giriş yapın ve Yetkilendir'e tıklayın.",
     pkceStep2: "Yetkilendirmeden sonra gösterilen yetkilendirme kodunu kopyalayın.",
     pkceStep3: "Aşağıya yapıştırıp gönderin.",

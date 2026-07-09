@@ -412,6 +412,7 @@ export const zhHant: Translations = {
     pasteCode: "貼上授權代碼（包含 #state 後綴亦可）",
     waitingAuth: "等待您於瀏覽器中完成授權…",
     enterCodePrompt: "已開啟新分頁。如有提示，請輸入此代碼：",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "已於新分頁開啟 claude.ai。請登入並點擊「Authorize」。",
     pkceStep2: "複製授權後顯示的授權代碼。",
     pkceStep3: "將其貼到下方並提交。",

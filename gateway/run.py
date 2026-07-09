@@ -4197,9 +4197,73 @@ class GatewayRunner:
         # turn so the agent kicks off the new chat.
         asyncio.create_task(self._handoff_watcher())
 
+        # Probe the configured model once at startup so an unreachable/missing
+        # model surfaces as a clear log line instead of a cryptic per-message
+        # "Connection error." on the first inbound message. Non-blocking and
+        # non-fatal — the gateway still starts even if the probe fails.
+        asyncio.create_task(self._validate_model_at_startup())
+
         logger.info("Press Ctrl+C to stop")
-        
+
         return True
+
+    async def _validate_model_at_startup(self) -> None:
+        """Background one-shot check that the primary model actually responds.
+
+        Logs an actionable WARNING when the model server is unreachable or the
+        model is missing (the #1 cause of every turn failing with a generic
+        connection error). Never raises."""
+        try:
+            loop = asyncio.get_running_loop()
+            ok, model, base_url, detail = await loop.run_in_executor(
+                None, self._probe_primary_model
+            )
+            if ok:
+                logger.info("Model check OK: %s responding at %s", model, base_url)
+            else:
+                logger.warning(
+                    "Model check FAILED: '%s' is not responding at %s — %s. "
+                    "Every message will fail until this is fixed. Check that the "
+                    "provider/server is running and the model exists.",
+                    model, base_url or "(default)", detail,
+                )
+        except Exception as exc:  # noqa: BLE001 — diagnostics must never crash startup
+            logger.debug("Startup model check skipped: %s", exc)
+
+    @staticmethod
+    def _probe_primary_model() -> tuple[bool, str, str, str]:
+        """Blocking probe of the configured model. Returns (ok, model, base_url, detail)."""
+        from mangaba_cli.config import load_config
+
+        cfg = load_config()
+        model_cfg = cfg.get("model") or {}
+        model = str(model_cfg.get("default") or model_cfg.get("name") or "").strip()
+        provider = str(model_cfg.get("provider") or "").strip()
+        if not model:
+            return False, model, "", "no model configured in config.yaml"
+
+        try:
+            from mangaba_cli.runtime_provider import resolve_runtime_provider
+
+            runtime = resolve_runtime_provider(requested=provider or None, target_model=model)
+            base_url = str(runtime.get("base_url") or "").strip()
+            api_key = runtime.get("api_key") or "no-key-required"
+        except Exception as exc:  # noqa: BLE001
+            return False, model, "", f"could not resolve provider: {exc}"
+
+        try:
+            from openai import OpenAI
+
+            client = OpenAI(api_key=api_key, base_url=base_url, timeout=10.0, max_retries=0)
+            client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": "OK"}],
+                max_tokens=3,
+                temperature=0,
+            )
+            return True, model, base_url, "ok"
+        except Exception as exc:  # noqa: BLE001
+            return False, model, base_url, str(exc)
 
     async def _handoff_watcher(self, interval: float = 2.0) -> None:
         """Background task that processes pending CLI→gateway session handoffs.
@@ -15754,6 +15818,7 @@ class GatewayRunner:
         ("compression", "target_ratio"),
         ("compression", "protect_last_n"),
         ("agent", "disabled_toolsets"),
+        ("skills", "disabled"),
     )
 
     @classmethod
@@ -15784,6 +15849,18 @@ class GatewayRunner:
             out["tools.registry_generation"] = getattr(registry, "_generation", None)
         except Exception:
             out["tools.registry_generation"] = None
+
+        try:
+            import hashlib
+            soul_path = _mangaba_home / "SOUL.md"
+            if soul_path.exists():
+                out["soul.md_hash"] = hashlib.sha256(
+                    soul_path.read_bytes()
+                ).hexdigest()[:16]
+            else:
+                out["soul.md_hash"] = None
+        except Exception:
+            out["soul.md_hash"] = None
         return out
 
     @staticmethod

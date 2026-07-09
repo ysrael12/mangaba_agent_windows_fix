@@ -39,17 +39,34 @@ This outputs to `../mangaba_cli/web_dist/`, which the FastAPI server serves as a
 
 ```
 src/
-├── components/ui/   # Reusable UI primitives (Card, Badge, Button, Input, etc.)
+├── App.tsx          # App shell, sidebar nav + client-side route table (BUILTIN_ROUTES_CORE)
+├── main.tsx         # React entry point
+├── index.css        # Tailwind imports and theme variables
+├── pages/           # One component per route (lazy-loaded). Highlights:
+│   ├── HomePage            # Landing / onboarding
+│   ├── ChatPage            # Embeds the real `mangaba --tui` over a PTY WebSocket
+│   ├── AgentWizardPage     # "Criar agente" wizard (route /criar)
+│   ├── FleetPage           # Active agents ("Agentes ativos")
+│   ├── ClientsPage         # Connect external services / channels
+│   ├── KanbanPage          # Multi-agent task board
+│   ├── CronPage            # Scheduled jobs
+│   ├── SkillsPage          # Installed skills
+│   ├── GlobalSessionsPage  # Session history across profiles
+│   ├── ConfigPage          # Advanced config editor (schema-driven)
+│   ├── SimpleSettings      # Friendly settings (route /configuracoes)
+│   ├── SetupPage           # First-run setup flow
+│   ├── LogsPage / DocsPage / AgentDashboardPage
+├── components/      # Shared components; `components/ui/` primitives, `components/wizard/` slides
 ├── lib/
 │   ├── api.ts       # API client — typed fetch wrappers for all backend endpoints
+│   ├── gatewayClient.ts    # WebSocket client for the chat/gateway
+│   ├── userRole.ts         # Operador / Gestor / Dev role gating
 │   └── utils.ts     # cn() helper for Tailwind class merging
-├── pages/
-│   ├── StatusPage   # Agent status, active/recent sessions
-│   ├── ConfigPage   # Dynamic config editor (reads schema from backend)
-│   └── EnvPage      # API key management with save/clear
-├── App.tsx          # Main layout and navigation
-├── main.tsx         # React entry point
-└── index.css        # Tailwind imports and theme variables
+├── contexts/ · hooks/      # React context providers + custom hooks
+├── i18n/            # Translations (pt/en/…)
+├── themes/          # Theme definitions
+├── plugins/         # Dashboard plugin loader (routes/nav from plugin manifests)
+└── vendor/dheiver2-ui/     # Vendored @dheiver2/ui design system (aliased in vite.config.ts)
 ```
 
 ## Typography & contrast rules
@@ -77,7 +94,7 @@ Read before adding or editing UI styles. These rules keep the dashboard legible 
 - The dashboard preserves the Nous brand uppercase aesthetic, but it is **opt-in per element, not global**.
 - Apply uppercase via the DS utility `text-display` on **brand chrome only** — page titles, nav section headings, badges, brand wordmark. DS components (`Button`, `Badge`, `Tabs`, `Segmented`, etc.) already self-apply `text-display`.
 - **Do not introduce new `uppercase`** (the literal Tailwind class) in `mangaba-agent/web/src`. Prefer `text-display` for new brand chrome. Legacy `uppercase` call sites (e.g. `components/ui/label.tsx`, `card.tsx`) remain until migrated.
-- The app shell no longer forces uppercase globally, so blanket `normal-case` opt-outs are unnecessary. Use `normal-case` only where a DS component applies `text-display` but the label should stay sentence case — e.g. dynamic user content (model slugs, theme names) **or** fixed UI copy that is not brand chrome (EnvPage “not configured” toggle, sidebar “New chat”).
+- The app shell no longer forces uppercase globally, so blanket `normal-case` opt-outs are unnecessary. Use `normal-case` only where a DS component applies `text-display` but the label should stay sentence case — e.g. dynamic user content (model slugs, theme names) **or** fixed UI copy that is not brand chrome (e.g. a status/toggle label or a plain sidebar action).
 
 ### Fonts
 

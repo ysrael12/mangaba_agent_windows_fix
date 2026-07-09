@@ -2465,9 +2465,9 @@ def _load_config() -> dict:
     of the entry point (CLI, gateway, cron).
     """
     try:
-        from mangaba_agent.cli import CLI_CONFIG
+        from mangaba_agent.cli import _get_cli_config
 
-        cfg = CLI_CONFIG.get("delegation") or {}
+        cfg = _get_cli_config().get("delegation") or {}
         if cfg:
             return cfg
     except Exception:

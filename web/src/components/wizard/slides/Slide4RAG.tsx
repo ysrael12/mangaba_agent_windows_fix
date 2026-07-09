@@ -6,7 +6,7 @@ import type { RagFileInfo } from "@/lib/api";
 import { useAgentDraft } from "@/contexts/useAgentDraft";
 import { cn } from "@/lib/utils";
 
-const ACCEPTED_EXT = [".txt", ".md"];
+const ACCEPTED_EXT = [".txt", ".md", ".pdf"];
 
 // Sempre válido — o agente pode ser publicado sem nenhum documento (RAG é
 // um reforço opcional, não obrigatório).
@@ -46,7 +46,7 @@ export function Slide4RAG() {
       (f) => !ACCEPTED_EXT.some((ext) => f.name.toLowerCase().endsWith(ext)),
     );
     if (invalid) {
-      setError(`Formato não suportado: ${invalid.name} (use .txt ou .md).`);
+      setError(`Formato não suportado: ${invalid.name} (use .txt, .md ou .pdf).`);
       return;
     }
     setUploading(true);
@@ -100,12 +100,12 @@ export function Slide4RAG() {
         <p className="text-sm font-medium text-text-primary">
           Arraste documentos aqui ou clique para escolher
         </p>
-        <p className="text-xs text-text-tertiary">Aceita .txt e .md — até 2MB por arquivo</p>
+        <p className="text-xs text-text-tertiary">Aceita .txt, .md e .pdf — até 10MB por arquivo</p>
         <input
           ref={inputRef}
           type="file"
           multiple
-          accept=".txt,.md"
+          accept=".txt,.md,.pdf"
           className="hidden"
           onChange={(e) => {
             if (e.target.files?.length) void uploadFiles(e.target.files);

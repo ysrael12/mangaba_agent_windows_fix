@@ -412,6 +412,7 @@ export const ja: Translations = {
     pasteCode: "認可コードを貼り付け (#state サフィックス付きでも問題ありません)",
     waitingAuth: "ブラウザでの認可をお待ちしています…",
     enterCodePrompt: "新しいタブが開きました。プロンプトが表示されたらこのコードを入力してください:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "claude.ai への新しいタブが開きました。サインインして「Authorize」をクリックしてください。",
     pkceStep2: "認可後に表示される認可コードをコピーしてください。",
     pkceStep3: "下に貼り付けて送信してください。",

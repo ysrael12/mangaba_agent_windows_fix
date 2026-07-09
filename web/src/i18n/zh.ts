@@ -407,6 +407,7 @@ export const zh: Translations = {
     pasteCode: "粘贴授权代码（包含 #state 后缀也可以）",
     waitingAuth: "等待您在浏览器中授权…",
     enterCodePrompt: "已在新标签页中打开。如果需要，请输入以下代码：",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "已在新标签页打开 claude.ai。请登录并点击「授权」。",
     pkceStep2: "复制授权后显示的授权代码。",
     pkceStep3: "将代码粘贴到下方并提交。",

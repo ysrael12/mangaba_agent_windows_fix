@@ -412,6 +412,7 @@ export const uk: Translations = {
     pasteCode: "Вставте код авторизації (з суфіксом #state теж нормально)",
     waitingAuth: "Очікування на вашу авторизацію в браузері…",
     enterCodePrompt: "Відкрилася нова вкладка. Якщо буде запит, введіть цей код:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "Відкрилася нова вкладка з claude.ai. Увійдіть та натисніть Authorize.",
     pkceStep2: "Скопіюйте код авторизації, що відображається після авторизації.",
     pkceStep3: "Вставте його нижче та надішліть.",

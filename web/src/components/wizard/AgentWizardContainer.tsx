@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 interface Props {
-  /** Chamado quando o usuário confirma o último slide ("Concluir & Deploy"). */
+  /** Chamado quando o usuário confirma o último slide. */
   onComplete: () => void;
 }
 
@@ -41,9 +41,9 @@ export function AgentWizardContainer({ onComplete }: Props) {
   };
 
   return (
-    <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-6 px-2 py-4">
+    <div className="mx-auto flex h-full w-full max-w-6xl flex-col gap-8 px-4 py-6">
       {/* Progress dots */}
-      <div className="flex items-center justify-center gap-2" role="tablist" aria-label="Passos do wizard">
+      <div className="flex items-center justify-center gap-3" role="tablist" aria-label="Passos do wizard">
         {SLIDE_DEFS.map((def) => {
           const isActive = def.id === currentSlide;
           const isDone = def.id < currentSlide;
@@ -58,10 +58,10 @@ export function AgentWizardContainer({ onComplete }: Props) {
               onClick={() => isDone && goToSlide(def.id)}
               disabled={!isDone}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                isActive && "w-6 bg-primary",
-                isDone && "w-1.5 cursor-pointer bg-primary/60 hover:bg-primary/80",
-                !isActive && !isDone && "w-1.5 bg-border",
+                "h-2 rounded-full transition-all duration-300",
+                isActive && "w-8 bg-primary",
+                isDone && "w-2 cursor-pointer bg-primary/60 hover:bg-primary/80",
+                !isActive && !isDone && "w-2 bg-border",
               )}
             />
           );
@@ -69,7 +69,7 @@ export function AgentWizardContainer({ onComplete }: Props) {
       </div>
 
       {/* Slide content */}
-      <div className="relative min-h-[420px] flex-1 overflow-hidden">
+      <div className="relative min-h-[600px] flex-1 overflow-hidden">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeDef.id}
@@ -109,7 +109,7 @@ export function AgentWizardContainer({ onComplete }: Props) {
           prefix={isLast ? <Check className="h-4 w-4" /> : undefined}
           suffix={isLast ? undefined : <ChevronRight className="h-4 w-4" />}
         >
-          {isLast ? "Concluir & Deploy" : "Avançar"}
+          {isLast ? "Concluir" : "Avançar"}
         </Button>
       </div>
     </div>

@@ -675,8 +675,52 @@ def load_cli_config() -> Dict[str, Any]:
 
     return defaults
 
-# Load configuration at module startup
-CLI_CONFIG = load_cli_config()
+# Module-level CLI config cache with mtime-based freshness check.
+# Allows web UI config edits (config.yaml) to be picked up by the
+# running CLI without restarting the process.
+_CFG_CACHE: Dict[str, Any] | None = None
+_CFG_CACHE_MTIME: int = 0
+_CFG_CACHE_SIZE: int = 0
+_CFG_GENERATION: int = 0  # bumped each time the cache is reloaded from disk
+_SOUL_MTIME: int = 0      # mtime_ns of SOUL.md at last cache load
+
+def _get_cli_config() -> Dict[str, Any]:
+    global _CFG_CACHE, _CFG_CACHE_MTIME, _CFG_CACHE_SIZE, _CFG_GENERATION, _SOUL_MTIME
+    config_path = _mangaba_home / "config.yaml"
+    soul_path = _mangaba_home / "SOUL.md"
+    try:
+        st = config_path.stat()
+        current_mtime = st.st_mtime_ns
+        current_size = st.st_size
+        current_soul_mtime = soul_path.stat().st_mtime_ns if soul_path.exists() else 0
+        if (
+            _CFG_CACHE is None
+            or current_mtime != _CFG_CACHE_MTIME
+            or current_size != _CFG_CACHE_SIZE
+            or current_soul_mtime != _SOUL_MTIME
+        ):
+            _CFG_CACHE = load_cli_config()
+            _CFG_CACHE_MTIME = current_mtime
+            _CFG_CACHE_SIZE = current_size
+            _SOUL_MTIME = current_soul_mtime
+            _CFG_GENERATION += 1
+    except FileNotFoundError:
+        if _CFG_CACHE is None:
+            _CFG_CACHE = load_cli_config()
+            _CFG_GENERATION += 1
+    return _CFG_CACHE
+
+
+def _soul_hash() -> str:
+    """Return a short SHA-256 fingerprint of SOUL.md, or '' if absent."""
+    try:
+        import hashlib
+        soul_path = _mangaba_home / "SOUL.md"
+        if soul_path.exists():
+            return hashlib.sha256(soul_path.read_bytes()).hexdigest()[:16]
+    except Exception:
+        pass
+    return ""
 
 
 # Initialize centralized logging early — agent.log + errors.log in ~/.mangaba/logs/.
@@ -697,14 +741,14 @@ except Exception:
 # Initialize the skin engine from config
 try:
     from mangaba_cli.skin_engine import init_skin_from_config
-    init_skin_from_config(CLI_CONFIG)
+    init_skin_from_config(_get_cli_config())
 except Exception:
     pass  # Skin engine is optional — default skin used if unavailable
 
 # Initialize tool preview length from config
 try:
     from agent.display import set_tool_preview_max_len
-    _tpl = CLI_CONFIG.get("display", {}).get("tool_preview_length", 0)
+    _tpl = _get_cli_config().get("display", {}).get("tool_preview_length", 0)
     set_tool_preview_max_len(int(_tpl) if _tpl else 0)
 except Exception:
     pass
@@ -2838,26 +2882,26 @@ class MangabaCLI:
         """
         # Initialize Rich console
         self.console = Console()
-        self.config = CLI_CONFIG
-        self.compact = compact if compact is not None else CLI_CONFIG["display"].get("compact", False)
+        self.config = _get_cli_config()
+        self.compact = compact if compact is not None else _get_cli_config()["display"].get("compact", False)
         # tool_progress: "off", "new", "all", "verbose" (from config.yaml display section)
         # YAML 1.1 parses bare `off` as boolean False — normalise to string.
-        _raw_tp = CLI_CONFIG["display"].get("tool_progress", "all")
+        _raw_tp = _get_cli_config()["display"].get("tool_progress", "all")
         self.tool_progress_mode = "off" if _raw_tp is False else str(_raw_tp)
         # resume_display: "full" (show history) | "minimal" (one-liner only)
-        self.resume_display = CLI_CONFIG["display"].get("resume_display", "full")
+        self.resume_display = _get_cli_config()["display"].get("resume_display", "full")
         # bell_on_complete: play terminal bell (\a) when agent finishes a response
-        self.bell_on_complete = CLI_CONFIG["display"].get("bell_on_complete", False)
+        self.bell_on_complete = _get_cli_config()["display"].get("bell_on_complete", False)
         # show_reasoning: display model thinking/reasoning before the response
-        self.show_reasoning = CLI_CONFIG["display"].get("show_reasoning", False)
+        self.show_reasoning = _get_cli_config()["display"].get("show_reasoning", False)
         _configure_output_history(
-            enabled=CLI_CONFIG["display"].get("persistent_output", True),
-            max_lines=CLI_CONFIG["display"].get("persistent_output_max_lines", 200),
+            enabled=_get_cli_config()["display"].get("persistent_output", True),
+            max_lines=_get_cli_config()["display"].get("persistent_output_max_lines", 200),
         )
         # busy_input_mode: "interrupt" (Enter interrupts current run),
         # "queue" (Enter queues for next turn), or "steer" (Enter injects
         # mid-run via /steer, arriving after the next tool call).
-        _bim = str(CLI_CONFIG["display"].get("busy_input_mode", "interrupt")).strip().lower()
+        _bim = str(_get_cli_config()["display"].get("busy_input_mode", "interrupt")).strip().lower()
         if _bim == "queue":
             self.busy_input_mode = "queue"
         elif _bim == "steer":
@@ -2868,20 +2912,20 @@ class MangabaCLI:
         self.verbose = verbose if verbose is not None else (self.tool_progress_mode == "verbose")
         
         # streaming: stream tokens to the terminal as they arrive (display.streaming in config.yaml)
-        self.streaming_enabled = CLI_CONFIG["display"].get("streaming", False)
+        self.streaming_enabled = _get_cli_config()["display"].get("streaming", False)
         # show_timestamps: prefix user and assistant labels with [HH:MM]
-        self.show_timestamps = CLI_CONFIG["display"].get("timestamps", False)
+        self.show_timestamps = _get_cli_config()["display"].get("timestamps", False)
         self.final_response_markdown = str(
-            CLI_CONFIG["display"].get("final_response_markdown", "strip")
+            _get_cli_config()["display"].get("final_response_markdown", "strip")
         ).strip().lower() or "strip"
         if self.final_response_markdown not in {"render", "strip", "raw"}:
             self.final_response_markdown = "strip"
 
         # Inline diff previews for write actions (display.inline_diffs in config.yaml)
-        self._inline_diffs_enabled = CLI_CONFIG["display"].get("inline_diffs", True)
+        self._inline_diffs_enabled = _get_cli_config()["display"].get("inline_diffs", True)
 
         # Submitted multiline user-message preview (display.user_message_preview in config.yaml)
-        _ump = CLI_CONFIG["display"].get("user_message_preview", {})
+        _ump = _get_cli_config()["display"].get("user_message_preview", {})
         if not isinstance(_ump, dict):
             _ump = {}
         try:
@@ -2915,7 +2959,7 @@ class MangabaCLI:
         # LLM_MODEL/OPENAI_MODEL env vars are NOT checked — config.yaml is
         # authoritative.  This avoids conflicts in multi-agent setups where
         # env vars would stomp each other.
-        _model_config = CLI_CONFIG.get("model", {})
+        _model_config = _get_cli_config().get("model", {})
         _config_model = (_model_config.get("default") or _model_config.get("model") or "") if isinstance(_model_config, dict) else (_model_config or "")
         _DEFAULT_CONFIG_MODEL = ""
         self.model = model or _config_model or _DEFAULT_CONFIG_MODEL
@@ -2943,7 +2987,7 @@ class MangabaCLI:
         # Provider selection is resolved lazily at use-time via _ensure_runtime_credentials().
         self.requested_provider = (
             provider
-            or CLI_CONFIG["model"].get("provider")
+            or _get_cli_config()["model"].get("provider")
             or os.getenv("MANGABA_INFERENCE_PROVIDER")
             or "auto"
         )
@@ -2954,7 +2998,7 @@ class MangabaCLI:
         self.acp_args: list[str] = []
         self.base_url = (
             base_url
-            or CLI_CONFIG["model"].get("base_url", "")
+            or _get_cli_config()["model"].get("base_url", "")
             or os.getenv("OPENROUTER_BASE_URL", "")
         ) or None
         # Match key to resolved base_url: OpenRouter URL → prefer OPENROUTER_API_KEY,
@@ -2967,10 +3011,10 @@ class MangabaCLI:
         # Max turns priority: CLI arg > config file > env var > default
         if max_turns is not None:  # CLI arg was explicitly set
             self.max_turns = max_turns
-        elif CLI_CONFIG["agent"].get("max_turns"):
-            self.max_turns = CLI_CONFIG["agent"]["max_turns"]
-        elif CLI_CONFIG.get("max_turns"):  # Backwards compat: root-level max_turns
-            self.max_turns = CLI_CONFIG["max_turns"]
+        elif _get_cli_config()["agent"].get("max_turns"):
+            self.max_turns = _get_cli_config()["agent"]["max_turns"]
+        elif _get_cli_config().get("max_turns"):  # Backwards compat: root-level max_turns
+            self.max_turns = _get_cli_config()["max_turns"]
         elif os.getenv("MANGABA_MAX_ITERATIONS"):
             try:
                 self.max_turns = int(os.getenv("MANGABA_MAX_ITERATIONS", ""))
@@ -2981,19 +3025,19 @@ class MangabaCLI:
         
         # Parse and validate toolsets
         self.enabled_toolsets = toolsets
-        self.disabled_toolsets = CLI_CONFIG["agent"].get("disabled_toolsets") or []
+        self.disabled_toolsets = _get_cli_config()["agent"].get("disabled_toolsets") or []
 
         if toolsets and "all" not in toolsets and "*" not in toolsets:
             # Validate each toolset — MCP server names are resolved via
             # live registry aliases (registered during discover_mcp_tools),
             # but discovery hasn't run yet at this point, so exclude them.
-            mcp_names = set((CLI_CONFIG.get("mcp_servers") or {}).keys())
+            mcp_names = set((_get_cli_config().get("mcp_servers") or {}).keys())
             invalid = [t for t in toolsets if not validate_toolset(t) and t not in mcp_names]
             if invalid:
                 self._console_print(f"[bold red]Warning: Unknown toolsets: {', '.join(invalid)}[/]")
         
         # Filesystem checkpoints: CLI flag > config
-        cp_cfg = CLI_CONFIG.get("checkpoints", {})
+        cp_cfg = _get_cli_config().get("checkpoints", {})
         if isinstance(cp_cfg, bool):
             cp_cfg = {"enabled": cp_cfg}
         self.checkpoints_enabled = checkpoints or cp_cfg.get("enabled", False)
@@ -3010,25 +3054,25 @@ class MangabaCLI:
         # Ephemeral system prompt: env var takes precedence, then config
         self.system_prompt = (
             os.getenv("MANGABA_EPHEMERAL_SYSTEM_PROMPT", "")
-            or CLI_CONFIG["agent"].get("system_prompt", "")
+            or _get_cli_config()["agent"].get("system_prompt", "")
         )
-        self.personalities = CLI_CONFIG["agent"].get("personalities", {})
+        self.personalities = _get_cli_config()["agent"].get("personalities", {})
         
         # Ephemeral prefill messages (few-shot priming, never persisted)
         self.prefill_messages = _load_prefill_messages(
-            CLI_CONFIG["agent"].get("prefill_messages_file", "")
+            _get_cli_config()["agent"].get("prefill_messages_file", "")
         )
         
         # Reasoning config (OpenRouter reasoning effort level)
         self.reasoning_config = _parse_reasoning_config(
-            CLI_CONFIG["agent"].get("reasoning_effort", "")
+            _get_cli_config()["agent"].get("reasoning_effort", "")
         )
         self.service_tier = _parse_service_tier_config(
-            CLI_CONFIG["agent"].get("service_tier", "")
+            _get_cli_config()["agent"].get("service_tier", "")
         )
         
         # OpenRouter provider routing preferences
-        pr = CLI_CONFIG.get("provider_routing", {}) or {}
+        pr = _get_cli_config().get("provider_routing", {}) or {}
         self._provider_sort = pr.get("sort")
         self._providers_only = pr.get("only")
         self._providers_ignore = pr.get("ignore")
@@ -3039,7 +3083,7 @@ class MangabaCLI:
         # OpenRouter Pareto Code router knob — coding-score floor (0.0-1.0).
         # Only applied when model.model == "openrouter/pareto-code".
         # Empty string / None / out-of-range = unset (let OR pick strongest coder).
-        _or_cfg = CLI_CONFIG.get("openrouter", {}) or {}
+        _or_cfg = _get_cli_config().get("openrouter", {}) or {}
         _raw_score = _or_cfg.get("min_coding_score")
         self._openrouter_min_coding_score: Optional[float] = None
         if _raw_score not in {None, ""}:
@@ -3053,7 +3097,7 @@ class MangabaCLI:
         # Fallback provider chain — tried in order when primary fails after retries.
         # Merge new ``fallback_providers`` entries with any legacy
         # ``fallback_model`` entries so old configs still participate.
-        self._fallback_model = get_fallback_chain(CLI_CONFIG)
+        self._fallback_model = get_fallback_chain(_get_cli_config())
 
         # Signature of the currently-initialised agent's runtime.  Used to
         # rebuild the agent when provider / model / base_url changes across
@@ -10280,11 +10324,11 @@ class MangabaCLI:
                             mark_seen,
                             tool_progress_hint_cli,
                         )
-                        if not is_seen(CLI_CONFIG, TOOL_PROGRESS_FLAG):
+                        if not is_seen(_get_cli_config(), TOOL_PROGRESS_FLAG):
                             self._long_tool_hint_fired = True
                             _cprint(f"  {_DIM}{tool_progress_hint_cli()}{_RST}")
                             mark_seen(_mangaba_home / "config.yaml", TOOL_PROGRESS_FLAG)
-                            CLI_CONFIG.setdefault("onboarding", {}).setdefault("seen", {})[TOOL_PROGRESS_FLAG] = True
+                            _get_cli_config().setdefault("onboarding", {}).setdefault("seen", {})[TOOL_PROGRESS_FLAG] = True
                 except Exception:
                     pass
             self._invalidate()
@@ -10798,7 +10842,7 @@ class MangabaCLI:
         """
         import time as _time
 
-        timeout = CLI_CONFIG.get("clarify", {}).get("timeout", 120)
+        timeout = _get_cli_config().get("clarify", {}).get("timeout", 120)
         response_queue = queue.Queue()
         is_open_ended = not choices
 
@@ -10918,7 +10962,7 @@ class MangabaCLI:
         import time as _time
 
         with self._approval_lock:
-            timeout = int(CLI_CONFIG.get("approvals", {}).get("timeout", 60))
+            timeout = int(_get_cli_config().get("approvals", {}).get("timeout", 60))
             response_queue = queue.Queue()
 
             self._approval_state = {
@@ -11253,6 +11297,34 @@ class MangabaCLI:
         # Refresh provider credentials if needed (handles key rotation transparently)
         if not self._ensure_runtime_credentials():
             return None
+
+        # Auto-detect config.yaml changes (e.g., from web UI) and sync instance
+        # attrs so the agent picks them up without restarting the CLI.
+        _cfg = _get_cli_config()
+        if getattr(self, "_last_cfg_generation", -1) != _CFG_GENERATION:
+            self._last_cfg_generation = _CFG_GENERATION
+            _m = _cfg.get("model", {})
+            if _m.get("default"):
+                self.model = _m["default"]
+            if _m.get("provider"):
+                self.provider = _m["provider"]
+            if _m.get("base_url"):
+                self.base_url = _m["base_url"]
+            if _m.get("api_mode"):
+                self.api_mode = _m["api_mode"]
+            _a = _cfg.get("agent", {})
+            if _a.get("enabled_toolsets"):
+                self.enabled_toolsets = _a["enabled_toolsets"]
+            if "disabled_toolsets" in _a:
+                self.disabled_toolsets = _a["disabled_toolsets"] or []
+            if "system_prompt" in _a:
+                self.system_prompt = _a["system_prompt"]
+            if _a.get("reasoning_effort"):
+                self.reasoning_effort = _a["reasoning_effort"]
+            if _a.get("service_tier"):
+                self.service_tier = _a["service_tier"]
+            # Force agent rebuild on next _init_agent
+            self.agent = None
 
         turn_route = self._resolve_turn_agent_config(message)
         if turn_route["signature"] != self._active_agent_route_signature:
@@ -12445,10 +12517,10 @@ class MangabaCLI:
                             is_seen,
                             mark_seen,
                         )
-                        if not is_seen(CLI_CONFIG, BUSY_INPUT_FLAG):
+                        if not is_seen(_get_cli_config(), BUSY_INPUT_FLAG):
                             _cprint(f"  {_DIM}{busy_input_hint_cli(self.busy_input_mode)}{_RST}")
                             mark_seen(_mangaba_home / "config.yaml", BUSY_INPUT_FLAG)
-                            CLI_CONFIG.setdefault("onboarding", {}).setdefault("seen", {})[BUSY_INPUT_FLAG] = True
+                            _get_cli_config().setdefault("onboarding", {}).setdefault("seen", {})[BUSY_INPUT_FLAG] = True
                     except Exception:
                         pass
                 else:
@@ -14506,7 +14578,7 @@ def main(
         # ── Git worktree isolation (#652) ──
         # Create an isolated worktree so this agent instance doesn't collide
         # with other agents working on the same repo.
-        use_worktree = worktree or w or CLI_CONFIG.get("worktree", False)
+        use_worktree = worktree or w or _get_cli_config().get("worktree", False)
         wt_info = None
         if use_worktree:
             # Prune stale worktrees from crashed/killed sessions
@@ -14545,7 +14617,7 @@ def main(
     else:
         # Use the shared resolver so MCP servers are included at runtime
         from mangaba_cli.tools_config import _get_platform_tools
-        toolsets_list = sorted(_get_platform_tools(CLI_CONFIG, "cli"))
+        toolsets_list = sorted(_get_platform_tools(_get_cli_config(), "cli"))
     
     parsed_skills = _parse_skills_argument(skills)
 

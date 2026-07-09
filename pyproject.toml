@@ -64,6 +64,8 @@ dependencies = [
   # (which is a silent killer on Windows — see CONTRIBUTING.md) and
   # `os.killpg` (which doesn't exist on Windows).
   "psutil==7.2.2",
+  # PDF text extraction for RAG uploads (mangaba dashboard wizard).
+  "PyMuPDF==1.25.4",
 ]
 
 [project.optional-dependencies]

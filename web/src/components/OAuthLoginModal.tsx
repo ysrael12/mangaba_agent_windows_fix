@@ -12,7 +12,7 @@ import { cn, themedBody } from "@/lib/utils";
 interface Props {
   provider: OAuthProvider;
   onClose: () => void;
-  onSuccess: (msg: string) => void;
+  onSuccess: (providerId: string) => void;
   onError: (msg: string) => void;
 }
 
@@ -44,11 +44,15 @@ export function OAuthLoginModal({ provider, onClose, onSuccess }: Props) {
         if (!isMounted.current) return;
         setStart(resp);
         setSecondsLeft(resp.expires_in);
-        setPhase(resp.flow === "device_code" ? "polling" : "awaiting_user");
-        if (resp.flow === "pkce") {
-          window.open(resp.auth_url, "_blank", "noopener,noreferrer");
+        if (resp.flow === "device_code" || resp.flow === "loopback_pkce") {
+          setPhase("polling");
         } else {
+          setPhase("awaiting_user");
+        }
+        if (resp.flow === "device_code") {
           window.open(resp.verification_url, "_blank", "noopener,noreferrer");
+        } else {
+          window.open(resp.auth_url, "_blank", "noopener,noreferrer");
         }
       })
       .catch((e) => {
@@ -81,9 +85,9 @@ export function OAuthLoginModal({ provider, onClose, onSuccess }: Props) {
     return () => window.clearInterval(tick);
   }, [secondsLeft, phase, t]);
 
-  // Device-code: poll backend every 2s
+  // Poll backend every 2s (device_code + loopback_pkce)
   useEffect(() => {
-    if (!start || start.flow !== "device_code" || phase !== "polling") return;
+    if (!start || (start.flow !== "device_code" && start.flow !== "loopback_pkce") || phase !== "polling") return;
     const sid = start.session_id;
     pollTimer.current = window.setInterval(async () => {
       try {
@@ -93,7 +97,7 @@ export function OAuthLoginModal({ provider, onClose, onSuccess }: Props) {
           setPhase("approved");
           if (pollTimer.current !== null)
             window.clearInterval(pollTimer.current);
-          onSuccess(`${provider.name} connected`);
+          onSuccess(provider.id);
           window.setTimeout(() => isMounted.current && onClose(), 1500);
         } else if (resp.status !== "pending") {
           setPhase("error");
@@ -127,7 +131,7 @@ export function OAuthLoginModal({ provider, onClose, onSuccess }: Props) {
       if (!isMounted.current) return;
       if (resp.ok && resp.status === "approved") {
         setPhase("approved");
-        onSuccess(`${provider.name} connected`);
+        onSuccess(provider.id);
         window.setTimeout(() => isMounted.current && onClose(), 1500);
       } else {
         setPhase("error");
@@ -305,6 +309,29 @@ export function OAuthLoginModal({ provider, onClose, onSuccess }: Props) {
             </>
           )}
 
+          {start?.flow === "loopback_pkce" && phase === "polling" && (
+            <>
+              <p className="text-sm text-muted-foreground">
+                {t.oauth.loopbackPkcePrompt}
+              </p>
+              <a
+                href={
+                  (start as Extract<OAuthStartResponse, { flow: "loopback_pkce" }>).auth_url
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <ExternalLink className="h-3 w-3" />
+                {t.oauth.reOpenAuth}
+              </a>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground border-t border-border pt-3">
+                <Spinner className="text-xs" />
+                {t.oauth.waitingAuth}
+              </div>
+            </>
+          )}
+
           {phase === "approved" && (
             <div className="flex items-center gap-3 py-6 text-sm text-success">
               <Check className="h-5 w-5" />
@@ -341,7 +368,10 @@ export function OAuthLoginModal({ provider, onClose, onSuccess }: Props) {
                             ? "polling"
                             : "awaiting_user",
                         );
-                        if (resp.flow === "pkce") {
+                        if (
+                          resp.flow === "pkce" ||
+                          resp.flow === "loopback_pkce"
+                        ) {
                           window.open(
                             resp.auth_url,
                             "_blank",

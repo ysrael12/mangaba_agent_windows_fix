@@ -99,6 +99,12 @@ export const api = {
   getModelInfo: () => fetchJSON<ModelInfoResponse>("/api/model/info"),
   getModelOptions: () => fetchJSON<ModelOptionsResponse>("/api/model/options"),
   getChatModels: () => fetchJSON<ChatModelsResponse>("/api/chat/models"),
+  validateModel: (body: ModelValidateRequest) =>
+    fetchJSON<ModelValidateResponse>("/api/model/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
 
   // ── Memória ────────────────────────────────────────────────────────────
   getMemory: () => fetchJSON<MemoryResponse>("/api/memory"),
@@ -336,10 +342,7 @@ export const api = {
         body: JSON.stringify({ token }),
       },
     ),
-  getHealth: () =>
-    fetchJSON<{ ok: boolean; gateway: boolean; gateway_state: string | null; last_activity: string | null }>(
-      "/api/health",
-    ),
+  getHealth: () => fetchJSON<HealthResponse>("/api/health"),
   validateWhatsAppCloud: (token: string, phone_number_id: string) =>
     fetchJSON<{ ok: boolean; name?: string; number?: string; error?: string }>(
       "/api/whatsapp-cloud/validate",
@@ -426,11 +429,32 @@ export const api = {
       body: JSON.stringify({ name, enabled }),
     }),
   getToolsets: () => fetchJSON<ToolsetInfo[]>("/api/tools/toolsets"),
+  setToolsetsPreset: (preset: "all" | "minimal") =>
+    fetchJSON<{ ok: boolean; enabled: string[]; disabled: string[] }>("/api/tools/toolsets", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preset }),
+    }),
   forgeSkill: (body: { name: string; tool: string; instruction: string; action: string }) =>
     fetchJSON<{ ok: boolean; name: string; path: string }>("/api/skills/forge", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
+    }),
+
+  // ClawHub
+  checkClawhubStatus: () => fetchJSON<{ connected: boolean; error?: string }>("/api/clawhub/status"),
+
+  searchClawHub: (q: string, limit?: number) =>
+    fetchJSON<{ results: ClawHubSkillResult[] }>(
+      `/api/clawhub/search?q=${encodeURIComponent(q)}&limit=${limit ?? 20}`,
+    ),
+
+  installClawHubSkill: (slug: string) =>
+    fetchJSON<{ ok: boolean; name: string }>("/api/clawhub/install", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug }),
     }),
 
   // MCP (cliente) — conexões com servidores externos
@@ -958,6 +982,15 @@ export interface SkillInfo {
   enabled: boolean;
 }
 
+export interface ClawHubSkillResult {
+  slug: string;
+  name: string;
+  description: string;
+  tags: string[];
+  stats?: { downloads?: number; stars?: number };
+  owner?: { handle: string; displayName: string };
+}
+
 export interface ToolsetInfo {
   name: string;
   label: string;
@@ -1217,6 +1250,49 @@ export interface ModelAssignmentResponse {
   reset?: boolean;
 }
 
+export interface ModelValidateRequest {
+  provider?: string;
+  model?: string;
+  base_url?: string;
+  api_key?: string;
+  api_mode?: string;
+}
+
+export interface ModelValidateResponse {
+  ok: boolean;
+  provider: string;
+  model: string;
+  server_type: string | null;
+  reachable: boolean;
+  responds: boolean;
+  response_time_ms: number | null;
+  error: string | null;
+}
+
+/** One probed model — shared by primary + each auxiliary slot in /api/health. */
+export interface ModelDiagnostic {
+  provider: string;
+  model?: string;
+  server_type?: string | null;
+  reachable?: boolean;
+  /** true = responds, false = failed, null = not configured (slot=auto). */
+  responds: boolean | null;
+  response_time_ms?: number | null;
+  error: string | null;
+}
+
+export interface HealthResponse {
+  ok: boolean;
+  dashboard: boolean;
+  gateway: boolean;
+  gateway_pid: number | null;
+  gateway_state: string | null;
+  last_activity: string | null;
+  model: { primary: ModelDiagnostic };
+  auxiliary: Record<string, ModelDiagnostic>;
+  system: { config_version: number; mangaba_home: string };
+}
+
 // ── OAuth provider types ────────────────────────────────────────────────
 
 export interface OAuthProviderStatus {
@@ -1234,8 +1310,9 @@ export interface OAuthProvider {
   id: string;
   name: string;
   /** "pkce" (browser redirect + paste code), "device_code" (show code + URL),
-   *  or "external" (delegated to a separate CLI like Claude Code or Qwen). */
-  flow: "pkce" | "device_code" | "external";
+   *  "loopback_pkce" (back-end starts a local callback server), or "external"
+   *  (delegated to a separate CLI like Claude Code or Qwen). */
+  flow: "pkce" | "device_code" | "loopback_pkce" | "external";
   cli_command: string;
   docs_url: string;
   status: OAuthProviderStatus;
@@ -1260,6 +1337,12 @@ export type OAuthStartResponse =
       verification_url: string;
       expires_in: number;
       poll_interval: number;
+    }
+  | {
+      session_id: string;
+      flow: "loopback_pkce";
+      auth_url: string;
+      expires_in: number;
     };
 
 export interface OAuthSubmitResponse {

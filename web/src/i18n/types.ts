@@ -433,6 +433,7 @@ export interface Translations {
     pasteCode: string;
     waitingAuth: string;
     enterCodePrompt: string;
+    loopbackPkcePrompt: string;
     pkceStep1: string;
     pkceStep2: string;
     pkceStep3: string;

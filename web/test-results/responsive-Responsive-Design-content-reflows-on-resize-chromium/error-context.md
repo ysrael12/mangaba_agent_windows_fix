@@ -1,0 +1,206 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: responsive.spec.ts >> Responsive Design >> content reflows on resize
+- Location: e2e\tests\responsive.spec.ts:71:3
+
+# Error details
+
+```
+Test timeout of 60000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - button "Abrir navegação" [ref=e5]:
+      - img
+    - generic [ref=e6]:
+      - img "Mangaba" [ref=e7]
+      - generic [ref=e8]: Painel
+    - button "Modo dia" [ref=e10]:
+      - img
+  - generic [ref=e12]:
+    - complementary "Navegação" [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img "Mangaba Agent" [ref=e16]
+          - generic [ref=e17]:
+            - paragraph [ref=e18]: Mangaba Agent
+            - paragraph [ref=e19]: Painel central
+        - button "Fechar navegação" [ref=e20]:
+          - img
+      - button "Abrir busca de comandos" [ref=e22]:
+        - img [ref=e23]
+        - generic [ref=e26]: Buscar…
+        - generic [ref=e27]: ⌘K
+      - navigation "Navegação" [ref=e28]:
+        - list [ref=e29]:
+          - listitem [ref=e30]:
+            - link "Início" [ref=e31] [cursor=pointer]:
+              - /url: /home
+              - img [ref=e32]
+              - generic [ref=e35]: Início
+          - listitem [ref=e37]: Conversar
+          - listitem [ref=e38]:
+            - link "Sessões" [ref=e39] [cursor=pointer]:
+              - /url: /sessions
+              - img [ref=e40]
+              - generic [ref=e42]: Sessões
+          - listitem [ref=e43]: Agentes
+          - listitem [ref=e44]:
+            - link "Criar agente" [ref=e45] [cursor=pointer]:
+              - /url: /criar
+              - img [ref=e46]
+              - generic [ref=e49]: Criar agente
+          - listitem [ref=e50]:
+            - link "Agentes ativos" [ref=e51] [cursor=pointer]:
+              - /url: /fleet
+              - img [ref=e52]
+              - generic [ref=e58]: Agentes ativos
+          - listitem [ref=e59]:
+            - link "Conectar serviços" [ref=e60] [cursor=pointer]:
+              - /url: /clients
+              - img [ref=e61]
+              - generic [ref=e64]: Conectar serviços
+          - listitem [ref=e65]: Configurar
+          - listitem [ref=e66]:
+            - link "Configurações" [ref=e67] [cursor=pointer]:
+              - /url: /configuracoes
+              - img [ref=e68]
+              - generic [ref=e69]: Configurações
+          - listitem [ref=e70]:
+            - link "Habilidades" [ref=e71] [cursor=pointer]:
+              - /url: /skills
+              - img [ref=e72]
+              - generic [ref=e76]: Habilidades
+          - listitem [ref=e77]:
+            - link "Configuração" [ref=e78] [cursor=pointer]:
+              - /url: /config
+              - img [ref=e79]
+              - generic [ref=e82]: Configuração
+          - listitem [ref=e83]: Automatizar
+          - listitem [ref=e84]:
+            - link "Tarefas agendadas" [ref=e85] [cursor=pointer]:
+              - /url: /cron
+              - img [ref=e86]
+              - generic [ref=e89]: Tarefas agendadas
+          - listitem [ref=e90]:
+            - link "Tarefas" [ref=e91] [cursor=pointer]:
+              - /url: /kanban
+              - img [ref=e92]
+              - generic [ref=e94]: Tarefas
+          - listitem [ref=e95]: Acompanhar
+          - listitem [ref=e96]:
+            - link "Registros" [ref=e97] [cursor=pointer]:
+              - /url: /logs
+              - img [ref=e98]
+              - generic [ref=e101]: Registros
+          - listitem [ref=e102]: Aprender
+          - listitem [ref=e103]:
+            - link "Documentação" [ref=e104] [cursor=pointer]:
+              - /url: /docs
+              - img [ref=e105]
+              - generic [ref=e107]: Documentação
+      - generic [ref=e108]:
+        - generic [ref=e109]: Sistema
+        - list [ref=e112]:
+          - listitem [ref=e113]:
+            - button "Reiniciar gateway" [ref=e114]:
+              - img [ref=e115]
+              - generic [ref=e118]: Reiniciar gateway
+          - listitem [ref=e119]:
+            - button "Atualizar Mangaba" [ref=e120]:
+              - img [ref=e121]
+              - generic [ref=e124]: Atualizar Mangaba
+      - generic [ref=e126]:
+        - button "Modo dia" [ref=e127]:
+          - img
+        - button "Mudar tema" [ref=e129]:
+          - generic [ref=e130]:
+            - img
+        - button "Mudar para inglês" [ref=e132]
+      - generic [ref=e133]:
+        - generic [ref=e134]: —
+        - link "Dheiver Santos" [ref=e135] [cursor=pointer]:
+          - /url: https://dheiver2.com
+    - generic [ref=e136]:
+      - banner [ref=e137]:
+        - heading "Início" [level=1] [ref=e140]
+      - main [ref=e141]:
+        - generic [ref=e146]:
+          - region "Primeiros passos" [ref=e147]:
+            - generic [ref=e148]:
+              - heading "Primeiros passos" [level=2] [ref=e149]:
+                - img [ref=e150]
+                - text: Primeiros passos
+              - generic [ref=e156]: 0 de 6
+            - progressbar [ref=e157]
+            - list [ref=e158]:
+              - listitem [ref=e159]:
+                - img [ref=e161]
+                - generic [ref=e163]:
+                  - generic [ref=e164]: Converse com o agente
+                  - generic [ref=e165]: Sua primeira conversa
+                - link "Abrir Chat" [ref=e166] [cursor=pointer]:
+                  - /url: /chat
+              - listitem [ref=e167]:
+                - img [ref=e169]
+                - generic [ref=e171]:
+                  - generic [ref=e172]: Conecte um canal
+                  - generic [ref=e173]: Telegram, WhatsApp…
+                - link "Conectar" [ref=e174] [cursor=pointer]:
+                  - /url: /criar
+              - listitem [ref=e175]:
+                - img [ref=e177]
+                - generic [ref=e179]:
+                  - generic [ref=e180]: Crie um agente
+                  - generic [ref=e181]: Personalidade própria
+                - link "Criar" [ref=e182] [cursor=pointer]:
+                  - /url: /criar
+              - listitem [ref=e183]:
+                - img [ref=e185]
+                - generic [ref=e187]:
+                  - generic [ref=e188]: Crie uma tarefa
+                  - generic [ref=e189]: Kanban
+                - link "Abrir Kanban" [ref=e190] [cursor=pointer]:
+                  - /url: /kanban
+              - listitem [ref=e191]:
+                - img [ref=e193]
+                - generic [ref=e195]:
+                  - generic [ref=e196]: Configure um provedor
+                  - generic [ref=e197]: Chave de API ou OAuth
+                - link "Configurar" [ref=e198] [cursor=pointer]:
+                  - /url: /configuracoes
+              - listitem [ref=e199]:
+                - img [ref=e201]
+                - generic [ref=e203]: Pronto!
+                - generic [ref=e204]: 🎉
+          - region "Ações rápidas" [ref=e205]:
+            - link "Conversar com o agente Comece sua primeira (ou próxima) conversa. Abrir Chat" [ref=e206] [cursor=pointer]:
+              - /url: /chat
+              - img [ref=e208]
+              - heading "Conversar com o agente" [level=3] [ref=e210]
+              - paragraph [ref=e211]: Comece sua primeira (ou próxima) conversa.
+              - generic [ref=e212]: Abrir Chat
+            - generic [ref=e213]:
+              - link "Minhas Sessões Veja o histórico de conversas. Ver tudo" [ref=e214] [cursor=pointer]:
+                - /url: /sessions
+                - img [ref=e216]
+                - heading "Minhas Sessões" [level=3] [ref=e220]
+                - paragraph [ref=e221]: Veja o histórico de conversas.
+                - generic [ref=e222]: Ver tudo
+              - link "Criar agente Personalize com sua própria IA. Começar" [ref=e223] [cursor=pointer]:
+                - /url: /criar
+                - img [ref=e225]
+                - heading "Criar agente" [level=3] [ref=e228]
+                - paragraph [ref=e229]: Personalize com sua própria IA.
+                - generic [ref=e230]: Começar
+```

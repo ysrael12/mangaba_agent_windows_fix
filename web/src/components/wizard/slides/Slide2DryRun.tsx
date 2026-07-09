@@ -113,10 +113,16 @@ export function Slide2DryRun() {
     sendingRef.current = true;
     setStatus("Aguardando resposta...");
 
+    const hasCreator = draft.creator_info.name || draft.creator_info.role || draft.creator_info.context;
+    const system = hasCreator
+      ? `Você é um assistente de IA genérico em fase de teste. Você não tem especialização própria — você apenas reflete as capacidades do modelo que está sendo testado.\n\nContexto sobre o usuário:\nNome: ${draft.creator_info.name}\nProfissão: ${draft.creator_info.role}\n\nO que ele está construindo: ${draft.creator_info.context}\n\nAjude ${draft.creator_info.name || "o usuário"} a testar e validar as escolhas do modelo para este novo agente.`
+      : undefined;
+
     const payload = JSON.stringify({
       message: text,
       model: draft.model_config.model || undefined,
       provider: draft.model_config.provider || undefined,
+      system,
     });
 
     if (ws && ws.readyState === WebSocket.OPEN) {
@@ -138,9 +144,12 @@ export function Slide2DryRun() {
       <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2">
         <Bot className="h-4 w-4 text-text-tertiary" />
         <span className="text-xs text-text-tertiary">
+          {draft.creator_info.name
+            ? `Criador: ${draft.creator_info.name}`
+            : "Criador: anônimo"}
           {draft.model_config.model
-            ? `Modelo: ${draft.model_config.model}${draft.model_config.provider ? ` · ${draft.model_config.provider}` : ""}`
-            : "Nenhum modelo configurado ainda"}
+            ? `  ·  ${draft.model_config.model}${draft.model_config.provider ? ` (${draft.model_config.provider})` : ""}`
+            : ""}
         </span>
       </div>
 

@@ -59,8 +59,22 @@ export default function SimpleSettings() {
     setSaving(true);
     setNotice(null);
     try {
+      const validation = await api.validateModel({ provider, model });
+      // Save regardless of the validation result. A provider that's momentarily
+      // down (Ollama not started, model not pulled yet) must NOT block changing
+      // the config — otherwise the user is stuck unable to switch away from a
+      // broken model. Warn instead of blocking.
       await api.setModelAssignment({ scope: "main", task: "", provider, model });
-      setNotice({ kind: "ok", text: "Modelo atualizado." });
+      if (validation.responds) {
+        setNotice({ kind: "ok", text: `Modelo atualizado (${validation.response_time_ms}ms).` });
+      } else {
+        setNotice({
+          kind: "error",
+          text: validation.error
+            ? `Modelo salvo, mas não respondeu no teste: ${validation.error}`
+            : `Modelo salvo, mas não está respondendo agora (o provedor pode estar offline).`,
+        });
+      }
     } catch (err) {
       setNotice({
         kind: "error",

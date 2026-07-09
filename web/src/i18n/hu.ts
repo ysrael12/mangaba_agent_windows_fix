@@ -412,6 +412,7 @@ export const hu: Translations = {
     pasteCode: "Illessze be a hitelesítési kódot (a #state utótaggal együtt is megfelel)",
     waitingAuth: "Várakozás a böngészőben történő engedélyezésre…",
     enterCodePrompt: "Új lap nyílt meg. Adja meg ezt a kódot, ha kéri:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "Új lap nyílt meg a claude.ai oldalra. Jelentkezzen be, és kattintson az Authorize gombra.",
     pkceStep2: "Másolja ki az engedélyezés után megjelenő hitelesítési kódot.",
     pkceStep3: "Illessze be alább, és küldje be.",

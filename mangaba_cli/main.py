@@ -1737,9 +1737,9 @@ def cmd_chat(args):
 
     # --ignore-user-config: make load_cli_config() / load_config() skip the
     # user's ~/.mangaba/config.yaml and return built-in defaults. Set BEFORE
-    # importing cli (which runs `CLI_CONFIG = load_cli_config()` at module
-    # import time). Credentials in .env are still loaded — this flag only
-    # ignores behavioral/config settings.
+    # importing cli (which calls `_get_cli_config()` at module import time).
+    # Credentials in .env are still loaded — this flag only ignores
+    # behavioral/config settings.
     if getattr(args, "ignore_user_config", False):
         os.environ["MANGABA_IGNORE_USER_CONFIG"] = "1"
 

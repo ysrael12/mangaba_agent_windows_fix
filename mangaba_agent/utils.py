@@ -4,7 +4,9 @@ import json
 import logging
 import os
 import stat
+import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any, Union
 from urllib.parse import urlparse
@@ -75,9 +77,29 @@ def atomic_replace(tmp_path: Union[str, Path], target: Union[str, Path]) -> str:
 
     Returns the resolved real path used for the replace, so callers that
     need to re-apply permissions can target it instead of the symlink.
+
+    On Windows, ``os.replace()`` can raise a transient ``PermissionError``
+    (WinError 5 "Access is denied") when antivirus real-time scanning, the
+    Windows Search indexer, or a sync client (OneDrive, Dropbox) briefly
+    holds a lock on the freshly-written temp file right after creation.
+    This is a well-known cross-platform-tooling gotcha (pip, black, npm all
+    retry for the same reason) — not a real permission problem, so a short
+    retry-with-backoff clears it without surfacing a save failure to the
+    user for something that resolves itself within milliseconds.
     """
     target_str = str(target)
     real_path = os.path.realpath(target_str) if os.path.islink(target_str) else target_str
+    if sys.platform == "win32":
+        last_exc: OSError | None = None
+        for attempt in range(6):
+            try:
+                os.replace(str(tmp_path), real_path)
+                return real_path
+            except PermissionError as exc:
+                last_exc = exc
+                time.sleep(0.05 * (2**attempt))
+        assert last_exc is not None
+        raise last_exc
     os.replace(str(tmp_path), real_path)
     return real_path
 

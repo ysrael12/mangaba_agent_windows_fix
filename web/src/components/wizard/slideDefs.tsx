@@ -1,6 +1,10 @@
 import type { ComponentType } from "react";
 import type { AgentDraft } from "@/contexts/agent-draft-context";
-import { Slide1CognitiveEngine, slide1IsValid } from "./slides/Slide1CognitiveEngine";
+import {
+  Slide1CognitiveEngine,
+  slide1IsValid,
+} from "./slides/Slide1CognitiveEngine";
+import { Slide2Creator, creatorIsValid } from "./slides/Slide2Creator";
 import { Slide2DryRun } from "./slides/Slide2DryRun";
 import { Slide3Identity, slide3IsValid } from "./slides/Slide3Identity";
 import { Slide4RAG, slide4IsValid } from "./slides/Slide4RAG";
@@ -20,26 +24,34 @@ export interface SlideDef {
   Component: ComponentType;
 }
 
-// As 9 slides lineares do Mangaba Agent Builder.
+// As 10 slides lineares do Mangaba Agent Builder.
 export const SLIDE_DEFS: SlideDef[] = [
   {
     id: 1,
     key: "model",
-    title: "Modelo cognitivo",
-    description: "Escolha o LLM que vai rodar o agente.",
+    title: "Primeiros passos",
+    description: "Escolha o modelo que vai rodar o agente.",
     isValid: slide1IsValid,
     Component: Slide1CognitiveEngine,
   },
   {
     id: 2,
+    key: "creator",
+    title: "Informações do criador",
+    description: "Quem está criando este agente? Isso personaliza o teste rápido.",
+    isValid: creatorIsValid,
+    Component: Slide2Creator,
+  },
+  {
+    id: 3,
     key: "dry-run",
     title: "Teste rápido",
-    description: "Converse com o modelo puro antes de configurar o resto.",
+    description: "Converse com o modelo no contexto do seu agente antes de configurar o resto.",
     isValid: () => true,
     Component: Slide2DryRun,
   },
   {
-    id: 3,
+    id: 4,
     key: "identity",
     title: "Identidade do agente",
     description: "Nome do agente e a Soul (system prompt mestre).",
@@ -47,15 +59,15 @@ export const SLIDE_DEFS: SlideDef[] = [
     Component: Slide3Identity,
   },
   {
-    id: 4,
+    id: 5,
     key: "knowledge",
-    title: "Base de conhecimento (RAG)",
+    title: "Base de conhecimento",
     description: "Envie documentos para o agente consultar.",
     isValid: slide4IsValid,
     Component: Slide4RAG,
   },
   {
-    id: 5,
+    id: 6,
     key: "tools",
     title: "Ferramentas internas",
     description: "Ligue as ferramentas do ecossistema que o agente pode usar.",
@@ -63,31 +75,31 @@ export const SLIDE_DEFS: SlideDef[] = [
     Component: Slide5Tools,
   },
   {
-    id: 6,
+    id: 7,
     key: "skills",
-    title: "Forja de skills",
-    description: "Construa uma skill: ferramenta + instrução + ação.",
+    title: "Skills",
+    description: "Crie skills manuais ou instale do catálogo ClawHub.",
     isValid: slide6IsValid,
     Component: Slide6Skills,
   },
   {
-    id: 7,
+    id: 8,
     key: "mcp",
-    title: "Automações MCP",
+    title: "Recursos externos",
     description: "Conecte serviços externos via Model Context Protocol.",
     isValid: slide7IsValid,
     Component: Slide7MCP,
   },
   {
-    id: 8,
+    id: 9,
     key: "heartbeat",
-    title: "Heartbeat dinâmico",
+    title: "Automações",
     description: "Descreva em texto quando o agente deve agir sozinho.",
     isValid: slide8IsValid,
     Component: Slide8Heartbeat,
   },
   {
-    id: 9,
+    id: 10,
     key: "channels",
     title: "Canais",
     description: "Conecte Telegram, WhatsApp, Teams ou e-mail.",

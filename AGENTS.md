@@ -53,6 +53,8 @@ mangaba-agent/
 ├── skills/               # Built-in skills bundled with the repo
 ├── ui-tui/               # Ink (React) terminal UI — `mangaba --tui`
 │   └── src/              # entry.tsx, app.tsx, gatewayClient.ts + app/components/hooks/lib
+├── web/                  # Dashboard SPA (Vite + React 19 + TS + Tailwind v4) — `mangaba dashboard`
+│   └── src/              # App.tsx (router), pages/, components/, lib/api.ts, vendor/dheiver2-ui
 ├── tui_gateway/          # Python JSON-RPC backend for the TUI
 ├── acp_adapter/          # ACP server (VS Code / Zed / JetBrains integration)
 ├── cron/                 # Scheduler — jobs.py, scheduler.py
@@ -257,6 +259,78 @@ The dashboard embeds the real `mangaba --tui` — **not** a rewrite.  See `manga
 **Do not re-implement the primary chat experience in React.** The main transcript, composer/input flow (including slash-command behavior), and PTY-backed terminal belong to the embedded `mangaba --tui` — anything new you add to Ink shows up in the dashboard automatically. If you find yourself rebuilding the transcript or composer for the dashboard, stop and extend Ink instead.
 
 **Structured React UI around the TUI is allowed when it is not a second chat surface.** Sidebar widgets, inspectors, summaries, status panels, and similar supporting views (e.g. `ChatSidebar`, `ModelPickerDialog`, `ToolCall`) are fine when they complement the embedded TUI rather than replacing the transcript / composer / terminal. Keep their state independent of the PTY child's session and surface their failures non-destructively so the terminal pane keeps working unimpaired.
+
+---
+
+## Dashboard Web UI (`web/`)
+
+The browser dashboard (`mangaba dashboard`, default `http://127.0.0.1:9119`) is a
+single-page app in `web/`: **Vite + React 19 + TypeScript + Tailwind CSS v4**,
+served by the FastAPI backend in `mangaba_cli/web_server.py`. This is a separate
+codebase from `ui-tui/` (the Ink terminal UI) — the dashboard *embeds* the TUI at
+`/chat` (see the section above) but everything else (Fleet, Kanban, Cron, Skills,
+the agent wizard, config/env editors) is native React.
+
+### Stack & layout
+
+- **Design system:** vendored `@dheiver2/ui` at `web/src/vendor/dheiver2-ui`
+  (replaces the unpublished npm package; aliased in `vite.config.ts` +
+  `tsconfig.app.json`). Prefer its semantic tokens/components over raw Tailwind.
+  Typography & contrast rules live in `web/README.md` — read them before touching
+  UI styles. Broader UX spec: `web/SPEC_UIUX.md` and `web/ui-ux.md`.
+- **Source tree:** `src/pages/` (route views), `src/components/` (incl.
+  `components/ui/` primitives + `components/wizard/` slides), `src/lib/api.ts`
+  (typed fetch wrappers for every `/api/*` endpoint), `src/contexts/`,
+  `src/hooks/`, `src/i18n/`, `src/themes/`, `src/plugins/` (dashboard plugin
+  loader).
+
+### Routing
+
+Client-side via React Router. The route table is `BUILTIN_ROUTES_CORE` in
+`web/src/App.tsx` (`/home`, `/chat`, `/criar` → agent wizard, `/fleet`,
+`/clients`, `/kanban`, `/cron`, `/skills`, `/sessions`, `/config`,
+`/configuracoes`, `/logs`, `/docs`, `/dashboard/agent/:id`). `/` redirects to
+`/home`; unknown routes fall back to `/home`. Plugins can contribute extra
+routes/nav entries via their manifests. Because routing is client-side, the
+backend serves `index.html` for any non-asset path (`serve_spa` in
+`web_server.py`) — deep links like `/criar` work on first load.
+
+### Build & serve
+
+- `npm run build` = `tsc -b && vite build`, output goes to
+  **`mangaba_cli/web_dist/`** (per `vite.config.ts` `outDir`), **not** `web/dist/`.
+  That dist is shipped in the Python package via `pyproject.toml` package-data.
+- `mangaba dashboard` auto-builds the UI via `_build_web_ui()` (deterministic
+  `npm install` + `npm run build`) unless you pass `--skip-build` or set
+  `MANGABA_WEB_DIST` to a prebuilt dist.
+- **Auth:** the server mints a per-process ephemeral session token, injects it
+  into `index.html` as `window.__MANGABA_SESSION_TOKEN__`, and requires it on
+  every `/api/*` call. WS endpoints (`/api/pty`) take it as a `?token=` query param.
+- **Auto-open landing path:** the browser tab opens at `/` by default; set
+  `MANGABA_DASHBOARD_OPEN_PATH` (e.g. `/criar`) to land elsewhere. `bootstrap.sh`
+  sets it to `/criar` so first-run setup opens the "Criar agente" wizard.
+
+### Dev workflow (HMR)
+
+`mangaba dashboard` serves the *built* bundle — `web/src/` edits won't show up
+until you rebuild. For live reload, run the backend and the Vite dev server
+separately:
+
+```bash
+python -m mangaba_cli.main web --no-open   # FastAPI backend on :9119
+cd web && npm install && npm run dev        # Vite on :5173 (HMR)
+```
+
+Open the Vite URL (`:5173`). Vite proxies `/api` to `:9119`. The `mangabaDevToken`
+plugin in `vite.config.ts` scrapes the running dashboard's session token and
+re-injects it into the dev HTML, so protected `/api/*` calls authenticate in dev
+(the dashboard on :9119 must be running).
+
+### Tests
+
+Unit tests with **Vitest** (`npm test`); end-to-end with **Playwright**
+(`npm run test:e2e`, config in `web/playwright.config.ts`). Playwright docs:
+`web/PLAYWRIGHT_DOCUMENTATION.md`.
 
 ---
 

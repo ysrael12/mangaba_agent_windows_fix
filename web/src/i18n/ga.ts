@@ -412,6 +412,7 @@ export const ga: Translations = {
     pasteCode: "Greamaigh an cód údaraithe (tá iarmhír #state ceart go leor)",
     waitingAuth: "Ag fanacht leat údarú a dhéanamh sa bhrabhsálaí…",
     enterCodePrompt: "D'oscail cluaisín nua. Cuir an cód seo isteach má iarrtar ort:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "D'oscail cluaisín nua chuig claude.ai. Logáil isteach agus cliceáil Údaraigh.",
     pkceStep2: "Cóipeáil an cód údaraithe a thaispeántar tar éis údaraithe.",
     pkceStep3: "Greamaigh thíos é agus cuir isteach é.",

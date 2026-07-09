@@ -412,6 +412,7 @@ export const ko: Translations = {
     pasteCode: "인증 코드 붙여넣기 (#state 접미사 포함도 가능)",
     waitingAuth: "브라우저에서 인증을 기다리는 중…",
     enterCodePrompt: "새 탭이 열렸습니다. 메시지가 표시되면 이 코드를 입력하세요:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "claude.ai로 새 탭이 열렸습니다. 로그인하고 Authorize를 클릭하세요.",
     pkceStep2: "인증 후 표시된 인증 코드를 복사하세요.",
     pkceStep3: "아래에 붙여넣고 제출하세요.",

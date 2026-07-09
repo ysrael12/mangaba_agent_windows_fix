@@ -412,6 +412,7 @@ export const ru: Translations = {
     pasteCode: "Вставьте код авторизации (с суффиксом #state — допустимо)",
     waitingAuth: "Ожидание авторизации в браузере…",
     enterCodePrompt: "Открыта новая вкладка. Введите этот код, если будет запрошено:",
+    loopbackPkcePrompt: "A new tab opened. Authorize in your browser, then return here.",
     pkceStep1: "В новой вкладке открыт claude.ai. Войдите и нажмите «Authorize».",
     pkceStep2: "Скопируйте код авторизации, отображённый после авторизации.",
     pkceStep3: "Вставьте его ниже и отправьте.",

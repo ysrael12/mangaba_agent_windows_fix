@@ -20,6 +20,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import {
+  Activity,
   BookOpen,
   Clock,
   Code,
@@ -32,7 +33,6 @@ import {
   Package,
   Radio,
   Settings,
-  SlidersHorizontal,
   Sparkles,
   Sun,
 } from "lucide-react";
@@ -65,6 +65,7 @@ const GlobalSessionsPage = lazy(() => import("@/pages/GlobalSessionsPage"));
 const SkillsPage = lazy(() => import("@/pages/SkillsPage"));
 const HomePage = lazy(() => import("@/pages/HomePage"));
 const SimpleSettings = lazy(() => import("@/pages/SimpleSettings"));
+const HealthPage = lazy(() => import("@/pages/HealthPage"));
 
 
 function RootRedirect() {
@@ -96,6 +97,7 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/dashboard/agent/:id": AgentDashboardPage,
   "/config": ConfigPage,
   "/docs": DocsPage,
+  "/diagnostico": HealthPage,
 
 };
 
@@ -105,19 +107,21 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/home", label: "Início", icon: Home },
 
   { path: "/sessions", labelKey: "sessions", label: "Minhas Sessões", icon: MessageSquare, section: "Conversar" },
+  { path: "/chat", label: "Chat em tempo real", icon: MessageSquare, section: "Conversar" },
+
   { path: "/criar", label: "Criar agente", icon: Sparkles, section: "Agentes" },
   { path: "/fleet", labelKey: "fleet", label: "Agentes ativos", icon: Radio, section: "Agentes" },
   { path: "/clients", label: "Conectar serviços", icon: Code, section: "Agentes" },
 
-  { path: "/configuracoes", label: "Configurações", icon: SlidersHorizontal, section: "Configurar" },
-  { path: "/skills", labelKey: "skills", label: "O que sabe fazer", icon: Package, section: "Configurar" },
-  { path: "/config", labelKey: "config", label: "Avançado", icon: Settings, section: "Configurar" },
-
   { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar" },
   { path: "/kanban", labelKey: "kanban", label: "Tarefas", icon: KanbanSquare, section: "Automatizar" },
 
+  { path: "/skills", labelKey: "skills", label: "Capacidades", icon: Package, section: "Configurar" },
+  { path: "/configuracoes", label: "Configurações", icon: Settings, section: "Configurar" },
+
   { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
-  { path: "/docs", labelKey: "documentation", label: "Ajuda", icon: BookOpen, section: "Aprender" },
+  { path: "/diagnostico", label: "Diagnóstico", icon: Activity, section: "Acompanhar" },
+  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },
 ];
 
 function buildNavItems(
