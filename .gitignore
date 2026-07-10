@@ -75,3 +75,7 @@ models-dev-upstream/
 mangaba_cli/tui_dist/*
 mangaba_cli/scripts/
 docs/superpowers/*
+
+
+#Graphfy
+graphify-out/
