@@ -318,6 +318,13 @@ export const api = {
         body: JSON.stringify({ content }),
       },
     ),
+  /** Cria um profile real a partir do draft do wizard (10 passos). */
+  deployAgent: (body: { name: string; soul: string; model: string; provider: string }) =>
+    fetchJSON<{ ok: boolean; name: string; path: string }>("/api/wizard/deploy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }),
   getAgentTemplates: () =>
     fetchJSON<{ templates: AgentTemplate[] }>("/api/agent-templates"),
   getAgentTemplate: (id: string) =>
@@ -441,6 +448,10 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }),
+  deleteSkill: (name: string) =>
+    fetchJSON<{ ok: boolean }>(`/api/skills/${encodeURIComponent(name)}`, {
+      method: "DELETE",
+    }),
 
   // ClawHub
   checkClawhubStatus: () => fetchJSON<{ connected: boolean; error?: string }>("/api/clawhub/status"),
@@ -471,6 +482,10 @@ export const api = {
     }),
   testMcpServer: (name: string) =>
     fetchJSON<McpTestResponse>(`/api/mcp/servers/${encodeURIComponent(name)}/test`, {
+      method: "POST",
+    }),
+  reloadMcpServers: () =>
+    fetchJSON<{ ok: boolean; message: string }>("/api/mcp/reload", {
       method: "POST",
     }),
 

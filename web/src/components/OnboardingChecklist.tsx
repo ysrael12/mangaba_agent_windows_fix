@@ -155,7 +155,7 @@ export function OnboardingChecklist() {
 
       {allDone ? (
         <p className="mt-4 text-sm text-text-secondary">
-          🎉 Parabéns — seu agente está configurado e pronto para o dia a dia.
+          🎉 Parabéns — seu funcionário agêntico está configurado e pronto para o dia a dia.
         </p>
       ) : (
         <ul className="mt-4 flex flex-col gap-1">

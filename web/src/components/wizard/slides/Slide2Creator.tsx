@@ -38,7 +38,7 @@ export function Slide2Creator() {
       </div>
 
       <div className="grid flex-1 gap-1.5">
-        <Label htmlFor="creator-context">Descreva o objetivo do agente que está criando</Label>
+        <Label htmlFor="creator-context">Descrição do criador</Label>
         <textarea
           id="creator-context"
           value={draft.creator_info.context}

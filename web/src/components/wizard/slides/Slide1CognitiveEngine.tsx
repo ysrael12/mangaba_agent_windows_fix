@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   BrainCircuit,
@@ -190,7 +190,7 @@ const ENGINE_DEFS: Record<string, EngineProviderDef> = {
     name: "ChatGPT Plus / Pro",
     shortName: "ChatGPT",
     description:
-      "Conecte sua conta ChatGPT Plus / Pro para usar o modelo como motor cognitivo do agente.",
+      "Conecte sua conta ChatGPT Plus / Pro para usar o modelo como cérebro do funcionário agêntico.",
     flatRate: "Acesso flat-rate via assinatura. Sem custos por requisição.",
     connectedLabel: "ChatGPT Plus",
     accentColor: "emerald",
@@ -203,7 +203,7 @@ const ENGINE_DEFS: Record<string, EngineProviderDef> = {
     name: "Claude (Anthropic)",
     shortName: "Claude",
     description:
-      "Conecte sua conta Anthropic para usar o modelo Claude como motor cognitivo do agente.",
+      "Conecte sua conta Anthropic para usar o modelo Claude como cérebro do funcionário agêntico.",
     flatRate: "Acesso via API Key da Anthropic. Pagamento por uso.",
     connectedLabel: "Claude API",
     accentColor: "orange",
@@ -216,7 +216,7 @@ const ENGINE_DEFS: Record<string, EngineProviderDef> = {
     name: "Gemini (Google)",
     shortName: "Gemini",
     description:
-      "Conecte sua conta Google para usar o Gemini como motor cognitivo do agente.",
+      "Conecte sua conta Google para usar o Gemini como cérebro do funcionário agêntico.",
     flatRate: "Acesso via assinatura Google Cloud. Camada gratuita disponível.",
     connectedLabel: "Gemini (OAuth)",
     accentColor: "blue",
@@ -229,7 +229,7 @@ const ENGINE_DEFS: Record<string, EngineProviderDef> = {
     name: "Grok (xAI)",
     shortName: "Grok",
     description:
-      "Conecte sua conta xAI para usar o Grok como motor cognitivo do agente.",
+      "Conecte sua conta xAI para usar o Grok como cérebro do funcionário agêntico.",
     flatRate: "Acesso via API xAI. Créditos iniciais para novos usuários.",
     connectedLabel: "xAI OAuth",
     accentColor: "violet",
@@ -289,6 +289,8 @@ export function Slide1CognitiveEngine() {
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
   // Real models available for the connected provider (from /api/model/options).
   const [providerModels, setProviderModels] = useState<string[]>([]);
+  const draftRef = useRef(draft);
+  draftRef.current = draft;
 
   const activeDef = activeProviderId ? ENGINE_DEFS[activeProviderId] : null;
 
@@ -321,6 +323,9 @@ export function Slide1CognitiveEngine() {
         if (cancelled) return;
         const match = (resp.providers || []).find((p) => p.slug === slug);
         setProviderModels(match?.models || []);
+        if (resp.model && resp.provider && !draftRef.current.model_config.model) {
+          updateDraft({ model_config: { provider: resp.provider, model: resp.model } });
+        }
       })
       .catch(() => {
         if (!cancelled) setProviderModels([]);
@@ -834,10 +839,10 @@ export function Slide1CognitiveEngine() {
     <div className="flex h-full flex-col gap-6 overflow-y-auto p-6">
       <div className="flex flex-col gap-1">
         <h3 className="text-lg font-semibold text-text-primary">
-          Escolha o Motor do seu Agente
+          Escolha o Cérebro do seu Funcionário
         </h3>
         <p className="text-sm text-text-secondary">
-          Conecte o provedor de IA que vai servir como cérebro do agente.
+          Conecte o provedor de IA que vai servir como cérebro do funcionário agêntico.
         </p>
       </div>
 
@@ -918,10 +923,15 @@ export function Slide1CognitiveEngine() {
                 <div className="mb-5 flex flex-col gap-1.5">
                   <Label className="text-text-secondary">Modelo</Label>
                   <select
-                    value={draft.model_config.model || activeDef.modelConfig.model}
-                    onChange={(e) => handleModelChange(e.target.value)}
+                    value={draft.model_config.model || ""}
+                    onChange={(e) => {
+                      if (e.target.value) handleModelChange(e.target.value);
+                    }}
                     className="w-full rounded-lg border border-border/60 bg-card px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
                   >
+                    <option value="" disabled>
+                      Selecione um modelo
+                    </option>
                     {providerModels.map((m) => (
                       <option key={m} value={m}>
                         {m}

@@ -320,7 +320,7 @@ function MediumDocs() {
         </Step>
         <Step n={2} title="Editar a personalidade (SOUL)">
           <p>
-            No card do agente, use <UI>Editar SOUL</UI> para definir o prompt de
+            No card do funcionário agêntico, use <UI>Editar SOUL</UI> para definir o prompt de
             sistema dele. Exemplo:
           </p>
           <Block>{`Você é um especialista em suporte técnico da empresa XPTO.
@@ -349,7 +349,7 @@ function AdvancedDocs() {
         </Step>
         <Step n={2} title="Ver os canais de cada agente">
           <p>
-            No card do agente, expanda <UI>Canais</UI> para ver em quais
+            No card do funcionário agêntico, expanda <UI>Canais</UI> para ver em quais
             plataformas ele está conectado e se o token está configurado.
           </p>
         </Step>

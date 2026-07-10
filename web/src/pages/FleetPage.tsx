@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
   Settings,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Badge } from "@dheiver2/ui/ui/components/badge";
@@ -21,6 +22,8 @@ import { Toast } from "@/components/Toast";
 import { StatusDot } from "@/components/StatusDot";
 import { EmptyState } from "@/components/EmptyState";
 import { useToast } from "@/hooks/useToast";
+import { useConfirmDelete } from "@/hooks/useConfirmDelete";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { api } from "@/lib/api";
 import type { FleetMember } from "@/lib/api";
 
@@ -200,6 +203,14 @@ export default function FleetPage() {
     }
   };
 
+  const agentDelete = useConfirmDelete({
+    onDelete: useCallback(async (name: string) => {
+      await api.deleteProfile(name);
+      showToast(`Funcionário agêntico "${name}" excluído.`, "success");
+      refetch();
+    }, [refetch, showToast]),
+  });
+
   const up = members.filter((m) => m.running).length;
 
   return (
@@ -336,6 +347,16 @@ export default function FleetPage() {
                       Subir
                     </Button>
                   )}
+                  <Button
+                    outlined
+                    size="sm"
+                    onClick={() => agentDelete.requestDelete(m.name)}
+                    disabled={m.is_default}
+                    className="text-destructive hover:text-destructive"
+                    title={m.is_default ? "O perfil de controle não pode ser excluído" : ""}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </CardContent>
 
@@ -418,6 +439,15 @@ export default function FleetPage() {
           </div>
         </div>
       )}
+
+      <DeleteConfirmDialog
+        open={agentDelete.isOpen}
+        onCancel={agentDelete.cancel}
+        onConfirm={agentDelete.confirm}
+        title={`Excluir "${agentDelete.pendingId}"?`}
+        description="Esta ação remove permanentemente o funcionário agêntico — configuração, chaves, memórias, sessões e habilidades. Não é possível desfazer."
+        loading={agentDelete.isDeleting}
+      />
 
       <Toast toast={toast} />
     </div>

@@ -27,15 +27,15 @@ export function AgentStatus() {
     .join(" e ");
 
   let tone: "ok" | "warn" | "down" | "loading" = "loading";
-  let title = "Verificando seu agente…";
+  let title = "Verificando seu funcionário agêntico…";
   let detail = "";
   let action: { label: string; to: string } | null = null;
 
   if (!loading) {
     if (!up) {
       tone = "down";
-      title = "Seu agente está parado";
-      detail = "O motor não está rodando. Inicie para começar a responder.";
+      title = "Seu funcionário agêntico está parado";
+      detail = "O cérebro não está rodando. Inicie para começar a responder.";
       action = { label: "Ver agentes", to: "/fleet" };
     } else if (connected.length === 0) {
       tone = "warn";

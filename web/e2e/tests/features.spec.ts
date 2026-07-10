@@ -15,7 +15,7 @@ const ROUTES: Array<{ path: string; label: string }> = [
   { path: '/home', label: 'Início' },
   { path: '/chat', label: 'Chat' },
   { path: '/sessions', label: 'Sessões' },
-  { path: '/criar', label: 'Criar agente' },
+  { path: '/criar', label: 'Criar funcionário agêntico' },
   { path: '/fleet', label: 'Agentes ativos' },
   { path: '/clients', label: 'Conectar serviços' },
   { path: '/configuracoes', label: 'Configurações' },

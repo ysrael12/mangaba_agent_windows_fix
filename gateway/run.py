@@ -15819,6 +15819,7 @@ class GatewayRunner:
         ("compression", "protect_last_n"),
         ("agent", "disabled_toolsets"),
         ("skills", "disabled"),
+        ("memory", "provider"),
     )
 
     @classmethod

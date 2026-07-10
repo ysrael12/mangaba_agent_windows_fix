@@ -172,7 +172,7 @@ export default function HealthPage() {
             <h2 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-text-tertiary">
               <Cpu className="h-3.5 w-3.5" /> Modelo principal
             </h2>
-            <ModelDiagnosticRow name="Cérebro do agente" diag={data.model.primary} />
+            <ModelDiagnosticRow name="Cérebro do funcionário agêntico" diag={data.model.primary} />
           </section>
 
           {/* Auxiliares */}

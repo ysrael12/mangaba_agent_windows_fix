@@ -1,6 +1,8 @@
-import { Brain, Folder, Wrench, Radio, Settings, Copy } from "lucide-react";
+import { Brain, Folder, Wrench, Radio, Settings, Copy, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { StatusDot } from "@/components/StatusDot";
+import { cn } from "@/lib/utils";
 
 export interface AgentDashboardChannel {
   id: string;
@@ -32,18 +34,40 @@ function BentoCard({
   value,
   description,
   footer,
+  to,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   value: React.ReactNode;
   description?: string;
   footer?: React.ReactNode;
+  to?: string;
 }) {
+  const navigate = useNavigate();
+  const clickable = Boolean(to);
+
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-current/10 bg-background-base p-5">
+    <div
+      role={clickable ? "button" : undefined}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={clickable ? () => navigate(to!) : undefined}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") navigate(to!);
+            }
+          : undefined
+      }
+      className={cn(
+        "flex flex-col gap-3 rounded-2xl border border-current/10 bg-background-base p-5",
+        clickable &&
+          "cursor-pointer transition-colors hover:border-current/25 hover:bg-current/[0.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midground/40",
+      )}
+    >
       <div className="flex items-center gap-2 text-text-tertiary">
         <Icon className="h-4 w-4" />
-        <span className="text-xs font-medium uppercase tracking-wider">{title}</span>
+        <span className="flex-1 text-xs font-medium uppercase tracking-wider">{title}</span>
+        {clickable && <ChevronRight className="h-3.5 w-3.5" />}
       </div>
       <div className="text-sm font-medium text-text-primary">{value}</div>
       {description && (
@@ -83,20 +107,24 @@ export function MinimalDashboardLayout({ data, onEdit }: Props) {
           title="Cérebro"
           value={data.model.label}
           description={data.soulPreview}
+          to="/configuracoes#modelo"
         />
         <BentoCard
           icon={Folder}
           title="Conhecimento (RAG)"
           value={`${data.ragDocCount} arquivo${data.ragDocCount === 1 ? "" : "s"} vetorizado${data.ragDocCount === 1 ? "" : "s"}`}
+          to="/configuracoes#rag"
         />
         <BentoCard
           icon={Wrench}
           title="Músculos"
           value={`${data.internalToolsCount} ferramentas · ${data.skillsCount} skills · ${data.mcpConnectionsCount} MCP`}
+          to="/configuracoes#ferramentas"
         />
         <BentoCard
           icon={Radio}
           title="Canais"
+          to="/clients"
           value={
             connectedChannels.length === 0 ? (
               <span className="text-text-tertiary">nenhum canal conectado</span>
@@ -120,7 +148,10 @@ export function MinimalDashboardLayout({ data, onEdit }: Props) {
               <button
                 type="button"
                 className="inline-flex items-center gap-1 text-xs text-text-secondary hover:text-text-primary"
-                onClick={() => navigator.clipboard?.writeText(connectedChannels[0].id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigator.clipboard?.writeText(connectedChannels[0].id);
+                }}
               >
                 <Copy className="h-3 w-3" /> copiar token rápido
               </button>

@@ -65,7 +65,7 @@ export function Slide3Identity() {
   return (
     <div className="flex h-full flex-col gap-5 overflow-y-auto p-6">
       <div className="grid gap-1.5">
-        <Label htmlFor="agent-name">Nome do agente</Label>
+        <Label htmlFor="agent-name">Nome</Label>
         <Input
           id="agent-name"
           value={draft.identity.agent_name}
@@ -79,7 +79,7 @@ export function Slide3Identity() {
       </div>
 
       <div className="grid flex-1 gap-1.5">
-        <Label htmlFor="agent-soul">A Soul — system prompt mestre</Label>
+        <Label htmlFor="agent-soul">Função — personalidade e diretrizes</Label>
         <textarea
           id="agent-soul"
           value={draft.identity.soul}

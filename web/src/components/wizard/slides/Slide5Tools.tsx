@@ -20,6 +20,7 @@ export function Slide5Tools() {
   const [toolsets, setToolsets] = useState<ToolsetInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [applyingPreset, setApplyingPreset] = useState(false);
+  const [applyingSkills, setApplyingSkills] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const loadToolsets = () =>
@@ -52,6 +53,23 @@ export function Slide5Tools() {
     }
   };
 
+  const applySkillsPreset = async (enable: boolean) => {
+    setApplyingSkills(true);
+    setError(null);
+    try {
+      await Promise.all(
+        skills
+          .filter((s) => s.enabled !== enable)
+          .map((s) => api.toggleSkill(s.name, enable)),
+      );
+      setSkills((prev) => prev.map((s) => ({ ...s, enabled: enable })));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setApplyingSkills(false);
+    }
+  };
+
   const toggle = async (skill: SkillInfo) => {
     const next = !skill.enabled;
     setSkills((prev) => prev.map((s) => (s.name === skill.name ? { ...s, enabled: next } : s)));
@@ -76,10 +94,30 @@ export function Slide5Tools() {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       <div className="flex flex-col gap-2">
-        <h3 className="text-sm font-medium text-text-primary">Skills disponíveis</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-medium text-text-primary">Habilidades disponíveis</h3>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={applyingSkills}
+              onClick={() => applySkillsPreset(false)}
+            >
+              {applyingSkills ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Setup mínimo"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={applyingSkills}
+              onClick={() => applySkillsPreset(true)}
+            >
+              {applyingSkills ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Adicionar todas"}
+            </Button>
+          </div>
+        </div>
         <div className="grid gap-2 sm:grid-cols-2">
           {skills.length === 0 && (
-            <p className="text-sm italic text-text-tertiary">Nenhuma skill instalada ainda.</p>
+            <p className="text-sm italic text-text-tertiary">Nenhuma habilidade instalada ainda.</p>
           )}
           {skills.map((skill) => (
             <label

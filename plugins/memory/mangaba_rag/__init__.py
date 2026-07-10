@@ -406,18 +406,52 @@ class MangabaRAGProvider(MemoryProvider):
             logger.warning("RAG: falha ao carregar índice: %s", e)
             self._index = None
 
+    def _content_kinds(self) -> tuple[bool, bool]:
+        """Return (has_crawl, has_upload) — which chunk sources are present."""
+        chunks = (self._index or {}).get("chunks") or []
+        has_crawl = any(c.get("source", "crawl") == "crawl" for c in chunks)
+        has_upload = any(c.get("source") == "upload" for c in chunks)
+        return has_crawl, has_upload
+
     def system_prompt_block(self) -> str:
         if not self._loaded:
             self._load()
         if not self._index or not self._index.get("chunks"):
             return ""
+        has_crawl, has_upload = self._content_kinds()
+
+        # Content-aware framing — the base once only held the mangaba.ia.br
+        # crawl, but users can also upload their own documents (RAG uploads).
+        # Hardcoding "mangaba.ia.br / produtos, framework e serviços" here
+        # regardless of what's actually indexed mislabels user-uploaded
+        # knowledge (e.g. a résumé or a compilers course PDF) as being about
+        # the Mangaba company, which can bias the model's answers.
+        if has_upload and not has_crawl:
+            return (
+                "## Base de conhecimento\n"
+                "Você tem acesso a documentos enviados pelo usuário. Quando trechos "
+                "relevantes forem fornecidos no contexto (bloco 'Conhecimento "
+                "(trechos relevantes)'), use-os como fonte de verdade sobre o "
+                "assunto desses documentos. Não invente informações que não "
+                "estejam nesses trechos."
+            )
+        if has_upload and has_crawl:
+            return (
+                "## Base de conhecimento\n"
+                "Você tem acesso ao conteúdo oficial de mangaba.ia.br e a "
+                "documentos enviados pelo usuário. Quando trechos relevantes "
+                "forem fornecidos no contexto (bloco 'Conhecimento (trechos "
+                "relevantes)'), use-os como fonte de verdade — cada trecho indica "
+                "sua origem. Não invente informações que não estejam nesses "
+                "trechos."
+            )
         return (
             "## Base de conhecimento Mangaba\n"
             "Você tem acesso ao conteúdo oficial de mangaba.ia.br. Quando trechos "
             "relevantes forem fornecidos no contexto (bloco 'Conhecimento "
-            "mangaba.ia.br'), use-os como fonte de verdade sobre a Mangaba, seus "
-            "produtos, framework e serviços. Não invente informações sobre a "
-            "empresa que não estejam nesses trechos."
+            "(trechos relevantes)'), use-os como fonte de verdade sobre a "
+            "Mangaba, seus produtos, framework e serviços. Não invente "
+            "informações sobre a empresa que não estejam nesses trechos."
         )
 
     def prefetch(self, query: str, *, session_id: str = "") -> str:
@@ -428,7 +462,7 @@ class MangabaRAGProvider(MemoryProvider):
         results = self._search(query, TOP_K)
         if not results:
             return ""
-        lines = ["Conhecimento mangaba.ia.br (trechos relevantes):"]
+        lines = ["Conhecimento (trechos relevantes):"]
         for score, c in results:
             src = c.get("url", SOURCE_BASE)
             lines.append(f"\n[{src}]\n{c['text'].strip()}")

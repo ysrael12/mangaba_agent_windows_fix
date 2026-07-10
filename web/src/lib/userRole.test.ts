@@ -72,7 +72,7 @@ describe("distribuição das abas por perfil (espelho de App.tsx)", () => {
     { min: "operador" }, // Análise
     { min: "operador" }, // Exemplos
     // gestor (+7 = 12)
-    { min: "gestor" }, // Criar agente
+    { min: "gestor" }, // Criar funcionário agêntico
     { min: "gestor" }, // Perfis
     { min: "gestor" }, // Roteamento
     { min: "gestor" }, // Frota

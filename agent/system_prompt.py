@@ -88,7 +88,7 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
     if agent.load_soul_identity or not agent.skip_context_files:
         _soul_content = _r.load_soul_md()
         if _soul_content:
-            stable_parts.append(_soul_content)
+            stable_parts.append(f"## Sua identidade\n{_soul_content}\n")
             _soul_loaded = True
 
     if not _soul_loaded:

@@ -37,8 +37,8 @@ export default function HomePage() {
           />
           <ShortcutCard
             icon={Sparkles}
-            title="Criar agente"
-            description="Personalize com sua própria IA."
+            title="Criar funcionário agêntico"
+            description="Personalize o perfil e as habilidades do seu assistente."
             to="/criar"
             cta="Começar"
           />

@@ -5326,6 +5326,67 @@ async def agent_template_install(template_id: str, body: TemplateInstall):
 
 
 # ---------------------------------------------------------------------------
+# Wizard deploy — persiste o draft completo como um profile real
+# ---------------------------------------------------------------------------
+
+
+class WizardDeployBody(BaseModel):
+    name: str
+    soul: str = ""
+    model: str = ""
+    provider: str = ""
+
+
+@app.post("/api/wizard/deploy")
+async def wizard_deploy(body: WizardDeployBody):
+    """Persiste o draft do wizard no profile ativo (default ~/.mangaba).
+
+    Sistema monoagente: não criamos profiles avulsos. Tudo vai para o
+    MANGABA_HOME atual — SOUL.md, config.yaml (model), etc.
+    """
+    from mangaba_agent.mangaba_constants import get_mangaba_home
+    from mangaba_cli.config import load_config, save_config
+
+    home = get_mangaba_home()
+
+    try:
+        # SOUL.md
+        if body.soul.strip():
+            (home / "SOUL.md").write_text(body.soul.strip() + "\n", encoding="utf-8")
+
+        # model.default + provider no config.yaml
+        if body.model.strip():
+            cfg = load_config()
+            m = cfg.get("model")
+            if not isinstance(m, dict):
+                m = {} if not m else {"default": str(m), "name": str(m)}
+            m["default"] = body.model.strip()
+            m["name"] = body.model.strip()
+            if body.provider:
+                m["provider"] = body.provider.strip()
+            cfg["model"] = m
+            save_config(cfg)
+    except Exception as e:  # noqa: BLE001
+        _log.exception("wizard deploy failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    # Sobe o gateway do profile ativo (default) — best-effort. Um restart
+    # falho não deve mascarar o sucesso da persistência acima: a Soul e o
+    # modelo já estão gravados em disco, e a gateway já em execução detecta
+    # a mudança sozinha no próximo turno (cache-busting por hash do SOUL.md
+    # e assinatura do agente). O restart é só para acelerar a visibilidade.
+    try:
+        from mangaba_cli import fleet as _fleet
+        restarted, restart_msg = _fleet.restart_profile("default")
+        if not restarted:
+            _log.warning("wizard deploy: gateway restart skipped/failed: %s", restart_msg)
+    except Exception:  # noqa: BLE001
+        _log.exception("wizard deploy: gateway restart raised (data was still persisted)")
+
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
 # Skills & Tools endpoints
 # ---------------------------------------------------------------------------
 
@@ -5476,6 +5537,23 @@ async def forge_skill(body: SkillForgeCreate):
         _log.exception("POST /api/skills/forge failed")
         raise HTTPException(status_code=500, detail=str(e))
     return {"ok": True, "name": slug, "path": str(skill_dir / "SKILL.md")}
+
+
+@app.delete("/api/skills/{name}")
+async def delete_skill(name: str):
+    """Remove uma skill forjada do disco."""
+    import shutil
+    from mangaba_agent.mangaba_constants import get_mangaba_home
+
+    skill_dir = get_mangaba_home() / "skills" / name
+    if not skill_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Skill '{name}' não encontrada.")
+    try:
+        shutil.rmtree(skill_dir)
+    except OSError as e:
+        _log.exception(f"DELETE /api/skills/{name} failed")
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"ok": True}
 
 
 # ── ClawHub ──────────────────────────────────────────────────────────────
@@ -5633,6 +5711,32 @@ async def test_mcp_server(name: str):
     except Exception as exc:  # noqa: BLE001
         return {"ok": False, "error": str(exc)}
     return {"ok": True, "tools": [{"name": t[0], "description": t[1]} for t in tools]}
+
+
+@app.post("/api/mcp/reload")
+async def reload_mcp_servers():
+    """Recarrega os servidores MCP reiniciando o gateway do profile ativo.
+
+    Servidores MCP só são descobertos no boot do gateway (``discover_mcp_tools()``)
+    ou via ``/reload-mcp`` dentro de um chat — adicionar/remover um servidor
+    pelo dashboard (``POST/DELETE /api/mcp/servers``) só grava em config.yaml,
+    sem propagar sozinho para uma gateway já em execução. Este endpoint reinicia
+    o gateway do profile ``default`` para reconectar aos servidores configurados
+    agora. É um restart completo (dashboard e gateway são processos separados —
+    não há como acionar o reload interno do gateway sem reiniciá-lo).
+    """
+    try:
+        from mangaba_cli import fleet as _fleet
+
+        restarted, msg = _fleet.restart_profile("default")
+        if not restarted:
+            raise HTTPException(status_code=500, detail=msg)
+        return {"ok": True, "message": msg}
+    except HTTPException:
+        raise
+    except Exception as e:  # noqa: BLE001
+        _log.exception("POST /api/mcp/reload failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ---------------------------------------------------------------------------

@@ -94,13 +94,10 @@ export function Slide6Skills() {
   }, []);
 
   useEffect(() => {
-    if (clawhubConnected !== false) doSearch("");
-  }, [doSearch, clawhubConnected]);
-
-  useEffect(() => {
-    if (clawhubConnected === false) return;
+    const q = query.trim();
+    if (!q || clawhubConnected === false) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => doSearch(query || ""), 400);
+    debounceRef.current = setTimeout(() => doSearch(q), 400);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -133,7 +130,12 @@ export function Slide6Skills() {
     }
   };
 
-  const removeInstalled = (slug: string) => {
+  const removeInstalled = async (slug: string) => {
+    try {
+      await api.deleteSkill(slug);
+    } catch {
+      // se falhar, remove do draft mesmo assim
+    }
     updateDraft({
       skills: draft.skills.filter((s) => s.slug !== slug),
     });
@@ -188,18 +190,18 @@ export function Slide6Skills() {
         {forgeError && <p className="text-sm text-destructive">{forgeError}</p>}
 
         <Button onClick={save} disabled={!canSave} prefix={saving ? <Spinner /> : undefined}>
-          {saving ? "Salvando…" : "Salvar skill"}
+          {saving ? "Salvando…" : "Salvar habilidade"}
         </Button>
       </div>
 
-      {/* ── Direita: busca ClawHub + skills instaladas ────────────── */}
+      {/* ── Direita: busca no Catálogo + habilidades adquiridas ──── */}
       <div className="flex min-h-0 flex-col">
         {/* Banner de desconexão */}
         {clawhubConnected === false && (
           <div className="flex items-start gap-2 border-b border-border/60 bg-warning/10 px-4 py-3 text-xs text-warning">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
-              Conecte-se ao ClawHub para buscar skills. Configure sua conta em{" "}
+              Conecte-se ao Catálogo para adquirir habilidades. Configure sua conta em{" "}
               <a
                 href="https://clawhub.ai"
                 target="_blank"
@@ -219,7 +221,7 @@ export function Slide6Skills() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar no ClawHub…"
+            placeholder="Buscar no Catálogo…"
             className="pl-9 text-sm"
           />
         </div>
@@ -229,7 +231,7 @@ export function Slide6Skills() {
           {draft.skills.length > 0 && (
             <div className="mb-4">
               <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-text-tertiary">
-                Instaladas ({draft.skills.length})
+                Adquiridas ({draft.skills.length})
               </h3>
               <div className="flex flex-col gap-1.5">
                 {draft.skills.map((s) => (
@@ -245,7 +247,7 @@ export function Slide6Skills() {
                     <Check className="h-3.5 w-3.5 shrink-0 text-success" />
                     <span className="flex-1 truncate font-medium text-text-primary">{s.id}</span>
                     <Badge tone={s.source === "clawhub" ? "secondary" : "outline"}>
-                      {s.source === "clawhub" ? "ClawHub" : "Forjada"}
+                      {s.source === "clawhub" ? "Catálogo" : "Forjada"}
                     </Badge>
                     <button
                       type="button"
@@ -260,10 +262,10 @@ export function Slide6Skills() {
             </div>
           )}
 
-          {/* Resultados do ClawHub */}
+          {/* Resultados do Catálogo */}
           <div>
             <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-text-tertiary">
-              {query ? `Resultados para "${query}"` : "Em alta no ClawHub"}
+              {query ? `Resultados para "${query}"` : "Em alta no Catálogo"}
             </h3>
 
             {loading && (
@@ -280,7 +282,7 @@ export function Slide6Skills() {
 
             {!loading && !searchError && results.length === 0 && (
               <p className="py-8 text-center text-xs italic text-text-tertiary">
-                Nenhuma skill encontrada.
+                Nenhuma habilidade encontrada.
               </p>
             )}
 
@@ -327,7 +329,7 @@ export function Slide6Skills() {
                       <div className="shrink-0">
                         {isInstalled ? (
                           <Badge tone="success" className="whitespace-nowrap text-[11px]">
-                            ✔ Instalada
+                            ✔ Adquirida
                           </Badge>
                         ) : (
                           <Button
@@ -341,7 +343,7 @@ export function Slide6Skills() {
                               ) : undefined
                             }
                           >
-                            {installing === skill.slug ? "…" : "Instalar"}
+                            {installing === skill.slug ? "…" : "Adquirir"}
                           </Button>
                         )}
                       </div>

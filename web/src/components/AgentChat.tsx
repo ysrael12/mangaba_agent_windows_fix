@@ -135,7 +135,7 @@ export function AgentChat() {
         {messages.length === 0 && !sending && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
             <Bot className="h-10 w-10 text-text-tertiary" />
-            <p className="text-base font-medium text-text-primary">Converse com seu agente</p>
+            <p className="text-base font-medium text-text-primary">Converse com seu funcionário agêntico</p>
             <p className="max-w-sm text-sm text-text-tertiary">
               Envie uma mensagem para começar uma conversa.
             </p>
