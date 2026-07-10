@@ -218,7 +218,7 @@ export function OnboardingChecklist() {
             "transition-colors hover:bg-midground/20",
           )}
         >
-          Iniciar Criação de Agentes
+          Criação de Funcionários Agênticos
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>

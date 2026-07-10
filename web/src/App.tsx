@@ -109,7 +109,7 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/home", label: "Início", icon: Home },
 
   { path: "/sessions", labelKey: "sessions", label: "Minhas Sessões", icon: MessageSquare, section: "Conversar" },
-  { path: "/chat", label: "Chat em tempo real", icon: MessageSquare, section: "Conversar" },
+  { path: "/chat", label: "Chat", icon: MessageSquare, section: "Conversar" },
 
   { path: "/criar", label: "Criar funcionário agêntico", icon: Sparkles, section: "Agentes" },
   { path: "/fleet", labelKey: "fleet", label: "Agentes ativos", icon: Radio, section: "Agentes" },

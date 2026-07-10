@@ -5370,18 +5370,27 @@ async def wizard_deploy(body: WizardDeployBody):
         _log.exception("wizard deploy failed")
         raise HTTPException(status_code=500, detail=str(e))
 
-    # Sobe o gateway do profile ativo (default) — best-effort. Um restart
-    # falho não deve mascarar o sucesso da persistência acima: a Soul e o
-    # modelo já estão gravados em disco, e a gateway já em execução detecta
-    # a mudança sozinha no próximo turno (cache-busting por hash do SOUL.md
-    # e assinatura do agente). O restart é só para acelerar a visibilidade.
+    # Garante que o gateway do profile ativo (default) está de pé —
+    # best-effort. Um start falho não deve mascarar o sucesso da persistência
+    # acima: a Soul e o modelo já estão gravados em disco, e uma gateway já
+    # em execução detecta a mudança sozinha no próximo turno (cache-busting
+    # por hash do SOUL.md e assinatura do agente) — não depende deste passo.
+    #
+    # Deliberadamente start_profile (não restart_profile): se o usuário já
+    # conectou um canal no slide anterior, aquele fluxo já disparou seu
+    # próprio restart via `mangaba gateway restart` (processo externo,
+    # `_spawn_mangaba_action`). Um segundo restart aqui, quase simultâneo e
+    # por um mecanismo diferente (in-process, mais rápido), corre risco de
+    # colidir com o primeiro — um pode derrubar o gateway que o outro
+    # acabou de subir. start_profile evita a corrida: só sobe se não
+    # estiver rodando; se já estiver, é um no-op seguro.
     try:
         from mangaba_cli import fleet as _fleet
-        restarted, restart_msg = _fleet.restart_profile("default")
-        if not restarted:
-            _log.warning("wizard deploy: gateway restart skipped/failed: %s", restart_msg)
+        started, start_msg = _fleet.start_profile("default")
+        if not started:
+            _log.warning("wizard deploy: gateway start skipped/failed: %s", start_msg)
     except Exception:  # noqa: BLE001
-        _log.exception("wizard deploy: gateway restart raised (data was still persisted)")
+        _log.exception("wizard deploy: gateway start raised (data was still persisted)")
 
     return {"ok": True}
 
