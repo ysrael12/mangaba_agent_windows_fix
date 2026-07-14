@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-emerald-50: #FFF5F2;
+  --color-emerald-100: #FFECE5;
+  --color-emerald-200: #FFCBB7;
+  --color-emerald-300: #FFA280;
+  --color-emerald-400: #FF8557;
+  --color-emerald-500: #FF6B35;
+  --color-emerald-600: #E0531F;
+  --color-emerald-700: #BC3E11;
+  --color-emerald-800: #97300B;
+  --color-emerald-900: #7A2708;
+  --color-emerald-950: #4B1402;
+
+  --color-slate-50: #F9F9F8;
+  --color-slate-100: #F3F3F1;
+  --color-slate-200: #EAEAE6;
+  --color-slate-300: #D8D8D2;
+  --color-slate-400: #B8B8B0;
+  --color-slate-500: #93938A;
+  --color-slate-600: #717168;
+  --color-slate-700: #54544D;
+  --color-slate-800: #1A1A1A;
+  --color-slate-900: #121210;
+  --color-slate-950: #0C0C0B;
+}
+
+/* Custom Scrollbar Styles for elegant UI design */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Animations transitions */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Mangaba Agent Dashboard",
+  "description": "Dashboard do Usuário e Wizard de Slides interativo para criação e monitoramento de agentes inteligentes autônomos com suporte a RAG e MCP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

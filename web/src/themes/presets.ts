@@ -1,18 +1,18 @@
-import type { DashboardTheme, ThemeTypography, ThemeLayout } from "./types";
+import type { DashboardTheme, ThemeTypography } from "./types";
 
 /**
  * Built-in dashboard themes.
  *
- * Each theme defines its own palette, typography, and layout so switching
- * themes produces visible changes beyond just color — fonts, density, and
- * corner-radius all shift to match the theme's personality.
+ * Only one visual identity ships: the template's (web/template/mangaba-agent-
+ * dashboard) Inter/Outfit/JetBrains Mono + orange/slate look, as a day/night
+ * pair (`default` dark, `mangaba-light` light) driven by the same toggle.
  *
  * Theme names must stay in sync with the backend's
  * `_BUILTIN_DASHBOARD_THEMES` list in `mangaba_cli/web_server.py`.
  */
 
 // ---------------------------------------------------------------------------
-// Shared typography / layout presets
+// Shared typography
 // ---------------------------------------------------------------------------
 
 /** Default system stack — neutral, safe fallback for every platform. */
@@ -21,28 +21,17 @@ const SYSTEM_SANS =
 const SYSTEM_MONO =
   'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace';
 
-/* Cascadia Code — fonte do editor do VS Code, usada também na UI.
-   Fallback para Consolas (Windows) e SF Mono / Menlo (macOS). */
-const VSCODE_SANS =
-  '"Cascadia Code", Consolas, "SF Mono", Menlo, "Ubuntu Mono", monospace';
-const VSCODE_MONO = VSCODE_SANS;
-
-/* CDN fontsource — carrega Cascadia Code sem instalar nada localmente. */
-const CASCADIA_URL =
-  "https://cdn.jsdelivr.net/npm/@fontsource/cascadia-code@5.2.1/index.css";
-
-const DEFAULT_TYPOGRAPHY: ThemeTypography = {
-  fontSans: VSCODE_SANS,
-  fontMono: VSCODE_MONO,
-  fontUrl: CASCADIA_URL,
-  baseSize: "13px",
-  lineHeight: "1.5",
+/* Inter + Outfit + JetBrains Mono — tipografia do template de referência
+   (web/template/mangaba-agent-dashboard). */
+const TEMPLATE_TYPOGRAPHY: ThemeTypography = {
+  fontSans: `"Inter", ${SYSTEM_SANS}`,
+  fontDisplay: `"Outfit", ${SYSTEM_SANS}`,
+  fontMono: `"JetBrains Mono", ${SYSTEM_MONO}`,
+  fontUrl:
+    "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
+  baseSize: "15px",
+  lineHeight: "1.55",
   letterSpacing: "0",
-};
-
-const DEFAULT_LAYOUT: ThemeLayout = {
-  radius: "0.5rem",
-  density: "comfortable",
 };
 
 // ---------------------------------------------------------------------------
@@ -50,427 +39,106 @@ const DEFAULT_LAYOUT: ThemeLayout = {
 // ---------------------------------------------------------------------------
 
 /**
- * Mangaba Brand Dark (modo noite) — paleta fiel ao logo vertical.
+ * Mangaba Noite — modo escuro, no padrão do template de referência
+ * (web/template/mangaba-agent-dashboard): canvas quase-preto, superfícies
+ * slate escuras, laranja #FF6B35 como accent único, tipografia
+ * Inter/Outfit/JetBrains Mono.
  *
- * Cores extraídas pixel-perfect do SVG oficial "Logo Vertical com bg.svg":
- *   background  #1A0C04  — espresso profundo (tom escuro de #403731)
- *   midground   #FFDFCC  — pêssego do gradiente de fundo do logo (#FFDFCC stop@1)
- *   accent      #FF7A1A  — laranja primário do gradiente da fruta (stop@0.623)
- *   yellow      #FFD83D  — amarelo dourado do logo (stop@0.199)
- *   green       #7BBF26  — verde Mangaba (stop@1 do gradiente da fruta)
- *   deep-green  #689924  — verde folha escuro (stop@0 do gradiente da folha)
- *
- * Contraste verificado (WCAG AA):
- *   #FFDFCC on #1A0C04 → 14.8:1 ✓  (texto primário)
- *   #C8956E on #1A0C04 →  5.1:1 ✓  (texto secundário/mutedForeground)
- *   #FF7A1A on #1A0C04 →  6.9:1 ✓  (accent/primary)
+ * Cores extraídas literalmente do template:
+ *   canvas    #0a0c10  (App.tsx bg dark)
+ *   sidebar   #0f1115  border #1f242e  (Sidebar.tsx)
+ *   card      #12161f  border #1f242e  (AgentDashboard/ChatView)
+ *   hover     #161a22  border #252c39
+ *   accent    #FF6B35  (--color-emerald-500 do template)
  */
 export const defaultTheme: DashboardTheme = {
   name: "default",
   label: "Mangaba Noite",
-  description: "Modo escuro — grafite quente com laranja da marca",
+  description: "Modo escuro — slate profundo com laranja do template",
   palette: {
-    background: { hex: "#1C1916", alpha: 1 },
-    midground:  { hex: "#F3ECE0", alpha: 1 },
-    foreground: { hex: "#F3ECE0", alpha: 0 },
-    warmGlow:   "rgba(245, 132, 31, 0.16)",
+    background: { hex: "#0a0c10", alpha: 1 },
+    midground:  { hex: "#F3F3F1", alpha: 1 },
+    foreground: { hex: "#F3F3F1", alpha: 0 },
+    warmGlow:   "rgba(255, 107, 53, 0.16)",
     noiseOpacity: 0.5,
   },
-  typography: DEFAULT_TYPOGRAPHY,
+  typography: TEMPLATE_TYPOGRAPHY,
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    primary:           "#F5841F", // laranja manga
-    primaryForeground: "#241A12",
+    primary:           "#FF6B35",
+    primaryForeground: "#1A1A1A",
 
-    card:              "#262220",
-    cardForeground:    "#F3ECE0",
-    popover:           "#211D1A",
-    popoverForeground: "#F3ECE0",
+    card:              "#12161f",
+    cardForeground:    "#F3F3F1",
+    popover:           "#0f1115",
+    popoverForeground: "#F3F3F1",
 
-    secondary:          "#2C2825",
-    secondaryForeground:"#F3ECE0",
-    muted:              "#2C2825",
-    mutedForeground:    "#A89F92",
+    secondary:          "#161a22",
+    secondaryForeground:"#F3F3F1",
+    muted:              "#161a22",
+    mutedForeground:    "#B8B8B0",
 
-    accent:            "#332E29",
-    accentForeground:  "#F5A24B",
+    accent:            "#2A1F16",
+    accentForeground:  "#FF8557",
 
-    border: "#3A332E",
-    input:  "#3A332E",
-    ring:   "#F5841F",
+    border: "#1f242e",
+    input:  "#1f242e",
+    ring:   "#FF6B35",
 
-    success:              "#5BB535", // verde folha (mais claro p/ fundo escuro)
-    warning:              "#E0962B",
-    destructive:          "#E5544A",
+    success:              "#22C55E",
+    warning:              "#F59E0B",
+    destructive:          "#EF4444",
     destructiveForeground:"#ffffff",
   },
 };
 
 /**
- * Mangaba Brand Light (modo dia) — versão clara fiel ao logo.
- *
- * Cores extraídas do SVG oficial:
- *   background  #FFFCF0  — creme claro (stop@0 do gradiente de fundo)
- *   midground   #3A2E28  — marrom escuro derivado de #403731
- *   accent      #D45E00  — laranja escurecido para contraste em fundo claro
- *
- * Contraste verificado (WCAG AA):
- *   #3A2E28 on #FFFCF0 → 13.2:1 ✓  (texto primário)
- *   #6B4A3A on #FFFCF0 →  5.4:1 ✓  (texto secundário)
- *   #D45E00 on #FFFCF0 →  4.7:1 ✓  (accent/primary)
+ * Mangaba Dia — modo claro, no padrão do template de referência (modo claro
+ * do Sidebar/App.tsx do protótipo): canvas slate-50, cards brancos, laranja
+ * #FF6B35 como accent único, tipografia Inter/Outfit/JetBrains Mono.
  */
 export const mangabaLightTheme: DashboardTheme = {
   name: "mangaba-light",
   label: "Mangaba Dia",
-  description: "Modo claro — creme quente com laranja da marca",
+  description: "Modo claro — slate claro com laranja do template",
   palette: {
-    // Fundo creme + texto grafite quente (cores da logo mangaba.ai).
-    background: { hex: "#FBF4E6", alpha: 1 },
-    midground:  { hex: "#2E2C2A", alpha: 1 },
-    foreground: { hex: "#2E2C2A", alpha: 0 },
-    warmGlow:   "rgba(245, 132, 31, 0.10)",
+    background: { hex: "#F9F9F8", alpha: 1 },
+    midground:  { hex: "#1A1A1A", alpha: 1 },
+    foreground: { hex: "#1A1A1A", alpha: 0 },
+    warmGlow:   "rgba(255, 107, 53, 0.10)",
     noiseOpacity: 0.18,
   },
-  typography: DEFAULT_TYPOGRAPHY,
+  typography: TEMPLATE_TYPOGRAPHY,
   layout: { radius: "0.5rem", density: "comfortable" },
   colorOverrides: {
-    primary:           "#F5841F", // laranja manga / ".ai"
-    primaryForeground: "#2A2018", // grafite sobre laranja (legível)
+    primary:           "#FF6B35",
+    primaryForeground: "#ffffff",
 
     card:              "#FFFFFF",
-    cardForeground:    "#2E2C2A",
-    popover:           "#FFFDF7",
-    popoverForeground: "#2E2C2A",
+    cardForeground:    "#1A1A1A",
+    popover:           "#FFFFFF",
+    popoverForeground: "#1A1A1A",
 
-    secondary:          "#F3EBDB",
-    secondaryForeground:"#2E2C2A",
-    muted:              "#F1E9D8",
-    mutedForeground:    "#6E655A",
+    secondary:          "#F3F3F1",
+    secondaryForeground:"#1A1A1A",
+    muted:              "#F3F3F1",
+    mutedForeground:    "#717168",
 
-    accent:            "#F6EEDF",
-    accentForeground:  "#8A4A12",
+    accent:            "#FFF5F2",
+    accentForeground:  "#E0531F",
 
-    border: "#E8DEC9",
-    input:  "#E8DEC9",
-    ring:   "#F5841F",
+    border: "#EAEAE6",
+    input:  "#EAEAE6",
+    ring:   "#FF6B35",
 
-    success:              "#4CA32E", // verde folha
-    warning:              "#D98A1F",
-    destructive:          "#CC3A2E",
+    success:              "#16A34A",
+    warning:              "#D97706",
+    destructive:          "#DC2626",
     destructiveForeground:"#ffffff",
-  },
-};
-
-export const midnightTheme: DashboardTheme = {
-  name: "midnight",
-  label: "Midnight",
-  description: "Deep blue-violet with cool accents",
-  palette: {
-    background: { hex: "#0a0a1f", alpha: 1 },
-    midground: { hex: "#d4c8ff", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(167, 139, 250, 0.32)",
-    noiseOpacity: 0.8,
-  },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Inter", ${SYSTEM_SANS}`,
-    fontMono: `"JetBrains Mono", ${SYSTEM_MONO}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap",
-    letterSpacing: "-0.005em",
-  },
-  layout: {
-    ...DEFAULT_LAYOUT,
-    radius: "0.75rem",
-  },
-};
-
-export const emberTheme: DashboardTheme = {
-  name: "ember",
-  label: "Ember",
-  description: "Warm crimson and bronze — forge vibes",
-  palette: {
-    background: { hex: "#1a0a06", alpha: 1 },
-    midground: { hex: "#ffd8b0", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(249, 115, 22, 0.38)",
-    noiseOpacity: 1,
-  },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Spectral", Georgia, "Times New Roman", serif`,
-    fontMono: `"IBM Plex Mono", ${SYSTEM_MONO}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap",
-  },
-  layout: {
-    ...DEFAULT_LAYOUT,
-    radius: "0.25rem",
-  },
-  colorOverrides: {
-    destructive: "#c92d0f",
-    warning: "#f97316",
-  },
-};
-
-export const monoTheme: DashboardTheme = {
-  name: "mono",
-  label: "Mono",
-  description: "Clean grayscale — minimal and focused",
-  palette: {
-    background: { hex: "#0e0e0e", alpha: 1 },
-    midground: { hex: "#eaeaea", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(255, 255, 255, 0.1)",
-    noiseOpacity: 0.6,
-  },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"IBM Plex Sans", ${SYSTEM_SANS}`,
-    fontMono: `"IBM Plex Mono", ${SYSTEM_MONO}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap",
-  },
-  layout: {
-    ...DEFAULT_LAYOUT,
-    radius: "0",
-  },
-};
-
-export const cyberpunkTheme: DashboardTheme = {
-  name: "cyberpunk",
-  label: "Cyberpunk",
-  description: "Neon green on black — matrix terminal",
-  palette: {
-    background: { hex: "#040608", alpha: 1 },
-    midground: { hex: "#9bffcf", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(0, 255, 136, 0.22)",
-    noiseOpacity: 1.2,
-  },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Share Tech Mono", "JetBrains Mono", ${SYSTEM_MONO}`,
-    fontMono: `"Share Tech Mono", "JetBrains Mono", ${SYSTEM_MONO}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=JetBrains+Mono:wght@400;700&display=swap",
-  },
-  layout: {
-    ...DEFAULT_LAYOUT,
-    radius: "0",
-  },
-  colorOverrides: {
-    success: "#00ff88",
-    warning: "#ffd700",
-    destructive: "#ff0055",
-  },
-};
-
-export const roseTheme: DashboardTheme = {
-  name: "rose",
-  label: "Rosé",
-  description: "Soft pink and warm ivory — easy on the eyes",
-  palette: {
-    background: { hex: "#1a0f15", alpha: 1 },
-    midground: { hex: "#ffd4e1", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(249, 168, 212, 0.3)",
-    noiseOpacity: 0.9,
-  },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Fraunces", Georgia, serif`,
-    fontMono: `"DM Mono", ${SYSTEM_MONO}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=DM+Mono:wght@400;500&display=swap",
-  },
-  layout: {
-    ...DEFAULT_LAYOUT,
-    radius: "1rem",
-  },
-};
-
-/**
- * Same look as ``defaultTheme`` but with a larger root font size, looser
- * line-height, and ``spacious`` density so every rem-based size in the
- * dashboard scales up. For users who find the default 15px UI too dense.
- */
-export const defaultLargeTheme: DashboardTheme = {
-  name: "default-large",
-  label: "Mangaba Noite (Grande)",
-  description: "Mangaba Noite com fontes maiores e espaçamento confortável",
-  palette: defaultTheme.palette,
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    baseSize: "18px",
-    lineHeight: "1.65",
-  },
-  layout: {
-    ...DEFAULT_LAYOUT,
-    density: "spacious",
-  },
-};
-
-/**
- * Claude AI / Mangaba — Official brand palette.
- *
- * Values sourced pixel-perfect from:
- *   mangaba.chat · mangaba-voice.tech · mangabapixel.online
- *
- *   --bg          #1C1917  warm near-black canvas
- *   --accent      #D97757  coral / terracotta — the brand signature hue
- *   --surface     #2D2A28  elevated surfaces (cards)
- *   --sidebar     #252220  sidebar / secondary surface
- *   --border      #3A3430  subtle warm border
- *   --leaf        #6B9540  Mangaba green — secondary accent
- *   Font: Inter (same as mangaba.chat / claude.ai)
- */
-export const claudeTheme: DashboardTheme = {
-  name: "claude",
-  label: "Claude AI",
-  description: "Paleta oficial Mangaba/Claude — coral & cream em fundo escuro quente",
-  palette: {
-    /* Exact --bg value used across all three Mangaba sites. */
-    background: { hex: "#1C1917", alpha: 1 },
-    /* Warm cream — hsl(48 23% 95%) from mangaba.chat --foreground dark mode. */
-    midground:  { hex: "#F5EEE4", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    /* Coral glow matching --accent #D97757. */
-    warmGlow:   "rgba(217, 119, 87, 0.28)",
-    noiseOpacity: 0.65,
-  },
-  typography: {
-    /* Inter — exact font used on mangaba.chat & mangaba-voice.tech.
-       Weight range matches their Google Fonts import (300–700). */
-    fontSans:
-      '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    fontMono:
-      '"JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace',
-    fontDisplay:
-      '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap",
-    baseSize: "15px",
-    lineHeight: "1.6",
-    letterSpacing: "-0.01em",
-  },
-  layout: {
-    /* --radius:0.5rem from mangaba.chat globals. */
-    radius: "0.5rem",
-    density: "comfortable",
-  },
-  colorOverrides: {
-    /* ── Primary ─────────────────────────────────────────────────────── */
-    /* --accent: #D97757 (mangabapixel & mangaba.chat --primary dark). */
-    primary:            "#D97757",
-    primaryForeground:  "#ffffff",
-
-    /* ── Surfaces ────────────────────────────────────────────────────── */
-    /* --surface: #2D2A28 · --sidebar: #252220 */
-    card:               "#2D2A28",
-    cardForeground:     "#F5EEE4",
-    popover:            "#252220",
-    popoverForeground:  "#F5EEE4",
-
-    /* ── Secondary / muted ───────────────────────────────────────────── */
-    secondary:          "#252220",
-    secondaryForeground:"#C4B9B0",
-    muted:              "#252220",
-    /* hsl(30 6% 64%) from mangaba.chat --muted-foreground dark. */
-    mutedForeground:    "#A49890",
-
-    /* ── Accent tints ────────────────────────────────────────────────── */
-    /* --accent-soft: #2E1F18 (mangabapixel soft coral bg). */
-    accent:             "#2E1F18",
-    accentForeground:   "#D97757",
-
-    /* ── Borders & ring ──────────────────────────────────────────────── */
-    /* --border: #3A3430 · --hover: #302C28 */
-    border:             "#3A3430",
-    input:              "#3A3430",
-    ring:               "#D97757",
-
-    /* ── Status ──────────────────────────────────────────────────────── */
-    destructive:            "#E05C3A",
-    destructiveForeground:  "#ffffff",
-    /* --leaf: #6B9540 — Mangaba green for success states. */
-    success:            "#6B9540",
-    warning:            "#E6A135",
-  },
-};
-
-/**
- * Enterprise — slate & steel-blue on deep navy.
- *
- * Palette aimed at a corporate SaaS dashboard look (Stripe/Linear/Vercel
- * dark-mode family) rather than the playful Mangaba coral/cream — muted
- * slates for surfaces, a single restrained blue accent, no warm glow.
- * This is the default theme for the agent-builder wizard and its
- * post-creation dashboard (`/criar/wizard`, `/dashboard/agent/:id`).
- *
- * Contrast checked (WCAG AA):
- *   #E2E8F0 on #0B1220 → 14.7:1 ✓ (texto primário)
- *   #94A3B8 on #0B1220 →  6.6:1 ✓ (texto secundário/mutedForeground)
- *   #60A5FA on #0B1220 →  7.2:1 ✓ (accent/primary, texto/ícones)
- */
-export const enterpriseTheme: DashboardTheme = {
-  name: "enterprise",
-  label: "Enterprise",
-  description: "Slate e azul-aço sobre navy profundo — visual corporativo",
-  palette: {
-    background: { hex: "#0B1220", alpha: 1 },
-    midground: { hex: "#E2E8F0", alpha: 1 },
-    foreground: { hex: "#ffffff", alpha: 0 },
-    warmGlow: "rgba(59, 130, 246, 0.14)",
-    noiseOpacity: 0.3,
-  },
-  typography: {
-    ...DEFAULT_TYPOGRAPHY,
-    fontSans: `"Inter", ${SYSTEM_SANS}`,
-    fontMono: `"JetBrains Mono", ${SYSTEM_MONO}`,
-    fontUrl:
-      "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap",
-    letterSpacing: "-0.005em",
-  },
-  layout: { radius: "0.5rem", density: "comfortable" },
-  colorOverrides: {
-    primary: "#3B82F6", // blue-500
-    primaryForeground: "#0B1220",
-
-    card: "#111A2C",
-    cardForeground: "#E2E8F0",
-    popover: "#0F1729",
-    popoverForeground: "#E2E8F0",
-
-    secondary: "#1B2536",
-    secondaryForeground: "#E2E8F0",
-    muted: "#1B2536",
-    mutedForeground: "#94A3B8", // slate-400
-
-    accent: "#16233B",
-    accentForeground: "#93C5FD", // blue-300
-
-    border: "#243044",
-    input: "#243044",
-    ring: "#3B82F6",
-
-    success: "#22C55E",
-    warning: "#F59E0B",
-    destructive: "#EF4444",
-    destructiveForeground: "#ffffff",
   },
 };
 
 export const BUILTIN_THEMES: Record<string, DashboardTheme> = {
   default: defaultTheme,
   "mangaba-light": mangabaLightTheme,
-  "default-large": defaultLargeTheme,
-  claude: claudeTheme,
-  enterprise: enterpriseTheme,
-  midnight: midnightTheme,
-  ember: emberTheme,
-  mono: monoTheme,
-  cyberpunk: cyberpunkTheme,
-  rose: roseTheme,
 };

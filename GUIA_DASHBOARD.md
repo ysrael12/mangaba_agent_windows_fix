@@ -68,10 +68,7 @@ esses 3 passos primeiro, na ordem:
    **ChatGPT** como cérebro e, ao terminar, **já abre o painel sozinho** no
    navegador:
    ```powershell
-   $env:MANGABA_PROVIDER = "openai-codex"
-   $env:MANGABA_MODEL = "gpt-5.5"
-   $env:BOOTSTRAP_NO_CHANNELS = "true"
-   $env:BOOTSTRAP_OPEN_DASHBOARD = "true"
+
    & "C:\Program Files\Git\bin\bash.exe" bootstrap.sh
    ```
 

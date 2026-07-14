@@ -127,7 +127,7 @@ export function AppSidebar({ mobileOpen, onClose, navItems }: AppSidebarProps) {
                 <Fragment key={item.path}>
                   {showHeader && (
                     <li
-                      className="px-5 pb-1 pt-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-text-tertiary first:pt-1"
+                      className="px-3 pb-1 pt-3 font-mono text-[0.65rem] font-bold uppercase tracking-[0.18em] text-text-tertiary first:pt-1"
                       aria-hidden="true"
                     >
                       {item.section}
@@ -227,35 +227,19 @@ function SidebarNavLink({ closeMobile, item, t }: SidebarNavLinkProps) {
         onClick={closeMobile}
         className={({ isActive }) =>
           cn(
-            "group relative flex items-center gap-3 rounded-2xl px-4 py-2.5",
+            "group relative flex items-center gap-3 rounded-lg px-3 py-2",
             "transition-colors duration-150",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-midground/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background-base",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background-base",
             isActive
-              ? "bg-midground/10 text-midground shadow-sm"
+              ? "bg-primary/10 text-primary font-semibold"
               : "text-text-secondary hover:text-midground hover:bg-midground/5",
           )
         }
-        style={{
-          clipPath: "var(--component-tab-clip-path)",
-        }}
       >
         {({ isActive }) => (
           <>
-            <Icon className="h-4 w-4 shrink-0" />
+            <Icon className={cn("h-4 w-4 shrink-0 transition-transform group-hover:scale-105", isActive && "text-primary")} />
             <span className="truncate text-sm font-medium tracking-tight">{navLabel}</span>
-
-            <span
-              aria-hidden
-              className="absolute inset-y-1 left-1.5 right-1.5 rounded-2xl bg-midground opacity-0 pointer-events-none transition-opacity duration-150 group-hover:opacity-10"
-            />
-
-            {isActive && (
-              <span
-                aria-hidden
-                className="absolute left-0 top-1 bottom-1 w-1.5 rounded-r-full bg-midground"
-                style={{ mixBlendMode: "plus-lighter" }}
-              />
-            )}
           </>
         )}
       </NavLink>
@@ -336,10 +320,10 @@ function SidebarSystemActions({ onNavigate }: { onNavigate: () => void }) {
                 aria-busy={busy}
                 active={busy}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium",
+                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
                   "transition-colors duration-150",
                   busy
-                    ? "bg-midground/10 text-midground"
+                    ? "bg-primary/10 text-primary"
                     : "text-text-secondary hover:text-midground hover:bg-midground/5",
                   "disabled:text-text-disabled",
                 )}
@@ -358,14 +342,6 @@ function SidebarSystemActions({ onNavigate }: { onNavigate: () => void }) {
                 )}
 
                 <span className="truncate">{displayLabel}</span>
-
-                {busy && (
-                  <span
-                    aria-hidden
-                    className="absolute left-0 top-1 bottom-1 w-1.5 rounded-r-full bg-midground"
-                    style={{ mixBlendMode: "plus-lighter" }}
-                  />
-                )}
               </ListItem>
             </li>
           );

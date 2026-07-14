@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   BrainCircuit,
@@ -39,18 +39,25 @@ export function slide1IsValid(draft: AgentDraft): boolean {
   );
 }
 
+/** OpenAI "flower" mark punched out of a rounded-square tile — same
+ *  silhouette as the ChatGPT app icon, single-color so it composites into
+ *  the provider cards' tinted accent badges (bg-{color}/15 + text-{color}). */
 function OpenAiLogo({ className }: { className?: string }) {
+  const maskId = useId();
   return (
     <svg
       viewBox="0 0 24 24"
       className={cn("shrink-0", className)}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path
-        d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5094-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 6.7101 5.9847 5.9847 0 0 0 .5157 4.9108 6.0462 6.0462 0 0 0 6.5094 2.9 6.0651 6.0651 0 0 0 10.7903-1.8937 5.9847 5.9847 0 0 0 3.9977-2.9 6.0462 6.0462 0 0 0-.7427-6.7101zm-2.534 6.5134a4.0348 4.0348 0 0 1-2.6935 1.9551 4.0552 4.0552 0 0 1-3.2294-.6953 4.0486 4.0486 0 0 1-1.1808-2.1195 4.04 4.04 0 0 1 1.3565-3.8441 4.0468 4.0468 0 0 1 3.561-1.0064l.0015.0003a4.0468 4.0468 0 0 1 3.185 5.7109zm-9.9536 3.8435a4.0552 4.0552 0 0 1-2.6935-1.9551 4.0486 4.0486 0 0 1 1.1808-2.1195 4.04 4.04 0 0 1 3.561-1.0064 4.0468 4.0468 0 0 1 3.185 5.7109 4.0348 4.0348 0 0 1-2.6935 1.9551 4.0552 4.0552 0 0 1-3.2294-.6953l-.3107.1108zm-1.9531-8.6864a4.0468 4.0468 0 0 1-3.185-5.7109 4.0348 4.0348 0 0 1 2.6935-1.9551 4.0552 4.0552 0 0 1 3.2294.6953 4.0486 4.0486 0 0 1 1.1808 2.1195 4.04 4.04 0 0 1-1.3565 3.8441 4.0468 4.0468 0 0 1-3.561 1.0064z"
-        fill="currentColor"
-      />
+      <mask id={maskId} maskUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="24" height="24" fill="white" />
+        <path
+          d="M22.282 9.821a6 6 0 0 0-.516-4.91 6.05 6.05 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a6 6 0 0 0-3.998 2.9 6.05 6.05 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.05 6.05 0 0 0 6.515 2.9A6 6 0 0 0 13.26 24a6.06 6.06 0 0 0 5.772-4.206 6 6 0 0 0 3.997-2.9 6.06 6.06 0 0 0-.747-7.073M13.26 22.43a4.48 4.48 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.8.8 0 0 0 .392-.681v-6.737l2.02 1.168a.07.07 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494M3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.77.77 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646M2.34 7.896a4.5 4.5 0 0 1 2.366-1.973V11.6a.77.77 0 0 0 .388.677l5.815 3.354-2.02 1.168a.08.08 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855-5.833-3.387L15.119 7.2a.08.08 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667m2.01-3.023-.141-.085-4.774-2.782a.78.78 0 0 0-.785 0L9.409 9.23V6.897a.07.07 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.8.8 0 0 0-.393.681zm1.097-2.365 2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5Z"
+          fill="black"
+        />
+      </mask>
+      <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="currentColor" mask={`url(#${maskId})`} />
     </svg>
   );
 }
@@ -64,15 +71,8 @@ function ClaudeLogo({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M12 2C8.134 2 5 5.134 5 9c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.866-3.134-7-7-7zM9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1z"
+        d="M17.304 3.541h-3.672l6.696 16.918H24Zm-10.608 0L0 20.459h3.744l1.37-3.552h7.005l1.369 3.552h3.744L10.536 3.541Zm-.371 10.223 2.291-6.008 2.291 6.008Z"
         fill="currentColor"
-      />
-      <circle cx="9" cy="9" r="1.5" fill="currentColor" opacity="0.5" />
-      <circle cx="15" cy="9" r="1.5" fill="currentColor" opacity="0.5" />
-      <path
-        d="M12 13c-1.5 0-2.5-.8-3-2h6c-.5 1.2-1.5 2-3 2z"
-        fill="currentColor"
-        opacity="0.3"
       />
     </svg>
   );
@@ -100,11 +100,11 @@ function XaiLogo({ className }: { className?: string }) {
 
 function DeepSeekLogo({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={cn("shrink-0", className)} fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" strokeWidth="1.5"/>
-      <path d="M8 12h8M12 8v8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-      <circle cx="8" cy="8" r="1.5" fill="currentColor" opacity="0.5"/>
-      <circle cx="16" cy="16" r="1.5" fill="currentColor" opacity="0.5"/>
+    <svg viewBox="0 0 377.1 277.86" className={cn("shrink-0", className)} xmlns="http://www.w3.org/2000/svg">
+      <path
+        fill="currentColor"
+        d="M373.15,23.32c-4-1.95-5.72,1.77-8.06,3.66-.79.62-1.47,1.43-2.14,2.14-5.85,6.26-12.67,10.36-21.57,9.86-13.04-.71-24.16,3.38-33.99,13.37-2.09-12.31-9.04-19.66-19.6-24.38-5.54-2.45-11.13-4.9-14.99-10.23-2.71-3.78-3.44-8-4.81-12.16-.85-2.51-1.72-5.09-4.6-5.52-3.13-.5-4.36,2.14-5.58,4.34-4.93,8.99-6.82,18.92-6.65,28.97.43,22.58,9.97,40.56,28.89,53.37,2.16,1.46,2.71,2.95,2.03,5.09-1.29,4.4-2.82,8.68-4.19,13.09-.85,2.82-2.14,3.44-5.15,2.2-10.39-4.34-19.37-10.76-27.29-18.55-13.46-13.02-25.63-27.41-40.81-38.67-3.57-2.64-7.12-5.09-10.81-7.41-15.49-15.07,2.03-27.45,6.08-28.9,4.25-1.52,1.47-6.79-12.23-6.73-13.69.06-26.24,4.65-42.21,10.76-2.34.93-4.79,1.61-7.32,2.14-14.5-2.73-29.55-3.35-45.29-1.58-29.62,3.32-53.28,17.34-70.68,41.28C1.29,88.2-3.63,120.88,2.39,155c6.33,35.91,24.64,65.68,52.8,88.94,29.18,24.1,62.8,35.91,101.15,33.65,23.29-1.33,49.23-4.46,78.48-29.24,7.38,3.66,15.12,5.12,27.97,6.23,9.89.93,19.41-.5,26.79-2.02,11.55-2.45,10.75-13.15,6.58-15.13-33.87-15.78-26.44-9.36-33.2-14.54,17.21-20.41,43.15-41.59,53.3-110.19.79-5.46.11-8.87,0-13.3-.06-2.67.54-3.72,3.61-4.03,8.48-.96,16.72-3.29,24.28-7.47,21.94-12,30.78-31.69,32.87-55.33.31-3.6-.06-7.35-3.86-9.24ZM181.96,235.97c-32.83-25.83-48.74-34.33-55.31-33.96-6.14.34-5.04,7.38-3.69,11.97,1.41,4.53,3.26,7.66,5.85,11.63,1.78,2.64,3.01,6.57-1.78,9.49-10.57,6.58-28.95-2.2-29.82-2.64-21.38-12.59-39.26-29.24-51.87-52.01-12.16-21.92-19.23-45.43-20.39-70.52-.31-6.08,1.47-8.22,7.49-9.3,7.92-1.46,16.11-1.77,24.03-.62,33.49,4.9,62.01,19.91,85.9,43.63,13.65,13.55,23.97,29.71,34.61,45.49,11.3,16.78,23.48,32.75,38.97,45.84,5.46,4.59,9.83,8.09,14,10.67-12.59,1.4-33.62,1.71-47.99-9.68ZM197.69,134.65c0-2.7,2.15-4.84,4.87-4.84.6,0,1.16.12,1.66.31.67.25,1.29.62,1.77,1.18.87.84,1.36,2.08,1.36,3.35,0,2.7-2.15,4.84-4.85,4.84s-4.81-2.14-4.81-4.84ZM246.55,159.77c-3.13,1.27-6.26,2.39-9.27,2.51-4.67.22-9.77-1.68-12.55-4-4.3-3.6-7.36-5.61-8.67-11.94-.54-2.7-.23-6.85.25-9.24,1.12-5.15-.12-8.44-3.74-11.44-2.96-2.45-6.7-3.1-10.82-3.1-1.54,0-2.95-.68-4-1.24-1.72-.87-3.13-3.01-1.78-5.64.43-.84,2.53-2.92,3.02-3.29,5.58-3.19,12.03-2.14,18,.25,5.54,2.26,9.71,6.42,15.72,12.28,6.16,7.1,7.26,9.09,10.76,14.39,2.76,4.19,5.29,8.47,7.01,13.37,1.04,3.04-.31,5.55-3.94,7.1Z"
+      />
     </svg>
   );
 }
@@ -369,6 +369,30 @@ export function Slide1CognitiveEngine() {
           const providerId = draft.engine_oauth.oauth_provider_id ?? "";
           setActiveProviderId(providerId);
           setUserLabel(draft.engine_oauth.oauth_user_id || "");
+        } else {
+          // Fresh wizard session (no draft state yet) — the draft check above
+          // only reflects THIS wizard's own history. A provider can already
+          // be authenticated on the backend (connected earlier via
+          // /configuracoes, or in a previous wizard run) without the current
+          // draft knowing about it. Surface that real connection here too,
+          // instead of showing every provider as disconnected until the user
+          // reconnects something they already linked.
+          const live = matched.find((p) => p.status?.logged_in);
+          const def = live ? ENGINE_DEFS[live.id] : null;
+          if (live && def) {
+            const label =
+              live.status.source_label || live.status.token_preview || def.connectedLabel;
+            setActiveProviderId(live.id);
+            setUserLabel(label);
+            syncToContext({
+              modelConfig: def.modelConfig,
+              engine_type: def.engineType,
+              oauth_provider_id: live.id,
+              oauth_status: "connected",
+              oauth_user_id: label,
+              model_configs: config,
+            });
+          }
         }
       })
       .catch((err) => {

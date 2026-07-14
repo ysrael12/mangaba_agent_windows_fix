@@ -413,6 +413,28 @@ class MangabaRAGProvider(MemoryProvider):
         has_upload = any(c.get("source") == "upload" for c in chunks)
         return has_crawl, has_upload
 
+    @staticmethod
+    def _uploaded_titles_phrase(max_shown: int = 5) -> str:
+        """Return a short, human phrase listing uploaded document titles.
+
+        Cheap identity signal (a handful of filenames — a few tokens) instead
+        of inlining document content, which would cost hundreds to thousands
+        of tokens on every single turn regardless of relevance. Always in
+        sync with what's actually indexed: removing a file drops it here too.
+        """
+        try:
+            files = list_uploaded_files()
+        except Exception:
+            return ""
+        if not files:
+            return ""
+        names = [f["name"] for f in files[:max_shown]]
+        extra = len(files) - len(names)
+        listed = ", ".join(names)
+        if extra > 0:
+            listed += f" e mais {extra} documento{'s' if extra != 1 else ''}"
+        return listed
+
     def system_prompt_block(self) -> str:
         if not self._loaded:
             self._load()
@@ -427,23 +449,27 @@ class MangabaRAGProvider(MemoryProvider):
         # knowledge (e.g. a résumé or a compilers course PDF) as being about
         # the Mangaba company, which can bias the model's answers.
         if has_upload and not has_crawl:
+            titles = self._uploaded_titles_phrase()
+            titles_line = f" Sua base inclui: {titles}." if titles else ""
             return (
                 "## Base de conhecimento\n"
-                "Você tem acesso a documentos enviados pelo usuário. Quando trechos "
-                "relevantes forem fornecidos no contexto (bloco 'Conhecimento "
-                "(trechos relevantes)'), use-os como fonte de verdade sobre o "
-                "assunto desses documentos. Não invente informações que não "
-                "estejam nesses trechos."
+                "Você tem acesso a documentos enviados pelo usuário." + titles_line + " "
+                "Quando trechos relevantes forem fornecidos no contexto (bloco "
+                "'Conhecimento (trechos relevantes)'), use-os como fonte de "
+                "verdade sobre o assunto desses documentos. Não invente "
+                "informações que não estejam nesses trechos."
             )
         if has_upload and has_crawl:
+            titles = self._uploaded_titles_phrase()
+            titles_line = f" Os documentos enviados são: {titles}." if titles else ""
             return (
                 "## Base de conhecimento\n"
                 "Você tem acesso ao conteúdo oficial de mangaba.ia.br e a "
-                "documentos enviados pelo usuário. Quando trechos relevantes "
-                "forem fornecidos no contexto (bloco 'Conhecimento (trechos "
-                "relevantes)'), use-os como fonte de verdade — cada trecho indica "
-                "sua origem. Não invente informações que não estejam nesses "
-                "trechos."
+                "documentos enviados pelo usuário." + titles_line + " Quando "
+                "trechos relevantes forem fornecidos no contexto (bloco "
+                "'Conhecimento (trechos relevantes)'), use-os como fonte de "
+                "verdade — cada trecho indica sua origem. Não invente "
+                "informações que não estejam nesses trechos."
             )
         return (
             "## Base de conhecimento Mangaba\n"

@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   FileText,
   Folder,
+  KeyRound,
   Loader2,
   Plug,
   Radio,
@@ -93,6 +94,9 @@ export default function SimpleSettings() {
       // the config — otherwise the user is stuck unable to switch away from a
       // broken model. Warn instead of blocking.
       await api.setModelAssignment({ scope: "main", task: "", provider, model });
+      // Refetch so the "✓ Conectado via / Usando modelo" banner reflects the
+      // new provider/model right away instead of the stale mount-time value.
+      api.getModelInfo().then(setModelInfo).catch(() => {});
       if (validation.responds) {
         setNotice({ kind: "ok", text: `Modelo atualizado (${validation.response_time_ms}ms).` });
       } else {
@@ -608,6 +612,7 @@ function McpServersSection() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
+  const [apiKey, setApiKey] = useState("");
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [testState, setTestState] = useState<
@@ -629,9 +634,14 @@ function McpServersSection() {
     if (!name.trim() || !url.trim()) return;
     setAdding(true);
     try {
-      await api.addMcpServer({ name: name.trim(), url: url.trim() });
+      await api.addMcpServer({
+        name: name.trim(),
+        url: url.trim(),
+        api_key: apiKey.trim() || undefined,
+      });
       setName("");
       setUrl("");
+      setApiKey("");
       await refresh();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -709,6 +719,16 @@ function McpServersSection() {
             placeholder="https://exemplo.com/mcp"
           />
         </div>
+        <div className="grid flex-1 gap-1.5">
+          <Label htmlFor="settings-mcp-key">API Key (opcional)</Label>
+          <Input
+            id="settings-mcp-key"
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Ex.: context7, servidores com Bearer token"
+          />
+        </div>
         <Button size="sm" onClick={() => void addServer()} disabled={adding || !name.trim() || !url.trim()}>
           {adding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Salvar"}
         </Button>
@@ -746,7 +766,15 @@ function McpServersSection() {
               <div key={s.name} className="flex items-center gap-3 rounded-xl border border-current/10 p-3">
                 <Plug className="h-4 w-4 shrink-0 text-text-tertiary" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-text-primary">{s.name}</span>
+                  <span className="flex items-center gap-1.5 truncate text-sm font-medium text-text-primary">
+                    {s.name}
+                    {s.has_auth && (
+                      <KeyRound
+                        className="h-3 w-3 shrink-0 text-text-tertiary"
+                        aria-label="Autenticado com API key"
+                      />
+                    )}
+                  </span>
                   <span className="block truncate text-xs text-text-secondary">{s.url || s.command}</span>
                   {t.status === "ok" && (
                     <span className="mt-0.5 flex items-center gap-1 text-xs text-success">

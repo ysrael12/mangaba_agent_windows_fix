@@ -1343,6 +1343,19 @@ def list_authenticated_providers(
                     has_creds = True
             except Exception as exc:
                 logger.debug("Anthropic external creds check failed: %s", exc)
+        # google-gemini-cli tokens live in ~/.mangaba/auth/google_oauth.json
+        # (agent.google_oauth), a separate Mangaba-managed file — not in
+        # auth.json's providers dict and not in the generic credential pool.
+        # Without this fallback the picker silently omits Gemini even when
+        # logged in, mirroring the anthropic case above.
+        if not has_creds and mangaba_slug == "google-gemini-cli":
+            try:
+                from agent.google_oauth import load_credentials as _load_gemini_creds
+                gemini_creds = _load_gemini_creds()
+                if gemini_creds and gemini_creds.access_token:
+                    has_creds = True
+            except Exception as exc:
+                logger.debug("Gemini OAuth external creds check failed: %s", exc)
         if not has_creds:
             continue
 

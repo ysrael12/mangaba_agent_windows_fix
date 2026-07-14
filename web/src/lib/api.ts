@@ -470,7 +470,15 @@ export const api = {
 
   // MCP (cliente) — conexões com servidores externos
   listMcpServers: () => fetchJSON<{ servers: McpServerInfo[] }>("/api/mcp/servers"),
-  addMcpServer: (body: { name: string; url?: string; command?: string; args?: string[] }) =>
+  addMcpServer: (body: {
+    name: string;
+    url?: string;
+    command?: string;
+    args?: string[];
+    api_key?: string;
+    headers?: Record<string, string>;
+    env?: Record<string, string>;
+  }) =>
     fetchJSON<{ ok: boolean; name: string }>("/api/mcp/servers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1020,6 +1028,7 @@ export interface McpServerInfo {
   url: string;
   command: string;
   args: string[];
+  has_auth: boolean;
 }
 
 export interface McpTestResponse {

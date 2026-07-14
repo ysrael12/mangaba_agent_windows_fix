@@ -325,7 +325,7 @@ _SCHEMA_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "dashboard.theme": {
         "type": "select",
         "description": "Web dashboard visual theme",
-        "options": ["default", "midnight", "ember", "mono", "cyberpunk", "rose"],
+        "options": ["default", "mangaba-light"],
     },
     "display.resume_display": {
         "type": "select",
@@ -3087,6 +3087,22 @@ async def disconnect_oauth_provider(provider_id: str, request: Request):
         _log.info("oauth/disconnect: %s", provider_id)
         return {"ok": True, "provider": provider_id}
 
+    # google-gemini-cli tokens live in ~/.mangaba/auth/google_oauth.json,
+    # a separate Mangaba-managed file (see agent/google_oauth.py) — NOT in
+    # auth.json's `providers` dict. clear_provider_auth() below only clears
+    # auth.json, so without this branch the dashboard would report "ok" on
+    # disconnect while the real credentials file survives untouched and the
+    # status card keeps showing "Conectado" forever (#confirmed via direct
+    # auth store inspection: providers dict was already empty).
+    if provider_id == "google-gemini-cli":
+        try:
+            from agent.google_oauth import clear_credentials
+            clear_credentials()
+        except Exception:
+            pass
+        _log.info("oauth/disconnect: %s", provider_id)
+        return {"ok": True, "provider": provider_id}
+
     try:
         from mangaba_cli.auth import clear_provider_auth
         cleared = clear_provider_auth(provider_id)
@@ -5648,6 +5664,16 @@ class McpServerCreate(BaseModel):
     url: str = ""
     command: str = ""
     args: List[str] = []
+    # Auth for remote (url-based) servers that require an API key — e.g.
+    # context7, or any MCP server behind Bearer-token auth. Auto-mapped to
+    # headers={"Authorization": "Bearer <api_key>"}. `headers` is the escape
+    # hatch for servers using a different scheme (custom header name, Basic
+    # auth, etc.) — merged on top of the Bearer header when both are given.
+    api_key: str = ""
+    headers: Dict[str, str] = {}
+    # Auth for stdio (command-based) servers — passed as environment
+    # variables to the spawned child process (e.g. GITHUB_PERSONAL_ACCESS_TOKEN).
+    env: Dict[str, str] = {}
 
 
 @app.get("/api/mcp/servers")
@@ -5662,6 +5688,9 @@ async def list_mcp_servers():
                 "url": cfg.get("url", ""),
                 "command": cfg.get("command", ""),
                 "args": cfg.get("args", []),
+                # Never echo back header/env values (they may hold secrets) —
+                # just enough for the UI to show a "🔒 autenticado" badge.
+                "has_auth": bool(cfg.get("headers") or cfg.get("env")),
             }
             for name, cfg in servers.items()
         ]
@@ -5687,6 +5716,16 @@ async def add_mcp_server(body: McpServerCreate):
         server_config["command"] = command
         if body.args:
             server_config["args"] = body.args
+
+    headers = dict(body.headers or {})
+    api_key = body.api_key.strip()
+    if api_key and not any(k.lower() == "authorization" for k in headers):
+        headers["Authorization"] = f"Bearer {api_key}"
+    if headers:
+        server_config["headers"] = headers
+    if body.env:
+        server_config["env"] = dict(body.env)
+
     try:
         _save_mcp_server(name, server_config)
     except Exception as exc:  # noqa: BLE001
@@ -6195,16 +6234,19 @@ def chat_models() -> Dict[str, Any]:
     if current:
         _add(provider or "ollama", current)
 
-    # 3) Fallback: providers do picker (setups de nuvem sem Ollama).
-    if not out:
-        try:
-            from mangaba_cli.inventory import build_models_payload, load_picker_context
-            payload = build_models_payload(load_picker_context(), max_models=50)
-            for p in payload.get("providers", []) or []:
-                for name in p.get("models", []) or []:
-                    _add(str(p.get("slug") or ""), str(name))
-        except Exception:  # noqa: BLE001
-            pass
+    # 3) Providers autenticados (OAuth/API key: Claude, ChatGPT, Gemini, xAI,
+    #    DeepSeek, Nvidia...) — sempre mesclados, não só quando o Ollama local
+    #    não retornou nada. Antes esse bloco só rodava com `out` vazio, então
+    #    um Ollama local com um único modelo (ex. "gemma") escondia todos os
+    #    engines autenticados do seletor.
+    try:
+        from mangaba_cli.inventory import build_models_payload, load_picker_context
+        payload = build_models_payload(load_picker_context(), max_models=50)
+        for p in payload.get("providers", []) or []:
+            for name in p.get("models", []) or []:
+                _add(str(p.get("slug") or ""), str(name))
+    except Exception:  # noqa: BLE001
+        pass
 
     return {"models": out, "current": current}
 
@@ -6681,15 +6723,8 @@ def mount_spa(application: FastAPI):
 # Built-in dashboard themes — label + description only.  The actual color
 # definitions live in the frontend (web/src/themes/presets.ts).
 _BUILTIN_DASHBOARD_THEMES = [
-    {"name": "default",       "label": "Mangaba Noite",          "description": "Modo escuro — grafite quente com laranja da marca"},
-    {"name": "default-large", "label": "Mangaba Noite (Grande)", "description": "Mangaba Noite com fontes maiores e espaçamento confortável"},
-    {"name": "claude",    "label": "Claude AI",      "description": "Anthropic Claude — warm coral & cream on deep brown"},
-    {"name": "enterprise", "label": "Enterprise",    "description": "Slate e azul-aço sobre navy profundo — visual corporativo"},
-    {"name": "midnight",      "label": "Midnight",            "description": "Deep blue-violet with cool accents"},
-    {"name": "ember",     "label": "Ember",          "description": "Warm crimson and bronze — forge vibes"},
-    {"name": "mono",      "label": "Mono",           "description": "Clean grayscale — minimal and focused"},
-    {"name": "cyberpunk", "label": "Cyberpunk",      "description": "Neon green on black — matrix terminal"},
-    {"name": "rose",      "label": "Rosé",           "description": "Soft pink and warm ivory — easy on the eyes"},
+    {"name": "default",       "label": "Mangaba Noite", "description": "Modo escuro — slate profundo com laranja do template"},
+    {"name": "mangaba-light", "label": "Mangaba Dia",   "description": "Modo claro — slate claro com laranja do template"},
 ]
 
 
@@ -6940,7 +6975,7 @@ async def get_dashboard_themes():
     them without a stub.
     """
     config = load_config()
-    active = cfg_get(config, "dashboard", "theme", default="claude")
+    active = cfg_get(config, "dashboard", "theme", default="default")
     user_themes = _discover_user_themes()
     seen = set()
     themes = []
