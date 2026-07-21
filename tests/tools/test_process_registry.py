@@ -11,12 +11,14 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from tools.environments.local import _MANGABA_PROVIDER_ENV_FORCE_PREFIX
+import tools.process_registry as process_registry_mod
 from tools.process_registry import (
     ProcessRegistry,
     ProcessSession,
     MAX_OUTPUT_CHARS,
     FINISHED_TTL_SECONDS,
     MAX_PROCESSES,
+    MAX_RUNNING_PROCESSES,
 )
 
 
@@ -63,6 +65,39 @@ def _wait_until(predicate, timeout: float = 5.0, interval: float = 0.05) -> bool
             return True
         time.sleep(interval)
     return False
+
+
+# =========================================================================
+# Concurrent-running-process cap
+# =========================================================================
+
+class TestRunningProcessCap:
+    def test_spawn_local_rejected_when_at_cap(self, registry, monkeypatch):
+        # Fill _running with live (not-exited) sessions up to the cap.
+        monkeypatch.setattr(process_registry_mod, "MAX_RUNNING_PROCESSES", 3)
+        for i in range(3):
+            s = _make_session(sid=f"proc_live{i}", exited=False)
+            registry._running[s.id] = s
+
+        with pytest.raises(RuntimeError, match="Background process limit reached"):
+            registry.spawn_local(command="echo hi")
+
+    def test_exited_running_sessions_do_not_count_against_cap(self, registry, monkeypatch):
+        # Sessions still in _running but already exited must not block new spawns.
+        monkeypatch.setattr(process_registry_mod, "MAX_RUNNING_PROCESSES", 3)
+        for i in range(3):
+            s = _make_session(sid=f"proc_done{i}", exited=True, exit_code=0)
+            registry._running[s.id] = s
+
+        # Under the cap (0 live), _assert_capacity must not raise.
+        registry._assert_capacity()  # should not raise
+
+    def test_assert_capacity_allows_under_limit(self, registry, monkeypatch):
+        monkeypatch.setattr(process_registry_mod, "MAX_RUNNING_PROCESSES", 5)
+        for i in range(4):
+            s = _make_session(sid=f"proc_live{i}", exited=False)
+            registry._running[s.id] = s
+        registry._assert_capacity()  # 4 < 5, no raise
 
 
 # =========================================================================

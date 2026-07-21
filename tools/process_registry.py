@@ -57,7 +57,19 @@ CHECKPOINT_PATH = get_mangaba_home() / "processes.json"
 # Limits
 MAX_OUTPUT_CHARS = 200_000      # 200KB rolling output buffer
 FINISHED_TTL_SECONDS = 1800     # Keep finished processes for 30 minutes
-MAX_PROCESSES = 64              # Max concurrent tracked processes (LRU pruning)
+MAX_PROCESSES = 64              # Max tracked sessions total (running + finished; LRU prune of finished)
+
+# Hard cap on concurrently *running* background processes. This is distinct
+# from MAX_PROCESSES above, which only bounds the tracking dicts and only ever
+# prunes *finished* sessions — it never rejects a spawn, so a model looping on
+# terminal(background=True) / process(action="spawn") could otherwise start an
+# unbounded number of live subprocesses (each with a login shell + reader
+# thread), exhausting a user's RAM/CPU. Override via
+# MANGABA_MAX_BACKGROUND_PROCESSES.
+try:
+    MAX_RUNNING_PROCESSES = max(1, int(os.environ.get("MANGABA_MAX_BACKGROUND_PROCESSES", "32")))
+except (ValueError, TypeError):
+    MAX_RUNNING_PROCESSES = 32
 
 # Watch pattern rate limiting — PER SESSION.
 # Hard rule: at most ONE watch-match notification every WATCH_MIN_INTERVAL_SECONDS.
@@ -490,6 +502,7 @@ class ProcessRegistry:
                      CLI tools (Codex, Claude Code, Python REPL). Falls back to
                      subprocess.Popen if ptyprocess is not installed.
         """
+        self._assert_capacity()
         session = ProcessSession(
             id=f"proc_{uuid.uuid4().hex[:12]}",
             command=command,
@@ -627,6 +640,7 @@ class ProcessRegistry:
         This is less capable than local spawn (no live stdout pipe, no stdin),
         but it ensures the command runs in the correct sandbox context.
         """
+        self._assert_capacity()
         session = ProcessSession(
             id=f"proc_{uuid.uuid4().hex[:12]}",
             command=command,
@@ -1269,6 +1283,24 @@ class ProcessRegistry:
         return killed
 
     # ----- Cleanup / Pruning -----
+
+    def _assert_capacity(self):
+        """Raise if we're already at the concurrent-running-process cap.
+
+        Counts only sessions that have not exited — sessions whose process has
+        finished but whose reader thread hasn't yet moved them to ``_finished``
+        carry ``exited=True`` and must not count against the live cap. Called
+        before spawning so we never start a process we'd immediately orphan.
+        """
+        with self._lock:
+            live = sum(1 for s in self._running.values() if not s.exited)
+        if live >= MAX_RUNNING_PROCESSES:
+            raise RuntimeError(
+                f"Background process limit reached ({MAX_RUNNING_PROCESSES} running). "
+                "Stop or wait for existing background processes (use process(action='list') "
+                "to inspect, process(action='kill') to stop) before starting new ones. "
+                "Raise the cap with MANGABA_MAX_BACKGROUND_PROCESSES if this is intentional."
+            )
 
     def _prune_if_needed(self):
         """Remove oldest finished sessions if over MAX_PROCESSES. Must hold _lock."""
