@@ -818,6 +818,42 @@ class TestResizeImageForVision:
         assert _RESIZE_TARGET_BYTES == 5 * 1024 * 1024
         assert _MAX_BASE64_BYTES > _RESIZE_TARGET_BYTES
 
+    def test_oversized_jpeg_draft_decoded_not_full(self, tmp_path, monkeypatch):
+        """A JPEG over the decode-pixel cap uses draft() to bound memory."""
+        try:
+            from PIL import Image
+        except ImportError:
+            pytest.skip("Pillow not installed")
+        import tools.vision_tools as vt
+        # Tiny cap so a modest image trips the guard.
+        monkeypatch.setattr(vt, "_MAX_DECODE_PIXELS", 10_000)  # 100x100
+
+        img = Image.new("RGB", (2000, 2000), (10, 20, 30))
+        path = tmp_path / "big.jpg"
+        img.save(path, "JPEG", quality=90)
+
+        # Force the resize path with a small target; must not raise/OOM and
+        # returns a valid data URL. draft() shrinks the decode.
+        result = _resize_image_for_vision(path, mime_type="image/jpeg", max_base64_bytes=50_000)
+        assert result.startswith("data:image/jpeg;base64,")
+
+    def test_oversized_png_defers_instead_of_full_decode(self, tmp_path, monkeypatch):
+        """A non-draftable PNG over the cap is not fully decoded/resized."""
+        try:
+            from PIL import Image
+        except ImportError:
+            pytest.skip("Pillow not installed")
+        import tools.vision_tools as vt
+        monkeypatch.setattr(vt, "_MAX_DECODE_PIXELS", 10_000)  # 100x100
+
+        img = Image.new("RGB", (500, 500), (200, 100, 50))
+        path = tmp_path / "big.png"
+        img.save(path, "PNG")
+
+        # Over the cap and not JPEG -> returns a data URL without resizing.
+        result = _resize_image_for_vision(path, mime_type="image/png", max_base64_bytes=500)
+        assert result.startswith("data:image/")
+
     def test_extreme_aspect_ratio_preserved(self, tmp_path):
         """Extreme aspect ratios should be preserved during resize."""
         try:

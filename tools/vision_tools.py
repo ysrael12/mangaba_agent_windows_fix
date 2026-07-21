@@ -47,6 +47,19 @@ logger = logging.getLogger(__name__)
 
 _debug = DebugSession("vision_tools", env_var="VISION_TOOLS_DEBUG")
 
+# Max pixels we'll fully decode into RAM when resizing an image. Decoding is
+# where memory blows up: an RGB bitmap costs width*height*3 bytes regardless of
+# how small the compressed file is, so a highly-compressed "decompression bomb"
+# (or just a huge phone photo) can allocate hundreds of MB. Inbound images are
+# attacker-controlled on messaging platforms, so cap the decode: for JPEG we
+# use Pillow's draft() to decode at reduced resolution; other formats over the
+# cap fall back to the caller's size check instead of a full decode. 40 MP
+# covers legitimate high-res photos. Override via MANGABA_MAX_IMAGE_PIXELS.
+try:
+    _MAX_DECODE_PIXELS = max(1, int(os.getenv("MANGABA_MAX_IMAGE_PIXELS", str(40_000_000))))
+except (ValueError, TypeError):
+    _MAX_DECODE_PIXELS = 40_000_000
+
 # Configurable HTTP download timeout for _download_image().
 # Separate from auxiliary.vision.timeout which governs the LLM API call.
 # Resolution: config.yaml auxiliary.vision.download_timeout → env var → 30s default.
@@ -346,6 +359,43 @@ def _resize_image_for_vision(image_path: Path, mime_type: Optional[str] = None,
         if data_url is None:
             data_url = _image_to_base64_data_url(image_path, mime_type=mime_type)
         return data_url  # fall through to size-check in caller
+
+    # Decompression-bomb guard: img.size is read from the header without
+    # decoding pixels. If the image is over the decode cap, avoid materializing
+    # a giant RGB bitmap. For JPEG, draft() decodes at a reduced resolution
+    # (Pillow picks the nearest 1/2^n scale) — cheap and low-memory. For other
+    # formats we can't draft, so bail out to the caller's size check rather than
+    # risk a multi-hundred-MB decode.
+    try:
+        _pixels = (img.width or 0) * (img.height or 0)
+    except Exception:
+        _pixels = 0
+    if _pixels > _MAX_DECODE_PIXELS:
+        if (getattr(img, "format", "") or "").upper() in {"JPEG", "MPO"}:
+            import math
+            scale = math.sqrt(_MAX_DECODE_PIXELS / _pixels)
+            target = (max(int(img.width * scale), 1), max(int(img.height * scale), 1))
+            try:
+                img.draft("RGB", target)
+                logger.info(
+                    "Image is %d px (> %d cap) — JPEG draft-decoded to ~%dx%d to bound memory",
+                    _pixels, _MAX_DECODE_PIXELS, target[0], target[1],
+                )
+            except Exception as exc:
+                logger.info("JPEG draft decode failed (%s); skipping resize", exc)
+                if data_url is None:
+                    data_url = _image_to_base64_data_url(image_path, mime_type=mime_type)
+                return data_url
+        else:
+            logger.warning(
+                "Image is %d px (> %d cap) and not draft-decodable (%s) — "
+                "refusing full decode; deferring to caller size check",
+                _pixels, _MAX_DECODE_PIXELS, getattr(img, "format", "?"),
+            )
+            if data_url is None:
+                data_url = _image_to_base64_data_url(image_path, mime_type=mime_type)
+            return data_url
+
     # Convert RGBA to RGB for JPEG output
     if pil_format == "JPEG" and img.mode in {"RGBA", "P"}:
         img = img.convert("RGB")
