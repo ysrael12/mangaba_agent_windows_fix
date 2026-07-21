@@ -30,7 +30,7 @@ def mangaba_env(tmp_path, monkeypatch):
 
     # Reload modules that cache get_mangaba_home() at import time.
     import importlib
-    import mangaba_agent.mangaba_constants
+    import mangaba_agent.mangaba_constants as mangaba_constants
     importlib.reload(mangaba_constants)
     import cron.jobs
     importlib.reload(cron.jobs)
@@ -273,7 +273,7 @@ def test_run_job_no_agent_never_invokes_aiagent(mangaba_env):
         prompt=None, schedule="every 5m", script="alert.sh", no_agent=True, deliver="local"
     )
 
-    with patch("run_agent.AIAgent") as ai_mock:
+    with patch("mangaba_agent.run_agent.AIAgent") as ai_mock:
         from cron.scheduler import run_job
 
         run_job(job)

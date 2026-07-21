@@ -121,7 +121,7 @@ class TestPrimaryClientWiring:
     def test_init_wires_codex_headers_for_chatgpt_base_url(self):
         from mangaba_agent.run_agent import AIAgent
         token = _make_codex_jwt("acct-primary-init")
-        with patch("run_agent.OpenAI") as mock_openai:
+        with patch("mangaba_agent.run_agent.OpenAI") as mock_openai:
             mock_openai.return_value = MagicMock()
             AIAgent(
                 api_key=token,
@@ -141,7 +141,7 @@ class TestPrimaryClientWiring:
         """Credential-rotation / base-url change path must also emit codex headers."""
         from mangaba_agent.run_agent import AIAgent
         token = _make_codex_jwt("acct-rotation")
-        with patch("run_agent.OpenAI") as mock_openai:
+        with patch("mangaba_agent.run_agent.OpenAI") as mock_openai:
             mock_openai.return_value = MagicMock()
             agent = AIAgent(
                 api_key="placeholder-openrouter-key",
@@ -166,7 +166,7 @@ class TestPrimaryClientWiring:
         """Switching AWAY from chatgpt.com must drop the codex headers."""
         from mangaba_agent.run_agent import AIAgent
         token = _make_codex_jwt()
-        with patch("run_agent.OpenAI") as mock_openai:
+        with patch("mangaba_agent.run_agent.OpenAI") as mock_openai:
             mock_openai.return_value = MagicMock()
             agent = AIAgent(
                 api_key=token,
@@ -187,7 +187,7 @@ class TestPrimaryClientWiring:
 
     def test_openrouter_base_url_does_not_get_codex_headers(self):
         from mangaba_agent.run_agent import AIAgent
-        with patch("run_agent.OpenAI") as mock_openai:
+        with patch("mangaba_agent.run_agent.OpenAI") as mock_openai:
             mock_openai.return_value = MagicMock()
             AIAgent(
                 api_key="sk-or-test",

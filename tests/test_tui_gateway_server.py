@@ -415,7 +415,7 @@ def test_load_enabled_toolsets_filters_invalid_tui_env(monkeypatch, capsys):
 def test_load_enabled_toolsets_accepts_plugin_env_after_discovery(monkeypatch):
     monkeypatch.setenv("MANGABA_TUI_TOOLSETS", "plugin_demo")
 
-    import mangaba_agent.toolsets
+    import mangaba_agent.toolsets as toolsets
 
     discovered = {"ready": False}
     original_validate = toolsets.validate_toolset
@@ -4647,7 +4647,7 @@ def _setup_make_agent_mocks(monkeypatch, cfg):
 def test_make_agent_reads_nested_max_turns(monkeypatch):
     _setup_make_agent_mocks(monkeypatch, {"agent": {"max_turns": 200}})
 
-    with patch("run_agent.AIAgent") as mock_agent:
+    with patch("mangaba_agent.run_agent.AIAgent") as mock_agent:
         server._make_agent("sid1", "key1")
 
     assert mock_agent.call_args.kwargs["max_iterations"] == 200
@@ -4658,7 +4658,7 @@ def test_make_agent_nested_max_turns_takes_priority(monkeypatch):
         monkeypatch, {"agent": {"max_turns": 500}, "max_turns": 100}
     )
 
-    with patch("run_agent.AIAgent") as mock_agent:
+    with patch("mangaba_agent.run_agent.AIAgent") as mock_agent:
         server._make_agent("sid1", "key1")
 
     assert mock_agent.call_args.kwargs["max_iterations"] == 500
@@ -4667,7 +4667,7 @@ def test_make_agent_nested_max_turns_takes_priority(monkeypatch):
 def test_make_agent_defaults_to_90(monkeypatch):
     _setup_make_agent_mocks(monkeypatch, {})
 
-    with patch("run_agent.AIAgent") as mock_agent:
+    with patch("mangaba_agent.run_agent.AIAgent") as mock_agent:
         server._make_agent("sid1", "key1")
 
     assert mock_agent.call_args.kwargs["max_iterations"] == 90
@@ -4676,7 +4676,7 @@ def test_make_agent_defaults_to_90(monkeypatch):
 def test_make_agent_handles_null_agent_config(monkeypatch):
     _setup_make_agent_mocks(monkeypatch, {"agent": None, "max_turns": 80})
 
-    with patch("run_agent.AIAgent") as mock_agent:
+    with patch("mangaba_agent.run_agent.AIAgent") as mock_agent:
         server._make_agent("sid1", "key1")
 
     assert mock_agent.call_args.kwargs["max_iterations"] == 80

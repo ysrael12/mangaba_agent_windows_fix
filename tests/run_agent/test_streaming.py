@@ -62,8 +62,8 @@ class TestStreamingAccumulator:
     """Verify that _interruptible_streaming_api_call accumulates content
     and tool calls into a response matching the non-streaming shape."""
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_text_only_response(self, mock_close, mock_create):
         """Text-only stream produces correct response shape."""
         from mangaba_agent.run_agent import AIAgent
@@ -98,8 +98,8 @@ class TestStreamingAccumulator:
         assert response.usage is not None
         assert response.usage.completion_tokens == 3
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_tool_call_response(self, mock_close, mock_create):
         """Tool call stream accumulates ID, name, and arguments."""
         from mangaba_agent.run_agent import AIAgent
@@ -141,8 +141,8 @@ class TestStreamingAccumulator:
         assert tc[0].function.name == "terminal"
         assert tc[0].function.arguments == '{"command": "ls"}'
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_tool_name_not_duplicated_when_resent_per_chunk(self, mock_close, mock_create):
         """MiniMax M2.7 via NVIDIA NIM resends the full name in every chunk.
 
@@ -187,8 +187,8 @@ class TestStreamingAccumulator:
         assert tc[0].function.name == "read_file"
         assert tc[0].function.arguments == '{"path": "x.py"}'
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_tool_call_extra_content_preserved(self, mock_close, mock_create):
         """Streamed tool calls preserve provider-specific extra_content metadata."""
         from mangaba_agent.run_agent import AIAgent
@@ -235,8 +235,8 @@ class TestStreamingAccumulator:
             "google": {"thought_signature": "sig-123"}
         }
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_mixed_content_and_tool_calls(self, mock_close, mock_create):
         """Stream with both text and tool calls accumulates both."""
         from mangaba_agent.run_agent import AIAgent
@@ -279,8 +279,8 @@ class TestStreamingAccumulator:
 class TestStreamingCallbacks:
     """Verify that delta callbacks fire correctly."""
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_deltas_fire_in_order(self, mock_close, mock_create):
         """Callbacks receive text deltas in order."""
         from mangaba_agent.run_agent import AIAgent
@@ -314,8 +314,8 @@ class TestStreamingCallbacks:
 
         assert deltas == ["a", "b", "c"]
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_on_first_delta_fires_once(self, mock_close, mock_create):
         """on_first_delta callback fires exactly once."""
         from mangaba_agent.run_agent import AIAgent
@@ -349,8 +349,8 @@ class TestStreamingCallbacks:
 
         assert len(first_delta_calls) == 1
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_chat_stream_refreshes_activity_on_every_chunk(self, mock_close, mock_create):
         """Each streamed chat chunk should refresh the activity timestamp."""
         from mangaba_agent.run_agent import AIAgent
@@ -383,8 +383,8 @@ class TestStreamingCallbacks:
 
         assert touch_calls.count("receiving stream response") == len(chunks)
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_tool_only_does_not_fire_callback(self, mock_close, mock_create):
         """Tool-call-only stream does not fire the delta callback."""
         from mangaba_agent.run_agent import AIAgent
@@ -421,8 +421,8 @@ class TestStreamingCallbacks:
 
         assert deltas == []
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_text_suppressed_when_tool_calls_present(self, mock_close, mock_create):
         """Text deltas are suppressed when tool calls are also in the stream."""
         from mangaba_agent.run_agent import AIAgent
@@ -479,8 +479,8 @@ class TestStreamingFallback:
     so the *next* main-loop retry uses non-streaming automatically.
     """
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_stream_not_supported_sets_flag_and_raises(self, mock_close, mock_create):
         """'not supported' error sets _disable_streaming and propagates."""
         from mangaba_agent.run_agent import AIAgent
@@ -508,8 +508,8 @@ class TestStreamingFallback:
         # The flag should be set so the main retry loop switches to non-streaming
         assert agent._disable_streaming is True
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_non_transport_error_propagates(self, mock_close, mock_create):
         """Non-transport streaming errors propagate to the main retry loop."""
         from mangaba_agent.run_agent import AIAgent
@@ -534,8 +534,8 @@ class TestStreamingFallback:
         with pytest.raises(Exception, match="Connection reset by peer"):
             agent._interruptible_streaming_api_call({})
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_stream_error_propagates_original(self, mock_close, mock_create):
         """The original streaming error propagates (not a fallback error)."""
         from mangaba_agent.run_agent import AIAgent
@@ -558,8 +558,8 @@ class TestStreamingFallback:
         with pytest.raises(Exception, match="stream broke"):
             agent._interruptible_streaming_api_call({})
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_exhausted_transient_stream_error_propagates(self, mock_close, mock_create):
         """Transient stream errors retry first, then propagate after retries exhausted."""
         from mangaba_agent.run_agent import AIAgent
@@ -587,8 +587,8 @@ class TestStreamingFallback:
         assert mock_client.chat.completions.create.call_count == 3
         assert mock_close.call_count >= 1
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_sse_connection_lost_retried_as_transient(self, mock_close, mock_create):
         """SSE 'Network connection lost' (APIError w/ no status_code) retries like httpx errors.
 
@@ -632,8 +632,8 @@ class TestStreamingFallback:
         # Connection cleanup should happen for each failed retry
         assert mock_close.call_count >= 2
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_sse_non_connection_error_propagates_immediately(self, mock_close, mock_create):
         """SSE errors that aren't connection-related propagate immediately (no stream retry)."""
         from mangaba_agent.run_agent import AIAgent
@@ -674,8 +674,8 @@ class TestStreamingFallback:
 class TestReasoningStreaming:
     """Verify reasoning content is accumulated and callback fires."""
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_reasoning_callback_fires(self, mock_close, mock_create):
         """Reasoning deltas fire the reasoning_callback."""
         from mangaba_agent.run_agent import AIAgent
@@ -999,7 +999,7 @@ class TestAnthropicStreamCallbacks:
 
         assert touch_calls.count("receiving stream response") == len(events)
 
-    @patch("run_agent.AIAgent._replace_primary_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._replace_primary_openai_client")
     def test_anthropic_stream_parser_valueerror_retries_before_delivery(
         self, mock_replace, monkeypatch,
     ):
@@ -1050,7 +1050,7 @@ class TestAnthropicStreamCallbacks:
         assert agent._anthropic_client.messages.stream.call_count == 2
         assert mock_replace.call_count == 1
 
-    @patch("run_agent.AIAgent._replace_primary_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._replace_primary_openai_client")
     def test_generic_anthropic_valueerror_still_propagates_without_stream_retry(
         self, mock_replace, monkeypatch,
     ):
@@ -1098,8 +1098,8 @@ class TestPartialToolCallWarning:
     it as a stream delta so the user sees it immediately.
     """
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_partial_tool_call_surfaces_warning(self, mock_close, mock_create):
         """Stream with text + partial tool-call name + mid-stream error
         produces a stub whose content contains the user-visible warning
@@ -1166,8 +1166,8 @@ class TestPartialToolCallWarning:
             f"fired_deltas={fired_deltas}"
         )
 
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_partial_text_only_no_warning(self, mock_close, mock_create):
         """Text-only partial stream (no tool call mid-flight) keeps the
         pre-fix behaviour: bare recovered text, no warning noise."""
@@ -1226,9 +1226,9 @@ class TestSilentRetryMidToolCall:
     transient, the existing stub-with-warning behaviour is preserved.
     """
 
-    @patch("run_agent.AIAgent._replace_primary_openai_client")
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._replace_primary_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_silent_retry_recovers_tool_call(
         self, mock_close, mock_create, mock_replace,
     ):
@@ -1321,9 +1321,9 @@ class TestSilentRetryMidToolCall:
             f"Stub-path warning leaked into silent-retry path: {joined!r}"
         )
 
-    @patch("run_agent.AIAgent._replace_primary_openai_client")
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._replace_primary_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_silent_retry_exhausted_falls_back_to_stub(
         self, mock_close, mock_create, mock_replace,
     ):
@@ -1376,9 +1376,9 @@ class TestSilentRetryMidToolCall:
         )
         assert response.choices[0].message.tool_calls is None
 
-    @patch("run_agent.AIAgent._replace_primary_openai_client")
-    @patch("run_agent.AIAgent._create_request_openai_client")
-    @patch("run_agent.AIAgent._close_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._replace_primary_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._create_request_openai_client")
+    @patch("mangaba_agent.run_agent.AIAgent._close_request_openai_client")
     def test_no_silent_retry_for_text_only_stall(
         self, mock_close, mock_create, mock_replace,
     ):
@@ -1487,8 +1487,8 @@ class TestCopilotACPStreamingDecision:
     must detect ACP runtimes and route to _interruptible_api_call instead.
     """
 
-    @patch("run_agent.get_tool_definitions", return_value=[])
-    @patch("run_agent.check_toolset_requirements", return_value={})
+    @patch("mangaba_agent.run_agent.get_tool_definitions", return_value=[])
+    @patch("mangaba_agent.run_agent.check_toolset_requirements", return_value={})
     @patch("agent.copilot_acp_client.CopilotACPClient")
     def test_provider_name_triggers_non_streaming(
         self, mock_acp_cls, _mock_check, _mock_tools
@@ -1518,8 +1518,8 @@ class TestCopilotACPStreamingDecision:
             response = mock_non_stream({})
             mock_stream.assert_not_called()
 
-    @patch("run_agent.get_tool_definitions", return_value=[])
-    @patch("run_agent.check_toolset_requirements", return_value={})
+    @patch("mangaba_agent.run_agent.get_tool_definitions", return_value=[])
+    @patch("mangaba_agent.run_agent.check_toolset_requirements", return_value={})
     @patch("agent.copilot_acp_client.CopilotACPClient")
     def test_acp_base_url_triggers_non_streaming(
         self, mock_acp_cls, _mock_check, _mock_tools
@@ -1539,8 +1539,8 @@ class TestCopilotACPStreamingDecision:
 
         assert _use_streaming is False
 
-    @patch("run_agent.get_tool_definitions", return_value=[])
-    @patch("run_agent.check_toolset_requirements", return_value={})
+    @patch("mangaba_agent.run_agent.get_tool_definitions", return_value=[])
+    @patch("mangaba_agent.run_agent.check_toolset_requirements", return_value={})
     @patch("agent.copilot_acp_client.CopilotACPClient")
     def test_acp_tcp_url_triggers_non_streaming(
         self, mock_acp_cls, _mock_check, _mock_tools

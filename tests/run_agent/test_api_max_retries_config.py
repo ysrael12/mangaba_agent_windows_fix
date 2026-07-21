@@ -16,7 +16,7 @@ def _make_agent(api_max_retries=None):
     if api_max_retries is not None:
         cfg["agent"]["api_max_retries"] = api_max_retries
 
-    with patch("run_agent.OpenAI"), \
+    with patch("mangaba_agent.run_agent.OpenAI"), \
          patch("mangaba_cli.config.load_config", return_value=cfg):
         return AIAgent(
             api_key="test-key",

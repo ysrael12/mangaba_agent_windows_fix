@@ -130,7 +130,7 @@ class TestFlushRecovery:
         from unittest.mock import patch
         import shutil
         with patch.object(shutil, "get_terminal_size", return_value=os.terminal_size((80, 24))):
-            with patch("cli._cprint"):
+            with patch("mangaba_agent.cli._cprint"):
                 cli._flush_stream()
 
         assert not cli._in_reasoning_block

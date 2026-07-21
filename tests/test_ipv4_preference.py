@@ -9,7 +9,7 @@ import pytest
 
 def _reload_constants():
     """Reload mangaba_constants to get a fresh apply_ipv4_preference."""
-    import mangaba_agent.mangaba_constants
+    import mangaba_agent.mangaba_constants as mangaba_constants
     importlib.reload(mangaba_constants)
     return mangaba_constants
 

@@ -294,9 +294,9 @@ class TestApiMessagesSurrogateRecovery:
 class TestRunConversationSurrogateSanitization:
     """Integration: verify run_conversation sanitizes user_message."""
 
-    @patch("run_agent.AIAgent._build_system_prompt")
-    @patch("run_agent.AIAgent._interruptible_streaming_api_call")
-    @patch("run_agent.AIAgent._interruptible_api_call")
+    @patch("mangaba_agent.run_agent.AIAgent._build_system_prompt")
+    @patch("mangaba_agent.run_agent.AIAgent._interruptible_streaming_api_call")
+    @patch("mangaba_agent.run_agent.AIAgent._interruptible_api_call")
     def test_user_message_surrogates_sanitized(self, mock_api, mock_stream, mock_sys):
         """Surrogates in user_message are stripped before API call."""
         from mangaba_agent.run_agent import AIAgent

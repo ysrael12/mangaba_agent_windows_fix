@@ -13,9 +13,9 @@ from mangaba_agent.run_agent import AIAgent, _pool_may_recover_from_rate_limit
 def _make_agent(fallback_model=None):
     """Create a minimal AIAgent with optional fallback config."""
     with (
-        patch("run_agent.get_tool_definitions", return_value=[]),
-        patch("run_agent.check_toolset_requirements", return_value={}),
-        patch("run_agent.OpenAI"),
+        patch("mangaba_agent.run_agent.get_tool_definitions", return_value=[]),
+        patch("mangaba_agent.run_agent.check_toolset_requirements", return_value={}),
+        patch("mangaba_agent.run_agent.OpenAI"),
     ):
         agent = AIAgent(
             api_key="test-key",

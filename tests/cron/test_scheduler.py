@@ -879,7 +879,7 @@ class TestRunJobSessionPersistence:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -889,7 +889,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -926,7 +926,7 @@ class TestRunJobSessionPersistence:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -936,7 +936,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.side_effect = RuntimeError("boom")
             mock_agent_cls.return_value = mock_agent
@@ -963,7 +963,7 @@ class TestRunJobSessionPersistence:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -973,7 +973,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent") as mock_agent_cls, \
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls, \
              patch("agent.auxiliary_client.cleanup_stale_async_clients") as cleanup_mock:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
@@ -991,7 +991,7 @@ class TestRunJobSessionPersistence:
             patch("cron.scheduler._mangaba_home", tmp_path),
             patch("cron.scheduler._resolve_origin", return_value=None),
             patch("dotenv.load_dotenv"),
-            patch("mangaba_state.SessionDB", return_value=fake_db),
+            patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db),
             patch(
                 "mangaba_cli.runtime_provider.resolve_runtime_provider",
                 return_value={
@@ -1012,7 +1012,7 @@ class TestRunJobSessionPersistence:
         }
         fake_db, patches = self._make_run_job_patches(tmp_path)
         with patches[0], patches[1], patches[2], patches[3], patches[4], \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1037,7 +1037,7 @@ class TestRunJobSessionPersistence:
         }
         fake_db, patches = self._make_run_job_patches(tmp_path)
         with patches[0], patches[1], patches[2], patches[3], patches[4], \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1065,7 +1065,7 @@ class TestRunJobSessionPersistence:
         # Even if the user has ``mangaba tools`` configured to enable web+file
         # for cron, the per-job override wins.
         with patches[0], patches[1], patches[2], patches[3], patches[4], \
-             patch("run_agent.AIAgent") as mock_agent_cls, \
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls, \
              patch(
                  "mangaba_cli.tools_config._get_platform_tools",
                  return_value={"web", "file"},
@@ -1094,7 +1094,7 @@ class TestRunJobSessionPersistence:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1104,7 +1104,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             # Agent did work via tools but returned no text
             mock_agent.run_conversation.return_value = {"final_response": ""}
@@ -1170,7 +1170,7 @@ class TestRunJobSessionPersistence:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1180,7 +1180,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = agent_result
             mock_agent_cls.return_value = mock_agent
@@ -1209,7 +1209,7 @@ class TestRunJobSessionPersistence:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1219,7 +1219,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {
                 "final_response": "all good",
@@ -1298,7 +1298,7 @@ class TestRunJobSessionPersistence:
                 return {"final_response": "ok"}
 
         with patch("cron.scheduler._mangaba_home", tmp_path), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1308,7 +1308,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent", FakeAgent):
+             patch("mangaba_agent.run_agent.AIAgent", FakeAgent):
             success, output, final_response, error = run_job(job)
 
         assert success is True
@@ -1364,7 +1364,7 @@ class TestRunJobSessionPersistence:
                 return {"final_response": "ok"}
 
         with patch("cron.scheduler._mangaba_home", tmp_path), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1374,7 +1374,7 @@ class TestRunJobSessionPersistence:
                      "api_mode": "chat_completions",
                  },
              ), \
-             patch("run_agent.AIAgent", FakeAgent):
+             patch("mangaba_agent.run_agent.AIAgent", FakeAgent):
             for job in jobs:
                 success, output, final_response, error = run_job(job)
                 assert success is True
@@ -1417,7 +1417,7 @@ class TestRunJobConfigLogging:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1446,7 +1446,7 @@ class TestRunJobConfigLogging:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1479,10 +1479,10 @@ class TestRunJobConfigEnvVarExpansion:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch("mangaba_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1511,10 +1511,10 @@ class TestRunJobConfigEnvVarExpansion:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch("mangaba_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1540,10 +1540,10 @@ class TestRunJobConfigEnvVarExpansion:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch("mangaba_cli.runtime_provider.resolve_runtime_provider",
                    return_value=self._RUNTIME), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1582,7 +1582,7 @@ class TestRunJobSkillBacked:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1593,7 +1593,7 @@ class TestRunJobSkillBacked:
                  },
              ), \
              patch("tools.skills_tool.skill_view", side_effect=_skill_view), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.side_effect = _run_conversation
             mock_agent_cls.return_value = mock_agent
@@ -1642,7 +1642,7 @@ class TestRunJobSkillBacked:
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("tools.credential_files._resolve_mangaba_home", return_value=tmp_path), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1653,7 +1653,7 @@ class TestRunJobSkillBacked:
                  },
              ), \
              patch("tools.skills_tool.skill_view", side_effect=_skill_view), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.side_effect = _run_conversation
             mock_agent_cls.return_value = mock_agent
@@ -1680,7 +1680,7 @@ class TestRunJobSkillBacked:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1691,7 +1691,7 @@ class TestRunJobSkillBacked:
                  },
              ), \
              patch("tools.skills_tool.skill_view", return_value=json.dumps({"success": True, "content": "# Blogwatcher\nFollow this skill."})), \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1726,7 +1726,7 @@ class TestRunJobSkillBacked:
         with patch("cron.scheduler._mangaba_home", tmp_path), \
              patch("cron.scheduler._resolve_origin", return_value=None), \
              patch("dotenv.load_dotenv"), \
-             patch("mangaba_state.SessionDB", return_value=fake_db), \
+             patch("mangaba_agent.mangaba_state.SessionDB", return_value=fake_db), \
              patch(
                  "mangaba_cli.runtime_provider.resolve_runtime_provider",
                  return_value={
@@ -1737,7 +1737,7 @@ class TestRunJobSkillBacked:
                  },
              ), \
              patch("tools.skills_tool.skill_view", side_effect=_skill_view) as skill_view_mock, \
-             patch("run_agent.AIAgent") as mock_agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as mock_agent_cls:
             mock_agent = MagicMock()
             mock_agent.run_conversation.return_value = {"final_response": "ok"}
             mock_agent_cls.return_value = mock_agent
@@ -1996,7 +1996,7 @@ class TestRunJobWakeGate:
 
         with patch.object(scheduler, "_run_job_script",
                           return_value=(True, '{"wakeAgent": false}')), \
-             patch("run_agent.AIAgent") as agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent") as agent_cls:
             success, doc, final, err = scheduler.run_job(self._make_job())
 
         assert success is True
@@ -2017,7 +2017,7 @@ class TestRunJobWakeGate:
         })
         with patch.object(scheduler, "_run_job_script",
                           return_value=(True, script_output)), \
-             patch("run_agent.AIAgent", return_value=agent) as agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent", return_value=agent) as agent_cls:
             success, doc, final, err = scheduler.run_job(self._make_job())
 
         agent_cls.assert_called_once()
@@ -2046,7 +2046,7 @@ class TestRunJobWakeGate:
             "final_response": "ok", "messages": []
         })
         with patch.object(scheduler, "_run_job_script", side_effect=_script_stub), \
-             patch("run_agent.AIAgent", return_value=agent):
+             patch("mangaba_agent.run_agent.AIAgent", return_value=agent):
             scheduler.run_job(self._make_job())
 
         assert call_count == 1, f"script ran {call_count}x, expected exactly 1"
@@ -2064,7 +2064,7 @@ class TestRunJobWakeGate:
         })
         with patch.object(scheduler, "_run_job_script",
                           return_value=(False, '{"wakeAgent": false}')), \
-             patch("run_agent.AIAgent", return_value=agent) as agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent", return_value=agent) as agent_cls:
             success, doc, final, err = scheduler.run_job(self._make_job())
 
         agent_cls.assert_called_once()  # Agent DID wake despite the gate-like text
@@ -2080,7 +2080,7 @@ class TestRunJobWakeGate:
         job = self._make_job(script=None)
         job.pop("script", None)
         with patch.object(scheduler, "_run_job_script") as script_fn, \
-             patch("run_agent.AIAgent", return_value=agent) as agent_cls:
+             patch("mangaba_agent.run_agent.AIAgent", return_value=agent) as agent_cls:
             scheduler.run_job(job)
 
         script_fn.assert_not_called()

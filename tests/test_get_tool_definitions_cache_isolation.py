@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import pytest
 
-import mangaba_agent.model_tools
+import mangaba_agent.model_tools as model_tools
 
 
 @pytest.fixture(autouse=True)

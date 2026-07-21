@@ -111,7 +111,7 @@ class TestWebServerEndpoints:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import mangaba_agent.mangaba_state
+        import mangaba_agent.mangaba_state as mangaba_state
         from mangaba_agent.mangaba_constants import get_mangaba_home
         from mangaba_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
@@ -564,7 +564,7 @@ class TestNewEndpoints:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import mangaba_agent.mangaba_state
+        import mangaba_agent.mangaba_state as mangaba_state
         from mangaba_agent.mangaba_constants import get_mangaba_home
         from mangaba_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 
@@ -1840,7 +1840,7 @@ class TestPluginAPIAuth:
         except ImportError:
             pytest.skip("fastapi/starlette not installed")
 
-        import mangaba_agent.mangaba_state
+        import mangaba_agent.mangaba_state as mangaba_state
         from mangaba_agent.mangaba_constants import get_mangaba_home
         from mangaba_cli.web_server import app, _SESSION_HEADER_NAME, _SESSION_TOKEN
 

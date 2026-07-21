@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 from zoneinfo import ZoneInfo
 
-import mangaba_agent.mangaba_time
+import mangaba_agent.mangaba_time as mangaba_time
 
 
 def _reset_mangaba_time_cache():
@@ -176,7 +176,7 @@ class TestCodeExecutionTZ:
             'print("TZ=" + os.environ.get("TZ", "NOT_SET")); '
             'print("MANGABA_TIMEZONE=" + os.environ.get("MANGABA_TIMEZONE", "NOT_SET"))'
         )
-        with patch("model_tools.handle_function_call", side_effect=self._mock_handle):
+        with patch("mangaba_agent.model_tools.handle_function_call", side_effect=self._mock_handle):
             result = _json.loads(self._execute_code(
                 code=probe,
                 task_id="tz-combined-test",
@@ -193,7 +193,7 @@ class TestCodeExecutionTZ:
         import json as _json
         os.environ.pop("MANGABA_TIMEZONE", None)
 
-        with patch("model_tools.handle_function_call", side_effect=self._mock_handle):
+        with patch("mangaba_agent.model_tools.handle_function_call", side_effect=self._mock_handle):
             result = _json.loads(self._execute_code(
                 code='import os; print(os.environ.get("TZ", "NOT_SET"))',
                 task_id="tz-test-empty",

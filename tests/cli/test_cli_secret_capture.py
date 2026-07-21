@@ -134,7 +134,7 @@ def test_cli_chat_registers_secret_capture_callback():
         "terminal": {"env_type": "local"},
     }
 
-    with patch("cli.get_tool_definitions", return_value=[]), patch.dict(
+    with patch("mangaba_agent.cli.get_tool_definitions", return_value=[]), patch.dict(
         "os.environ", {"LLM_MODEL": "", "MANGABA_MAX_ITERATIONS": ""}, clear=False
     ), patch.dict(cli_module.__dict__, {"CLI_CONFIG": clean_config}):
         cli_obj = MangabaCLI()

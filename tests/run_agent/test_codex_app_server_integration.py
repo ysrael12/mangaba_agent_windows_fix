@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-import mangaba_agent.run_agent
+import mangaba_agent.run_agent as run_agent
 from agent.transports.codex_app_server_session import CodexAppServerSession, TurnResult
 
 
@@ -285,7 +285,7 @@ class TestReviewForkApiModeDowngrade:
                 return None
             self.close = _no_op_close
 
-        with _patch("run_agent.AIAgent.__init__", _capture_init):
+        with _patch("mangaba_agent.run_agent.AIAgent.__init__", _capture_init):
             agent._spawn_background_review(
                 messages_snapshot=[{"role": "user", "content": "x"}],
                 review_memory=True,

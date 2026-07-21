@@ -26,7 +26,7 @@ class TestAtomicYamlWrite:
         original = {"preserved": True}
         target.write_text(yaml.safe_dump(original), encoding="utf-8")
 
-        with patch("utils.yaml.dump", side_effect=SimulatedAbort):
+        with patch("mangaba_agent.utils.yaml.dump", side_effect=SimulatedAbort):
             with pytest.raises(SimulatedAbort):
                 atomic_yaml_write(target, {"new": True})
 

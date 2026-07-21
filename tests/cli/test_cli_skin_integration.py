@@ -98,7 +98,7 @@ class TestCliSkinPromptIntegration:
     def test_handle_skin_command_refreshes_live_tui(self, capsys):
         cli = _make_cli_stub()
 
-        with patch("cli.save_config_value", return_value=True):
+        with patch("mangaba_agent.cli.save_config_value", return_value=True):
             cli._handle_skin_command("/skin ares")
 
         output = capsys.readouterr().out

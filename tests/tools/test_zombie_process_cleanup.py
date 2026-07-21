@@ -101,7 +101,7 @@ class TestAgentCloseMethod:
         """close() should call kill_all, cleanup_vm, cleanup_browser."""
         from unittest.mock import patch
 
-        with patch("run_agent.AIAgent.__init__", return_value=None):
+        with patch("mangaba_agent.run_agent.AIAgent.__init__", return_value=None):
             from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-cleanup"
@@ -110,8 +110,8 @@ class TestAgentCloseMethod:
             agent.client = None
 
             with patch("tools.process_registry.process_registry") as mock_registry, \
-                 patch("run_agent.cleanup_vm") as mock_cleanup_vm, \
-                 patch("run_agent.cleanup_browser") as mock_cleanup_browser:
+                 patch("mangaba_agent.run_agent.cleanup_vm") as mock_cleanup_vm, \
+                 patch("mangaba_agent.run_agent.cleanup_browser") as mock_cleanup_browser:
                 agent.close()
 
                 mock_registry.kill_all.assert_called_once_with(
@@ -124,7 +124,7 @@ class TestAgentCloseMethod:
         """close() can be called multiple times without error."""
         from unittest.mock import patch
 
-        with patch("run_agent.AIAgent.__init__", return_value=None):
+        with patch("mangaba_agent.run_agent.AIAgent.__init__", return_value=None):
             from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-idempotent"
@@ -140,7 +140,7 @@ class TestAgentCloseMethod:
         """close() should call close() on all active child agents."""
         from unittest.mock import MagicMock, patch
 
-        with patch("run_agent.AIAgent.__init__", return_value=None):
+        with patch("mangaba_agent.run_agent.AIAgent.__init__", return_value=None):
             from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-children"
@@ -161,7 +161,7 @@ class TestAgentCloseMethod:
         """close() continues cleanup even if one step fails."""
         from unittest.mock import patch
 
-        with patch("run_agent.AIAgent.__init__", return_value=None):
+        with patch("mangaba_agent.run_agent.AIAgent.__init__", return_value=None):
             from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.session_id = "test-close-partial"

@@ -77,7 +77,7 @@ class TestAtomicJsonWrite:
         original = {"preserved": True}
         target.write_text(json.dumps(original), encoding="utf-8")
 
-        with patch("utils.json.dump", side_effect=SimulatedAbort):
+        with patch("mangaba_agent.utils.json.dump", side_effect=SimulatedAbort):
             with pytest.raises(SimulatedAbort):
                 atomic_json_write(target, {"new": True})
 

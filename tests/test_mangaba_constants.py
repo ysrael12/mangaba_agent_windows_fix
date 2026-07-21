@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-import mangaba_agent.mangaba_constants
+import mangaba_agent.mangaba_constants as mangaba_constants
 from mangaba_agent.mangaba_constants import (
     VALID_REASONING_EFFORTS,
     get_default_mangaba_root,

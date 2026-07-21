@@ -42,7 +42,7 @@ def _make_cli(config_overrides=None, env_overrides=None, **kwargs):
     if env_overrides:
         clean_env.update(env_overrides)
     with (
-        patch("cli.get_tool_definitions", return_value=[]),
+        patch("mangaba_agent.cli.get_tool_definitions", return_value=[]),
         patch.dict("os.environ", clean_env, clear=False),
         patch.dict(_cli_mod.__dict__, {"CLI_CONFIG": _clean_config}),
     ):

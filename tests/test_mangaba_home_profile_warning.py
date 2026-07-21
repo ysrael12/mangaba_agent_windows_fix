@@ -22,7 +22,7 @@ import pytest
 def fresh_constants(monkeypatch, tmp_path):
     """Import mangaba_constants fresh and reset the one-shot warn flag."""
     import importlib
-    import mangaba_agent.mangaba_constants
+    import mangaba_agent.mangaba_constants as mangaba_constants
     importlib.reload(mangaba_constants)
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.delenv("MANGABA_HOME", raising=False)

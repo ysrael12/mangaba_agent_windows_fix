@@ -57,7 +57,7 @@ class TestCLILoadingIndicator:
 
         with patch.object(cli_obj, "_reload_mcp", side_effect=fake_reload), \
              patch.object(cli_obj, "_invalidate") as invalidate_mock, \
-             patch("cli.load_cli_config", return_value=fake_cfg):
+             patch("mangaba_agent.cli.load_cli_config", return_value=fake_cfg):
             assert cli_obj.process_command("/reload-mcp")
 
         output = capsys.readouterr().out

@@ -18,7 +18,7 @@ from types import SimpleNamespace
 
 import pytest
 
-import mangaba_agent.cli
+import mangaba_agent.cli as cli
 
 
 @pytest.fixture(autouse=True)

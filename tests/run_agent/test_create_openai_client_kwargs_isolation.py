@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 from mangaba_agent.run_agent import AIAgent
 
 
-@patch("run_agent.OpenAI")
+@patch("mangaba_agent.run_agent.OpenAI")
 def test_create_openai_client_does_not_mutate_input_kwargs(mock_openai):
     mock_openai.return_value = MagicMock()
     agent = AIAgent(

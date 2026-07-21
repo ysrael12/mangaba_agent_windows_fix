@@ -52,7 +52,7 @@ def test_stamp_file_takes_precedence(tmp_path):
 def test_docker_detected_via_dockerenv(tmp_path):
     with patch("mangaba_cli.config.get_managed_system", return_value=None), \
          patch("mangaba_cli.config.get_mangaba_home", return_value=tmp_path), \
-         patch("mangaba_constants.is_container", return_value=True):
+         patch("mangaba_agent.mangaba_constants.is_container", return_value=True):
         from mangaba_cli.config import detect_install_method
         assert detect_install_method(project_root=tmp_path) == "docker"
 

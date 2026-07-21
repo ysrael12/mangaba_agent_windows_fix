@@ -5,7 +5,7 @@ from unittest.mock import patch
 from rich.console import Console
 
 import mangaba_cli.banner as banner
-import mangaba_agent.model_tools
+import mangaba_agent.model_tools as model_tools
 import tools.mcp_tool
 
 

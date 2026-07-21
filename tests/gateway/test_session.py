@@ -322,7 +322,7 @@ class TestBuildSessionContextPrompt:
         )
         ctx = build_session_context(source, config)
 
-        with patch("mangaba_constants.display_mangaba_home", return_value="~/.mangaba/profiles/coder"):
+        with patch("mangaba_agent.mangaba_constants.display_mangaba_home", return_value="~/.mangaba/profiles/coder"):
             prompt = build_session_context_prompt(ctx)
 
         assert "~/.mangaba/profiles/coder/cron/output/" in prompt
@@ -505,7 +505,7 @@ class TestSessionStoreRewriteTranscript:
 
     @pytest.fixture()
     def store(self, tmp_path, monkeypatch):
-        import mangaba_agent.mangaba_state
+        import mangaba_agent.mangaba_state as mangaba_state
         monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
         config = GatewayConfig()
         s = SessionStore(sessions_dir=tmp_path, config=config)
@@ -549,7 +549,7 @@ class TestLoadTranscriptDBOnly:
     """After spec 002, load_transcript reads only from state.db."""
 
     def test_db_only_returns_empty_for_nonexistent(self, tmp_path, monkeypatch):
-        import mangaba_agent.mangaba_state
+        import mangaba_agent.mangaba_state as mangaba_state
         monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
         config = GatewayConfig()
         store = SessionStore(sessions_dir=tmp_path, config=config)
@@ -557,7 +557,7 @@ class TestLoadTranscriptDBOnly:
         assert result == []
 
     def test_db_only_returns_messages(self, tmp_path, monkeypatch):
-        import mangaba_agent.mangaba_state
+        import mangaba_agent.mangaba_state as mangaba_state
         monkeypatch.setattr(mangaba_state, "DEFAULT_DB_PATH", tmp_path / "state.db")
         config = GatewayConfig()
         store = SessionStore(sessions_dir=tmp_path, config=config)

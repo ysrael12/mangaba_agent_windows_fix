@@ -57,7 +57,7 @@ class _SyncThread:
 
 def test_background_review_matches_parent_toolset_config():
     """Fork must receive parent's toolset config so ``tools[]`` cache key matches."""
-    import mangaba_agent.run_agent
+    import mangaba_agent.run_agent as run_agent
 
     agent = _make_agent_stub(run_agent.AIAgent)
     captured = {}
@@ -94,7 +94,7 @@ def test_background_review_installs_thread_local_whitelist():
     deny terminal/send_message/delegate_task at dispatch time. Verify the
     whitelist is set with exactly the memory+skills tool names.
     """
-    import mangaba_agent.run_agent
+    import mangaba_agent.run_agent as run_agent
     from mangaba_cli import plugins as _plugins
 
     captured = {}

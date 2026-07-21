@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 import pytest
 
-import mangaba_agent.mangaba_state
+import mangaba_agent.mangaba_state as mangaba_state
 from mangaba_agent.mangaba_state import (
     SessionDB,
     apply_wal_with_fallback,
@@ -235,7 +235,7 @@ class TestGetLastInitError:
         def gated_connect(*args, **kwargs):
             return real_connect(str(target), factory=_BothPragmasFailConnection, **kwargs)
 
-        with patch("mangaba_state.sqlite3.connect", side_effect=gated_connect):
+        with patch("mangaba_agent.mangaba_state.sqlite3.connect", side_effect=gated_connect):
             with pytest.raises(sqlite3.OperationalError):
                 SessionDB(db_path=target)
 
@@ -286,7 +286,7 @@ class TestSessionDbUsesWalFallback:
         def gated_connect(*args, **kwargs):
             return real_connect(str(target), factory=factory, **kwargs)
 
-        with patch("mangaba_state.sqlite3.connect", side_effect=gated_connect):
+        with patch("mangaba_agent.mangaba_state.sqlite3.connect", side_effect=gated_connect):
             db = SessionDB(db_path=target)
 
         try:

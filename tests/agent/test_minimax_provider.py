@@ -332,7 +332,7 @@ class TestMinimaxSwitchModelCredentialGuard:
         """switch_model() should NOT call resolve_anthropic_token() for MiniMax."""
         from unittest.mock import patch, MagicMock
 
-        with patch("run_agent.AIAgent.__init__", return_value=None):
+        with patch("mangaba_agent.run_agent.AIAgent.__init__", return_value=None):
             from mangaba_agent.run_agent import AIAgent
             agent = AIAgent.__new__(AIAgent)
             agent.provider = "anthropic"

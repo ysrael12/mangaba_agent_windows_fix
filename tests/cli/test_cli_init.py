@@ -437,7 +437,7 @@ class TestRootLevelProviderOverride:
             },
         }))
 
-        import mangaba_agent.cli
+        import mangaba_agent.cli as cli
         monkeypatch.setattr(cli, "_mangaba_home", mangaba_home)
         cfg = cli.load_cli_config()
 
@@ -460,7 +460,7 @@ class TestRootLevelProviderOverride:
             },
         }))
 
-        import mangaba_agent.cli
+        import mangaba_agent.cli as cli
         monkeypatch.setattr(cli, "_mangaba_home", mangaba_home)
         cfg = cli.load_cli_config()
 
@@ -484,7 +484,7 @@ class TestRootLevelProviderOverride:
             },
         }))
 
-        import mangaba_agent.cli
+        import mangaba_agent.cli as cli
         monkeypatch.setattr(cli, "_mangaba_home", mangaba_home)
         cfg = cli.load_cli_config()
 

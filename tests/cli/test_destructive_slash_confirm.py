@@ -132,7 +132,7 @@ def test_gate_on_choice_always_persists_and_returns_always():
     with patch(
         "cli.load_cli_config",
         return_value={"approvals": {"destructive_slash_confirm": True}},
-    ), patch("cli.save_config_value", _fake_save):
+    ), patch("mangaba_agent.cli.save_config_value", _fake_save):
         result = _bound(MangabaCLI._confirm_destructive_slash, self_)(
             "clear", "detail",
         )
@@ -148,7 +148,7 @@ def test_gate_default_true_when_config_missing():
 
     self_ = _make_self(prompt_response="3")  # cancel
 
-    with patch("cli.load_cli_config", side_effect=Exception("boom")):
+    with patch("mangaba_agent.cli.load_cli_config", side_effect=Exception("boom")):
         result = _bound(MangabaCLI._confirm_destructive_slash, self_)(
             "clear", "detail",
         )

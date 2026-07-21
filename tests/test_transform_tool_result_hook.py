@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import mangaba_cli.plugins as plugins_mod
-import mangaba_agent.model_tools
+import mangaba_agent.model_tools as model_tools
 
 
 _UNSET = object()

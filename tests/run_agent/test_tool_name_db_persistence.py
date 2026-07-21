@@ -11,9 +11,9 @@ from agent.tool_dispatch_helpers import make_tool_result_message
 
 def _make_agent(session_db):
     with (
-        patch("run_agent.get_tool_definitions", return_value=[]),
-        patch("run_agent.check_toolset_requirements", return_value={}),
-        patch("run_agent.OpenAI"),
+        patch("mangaba_agent.run_agent.get_tool_definitions", return_value=[]),
+        patch("mangaba_agent.run_agent.check_toolset_requirements", return_value={}),
+        patch("mangaba_agent.run_agent.OpenAI"),
     ):
         return AIAgent(
             api_key="test-key",

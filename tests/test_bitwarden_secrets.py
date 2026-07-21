@@ -46,7 +46,7 @@ def mangaba_home(tmp_path, monkeypatch):
     home.mkdir()
     monkeypatch.setenv("MANGABA_HOME", str(home))
     # Some modules cache get_mangaba_home; clear if needed.
-    import mangaba_agent.mangaba_constants
+    import mangaba_agent.mangaba_constants as mangaba_constants
     if hasattr(mangaba_constants, "_MANGABA_HOME_CACHE"):
         mangaba_constants._MANGABA_HOME_CACHE = None  # type: ignore[attr-defined]
     return home

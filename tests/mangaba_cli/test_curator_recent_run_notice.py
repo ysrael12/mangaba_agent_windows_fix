@@ -27,7 +27,7 @@ def curator_env(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("MANGABA_HOME", str(home))
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
 
-    import mangaba_agent.mangaba_constants
+    import mangaba_agent.mangaba_constants as mangaba_constants
     importlib.reload(mangaba_constants)
     from agent import curator
     importlib.reload(curator)

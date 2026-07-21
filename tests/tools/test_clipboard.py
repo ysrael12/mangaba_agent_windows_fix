@@ -209,14 +209,14 @@ class TestIsWsl:
         # _is_wsl is mangaba_constants.is_wsl; reset the function's own module
         # globals so this stays stable even if mangaba_constants was imported
         # through a different module object earlier in a large xdist run.
-        import mangaba_agent.mangaba_constants
+        import mangaba_agent.mangaba_constants as mangaba_constants
         mangaba_constants._wsl_detected = None
         _is_wsl.__globals__["_wsl_detected"] = None
 
     def teardown_method(self):
         # Reset again after the test so we don't leak a cached value
         # (True/False) into whichever test the xdist worker runs next.
-        import mangaba_agent.mangaba_constants
+        import mangaba_agent.mangaba_constants as mangaba_constants
         mangaba_constants._wsl_detected = None
         _is_wsl.__globals__["_wsl_detected"] = None
 
@@ -882,7 +882,7 @@ class TestPreprocessImagesWithVision:
     @pytest.fixture
     def cli(self):
         """Minimal MangabaCLI with mocked internals."""
-        with patch("cli.load_cli_config") as mock_cfg:
+        with patch("mangaba_agent.cli.load_cli_config") as mock_cfg:
             mock_cfg.return_value = {
                 "model": {"default": "test/model", "base_url": "http://x", "provider": "auto"},
                 "terminal": {"timeout": 60},
@@ -895,7 +895,7 @@ class TestPreprocessImagesWithVision:
                 "delegation": {},
             }
             with patch.dict("os.environ", {"OPENROUTER_API_KEY": "test-key"}):
-                with patch("cli.CLI_CONFIG", mock_cfg.return_value):
+                with patch("mangaba_agent.cli.CLI_CONFIG", mock_cfg.return_value):
                     from mangaba_agent.cli import MangabaCLI
                     cli_obj = MangabaCLI.__new__(MangabaCLI)
                     # Manually init just enough state
@@ -1075,7 +1075,7 @@ class TestVoiceSubmission:
         with patch("tools.voice_mode.play_beep"):
             with patch("tools.voice_mode.transcribe_recording", return_value={"success": True, "transcript": "hello"}):
                 with patch("os.path.isfile", return_value=False):
-                    with patch("cli._cprint"):
+                    with patch("mangaba_agent.cli._cprint"):
                         cli._voice_stop_and_transcribe()
 
         assert cli._attached_images == []

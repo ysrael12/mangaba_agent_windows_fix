@@ -27,7 +27,7 @@ def mangaba_home(tmp_path, monkeypatch):
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
     monkeypatch.setenv("MANGABA_HOME", str(home))
     # Clear any cached mangaba_home computation
-    import mangaba_agent.mangaba_constants
+    import mangaba_agent.mangaba_constants as mangaba_constants
     if hasattr(mangaba_constants, "_mangaba_home_cache"):
         mangaba_constants._mangaba_home_cache = None
     return home
@@ -91,7 +91,7 @@ def test_save_conversation_writes_under_mangaba_home(mangaba_home, tmp_path, mon
 def test_save_conversation_empty_history_does_nothing(mangaba_home, capsys):
     for mod in [m for m in sys.modules if m.startswith("cli") or m == "mangaba_constants"]:
         sys.modules.pop(mod, None)
-    import mangaba_agent.cli
+    import mangaba_agent.cli as cli
 
     stub = _make_stub_cli([])
     cli.MangabaCLI.save_conversation(stub)
