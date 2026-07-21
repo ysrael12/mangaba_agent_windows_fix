@@ -484,6 +484,13 @@ def _make_stream_chunk(
     )
 
 
+# A single SSE line from an LLM stream is always small (a token or a few).
+# Guard against an upstream that never sends a newline: without this, ``buffer``
+# grows unbounded as chunks accumulate, exhausting memory. 10 MB is far beyond
+# any legitimate SSE line.
+_MAX_SSE_LINE_BYTES = 10 * 1024 * 1024
+
+
 def _iter_sse_events(response: httpx.Response) -> Iterator[Dict[str, Any]]:
     """Parse Server-Sent Events from an httpx streaming response."""
     buffer = ""
@@ -491,6 +498,13 @@ def _iter_sse_events(response: httpx.Response) -> Iterator[Dict[str, Any]]:
         if not chunk:
             continue
         buffer += chunk
+        if len(buffer) > _MAX_SSE_LINE_BYTES:
+            logger.warning(
+                "Gemini SSE buffer exceeded %d bytes without a newline; "
+                "aborting stream to avoid unbounded memory growth.",
+                _MAX_SSE_LINE_BYTES,
+            )
+            return
         while "\n" in buffer:
             line, buffer = buffer.split("\n", 1)
             line = line.rstrip("\r")

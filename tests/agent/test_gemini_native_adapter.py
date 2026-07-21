@@ -326,3 +326,43 @@ def test_stream_event_translation_keeps_identical_calls_in_distinct_parts():
     assert tool_chunks[0].choices[0].delta.tool_calls[0].index == 0
     assert tool_chunks[1].choices[0].delta.tool_calls[0].index == 1
     assert tool_chunks[0].choices[0].delta.tool_calls[0].id != tool_chunks[1].choices[0].delta.tool_calls[0].id
+
+
+class _FakeStreamResponse:
+    """Minimal httpx-like response exposing iter_text() for SSE parsing."""
+
+    def __init__(self, chunks):
+        self._chunks = chunks
+
+    def iter_text(self):
+        for c in self._chunks:
+            yield c
+
+
+def test_iter_sse_events_parses_normal_stream():
+    from agent.gemini_native_adapter import _iter_sse_events
+
+    resp = _FakeStreamResponse([
+        'data: {"a": 1}\n',
+        'data: {"b": 2}\n',
+        "data: [DONE]\n",
+    ])
+    events = list(_iter_sse_events(resp))
+    assert events == [{"a": 1}, {"b": 2}]
+
+
+def test_iter_sse_events_aborts_on_unbounded_line(monkeypatch):
+    """A stream that never sends a newline must not grow the buffer forever."""
+    import agent.gemini_native_adapter as adapter
+
+    monkeypatch.setattr(adapter, "_MAX_SSE_LINE_BYTES", 1000)
+
+    # Yield many newline-less chunks; without the guard this would accumulate
+    # unbounded. The guard aborts once the buffer passes the cap.
+    def _endless():
+        for _ in range(10_000):
+            yield "x" * 500  # no "\n"
+
+    resp = _FakeStreamResponse(_endless())
+    events = list(adapter._iter_sse_events(resp))
+    assert events == []  # aborted cleanly, no OOM
