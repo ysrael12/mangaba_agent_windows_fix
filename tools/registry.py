@@ -54,15 +54,71 @@ def _module_registers_tools(module_path: Path) -> bool:
     return any(_is_registry_register_call(stmt) for stmt in tree.body)
 
 
+def _discover_from_manifest() -> Optional[List[str]]:
+    """Return tool module names from the prebuilt manifest, or None if absent.
+
+    AST discovery reads and parses ``tools/*.py`` at runtime, which does not
+    work inside a frozen PyInstaller bundle (sources may be absent/compiled).
+    The build ships ``tools/_tool_manifest.json`` (see
+    ``scripts/gen_tool_manifest.py``) listing the module for each
+    self-registering tool. We resolve it relative to the bundle so it is found
+    in both frozen and source layouts.
+    """
+    try:
+        from mangaba_agent.frozen import resource_path
+        manifest_path = resource_path("tools/_tool_manifest.json")
+    except Exception:
+        manifest_path = Path(__file__).resolve().parent / "_tool_manifest.json"
+
+    if not manifest_path.is_file():
+        return None
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        logger.warning("Could not read tool manifest %s: %s", manifest_path, e)
+        return None
+
+    module_names: List[str] = []
+    for entry in manifest.values():
+        if isinstance(entry, dict) and entry.get("module"):
+            module_names.append(str(entry["module"]))
+    return module_names
+
+
 def discover_builtin_tools(tools_dir: Optional[Path] = None) -> List[str]:
-    """Import built-in self-registering tool modules and return their module names."""
-    tools_path = Path(tools_dir) if tools_dir is not None else Path(__file__).resolve().parent
-    module_names = [
-        f"tools.{path.stem}"
-        for path in sorted(tools_path.glob("*.py"))
-        if path.name not in {"__init__.py", "registry.py", "mcp_tool.py"}
-        and _module_registers_tools(path)
-    ]
+    """Import built-in self-registering tool modules and return their module names.
+
+    Uses AST discovery over ``tools/*.py`` when running from source. In a frozen
+    bundle (or whenever an explicit ``tools_dir`` isn't given and the manifest
+    exists) it falls back to the prebuilt ``_tool_manifest.json`` so discovery
+    doesn't depend on parsing source files that the bundle may not contain.
+    """
+    module_names: Optional[List[str]] = None
+
+    # Prefer the static manifest when no explicit dir was requested. It's what
+    # a frozen build ships; from source it's identical to AST discovery (the
+    # manifest is generated with the same detection logic).
+    if tools_dir is None:
+        try:
+            from mangaba_agent.frozen import is_frozen
+            frozen = is_frozen()
+        except Exception:
+            frozen = False
+        if frozen:
+            module_names = _discover_from_manifest()
+            if module_names is None:
+                logger.warning(
+                    "Frozen build but no tool manifest found; falling back to AST discovery."
+                )
+
+    if module_names is None:
+        tools_path = Path(tools_dir) if tools_dir is not None else Path(__file__).resolve().parent
+        module_names = [
+            f"tools.{path.stem}"
+            for path in sorted(tools_path.glob("*.py"))
+            if path.name not in {"__init__.py", "registry.py", "mcp_tool.py"}
+            and _module_registers_tools(path)
+        ]
 
     imported: List[str] = []
     for mod_name in module_names:

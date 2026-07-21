@@ -340,6 +340,64 @@ class TestBuiltinDiscovery:
         mock_import.assert_called_once_with("tools.alpha")
 
 
+class TestManifestDiscovery:
+    """Frozen builds discover tools from the prebuilt manifest, not AST."""
+
+    def test_shipped_manifest_matches_ast_discovery(self):
+        """The committed manifest must equal what AST discovery finds."""
+        from tools.registry import _discover_from_manifest
+
+        tools_dir = Path(__file__).resolve().parents[2] / "tools"
+        ast_modules = {
+            f"tools.{path.stem}"
+            for path in sorted(tools_dir.glob("*.py"))
+            if path.name not in {"__init__.py", "registry.py", "mcp_tool.py"}
+            and _module_registers_tools(path)
+        }
+        manifest_modules = set(_discover_from_manifest() or [])
+        assert manifest_modules == ast_modules
+
+    def test_frozen_uses_manifest(self, tmp_path):
+        """In frozen mode with no explicit dir, discovery reads the manifest."""
+        fake_manifest = tmp_path / "tools" / "_tool_manifest.json"
+        fake_manifest.parent.mkdir()
+        fake_manifest.write_text(
+            json.dumps({"alpha": {"module": "tools.alpha", "has_register": True}}),
+            encoding="utf-8",
+        )
+
+        # NOTE: the frozen patches must be entered BEFORE the importlib patch —
+        # mock.patch() resolves its targets via importlib.import_module, so
+        # mocking importlib first would break resolution of mangaba_agent.frozen.
+        with patch("mangaba_agent.frozen.is_frozen", return_value=True), \
+             patch("mangaba_agent.frozen.resource_path", return_value=fake_manifest), \
+             patch("tools.registry.importlib.import_module") as mock_import:
+            imported = discover_builtin_tools()
+
+        assert imported == ["tools.alpha"]
+        mock_import.assert_called_once_with("tools.alpha")
+
+    def test_frozen_without_manifest_falls_back_to_ast(self, tmp_path):
+        """Frozen but manifest missing -> AST discovery keeps working."""
+        missing = tmp_path / "nope.json"
+        tools_dir = tmp_path / "tools"
+        tools_dir.mkdir()
+        (tools_dir / "alpha.py").write_text(
+            "from tools.registry import registry\n"
+            "registry.register(name='alpha', toolset='x', schema={}, handler=lambda *_a, **_k: '{}')\n",
+            encoding="utf-8",
+        )
+
+        # tools_dir is passed explicitly, so AST path is used regardless of
+        # frozen state; the manifest is only consulted when tools_dir is None.
+        with patch("mangaba_agent.frozen.is_frozen", return_value=True), \
+             patch("mangaba_agent.frozen.resource_path", return_value=missing), \
+             patch("tools.registry.importlib.import_module") as mock_import:
+            imported = discover_builtin_tools(tools_dir)
+
+        assert imported == ["tools.alpha"]
+
+
 class TestEmojiMetadata:
     """Verify per-tool emoji registration and lookup."""
 
