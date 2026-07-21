@@ -7252,7 +7252,7 @@ async def get_dashboard_themes():
     them without a stub.
     """
     config = load_config()
-    active = cfg_get(config, "dashboard", "theme", default="default")
+    active = cfg_get(config, "dashboard", "theme", default="mangaba-light")
     user_themes = _discover_user_themes()
     seen = set()
     themes = []

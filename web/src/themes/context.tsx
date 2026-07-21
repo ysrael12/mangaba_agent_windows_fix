@@ -313,8 +313,8 @@ function applyTheme(theme: DashboardTheme) {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   /** Name of the currently active theme (built-in id or user YAML name). */
   const [themeName, setThemeName] = useState<string>(() => {
-    if (typeof window === "undefined") return "default";
-    return window.localStorage.getItem(STORAGE_KEY) ?? "default";
+    if (typeof window === "undefined") return DAY_THEME;
+    return window.localStorage.getItem(STORAGE_KEY) ?? DAY_THEME;
   });
 
   /** All selectable themes (shown in the picker). Starts with just the
@@ -398,7 +398,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         ...availableThemes.map((t) => t.name),
         ...Object.keys(userThemeDefs),
       ]);
-      const next = knownNames.has(name) ? name : "default";
+      const next = knownNames.has(name) ? name : DAY_THEME;
       setThemeName(next);
       if (typeof window !== "undefined") {
         window.localStorage.setItem(STORAGE_KEY, next);
@@ -434,15 +434,15 @@ export function useTheme(): ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: defaultTheme,
-  themeName: "default",
+  theme: BUILTIN_THEMES[DAY_THEME] ?? defaultTheme,
+  themeName: DAY_THEME,
   availableThemes: Object.values(BUILTIN_THEMES).map((t) => ({
     name: t.name,
     label: t.label,
     description: t.description,
   })),
   setTheme: () => {},
-  isDark: true,
+  isDark: false,
   toggleDayNight: () => {},
 });
 

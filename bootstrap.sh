@@ -308,32 +308,16 @@ elif [ "$PROVIDER" = "openai-codex" ]; then
   step "4/6  ChatGPT (Codex) — pulando Ollama local"
   ok "PROVIDER=openai-codex — usando ChatGPT ($MODEL). Conecte sua conta no dashboard depois (seção 4 do GUIA_DASHBOARD.md)."
 else
-  step "4/6  Verificando Ollama local"
-
   # Verifica se Ollama está rodando E se o modelo configurado existe. Sem o
   # segundo passo, a instalação nasce apontando para um modelo ausente e toda
   # mensagem falha com "provedor falhou" (o config aponta pra um modelo que o
   # Ollama não tem baixado).
   if curl -s -m 4 http://localhost:11434/v1/models >/dev/null 2>&1; then
-    ok "Ollama está rodando."
     if curl -s -m 4 http://localhost:11434/api/tags 2>/dev/null | grep -q "\"$MODEL\""; then
-      ok "Modelo $MODEL já está baixado."
+      :
     elif have ollama; then
-      echo "  modelo $MODEL não encontrado localmente — baixando (ollama pull $MODEL)..."
-      if ollama pull "$MODEL"; then
-        ok "Modelo $MODEL baixado."
-      else
-        warn "Falha ao baixar $MODEL. Baixe manualmente: ollama pull $MODEL"
-        warn "Ou escolha outro modelo pela interface do dashboard."
-      fi
-    else
-      warn "Modelo $MODEL não está baixado e o CLI 'ollama' não está no PATH."
-      warn "Baixe com: ollama pull $MODEL — ou escolha outro modelo no dashboard."
+      ollama pull "$MODEL" || true
     fi
-  else
-    warn "Ollama não está respondendo em http://localhost:11434"
-    warn "Certifique-se de que Ollama está sendo executado (ollama serve)."
-    warn "Você também pode configurar um modelo diferente via interface do dashboard."
   fi
 fi
 
