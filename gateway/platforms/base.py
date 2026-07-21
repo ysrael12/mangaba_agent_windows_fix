@@ -535,6 +535,55 @@ async def _ssrf_redirect_guard(response):
             )
 
 
+# Hard cap on inbound media downloads. Incoming messages (image/audio URLs) are
+# attacker-controlled on every messaging platform, and cache_*_from_url() below
+# used to buffer the whole body into RAM via response.content — a crafted URL
+# pointing at a multi-GB file (or a server that lies about Content-Length) could
+# exhaust memory. Override via MANGABA_MAX_MEDIA_DOWNLOAD_MB.
+try:
+    _MAX_MEDIA_BYTES = max(1, int(os.environ.get("MANGABA_MAX_MEDIA_DOWNLOAD_MB", "50"))) * 1024 * 1024
+except (ValueError, TypeError):
+    _MAX_MEDIA_BYTES = 50 * 1024 * 1024
+
+
+async def _download_capped(client, url: str, headers: dict, max_bytes: int = None) -> bytes:
+    """GET *url* streaming into memory, aborting if the body exceeds *max_bytes*.
+
+    Checks the declared Content-Length first (cheap reject), then enforces the
+    cap while streaming so a server that omits or lies about Content-Length
+    still cannot push more than *max_bytes* into RAM. *max_bytes* is resolved
+    from the module-level ``_MAX_MEDIA_BYTES`` at call time when not supplied
+    (so the env override / tests take effect).
+    """
+    if max_bytes is None:
+        max_bytes = _MAX_MEDIA_BYTES
+    async with client.stream("GET", url, headers=headers) as response:
+        response.raise_for_status()
+        declared = response.headers.get("content-length")
+        if declared is not None:
+            try:
+                if int(declared) > max_bytes:
+                    raise ValueError(
+                        f"Media exceeds size limit ({int(declared)} > {max_bytes} bytes): "
+                        f"{safe_url_for_log(url)}"
+                    )
+            except ValueError as exc:
+                # Re-raise our own size error; ignore an unparseable header.
+                if "size limit" in str(exc):
+                    raise
+        chunks: list[bytes] = []
+        total = 0
+        async for chunk in response.aiter_bytes():
+            total += len(chunk)
+            if total > max_bytes:
+                raise ValueError(
+                    f"Media exceeds size limit ({max_bytes} bytes) while streaming: "
+                    f"{safe_url_for_log(url)}"
+                )
+            chunks.append(chunk)
+        return b"".join(chunks)
+
+
 # ---------------------------------------------------------------------------
 # Image cache utilities
 #
@@ -631,15 +680,15 @@ async def cache_image_from_url(url: str, ext: str = ".jpg", retries: int = 2) ->
     ) as client:
         for attempt in range(retries + 1):
             try:
-                response = await client.get(
+                data = await _download_capped(
+                    client,
                     url,
                     headers={
                         "User-Agent": "Mozilla/5.0 (compatible; MangabaAgent/1.0)",
                         "Accept": "image/*,*/*;q=0.8",
                     },
                 )
-                response.raise_for_status()
-                return cache_image_from_bytes(response.content, ext)
+                return cache_image_from_bytes(data, ext)
             except (httpx.TimeoutException, httpx.HTTPStatusError) as exc:
                 if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code < 429:
                     raise
@@ -745,15 +794,15 @@ async def cache_audio_from_url(url: str, ext: str = ".ogg", retries: int = 2) ->
     ) as client:
         for attempt in range(retries + 1):
             try:
-                response = await client.get(
+                data = await _download_capped(
+                    client,
                     url,
                     headers={
                         "User-Agent": "Mozilla/5.0 (compatible; MangabaAgent/1.0)",
                         "Accept": "audio/*,*/*;q=0.8",
                     },
                 )
-                response.raise_for_status()
-                return cache_audio_from_bytes(response.content, ext)
+                return cache_audio_from_bytes(data, ext)
             except (httpx.TimeoutException, httpx.HTTPStatusError) as exc:
                 if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code < 429:
                     raise
