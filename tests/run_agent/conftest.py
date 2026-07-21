@@ -27,7 +27,7 @@ import pytest
 def _fast_retry_backoff(monkeypatch):
     """Short-circuit retry backoff for all tests in this directory."""
     try:
-        import mangaba_agent.run_agent
+        import mangaba_agent.run_agent as run_agent
     except ImportError:
         return
 

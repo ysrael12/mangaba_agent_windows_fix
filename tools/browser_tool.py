@@ -1182,6 +1182,15 @@ _cleanup_done = False
 # especially when subagents are doing multi-step browser tasks.
 BROWSER_SESSION_INACTIVITY_TIMEOUT = int(os.environ.get("BROWSER_INACTIVITY_TIMEOUT", "300"))
 
+# Hard cap on concurrent browser sessions (distinct task_ids) this process
+# will spawn. Each local session is its own Chromium process; nothing else
+# bounds how many a model can open (one per distinct task_id/subagent), and
+# the inactivity reaper only runs every few minutes — a model retrying a
+# failing navigation across many turns/subagents can otherwise pile up
+# enough Chromium processes to exhaust a machine's RAM before any cleanup
+# fires. Override via BROWSER_MAX_CONCURRENT_SESSIONS.
+BROWSER_MAX_CONCURRENT_SESSIONS = int(os.environ.get("BROWSER_MAX_CONCURRENT_SESSIONS", "6"))
+
 # Track last activity time per session
 _session_last_activity: Dict[str, float] = {}
 
@@ -1678,6 +1687,14 @@ def _get_session_info(task_id: Optional[str] = None) -> Dict[str, str]:
         # Check if we already have a session for this task
         if task_id in _active_sessions:
             return _active_sessions[task_id]
+        active_count = len(_active_sessions)
+
+    if active_count >= BROWSER_MAX_CONCURRENT_SESSIONS:
+        raise RuntimeError(
+            f"Browser session limit reached ({BROWSER_MAX_CONCURRENT_SESSIONS} concurrent "
+            "sessions active). Close an existing session (browser_close) before opening "
+            "a new one, or reuse the current task's session instead of a new task_id."
+        )
 
     # Hybrid routing: session keys ending with ``::local`` force a local
     # Chromium regardless of the globally-configured cloud provider.  Public

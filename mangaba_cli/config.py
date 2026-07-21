@@ -774,11 +774,16 @@ DEFAULT_CONFIG = {
     },
 
     # Tool loop guardrails nudge models when they repeat failed or
-    # non-progressing tool calls. Soft warnings are always-on by default;
-    # hard stops are opt-in so interactive CLI/TUI sessions keep flowing.
+    # non-progressing tool calls. Soft warnings are always-on by default.
+    # Hard stops are also on by default — a model that ignores the warnings
+    # and keeps retrying a failing/non-progressing tool (browser_navigate,
+    # terminal, ...) can otherwise spawn unbounded subprocesses/sessions
+    # across turns with nothing to stop it, which has frozen end-user
+    # machines by exhausting RAM. Users who want the old advisory-only
+    # behavior can set this back to false in config.yaml.
     "tool_loop_guardrails": {
         "warnings_enabled": True,
-        "hard_stop_enabled": False,
+        "hard_stop_enabled": True,
         "warn_after": {
             "exact_failure": 2,
             "same_tool_failure": 3,
