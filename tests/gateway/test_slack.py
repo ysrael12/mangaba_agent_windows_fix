@@ -1072,6 +1072,22 @@ class TestIncomingDocumentHandling:
         assert "• First bullet" in msg_event.text
         assert "• Second bullet" in msg_event.text
 
+    def test_deeply_nested_rich_text_does_not_recurse_crash(self):
+        """A crafted message nesting quotes thousands deep must not crash."""
+        from gateway.platforms.slack import _extract_text_from_slack_blocks
+
+        node = {
+            "type": "rich_text_section",
+            "elements": [{"type": "text", "text": "deep"}],
+        }
+        for _ in range(5000):
+            node = {"type": "rich_text_quote", "elements": [node]}
+        blocks = [{"type": "rich_text", "elements": [node]}]
+
+        # Depth-guarded: returns cleanly instead of raising RecursionError.
+        result = _extract_text_from_slack_blocks(blocks)
+        assert isinstance(result, str)
+
     @pytest.mark.asyncio
     async def test_attachments_unfurl_text_is_appended_even_when_url_is_in_message(self, adapter):
         """Shared URLs should still expose unfurl preview text to the agent."""

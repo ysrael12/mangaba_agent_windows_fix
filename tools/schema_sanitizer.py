@@ -36,6 +36,12 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+# Max depth we'll recurse into a tool schema. Schemas can come from MCP servers
+# the user connects, so a deeply-nested (or cyclically-inflated) schema must not
+# recurse into a RecursionError that crashes tool loading. 200 is far past any
+# real JSON-Schema nesting.
+_MAX_SCHEMA_DEPTH = 200
+
 
 def sanitize_tool_schemas(tools: list[dict]) -> list[dict]:
     """Return a copy of ``tools`` with each tool's parameter schema sanitized.
@@ -336,8 +342,10 @@ def strip_pattern_and_format(tools: list[dict]) -> tuple[list[dict], int]:
 
     stripped = 0
 
-    def _walk(node: Any) -> None:
+    def _walk(node: Any, depth: int = 0) -> None:
         nonlocal stripped
+        if depth > _MAX_SCHEMA_DEPTH:
+            return
         if isinstance(node, dict):
             # Only strip as a sibling of ``type`` — i.e. when this node is
             # itself a schema.  This avoids stripping literal property keys
@@ -349,10 +357,10 @@ def strip_pattern_and_format(tools: list[dict]) -> tuple[list[dict], int]:
                     node.pop(key, None)
                     stripped += 1
                     continue
-                _walk(node[key])
+                _walk(node[key], depth + 1)
         elif isinstance(node, list):
             for item in node:
-                _walk(item)
+                _walk(item, depth + 1)
 
     for tool in tools:
         if not isinstance(tool, dict):
@@ -408,8 +416,10 @@ def strip_slash_enum(tools: list[dict]) -> tuple[list[dict], int]:
 
     stripped = 0
 
-    def _walk(node: Any) -> None:
+    def _walk(node: Any, depth: int = 0) -> None:
         nonlocal stripped
+        if depth > _MAX_SCHEMA_DEPTH:
+            return
         if isinstance(node, dict):
             enum_val = node.get("enum")
             if isinstance(enum_val, list) and any(
@@ -418,10 +428,10 @@ def strip_slash_enum(tools: list[dict]) -> tuple[list[dict], int]:
                 node.pop("enum", None)
                 stripped += 1
             for v in node.values():
-                _walk(v)
+                _walk(v, depth + 1)
         elif isinstance(node, list):
             for item in node:
-                _walk(item)
+                _walk(item, depth + 1)
 
     for tool in tools:
         if not isinstance(tool, dict):

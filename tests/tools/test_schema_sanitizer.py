@@ -634,3 +634,28 @@ def test_strip_slash_enum_ignores_non_string_enum_values():
     props = tools[0]["function"]["parameters"]["properties"]
     assert props["level"]["enum"] == [1, 2, 3]
     assert props["flag"]["enum"] == [True, False]
+
+
+def test_deeply_nested_schema_does_not_recurse_crash():
+    """A pathologically deep schema must not raise RecursionError."""
+    # Build a schema nested well past Python's default recursion limit.
+    node: dict = {"type": "object", "pattern": "x"}
+    for _ in range(5000):
+        node = {"type": "object", "properties": {"child": node}, "pattern": "x"}
+    tools = [_tool("deep", node)]
+
+    # Must return cleanly (depth-guarded), not raise RecursionError.
+    _, stripped = strip_pattern_and_format(tools)
+    assert stripped >= 1
+
+
+def test_deeply_nested_enum_schema_does_not_recurse_crash():
+    node: dict = {"type": "string", "enum": ["a/b"]}
+    for _ in range(5000):
+        node = {"type": "object", "properties": {"child": node}}
+    tools = [_tool("deep", node)]
+
+    _, stripped = strip_slash_enum(tools)
+    # Depth-guarded: returns without crashing (deepest enum may be beyond the
+    # guard, which is fine — the point is no RecursionError).
+    assert isinstance(stripped, int)

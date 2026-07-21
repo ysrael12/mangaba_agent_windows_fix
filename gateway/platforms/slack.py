@@ -52,6 +52,12 @@ from gateway.platforms.base import (
 
 logger = logging.getLogger(__name__)
 
+# Max nesting depth we'll recurse into a Slack rich_text tree. Blocks are
+# attacker-controlled; a message nesting quotes/lists thousands deep would hit
+# Python's recursion limit and crash the handler. 64 is far past any real
+# message's nesting.
+_MAX_SLACK_BLOCK_DEPTH = 64
+
 # ContextVar carrying the user_id of the slash-command invoker.
 # Set in _handle_slash_command, read in send() to match the correct
 # stashed response_url when multiple users issue commands on the same
@@ -146,7 +152,14 @@ def _extract_text_from_slack_blocks(blocks: list) -> str:
         prefix = ((">" * quote_depth) + " ") if quote_depth else ""
         parts.append(f"{prefix}{bullet}{text}".rstrip())
 
-    def _walk_elements(elements: list, quote_depth: int = 0, bullet: str = "") -> None:
+    def _walk_elements(elements: list, quote_depth: int = 0, bullet: str = "", depth: int = 0) -> None:
+        # Depth guard: Slack rich_text blocks are attacker-controlled (anyone in
+        # a channel the bot is in). A crafted message nesting rich_text_quote /
+        # rich_text_list thousands deep would recurse until RecursionError and
+        # crash the message handler. Stop descending past a generous limit.
+        if depth > _MAX_SLACK_BLOCK_DEPTH:
+            logger.warning("Slack rich_text nesting exceeded %d levels; truncating.", _MAX_SLACK_BLOCK_DEPTH)
+            return
         for elem in elements:
             elem_type = elem.get("type", "")
 
@@ -157,12 +170,12 @@ def _extract_text_from_slack_blocks(blocks: list) -> str:
                     bullet=bullet,
                 )
             elif elem_type == "rich_text_quote":
-                _walk_elements(elem.get("elements", []), quote_depth=quote_depth + 1)
+                _walk_elements(elem.get("elements", []), quote_depth=quote_depth + 1, depth=depth + 1)
             elif elem_type == "rich_text_list":
                 list_style = elem.get("style")
                 for idx, item in enumerate(elem.get("elements", [])):
                     item_bullet = "• " if list_style == "bullet" else f"{idx + 1}. "
-                    _walk_elements([item], quote_depth=quote_depth, bullet=item_bullet)
+                    _walk_elements([item], quote_depth=quote_depth, bullet=item_bullet, depth=depth + 1)
             elif elem_type == "rich_text_preformatted":
                 code_lines: list[str] = []
                 for child in elem.get("elements", []):
@@ -224,16 +237,20 @@ def _serialize_slack_blocks_for_agent(blocks: list, max_chars: int = 6000) -> st
         "hint",
     }
 
-    def _sanitize(value):
+    def _sanitize(value, depth: int = 0):
+        # Same depth guard as _extract_text_from_slack_blocks: attacker-nested
+        # blocks must not recurse into a RecursionError crash.
+        if depth > _MAX_SLACK_BLOCK_DEPTH:
+            return repr(value) if not isinstance(value, (list, dict)) else None
         if isinstance(value, list):
-            return [item for item in (_sanitize(v) for v in value) if item not in (None, {}, [], "")]
+            return [item for item in (_sanitize(v, depth + 1) for v in value) if item not in (None, {}, [], "")]
         if isinstance(value, dict):
             sanitized = {}
             for key, item in value.items():
                 if key in scalar_allowlist:
                     sanitized[key] = item
                 elif key in recursive_allowlist:
-                    cleaned = _sanitize(item)
+                    cleaned = _sanitize(item, depth + 1)
                     if cleaned not in (None, {}, [], ""):
                         sanitized[key] = cleaned
             return sanitized
