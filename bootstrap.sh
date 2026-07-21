@@ -266,7 +266,9 @@ else
   exit 1
 fi
 echo "  instalando o pacote (pode demorar na 1ª vez)..."
-uv pip install -e . >/dev/null
+# inclui o extra [web] (fastapi/uvicorn) — o passo 6/6 abre o dashboard por
+# padrão (OPEN_DASHBOARD=true) e ele depende desses pacotes para subir.
+uv pip install -e ".[web]" >/dev/null
 ok "Mangaba instalado no venv."
 # extras úteis: busca web grátis (DuckDuckGo) + leitura de PDF/DOCX —
 # fazem 'pesquise…' e 'resuma este PDF' funcionarem sem chave de API.
