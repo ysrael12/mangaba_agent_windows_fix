@@ -151,13 +151,18 @@ export default function FleetPage() {
     refetchInterval: 15_000,
   });
   const members = data?.members ?? [];
+
+  const displayName = useCallback(
+    (m: FleetMemberWithPlatforms) => m.display_name?.trim() || m.name,
+    [],
+  );
   const loading = isLoading;
   const load = useCallback(() => {
     refetch();
   }, [refetch]);
 
   useEffect(() => {
-    if (error) showToast(`Erro ao carregar a frota: ${(error as Error).message}`, "error");
+    if (error) showToast(`Erro ao carregar a equipe: ${(error as Error).message}`, "error");
   }, [error, showToast]);
 
   const act = async (name: string, action: "restart" | "start" | "stop") => {
@@ -191,7 +196,7 @@ export default function FleetPage() {
     try {
       const res = await api.fleetBroadcast(msg);
       showToast(
-        `Aviso enfileirado para ${res.reached} agente(s) / ${res.channels} canal(is).` +
+        `Aviso enfileirado para ${res.reached} funcionário(s) agêntico(s) / ${res.channels} canal(is).` +
           (res.skipped.length ? ` Pulados: ${res.skipped.join(", ")}` : ""),
         "success",
       );
@@ -218,7 +223,7 @@ export default function FleetPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Radio className="h-5 w-5" />
-          <H2>Frota de agentes</H2>
+          <H2>Equipe de Funcionários Agênticos</H2>
         </div>
         <Button ghost size="sm" onClick={load} disabled={loading}>
           <RefreshCw className="h-4 w-4" /> Atualizar
@@ -227,7 +232,7 @@ export default function FleetPage() {
 
       {!loading && (
         <p className="text-sm text-muted-foreground">
-          {members.length} agente(s) · {up} no ar · {members.length - up} parado(s)
+          {members.length} funcionário(s) agêntico(s) · {up} no ar · {members.length - up} parado(s)
         </p>
       )}
 
@@ -236,7 +241,7 @@ export default function FleetPage() {
         <CardContent className="flex flex-col gap-2 p-4 sm:flex-row sm:items-center">
           <Megaphone className="h-4 w-4 shrink-0" />
           <Input
-            placeholder="Aviso para o canal-operador de todos os agentes…"
+            placeholder="Aviso para o canal-operador de todos os funcionários agênticos…"
             value={broadcast}
             onChange={(e) => setBroadcast(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendBroadcast()}
@@ -254,9 +259,9 @@ export default function FleetPage() {
       ) : members.length === 0 ? (
         <EmptyState
           icon={<Radio className="h-8 w-8" />}
-          title="Nenhum agente ainda"
-          description="Crie seu primeiro perfil de agente para começar. Cada perfil é um agente independente com personalidade e modelo próprios."
-          actionLabel="Criar um agente"
+          title="Nenhum funcionário agêntico ainda"
+          description="Crie seu primeiro funcionário agêntico para começar. Cada perfil é um funcionário agêntico independente com personalidade e modelo próprios."
+          actionLabel="Criar um funcionário agêntico"
           actionPath="/profiles"
         />
       ) : (
@@ -267,7 +272,7 @@ export default function FleetPage() {
                 <StatusDot active={m.running} title={m.running ? "no ar" : "parado"} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium">{m.name}</span>
+                    <span className="font-medium">{displayName(m)}</span>
                     {m.is_default && (
                       <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
                         controle

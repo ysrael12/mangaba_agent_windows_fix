@@ -49,24 +49,43 @@ export default function SimpleSettings() {
   const [selected, setSelected] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
-  const [config, setConfig] = useState<Record<string, unknown>>({});
-  const [configSaving, setConfigSaving] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [liveCheck, setLiveCheck] = useState<
+    { status: "checking" | "ok" | "stale"; message?: string } | null
+  >(null);
 
   useEffect(() => {
     let cancelled = false;
     void Promise.allSettled([
       api.getChatModels(),
       api.getModelInfo(),
-      api.getConfig(),
-    ]).then(([m, info, cfg]) => {
+    ]).then(([m, info]) => {
       if (cancelled) return;
       if (m.status === "fulfilled") {
         setModels(m.value);
         setSelected(m.value.current);
       }
       if (info.status === "fulfilled") setModelInfo(info.value);
-      if (cfg.status === "fulfilled") setConfig(cfg.value);
+
+      // O modelo salvo pode ter ficado obsoleto desde a última conexão
+      // (token expirado, provedor fora do ar, modelo removido) — sem essa
+      // checagem o usuário só descobre no meio de uma conversa.
+      if (info.status === "fulfilled" && info.value.provider && info.value.model) {
+        setLiveCheck({ status: "checking" });
+        api
+          .validateModel({ provider: info.value.provider, model: info.value.model })
+          .then((v) => {
+            if (cancelled) return;
+            setLiveCheck(
+              v.responds
+                ? { status: "ok" }
+                : { status: "stale", message: v.error ?? undefined },
+            );
+          })
+          .catch(() => {
+            if (!cancelled) setLiveCheck(null);
+          });
+      }
     });
     return () => {
       cancelled = true;
@@ -87,6 +106,7 @@ export default function SimpleSettings() {
     if (!provider || !model) return;
     setSaving(true);
     setNotice(null);
+    setLiveCheck({ status: "checking" });
     try {
       const validation = await api.validateModel({ provider, model });
       // Save regardless of the validation result. A provider that's momentarily
@@ -99,6 +119,7 @@ export default function SimpleSettings() {
       api.getModelInfo().then(setModelInfo).catch(() => {});
       if (validation.responds) {
         setNotice({ kind: "ok", text: `Modelo atualizado (${validation.response_time_ms}ms).` });
+        setLiveCheck({ status: "ok" });
       } else {
         setNotice({
           kind: "error",
@@ -106,6 +127,7 @@ export default function SimpleSettings() {
             ? `Modelo salvo, mas não respondeu no teste: ${validation.error}`
             : `Modelo salvo, mas não está respondendo agora (o provedor pode estar offline).`,
         });
+        setLiveCheck({ status: "stale", message: validation.error ?? undefined });
       }
     } catch (err) {
       setNotice({
@@ -116,25 +138,6 @@ export default function SimpleSettings() {
       setSaving(false);
     }
   };
-
-  const toggleConfig = async (key: string, value: boolean) => {
-    setConfig((prev) => ({ ...prev, [key]: value }));
-    setConfigSaving(true);
-    try {
-      await api.saveConfig({ [key]: value });
-      setNotice({ kind: "ok", text: "Salvo." });
-    } catch (err) {
-      setNotice({
-        kind: "error",
-        text: err instanceof Error ? err.message : "Falha ao salvar.",
-      });
-    } finally {
-      setConfigSaving(false);
-    }
-  };
-
-  const toolProgress = Boolean(config.tool_progress);
-  const suggestQuestions = Boolean(config.suggest_questions);
 
   // Rola até a seção referenciada pelo hash da URL (ex.: /configuracoes#rag),
   // usado pelos links da sidebar/dashboard que apontam para uma dimensão
@@ -202,12 +205,20 @@ export default function SimpleSettings() {
           </div>
         </SettingRow>
 
-        {modelInfo?.provider && (
+        {modelInfo?.provider && liveCheck?.status !== "stale" && (
           <div className="flex items-start gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+            {liveCheck?.status === "checking" ? (
+              <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-emerald-500" />
+            ) : (
+              <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+            )}
             <div className="min-w-0 flex-1 text-sm">
               <p className="font-medium text-emerald-600 dark:text-emerald-400">
-                ✓ Conectado via <strong>{modelInfo.provider}</strong>
+                {liveCheck?.status === "checking"
+                  ? "Verificando conexão…"
+                  : (
+                    <>✓ Conectado via <strong>{modelInfo.provider}</strong></>
+                  )}
               </p>
               <p className="mt-0.5 text-xs text-emerald-600/75 dark:text-emerald-400/75">
                 Usando modelo: {modelInfo.model}
@@ -216,31 +227,24 @@ export default function SimpleSettings() {
           </div>
         )}
 
+        {modelInfo?.provider && liveCheck?.status === "stale" && (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+            <div className="min-w-0 flex-1 text-sm">
+              <p className="font-medium text-amber-600 dark:text-amber-400">
+                ⚠ Modelo configurado não está respondendo
+              </p>
+              <p className="mt-0.5 text-xs text-amber-600/75 dark:text-amber-400/75">
+                {modelInfo.provider} / {modelInfo.model}
+                {liveCheck.message ? ` — ${liveCheck.message}` : " — verifique a conexão ou escolha outro modelo."}
+              </p>
+            </div>
+          </div>
+        )}
+
         <OAuthProvidersCard
           onError={(msg) => setNotice({ kind: "error", text: msg })}
           onSuccess={(msg) => setNotice({ kind: "ok", text: msg })}
-        />
-      </Section>
-
-      {/* Comportamento */}
-      <Section
-        icon={Wrench}
-        title="Comportamento"
-        description="Como o agente interage com você"
-      >
-        <ToggleSetting
-          label="Mostrar ferramentas usadas"
-          hint="Veja quais ferramentas o agente usou em cada resposta"
-          checked={toolProgress}
-          onChange={() => void toggleConfig("tool_progress", !toolProgress)}
-          disabled={configSaving}
-        />
-        <ToggleSetting
-          label="Sugerir perguntas"
-          hint="Receba sugestões de perguntas para continuar a conversa"
-          checked={suggestQuestions}
-          onChange={() => void toggleConfig("suggest_questions", !suggestQuestions)}
-          disabled={configSaving}
         />
       </Section>
 
@@ -480,12 +484,15 @@ function RagFilesSection() {
   const [error, setError] = useState<string | null>(null);
   const [enabled, setEnabled] = useState(false);
   const [togglingEnabled, setTogglingEnabled] = useState(false);
+  const [restrictToLocal, setRestrictToLocal] = useState(false);
+  const [togglingRestrict, setTogglingRestrict] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const refresh = () =>
     Promise.all([api.getRagFiles(), api.getRagStatus()]).then(([f, status]) => {
       setFiles(f.files);
       setEnabled(status.enabled);
+      setRestrictToLocal(Boolean(status.restrict_web_search));
     });
 
   useEffect(() => {
@@ -546,6 +553,20 @@ function RagFilesSection() {
     }
   };
 
+  const toggleRestrictToLocal = async () => {
+    const next = !restrictToLocal;
+    setTogglingRestrict(true);
+    setError(null);
+    try {
+      await api.restrictRagToLocal(next);
+      setRestrictToLocal(next);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setTogglingRestrict(false);
+    }
+  };
+
   if (loading) {
     return <Loader2 className="h-4 w-4 animate-spin text-text-tertiary" />;
   }
@@ -565,6 +586,13 @@ function RagFilesSection() {
         checked={enabled}
         onChange={() => void toggleEnabled()}
         disabled={togglingEnabled || files.length === 0}
+      />
+      <ToggleSetting
+        label="Restringir à base de conhecimento local"
+        hint="Quando ativo, o agente responde só com os documentos indexados aqui — sem buscar na web."
+        checked={restrictToLocal}
+        onChange={() => void toggleRestrictToLocal()}
+        disabled={togglingRestrict || !enabled}
       />
       <div className="flex flex-col gap-2">
         {files.length === 0 ? (

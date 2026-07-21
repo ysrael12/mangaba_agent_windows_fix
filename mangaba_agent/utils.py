@@ -86,20 +86,43 @@ def atomic_replace(tmp_path: Union[str, Path], target: Union[str, Path]) -> str:
     retry for the same reason) — not a real permission problem, so a short
     retry-with-backoff clears it without surfacing a save failure to the
     user for something that resolves itself within milliseconds.
+
+    If the lock outlasts the retry budget (~13s), falls back to writing
+    ``tmp_path``'s bytes directly into ``target`` in place. This loses the
+    "crash mid-write leaves the old file intact" guarantee of a rename, but
+    only ever triggers after ~9 failed rename attempts — trading a small
+    amount of crash-atomicity for not surfacing a 500 to the user for a
+    save that would otherwise succeed a second later.
     """
     target_str = str(target)
     real_path = os.path.realpath(target_str) if os.path.islink(target_str) else target_str
     if sys.platform == "win32":
         last_exc: OSError | None = None
-        for attempt in range(6):
+        attempts = 9  # ~13s total backoff (0.05 * 2**0..8, capped at 3.2s/step)
+        for attempt in range(attempts):
             try:
                 os.replace(str(tmp_path), real_path)
                 return real_path
             except PermissionError as exc:
                 last_exc = exc
-                time.sleep(0.05 * (2**attempt))
-        assert last_exc is not None
-        raise last_exc
+                if attempt < attempts - 1:
+                    time.sleep(min(0.05 * (2**attempt), 3.2))
+        # Retry budget exhausted — the lock is on the *target* (or the
+        # rename op itself), not necessarily the temp file, so writing
+        # tmp_path's content directly into target sidesteps the rename/
+        # delete semantics that AV/indexer/sync-client locks interfere with.
+        try:
+            with open(tmp_path, "rb") as src:
+                data = src.read()
+            with open(real_path, "wb") as dst:
+                dst.write(data)
+                dst.flush()
+                os.fsync(dst.fileno())
+            os.unlink(tmp_path)
+            return real_path
+        except OSError:
+            assert last_exc is not None
+            raise last_exc
     os.replace(str(tmp_path), real_path)
     return real_path
 

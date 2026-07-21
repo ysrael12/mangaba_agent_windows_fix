@@ -64,7 +64,7 @@ const STEPS: Step[] = [
     key: "agent",
     icon: <Users className="h-5 w-5" />,
     title: "Criar funcionário agêntico (opcional)",
-    description: "Um perfil com personalidade própria — útil para vários assistentes.",
+    description: "Um perfil com personalidade própria — útil para vários funcionários agênticos.",
     actionLabel: "Criar funcionário agêntico",
     path: "/profiles",
     essential: false,

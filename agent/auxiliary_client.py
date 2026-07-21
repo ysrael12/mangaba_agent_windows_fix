@@ -641,7 +641,7 @@ class _CodexCompletionsAdapter:
         # Separate system/instructions from conversation messages.
         # Convert chat.completions multimodal content blocks to Responses
         # API format (input_text / input_image instead of text / image_url).
-        instructions = "You are a helpful assistant."
+        instructions = "You are Mangaba Agent, an agentic employee (funcionário agêntico)."
         input_msgs: List[Dict[str, Any]] = []
         for msg in messages:
             role = msg.get("role", "user")
@@ -1866,6 +1866,44 @@ def _build_xai_oauth_aux_client(model: str) -> Tuple[Optional[Any], Optional[str
     logger.debug("Auxiliary client: xAI OAuth (%s via Responses API)", model)
     real_client = OpenAI(api_key=api_key, base_url=base_url)
     return CodexAuxiliaryClient(real_client, model), model
+
+
+def _build_gemini_cloudcode_aux_client(model: str) -> Tuple[Optional[Any], Optional[str]]:
+    """Build a GeminiCloudCodeClient for a Google Gemini OAuth (Code Assist) session.
+
+    google-gemini-cli authenticates via a Google OAuth access token exchanged
+    for Cloud Code Assist API access — a different transport
+    (``cloudcode-pa://``) than the OpenAI-compatible providers above, so it
+    needs its own client construction instead of falling through to
+    "OAuth provider not directly supported" (the previous behavior, which
+    made every auxiliary task — title generation, skill generation, profile
+    describer, etc. — fail for anyone on Gemini OAuth with no fallback
+    provider configured). Returns (None, None) when the user hasn't logged
+    in with `mangaba auth add google-gemini-cli`.
+    """
+    try:
+        from mangaba_cli.auth import AuthError, resolve_gemini_oauth_runtime_credentials
+    except ImportError:
+        return None, None
+    try:
+        creds = resolve_gemini_oauth_runtime_credentials()
+    except AuthError as exc:
+        logger.debug("Auxiliary client: google-gemini-cli OAuth unavailable: %s", exc)
+        return None, None
+    except Exception as exc:  # noqa: BLE001
+        logger.warning("Auxiliary client: google-gemini-cli credential resolution failed: %s", exc)
+        return None, None
+
+    from agent.gemini_cloudcode_adapter import GeminiCloudCodeClient
+
+    final_model = model or "gemini-2.5-pro"
+    client = GeminiCloudCodeClient(
+        api_key=creds.get("api_key", ""),
+        base_url=creds.get("base_url", ""),
+        project_id=creds.get("project_id", ""),
+    )
+    logger.debug("Auxiliary client: google-gemini-cli (Cloud Code Assist, %s)", final_model)
+    return client, final_model
 
 
 def _build_codex_client(model: str) -> Tuple[Optional[Any], Optional[str]]:
@@ -3264,6 +3302,19 @@ def resolve_provider_client(
             )
             return None, None
         final_model = _normalize_resolved_model(model or default, provider)
+        return (_to_async_client(client, final_model, is_vision=is_vision) if async_mode
+                else (client, final_model))
+
+    # ── Google Gemini (OAuth / Code Assist) ───────────────────────────
+    if provider == "google-gemini-cli":
+        client, default = _build_gemini_cloudcode_aux_client(model)
+        if client is None:
+            logger.warning(
+                "resolve_provider_client: google-gemini-cli requested but no "
+                "Google OAuth token found (run: mangaba auth add google-gemini-cli)"
+            )
+            return None, None
+        final_model = model or default
         return (_to_async_client(client, final_model, is_vision=is_vision) if async_mode
                 else (client, final_model))
 

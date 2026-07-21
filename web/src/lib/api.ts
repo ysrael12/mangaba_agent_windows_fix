@@ -168,6 +168,11 @@ export const api = {
       `/api/rag/enable?enable=${enable ? "true" : "false"}`,
       { method: "POST" },
     ),
+  restrictRagToLocal: (restrict: boolean) =>
+    fetchJSON<{ ok: boolean; restrict_web_search: boolean }>(
+      `/api/rag/restrict?restrict=${restrict ? "true" : "false"}`,
+      { method: "POST" },
+    ),
   uploadRagFile: (file: File) => {
     const form = new FormData();
     form.append("file", file);
@@ -319,7 +324,7 @@ export const api = {
       },
     ),
   /** Cria um profile real a partir do draft do wizard (10 passos). */
-  deployAgent: (body: { name: string; soul: string; model: string; provider: string }) =>
+  deployAgent: (body: { name: string; soul: string; model: string; provider: string; display_name?: string }) =>
     fetchJSON<{ ok: boolean; name: string; path: string }>("/api/wizard/deploy", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -452,6 +457,19 @@ export const api = {
     fetchJSON<{ ok: boolean }>(`/api/skills/${encodeURIComponent(name)}`, {
       method: "DELETE",
     }),
+  generateSkill: (body: {
+    prompt?: string;
+    identity?: { agent_name?: string; soul?: string };
+    creator_info?: { name?: string; role?: string; context?: string };
+  }) =>
+    fetchJSON<{ ok: boolean; name: string; tool: string; instruction: string; action: string }>(
+      "/api/skills/generate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      },
+    ),
 
   // ClawHub
   checkClawhubStatus: () => fetchJSON<{ connected: boolean; error?: string }>("/api/clawhub/status"),
@@ -758,6 +776,7 @@ export interface FleetMember {
   skills: number;
   description: string;
   is_default: boolean;
+  display_name: string;
 }
 
 export interface ActionResponse {
@@ -1231,6 +1250,7 @@ export interface RagStatus {
   pages: number;
   chunks: number;
   built_at: number | null;
+  restrict_web_search: boolean;
 }
 
 export interface RagUploadResponse {
@@ -1263,6 +1283,10 @@ export interface ModelAssignmentRequest {
   model: string;
   /** For auxiliary: task slot name, "" for all, "__reset__" to reset all. */
   task?: string;
+  /** Only applied for scope="main". Omit to leave config.yaml's value unchanged. */
+  temperature?: number;
+  top_p?: number;
+  max_tokens?: number;
 }
 
 export interface ModelAssignmentResponse {

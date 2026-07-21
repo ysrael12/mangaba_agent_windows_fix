@@ -25,13 +25,6 @@ export interface SkillDraft {
   description?: string;
 }
 
-export interface McpConnectionDraft {
-  id: string;
-  name: string;
-  url: string;
-  connected: boolean;
-}
-
 export interface CronScheduleDraft {
   /** Formato aceito por `parse_schedule()` no backend (`cron/jobs.py`). */
   kind: "cron" | "every" | "once";
@@ -79,7 +72,6 @@ export interface AgentDraft {
   knowledge_files: KnowledgeFileDraft[];
   internal_tools: Record<string, boolean>;
   skills: SkillDraft[];
-  mcp_connections: McpConnectionDraft[];
   heartbeat: { raw_text: string; schedule: CronScheduleDraft | null };
   channels: Record<string, ChannelDraft>;
   engine_oauth: EngineOAuthDraft;
@@ -92,7 +84,6 @@ export const EMPTY_AGENT_DRAFT: AgentDraft = {
   knowledge_files: [],
   internal_tools: {},
   skills: [],
-  mcp_connections: [],
   heartbeat: { raw_text: "", schedule: null },
   channels: {},
   engine_oauth: {

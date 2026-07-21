@@ -491,7 +491,8 @@ class EnvVarReveal(BaseModel):
 class ModelAssignment(BaseModel):
     """Payload for POST /api/model/set — assign a provider/model to a slot.
 
-    scope="main"        → writes model.provider + model.default
+    scope="main"        → writes model.provider + model.default (+ optional
+                          model.temperature / model.top_p / model.max_tokens)
     scope="auxiliary"   → writes auxiliary.<task>.provider + auxiliary.<task>.model
     scope="auxiliary" with task=""  → applied to every auxiliary.* slot
     scope="auxiliary" with task="__reset__"  → resets every slot to provider="auto"
@@ -500,6 +501,11 @@ class ModelAssignment(BaseModel):
     provider: str
     model: str
     task: str = ""
+    # Optional sampling overrides — only applied for scope="main". Omit (leave
+    # as None) to keep whatever is already in config.yaml.
+    temperature: Optional[float] = None
+    top_p: Optional[float] = None
+    max_tokens: Optional[int] = None
 
 
 class ModelValidateRequest(BaseModel):
@@ -752,7 +758,15 @@ def _test_single_model(
         result["reachable"] = True  # inference succeeds → server is reachable
         result["response_time_ms"] = round(elapsed, 1)
     except Exception as exc:
-        result["error"] = f"Inference failed: {exc}"
+        msg = str(exc)
+        if "<html" in msg.lower() or "cloudflare" in msg.lower():
+            result["error"] = (
+                "Provedor bloqueou a chamada (desafio Cloudflare / bot check). "
+                "O token pode ter expirado ou o provedor está limitando o acesso — "
+                "tente reautenticar ou trocar de modelo."
+            )
+        else:
+            result["error"] = f"Inference failed: {msg}"
 
     return result
 
@@ -973,6 +987,7 @@ def _fleet_member_to_dict(m) -> Dict[str, Any]:
         "skills": m.skills,
         "description": m.description,
         "is_default": m.is_default,
+        "display_name": m.display_name,
         "platforms": m.platforms,
     }
 
@@ -1418,6 +1433,7 @@ _AUX_TASK_SLOTS: Tuple[str, ...] = (
     "kanban_decomposer",
     "profile_describer",
     "curator",
+    "skill_generation",
 )
 
 
@@ -1528,6 +1544,12 @@ async def set_model_assignment(body: ModelAssignment):
             # a different context window.
             if "context_length" in model_cfg:
                 model_cfg.pop("context_length", None)
+            if body.temperature is not None:
+                model_cfg["temperature"] = body.temperature
+            if body.top_p is not None:
+                model_cfg["top_p"] = body.top_p
+            if body.max_tokens is not None:
+                model_cfg["max_tokens"] = body.max_tokens
             cfg["model"] = model_cfg
             save_config(cfg)
             return {"ok": True, "scope": "main", "provider": provider, "model": model}
@@ -1876,7 +1898,9 @@ def rag_status():
 
         mod = _load_rag_module()
         path = mod._index_path()
-        enabled = str((load_config().get("memory") or {}).get("provider") or "") == "mangaba_rag"
+        cfg = load_config()
+        mem_cfg = cfg.get("memory") or {}
+        enabled = str(mem_cfg.get("provider") or "") == "mangaba_rag"
         info = {
             "enabled": enabled,
             "source": mod.SOURCE_BASE,
@@ -1884,6 +1908,7 @@ def rag_status():
             "pages": 0,
             "chunks": 0,
             "built_at": None,
+            "restrict_web_search": bool(mem_cfg.get("restrict_web_search")),
         }
         if path.exists():
             data = _json.loads(path.read_text(encoding="utf-8"))
@@ -1921,6 +1946,23 @@ def rag_enable(enable: bool = True):
         return {"ok": True, "enabled": bool(enable)}
     except Exception as exc:  # noqa: BLE001
         _log.exception("POST /api/rag/enable failed")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@app.post("/api/rag/restrict")
+def rag_restrict(restrict: bool = True):
+    """Liga/desliga o modo 'somente base local' — quando ativo, o agente não
+    usa web_search/web_extract, só a base de conhecimento (RAG) local."""
+    try:
+        from mangaba_cli.config import load_config, save_config
+
+        cfg = load_config()
+        mem = cfg.setdefault("memory", {})
+        mem["restrict_web_search"] = bool(restrict)
+        save_config(cfg)
+        return {"ok": True, "restrict_web_search": bool(restrict)}
+    except Exception as exc:  # noqa: BLE001
+        _log.exception("POST /api/rag/restrict failed")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
@@ -5351,6 +5393,7 @@ class WizardDeployBody(BaseModel):
     soul: str = ""
     model: str = ""
     provider: str = ""
+    display_name: str = ""
 
 
 @app.post("/api/wizard/deploy")
@@ -5381,6 +5424,17 @@ async def wizard_deploy(body: WizardDeployBody):
             if body.provider:
                 m["provider"] = body.provider.strip()
             cfg["model"] = m
+            save_config(cfg)
+
+        # agent.display_name — reforça o que a Slide3Identity já salva via
+        # onBlur em /api/agent/identity. O deploy é o único passo garantido
+        # a rodar (o onBlur pode nunca disparar se o usuário nunca desfocar
+        # o campo), então isso é a rede de segurança que evita o dashboard
+        # caindo de volta pro slug "default" por falta de dado persistido.
+        if body.display_name.strip():
+            cfg = load_config()
+            agent_cfg = cfg.setdefault("agent", {})
+            agent_cfg["display_name"] = body.display_name.strip()
             save_config(cfg)
     except Exception as e:  # noqa: BLE001
         _log.exception("wizard deploy failed")
@@ -5562,6 +5616,174 @@ async def forge_skill(body: SkillForgeCreate):
         _log.exception("POST /api/skills/forge failed")
         raise HTTPException(status_code=500, detail=str(e))
     return {"ok": True, "name": slug, "path": str(skill_dir / "SKILL.md")}
+
+
+def _extract_skill_json(raw: str) -> Optional[Dict[str, Any]]:
+    """Tolerant JSON extraction for LLM-generated skill drafts.
+
+    Models routinely ignore "respond with ONLY JSON" — wrapping the object
+    in a ```json fence, prefixing it with a sentence, or trailing it with
+    commentary. Try a straight parse first, then fall back to slicing the
+    first ``{`` to the last ``}`` (safe here since the expected schema is a
+    single flat object with no nested braces)."""
+    import json as _json
+    import re as _re
+
+    text = (raw or "").strip()
+    if not text:
+        return None
+
+    def _try(candidate: str) -> Optional[Dict[str, Any]]:
+        try:
+            parsed = _json.loads(candidate)
+        except Exception:  # noqa: BLE001
+            return None
+        return parsed if isinstance(parsed, dict) else None
+
+    parsed = _try(text)
+    if parsed is not None:
+        return parsed
+
+    fence_match = _re.search(r"```(?:json)?\s*(.*?)```", text, _re.DOTALL | _re.IGNORECASE)
+    if fence_match:
+        parsed = _try(fence_match.group(1).strip())
+        if parsed is not None:
+            return parsed
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        parsed = _try(text[start:end + 1])
+        if parsed is not None:
+            return parsed
+
+    return None
+
+
+class SkillGenerateRequest(BaseModel):
+    prompt: str = ""
+    identity: Optional[Dict[str, str]] = None
+    creator_info: Optional[Dict[str, str]] = None
+
+
+@app.post("/api/skills/generate")
+async def generate_skill(body: SkillGenerateRequest):
+    """Pede ao modelo para propor uma skill (nome/ferramenta/instrução/ação)
+    com base na identidade do funcionário agêntico e no perfil do criador.
+
+    Só devolve um rascunho — o usuário revisa no formulário da Forja e
+    confirma via /api/skills/forge, igual a uma skill escrita à mão."""
+    import asyncio
+
+    from agent.auxiliary_client import call_llm
+    from mangaba_cli.runtime_provider import resolve_runtime_provider
+
+    identity = body.identity or {}
+    creator = body.creator_info or {}
+
+    context_lines: List[str] = []
+    if identity.get("agent_name"):
+        context_lines.append(f"Nome do funcionário agêntico: {identity['agent_name']}")
+    if identity.get("soul"):
+        context_lines.append(f"Personalidade/função (SOUL): {identity['soul']}")
+    if creator.get("name"):
+        context_lines.append(f"Criador: {creator['name']}")
+    if creator.get("role"):
+        context_lines.append(f"Função do criador: {creator['role']}")
+    if creator.get("context"):
+        context_lines.append(f"Contexto de uso: {creator['context']}")
+    if body.prompt.strip():
+        context_lines.append(f"Pedido do usuário: {body.prompt.strip()}")
+
+    if not context_lines:
+        raise HTTPException(
+            status_code=400,
+            detail="Forneça a identidade do funcionário agêntico ou descreva o que a skill deve fazer.",
+        )
+
+    system_prompt = (
+        "Você projeta habilidades (skills) para um agente de IA. Uma skill é uma "
+        "instrução reutilizável com três partes: uma ferramenta/contexto de trabalho, "
+        "uma instrução de como agir, e a ação/resultado esperado ao final. Com base no "
+        "perfil abaixo, proponha UMA skill útil e específica para esse funcionário "
+        "agêntico — nunca genérica. Responda APENAS com JSON, sem markdown e sem texto "
+        'fora do JSON, no formato exato: {"name": "...", "tool": "...", '
+        '"instruction": "...", "action": "..."}. "name" deve ter 2 a 4 palavras.'
+    )
+
+    try:
+        runtime = resolve_runtime_provider()
+    except Exception:  # noqa: BLE001
+        runtime = None
+
+    loop = asyncio.get_event_loop()
+
+    def _call() -> Any:
+        return call_llm(
+            task="skill_generation",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "\n".join(context_lines)},
+            ],
+            max_tokens=800,
+            temperature=0.6,
+            timeout=45.0,
+            main_runtime=runtime,
+        )
+
+    try:
+        try:
+            response = await loop.run_in_executor(None, _call)
+        except Exception as exc:  # noqa: BLE001
+            # Transient Gemini quota/capacity throttles are self-resolving in
+            # seconds (the error carries retry_after) — retry once instead of
+            # surfacing a 502 the user has to manually re-trigger.
+            retry_after = getattr(exc, "retry_after", None)
+            if retry_after is not None and retry_after <= 30:
+                _log.info(
+                    "POST /api/skills/generate: transient error, retrying in %.1fs: %s",
+                    retry_after, exc,
+                )
+                await asyncio.sleep(retry_after)
+                response = await loop.run_in_executor(None, _call)
+            else:
+                raise
+        raw = (response.choices[0].message.content or "").strip()
+    except Exception as exc:  # noqa: BLE001
+        _log.warning("POST /api/skills/generate: LLM call failed: %s", exc)
+        if "No LLM provider configured" in str(exc):
+            raise HTTPException(
+                status_code=502,
+                detail="O modelo de IA configurado não respondeu (token expirado, provedor "
+                       "fora do ar, ou nenhum modelo configurado ainda). Verifique a conexão "
+                       "em Configurações → Inteligência Artificial e tente novamente.",
+            )
+        raise HTTPException(status_code=502, detail=_friendly_chat_error(str(exc)))
+
+    if not raw:
+        _log.warning("POST /api/skills/generate: model returned empty content")
+        raise HTTPException(
+            status_code=502,
+            detail="O modelo não retornou uma skill válida. Tente novamente.",
+        )
+
+    data = _extract_skill_json(raw)
+    if data is None:
+        _log.warning("POST /api/skills/generate: model returned non-JSON: %s", raw[:300])
+        raise HTTPException(status_code=502, detail="O modelo não retornou uma skill válida. Tente novamente.")
+
+    name = str(data.get("name") or "").strip()
+    instruction = str(data.get("instruction") or "").strip()
+    if not name or not instruction:
+        raise HTTPException(status_code=502, detail="A skill gerada ficou incompleta. Tente novamente.")
+
+    return {
+        "ok": True,
+        "name": name,
+        "tool": str(data.get("tool") or "").strip(),
+        "instruction": instruction,
+        "action": str(data.get("action") or "").strip(),
+    }
 
 
 @app.delete("/api/skills/{name}")
@@ -6153,6 +6375,14 @@ def _build_chat_agent(model_override: str = None, provider_override: str = None)
     except Exception:  # noqa: BLE001
         toolsets = None
 
+    mem_cfg = cfg.get("memory") or {}
+    rag_only = (
+        str(mem_cfg.get("provider") or "") == "mangaba_rag"
+        and bool(mem_cfg.get("restrict_web_search"))
+    )
+    if rag_only and toolsets:
+        toolsets = [name for name in toolsets if name != "web"]
+
     agent = AIAgent(
         api_key=runtime.get("api_key"),
         base_url=runtime.get("base_url"),
@@ -6168,6 +6398,14 @@ def _build_chat_agent(model_override: str = None, provider_override: str = None)
     return agent
 
 
+# Cache de curta duração: evita bater no Ollama/providers a cada digitação
+# no seletor de modelo, mas ainda reflete mudanças de config em poucos segundos.
+_CHAT_MODELS_CACHE_TTL_SECONDS = 15.0
+_chat_models_cache: Optional[Dict[str, Any]] = None
+_chat_models_cache_key: Optional[tuple] = None
+_chat_models_cache_at: float = 0.0
+
+
 @app.get("/api/chat/models")
 def chat_models() -> Dict[str, Any]:
     """Modelos disponíveis para o seletor da aba Chat.
@@ -6177,15 +6415,27 @@ def chat_models() -> Dict[str, Any]:
     picker quando não há Ollama local.
     """
     import json as _json
+    import time as _time
     import urllib.request
 
     from mangaba_cli.config import load_config
+
+    global _chat_models_cache, _chat_models_cache_key, _chat_models_cache_at
 
     cfg = load_config()
     model_cfg = cfg.get("model") or {}
     current = str(model_cfg.get("default") or model_cfg.get("name") or "").strip()
     provider = str(model_cfg.get("provider") or "").strip().lower()
     base = str(model_cfg.get("base_url") or "").strip()
+
+    cache_key = (current, provider, base)
+    now = _time.monotonic()
+    if (
+        _chat_models_cache is not None
+        and _chat_models_cache_key == cache_key
+        and (now - _chat_models_cache_at) < _CHAT_MODELS_CACHE_TTL_SECONDS
+    ):
+        return _chat_models_cache
 
     out: List[Dict[str, str]] = []
     seen: set = set()
@@ -6194,6 +6444,13 @@ def chat_models() -> Dict[str, Any]:
         if name and name not in seen:
             seen.add(name)
             out.append({"provider": prov, "model": name})
+
+    def _store(result: Dict[str, Any]) -> Dict[str, Any]:
+        global _chat_models_cache, _chat_models_cache_key, _chat_models_cache_at
+        _chat_models_cache = result
+        _chat_models_cache_key = cache_key
+        _chat_models_cache_at = _time.monotonic()
+        return result
 
     # 0) Hugging Face — lista curada de modelos verificados na Inference API.
     #    (O branding Mangaba é aplicado no frontend via brandModel.)
@@ -6210,7 +6467,7 @@ def chat_models() -> Dict[str, Any]:
             _add("huggingface", current)
         for m in _HF_MODELS:
             _add("huggingface", m)
-        return {"models": out, "current": current}
+        return _store({"models": out, "current": current})
 
     # 1) Ollama local — deriva o host de base_url (…/v1 → …/api/tags).
     if provider == "ollama" or "11434" in base or not base:
@@ -6248,7 +6505,27 @@ def chat_models() -> Dict[str, Any]:
     except Exception:  # noqa: BLE001
         pass
 
-    return {"models": out, "current": current}
+    return _store({"models": out, "current": current})
+
+
+def _friendly_chat_error(raw: str) -> str:
+    """Traduz erros técnicos do backend em mensagens que fazem sentido pro
+    usuário final. O texto original sempre é logado antes de chamar isso —
+    aqui só decidimos o que aparece no chat."""
+    text = (raw or "").lower()
+    if "timeout" in text or "timed out" in text:
+        return "O modelo demorou demais para responder. Tente novamente em instantes."
+    if "rate limit" in text or "429" in text or "usage_limit_reached" in text or "usage limit" in text:
+        return "Limite de uso do provedor de IA atingido. Aguarde um pouco (ou troque de modelo em Configurações) e tente de novo."
+    if "quota exhausted" in text or "quota" in text and "exhaust" in text:
+        return "A cota diária do modelo atual se esgotou. Troque de modelo em Configurações → Inteligência Artificial e tente novamente."
+    if "unauthorized" in text or "401" in text or "invalid api key" in text or "invalid_api_key" in text:
+        return "Falha de autenticação com o provedor de IA. Verifique a conexão do modelo nas configurações."
+    if "connection" in text or "connect" in text or "network" in text or "resolve" in text:
+        return "Não foi possível conectar ao provedor de IA. Verifique sua conexão e tente novamente."
+    if "context length" in text or "context_length" in text or "too many tokens" in text:
+        return "A conversa ficou grande demais para o modelo. Inicie uma nova sessão."
+    return "Não foi possível concluir a resposta agora. Tente novamente em instantes."
 
 
 @app.websocket("/api/chat")
@@ -6299,7 +6576,7 @@ async def chat_ws(ws: WebSocket) -> None:
                               getattr(agent, '_provider_name', None))
                 except Exception as exc:  # noqa: BLE001
                     _log.exception("chat_ws: build agent failed for model=%s provider=%s", model, provider)
-                    await ws.send_json({"type": "error", "text": f"Falha ao iniciar o agente: {exc}"})
+                    await ws.send_json({"type": "error", "text": _friendly_chat_error(str(exc))})
                     continue
 
             queue: "asyncio.Queue[dict]" = asyncio.Queue()
@@ -6362,7 +6639,7 @@ async def chat_ws(ws: WebSocket) -> None:
                 else:  # error
                     err_text = item.get("error", "erro desconhecido")
                     _log.warning("chat_ws: error model=%s err=%s", built_model, err_text)
-                    await ws.send_json({"type": "error", "text": err_text})
+                    await ws.send_json({"type": "error", "text": _friendly_chat_error(err_text)})
                     break
     except WebSocketDisconnect:
         return

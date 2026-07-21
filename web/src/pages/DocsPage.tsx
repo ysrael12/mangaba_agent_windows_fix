@@ -339,7 +339,7 @@ Confirme o problema antes de sugerir soluções.`}</Block>
 function AdvancedDocs() {
   return (
     <div className="space-y-4">
-      <Section title="1. Frota de agentes (aba Fleet)">
+      <Section title="1. Equipe de funcionários agênticos (aba Fleet)">
         <Step n={1} title="Ligar/desligar agentes">
           <p>
             Clique em <UI>Fleet</UI>. Cada agente (perfil) aparece com seu
@@ -410,8 +410,8 @@ function AdvancedDocs() {
         <Step n={1} title="Conversas de todos os agentes">
           <p>
             Clique em <UI>Sessões Globais</UI> para ver, numa lista única, as
-            conversas de todos os perfis da frota — com badge colorido por
-            agente (verde = ativo, cinza = parado).
+            conversas de todos os perfis da equipe — com badge colorido por
+            funcionário agêntico (verde = ativo, cinza = parado).
           </p>
         </Step>
       </Section>
@@ -511,7 +511,7 @@ const LEVELS = [
   {
     id: "advanced",
     label: "Avançado",
-    sub: "Frota, multi-agente, roteamento, Kanban",
+    sub: "Equipe, multi-agente, roteamento, Kanban",
     icon: Rocket,
     content: <AdvancedDocs />,
   },

@@ -35,6 +35,7 @@ class FleetMember:
     skills: int = 0
     description: str = ""
     is_default: bool = False
+    display_name: str = ""
     platforms: List[dict] = field(default_factory=list)
 
 
@@ -44,6 +45,20 @@ def _pid_for(profile_path: Path) -> Optional[int]:
         return get_running_pid(profile_path / "gateway.pid", cleanup_stale=False)
     except Exception:
         return None
+
+
+def _read_display_name(profile_path: Path) -> str:
+    """Lê o display_name do config.yaml de um profile."""
+    cfg_path = profile_path / "config.yaml"
+    if not cfg_path.exists():
+        return ""
+    try:
+        import yaml
+        cfg = yaml.safe_load(cfg_path.read_text()) or {}
+        agent_cfg = cfg.get("agent") or {}
+        return str(agent_cfg.get("display_name") or "").strip()
+    except Exception:  # noqa: BLE001
+        return ""
 
 
 def collect_fleet() -> List[FleetMember]:
@@ -70,6 +85,7 @@ def collect_fleet() -> List[FleetMember]:
             skills=getattr(p, "skill_count", 0) or 0,
             description=getattr(p, "description", "") or "",
             is_default=getattr(p, "is_default", False),
+            display_name=_read_display_name(p.path),
             platforms=platforms,
         ))
     members.sort(key=lambda m: (not m.running, m.name))  # no ar primeiro
@@ -276,7 +292,7 @@ def _platforms_for_profile(profile_path: Path) -> List[dict]:
 
     platforms = cfg.get("platforms") or {}
     if not isinstance(platforms, dict):
-        return []
+        platforms = {}
 
     out: List[dict] = []
     for plat_name, pcfg in platforms.items():
@@ -293,6 +309,22 @@ def _platforms_for_profile(profile_path: Path) -> List[dict]:
             "home_channel": home_channel,
             "has_token": has_token,
         })
+
+    # Canais conectados via /api/channels/{platform}/connect só gravam o
+    # token no .env — nunca ganham uma entrada em config.yaml["platforms"].
+    # Sem isso eles ficam com token válido mas invisíveis aqui ("Nenhum
+    # canal configurado"), mesmo funcionando de verdade no gateway.
+    seen = {p["platform"] for p in out}
+    for plat_name, token_var in _PLATFORM_TOKEN_VARS.items():
+        if plat_name in seen:
+            continue
+        if env_vars.get(token_var) or os.environ.get(token_var):
+            out.append({
+                "platform": plat_name,
+                "enabled": True,
+                "home_channel": None,
+                "has_token": True,
+            })
     return out
 
 

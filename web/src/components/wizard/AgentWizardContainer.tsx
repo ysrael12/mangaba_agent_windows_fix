@@ -79,13 +79,15 @@ export function AgentWizardContainer({ onComplete }: Props) {
             transition={{ duration: 0.28, ease: EASE }}
             className="absolute inset-0 flex flex-col gap-4"
           >
-            <div className="flex flex-col gap-1">
-              <span className="text-xs font-medium uppercase tracking-wide text-text-tertiary">
-                Passo {activeDef.id} de {total}
-              </span>
-              <h2 className="text-2xl font-semibold text-text-primary">{activeDef.title}</h2>
-              <p className="text-sm text-text-secondary">{activeDef.description}</p>
-            </div>
+            {!activeDef.hideHeader && (
+              <div className="flex flex-col gap-1">
+                <span className="text-xs font-medium uppercase tracking-wide text-text-tertiary">
+                  Passo {activeDef.id} de {total}
+                </span>
+                <h2 className="text-2xl font-semibold text-text-primary">{activeDef.title}</h2>
+                <p className="text-sm text-text-secondary">{activeDef.description}</p>
+              </div>
+            )}
             <div className="min-h-0 flex-1 overflow-hidden rounded-2xl border border-border/60 bg-card">
               <SlideBody />
             </div>

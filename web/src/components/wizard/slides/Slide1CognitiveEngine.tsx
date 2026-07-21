@@ -180,6 +180,8 @@ interface EngineProviderDef {
   connectedLabel: string;
   accentColor: string;
   modelConfig: { provider: string; model: string };
+  /** Env var the backend reads the API key from (only for connectionType: "api_key"). */
+  apiKeyEnvVar?: string;
 }
 
 const ENGINE_DEFS: Record<string, EngineProviderDef> = {
@@ -247,6 +249,7 @@ const ENGINE_DEFS: Record<string, EngineProviderDef> = {
     connectedLabel: "DeepSeek API",
     accentColor: "rose",
     modelConfig: { provider: "deepseek", model: "deepseek-chat" },
+    apiKeyEnvVar: "DEEPSEEK_API_KEY",
   },
   nvidia: {
     id: "nvidia",
@@ -259,7 +262,8 @@ const ENGINE_DEFS: Record<string, EngineProviderDef> = {
     flatRate: "Acesso via NVIDIA API Catalog. Créditos gratuitos disponíveis.",
     connectedLabel: "NVIDIA API",
     accentColor: "cyan",
-    modelConfig: { provider: "nvidia", model: "nvidia/llama-3.1-nemotron-70b-instruct" },
+    modelConfig: { provider: "nvidia", model: "nvidia/llama-3.3-nemotron-super-49b-v1" },
+    apiKeyEnvVar: "NVIDIA_API_KEY",
   },
 };
 
@@ -498,9 +502,10 @@ export function Slide1CognitiveEngine() {
   }, []);
 
   const handleApiKeyConnect = useCallback(
-    (providerId: string, key: string) => {
+    (providerId: string, rawKey: string) => {
       const def = ENGINE_DEFS[providerId];
       if (!def) return;
+      const key = rawKey.trim();
       setActiveProviderId(providerId);
       setUserLabel(def.connectedLabel);
       syncToContext({
@@ -512,30 +517,40 @@ export function Slide1CognitiveEngine() {
         api_key: key,
         model_configs: config,
       });
-      // Persist the model to config.yaml regardless of the validation result,
-      // then warn if it isn't responding. Blocking on validation would trap the
-      // user when the provider is momentarily down.
-      api
-        .setModelAssignment({
-          scope: "main",
-          task: "",
-          provider: def.modelConfig.provider,
-          model: def.modelConfig.model,
-        })
-        .catch(() => {});
-      api
-        .validateModel(def.modelConfig)
-        .then((v) => {
-          if (v.responds) {
-            showToast(`${def.shortName} conectado (${v.response_time_ms}ms).`, "success");
-          } else {
-            showToast(
-              `${def.shortName} salvo, mas o modelo não respondeu: ${v.error || "provedor não alcançável"}`,
-              "warning",
-            );
-          }
-        })
-        .catch(() => showToast(`${def.shortName} conectado.`, "success"));
+      // The key must be persisted as an env var before validate/set-model —
+      // otherwise the backend has no credential to test with and every
+      // connection attempt fails with 401, regardless of key validity.
+      const persistKey = def.apiKeyEnvVar
+        ? api.setEnvVar(def.apiKeyEnvVar, key)
+        : Promise.resolve();
+      persistKey
+        .catch(() => {})
+        .then(() => {
+          // Persist the model to config.yaml regardless of the validation result,
+          // then warn if it isn't responding. Blocking on validation would trap the
+          // user when the provider is momentarily down.
+          api
+            .setModelAssignment({
+              scope: "main",
+              task: "",
+              provider: def.modelConfig.provider,
+              model: def.modelConfig.model,
+            })
+            .catch(() => {});
+          api
+            .validateModel({ ...def.modelConfig, api_key: key })
+            .then((v) => {
+              if (v.responds) {
+                showToast(`${def.shortName} conectado (${v.response_time_ms}ms).`, "success");
+              } else {
+                showToast(
+                  `${def.shortName} salvo, mas o modelo não respondeu: ${v.error || "provedor não alcançável"}`,
+                  "warning",
+                );
+              }
+            })
+            .catch(() => showToast(`${def.shortName} conectado.`, "success"));
+        });
     },
     [config, syncToContext, showToast],
   );
@@ -573,6 +588,35 @@ export function Slide1CognitiveEngine() {
     },
     [config, syncToContext],
   );
+
+  // Persist temperature/top_p/max_tokens to config.yaml so they survive page
+  // reloads and actually reach the running agent — sliders were previously
+  // draft-only and silently dropped. Debounced since sliders fire on every
+  // drag tick.
+  const persistTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!activeDef) return;
+    const provider = draft.model_config.provider || activeDef.modelConfig.provider;
+    const model = draft.model_config.model || activeDef.modelConfig.model;
+    if (!provider || !model) return;
+    if (persistTimerRef.current) clearTimeout(persistTimerRef.current);
+    persistTimerRef.current = setTimeout(() => {
+      void api
+        .setModelAssignment({
+          scope: "main",
+          task: "",
+          provider,
+          model,
+          temperature: config.temperature,
+          top_p: config.top_p,
+          max_tokens: config.max_tokens,
+        })
+        .catch(() => {});
+    }, 600);
+    return () => {
+      if (persistTimerRef.current) clearTimeout(persistTimerRef.current);
+    };
+  }, [config, activeDef, draft.model_config.provider, draft.model_config.model]);
 
   const isConnected = activeProviderId !== null;
   const isLoading = !loaded && !fetchError;

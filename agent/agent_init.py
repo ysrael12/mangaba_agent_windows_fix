@@ -456,6 +456,8 @@ def init_agent(
     
     # Model response configuration
     agent.max_tokens = max_tokens  # None = use model default
+    agent.temperature = None  # None = provider/model default; filled from config.yaml below
+    agent.top_p = None  # None = provider/model default; filled from config.yaml below
     agent.reasoning_config = reasoning_config  # None = use default (medium for OpenRouter)
     agent.service_tier = service_tier
     agent.request_overrides = dict(request_overrides or {})
@@ -1277,6 +1279,32 @@ def init_agent(
                     file=sys.stderr,
                 )
     agent._session_init_model_config["max_tokens"] = agent.max_tokens
+
+    # Read explicit sampling overrides (temperature/top_p) from config.yaml.
+    # Model-specific quirks (e.g. Kimi's server-managed temperature, via
+    # _fixed_temperature_for_model()) still take precedence over these at
+    # request-build time — this is only the user-configured base default.
+    if isinstance(_model_cfg, dict):
+        _config_temperature = _model_cfg.get("temperature")
+        if _config_temperature is not None:
+            try:
+                agent.temperature = float(_config_temperature)
+            except (TypeError, ValueError):
+                _ra().logger.warning(
+                    "Invalid model.temperature in config.yaml: %r — "
+                    "must be a number. Falling back to provider default.",
+                    _config_temperature,
+                )
+        _config_top_p = _model_cfg.get("top_p")
+        if _config_top_p is not None:
+            try:
+                agent.top_p = float(_config_top_p)
+            except (TypeError, ValueError):
+                _ra().logger.warning(
+                    "Invalid model.top_p in config.yaml: %r — "
+                    "must be a number. Falling back to provider default.",
+                    _config_top_p,
+                )
 
     # Read explicit context_length override from model config
     if isinstance(_model_cfg, dict):

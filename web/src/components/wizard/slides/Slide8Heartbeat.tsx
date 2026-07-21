@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
-import { Check, Clock, Loader2, XCircle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Check, Clock, Loader2, Trash2, XCircle } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
+import { Badge } from "@dheiver2/ui/ui/components/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
-import type { CronScheduleResolution } from "@/lib/api";
+import type { CronJob, CronScheduleResolution } from "@/lib/api";
 import { useAgentDraft } from "@/contexts/useAgentDraft";
 
 // Sempre válido — o heartbeat é uma automação opcional.
@@ -32,8 +33,30 @@ export function Slide8Heartbeat() {
   const [manualResolution, setManualResolution] = useState<CronScheduleResolution | null>(null);
   const [validatingManual, setValidatingManual] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [createdName, setCreatedName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<CronJob[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
+
+  const loadJobs = useCallback(() => {
+    api
+      .getCronJobs()
+      .then(setJobs)
+      .catch(() => setJobs([]))
+      .finally(() => setLoadingJobs(false));
+  }, []);
+
+  useEffect(() => {
+    loadJobs();
+  }, [loadJobs]);
+
+  const removeJob = async (job: CronJob) => {
+    try {
+      await api.deleteCronJob(job.id, job.profile || job.profile_name || "default");
+      loadJobs();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
 
   useEffect(() => {
     const text = whenText.trim();
@@ -84,12 +107,17 @@ export function Slide8Heartbeat() {
     setError(null);
     setCreating(true);
     try {
-      const job = await api.createCronJob({
+      await api.createCronJob({
         prompt: taskText.trim(),
         schedule: effectiveSchedule,
         name: whenText.trim() || undefined,
       });
-      setCreatedName(job.name || job.id);
+      setWhenText("");
+      setTaskText("");
+      setResolution(null);
+      setManualSchedule("");
+      setManualResolution(null);
+      loadJobs();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -153,7 +181,7 @@ export function Slide8Heartbeat() {
         )}
       </div>
 
-      <div className="grid flex-1 gap-1.5">
+      <div className="flex flex-1 flex-col gap-1.5">
         <Label htmlFor="heartbeat-task">O que o agente deve fazer nesse horário?</Label>
         <textarea
           id="heartbeat-task"
@@ -167,15 +195,51 @@ export function Slide8Heartbeat() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {createdName ? (
-        <p className="flex items-center gap-2 rounded-xl border border-success/30 bg-success/5 p-3 text-sm text-success">
-          <Clock className="h-4 w-4" /> Automação "{createdName}" criada — acompanhe em Agendamentos.
-        </p>
-      ) : (
-        <Button onClick={createAutomation} disabled={!canCreate} prefix={creating ? <Spinner /> : undefined}>
-          {creating ? "Criando…" : "Criar automação"}
-        </Button>
-      )}
+      <Button onClick={createAutomation} disabled={!canCreate} prefix={creating ? <Spinner /> : undefined}>
+        {creating ? "Criando…" : "Criar automação"}
+      </Button>
+
+      <div className="flex flex-col gap-1.5 border-t border-border/60 pt-4">
+        <h3 className="text-xs font-medium uppercase tracking-wide text-text-tertiary">
+          Automações {jobs.length > 0 ? `(${jobs.length})` : ""}
+        </h3>
+        {loadingJobs && (
+          <p className="flex items-center gap-2 text-sm text-text-secondary">
+            <Loader2 className="h-4 w-4 animate-spin" /> Carregando…
+          </p>
+        )}
+        {!loadingJobs && jobs.length === 0 && (
+          <p className="text-xs italic text-text-tertiary">Nenhuma automação criada ainda.</p>
+        )}
+        {!loadingJobs && jobs.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            {jobs.map((job) => (
+              <div
+                key={job.id}
+                className="flex items-center gap-2 rounded-lg border border-border/40 px-3 py-2 text-xs text-text-secondary"
+              >
+                <Clock className="h-3.5 w-3.5 shrink-0 text-text-tertiary" />
+                <span className="flex-1 truncate font-medium text-text-primary">
+                  {job.name || job.prompt || job.id}
+                </span>
+                <Badge tone="outline">
+                  {job.schedule_display || job.schedule?.display || job.schedule?.expr || "—"}
+                </Badge>
+                {job.state && (
+                  <Badge tone={job.state === "paused" ? "warning" : "success"}>{job.state}</Badge>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeJob(job)}
+                  className="ml-1 rounded p-0.5 text-text-tertiary hover:text-destructive"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

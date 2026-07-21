@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, PartyPopper, ChevronRight } from "lucide-react";
+import { Check, PartyPopper, ChevronRight, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { SLIDE_DEFS } from "@/components/wizard/slideDefs";
@@ -13,6 +13,7 @@ import { SLIDE_DEFS } from "@/components/wizard/slideDefs";
  */
 
 const STORAGE_KEY = "mangaba:onboarding";
+const COLLAPSED_KEY = "mangaba:onboarding:collapsed";
 
 type StepId = number;
 
@@ -94,8 +95,29 @@ async function detect(): Promise<DoneMap> {
   return done;
 }
 
+function loadCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function OnboardingChecklist() {
   const [done, setDone] = useState<DoneMap>(loadCached);
+  const [collapsed, setCollapsed] = useState<boolean>(loadCollapsed);
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(COLLAPSED_KEY, next ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -130,98 +152,108 @@ export function OnboardingChecklist() {
       aria-label="Primeiros passos"
       className="rounded-2xl border border-current/15 p-6"
     >
-      <div className="flex items-center justify-between gap-3">
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        aria-expanded={!collapsed}
+        className="flex w-full items-center justify-between gap-3 text-left"
+      >
         <h2 className="flex items-center gap-2 text-base font-semibold text-midground">
           <PartyPopper className="h-5 w-5" />
           {allDone ? "Tudo pronto!" : "Primeiros passos"}
         </h2>
-        <span className="text-sm text-text-tertiary">
+        <span className="flex items-center gap-2 text-sm text-text-tertiary">
           {shown} de {total}
+          {collapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </span>
-      </div>
+      </button>
 
-      <div
-        role="progressbar"
-        aria-valuenow={pct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        className="mt-3 h-2 overflow-hidden rounded-full bg-current/10"
-      >
-        <div
-          className="h-full rounded-full bg-midground transition-[width] duration-500"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
+      {!collapsed && (
+        <>
+          <div
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            className="mt-3 h-2 overflow-hidden rounded-full bg-current/10"
+          >
+            <div
+              className="h-full rounded-full bg-midground transition-[width] duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
 
-      {allDone ? (
-        <p className="mt-4 text-sm text-text-secondary">
-          🎉 Parabéns — seu funcionário agêntico está configurado e pronto para o dia a dia.
-        </p>
-      ) : (
-        <ul className="mt-4 flex flex-col gap-1">
-          {[...STEPS, null].map((step) => {
-            if (step === null) {
-              return (
-                <li
-                  key="__done__"
-                  className="flex items-center gap-3 rounded-xl px-3 py-2 text-text-tertiary"
-                >
-                  <StepCheckbox checked={false} />
-                  <span className="flex-1 text-sm">Pronto!</span>
-                  <span aria-hidden>🎉</span>
-                </li>
-              );
-            }
-            const isDone = Boolean(done[step.id]);
-            return (
-              <li
-                key={step.id}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2",
-                  isDone ? "text-text-tertiary" : "text-text-secondary",
-                )}
-              >
-                <StepCheckbox checked={isDone} />
-                <span className="min-w-0 flex-1">
-                  <span
+          {allDone ? (
+            <p className="mt-4 text-sm text-text-secondary">
+              🎉 Parabéns — seu funcionário agêntico está configurado e pronto para o dia a dia.
+            </p>
+          ) : (
+            <ul className="mt-4 flex flex-col gap-1">
+              {[...STEPS, null].map((step) => {
+                if (step === null) {
+                  return (
+                    <li
+                      key="__done__"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2 text-text-tertiary"
+                    >
+                      <StepCheckbox checked={false} />
+                      <span className="flex-1 text-sm">Pronto!</span>
+                      <span aria-hidden>🎉</span>
+                    </li>
+                  );
+                }
+                const isDone = Boolean(done[step.id]);
+                return (
+                  <li
+                    key={step.id}
                     className={cn(
-                      "block truncate text-sm font-medium",
-                      isDone && "line-through",
+                      "flex items-center gap-3 rounded-xl px-3 py-2",
+                      isDone ? "text-text-tertiary" : "text-text-secondary",
                     )}
                   >
-                    {step.label}
-                  </span>
-                  <span className="block truncate text-xs text-text-tertiary">
-                    {step.hint}
-                  </span>
-                </span>
-                {!isDone && (
-                  <Link
-                    to={step.actionPath}
-                    className="shrink-0 rounded-lg border border-current/15 px-3 py-1 text-xs font-medium text-midground transition-colors hover:bg-midground/10"
-                  >
-                    {step.actionLabel}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-
-      <div className="mt-4 border-t border-current/10 pt-4">
-        <Link
-          to="/criar"
-          className={cn(
-            "inline-flex items-center gap-2 rounded-lg border border-midground/30 bg-midground/10",
-            "px-4 py-2 text-sm font-medium text-midground",
-            "transition-colors hover:bg-midground/20",
+                    <StepCheckbox checked={isDone} />
+                    <span className="min-w-0 flex-1">
+                      <span
+                        className={cn(
+                          "block truncate text-sm font-medium",
+                          isDone && "line-through",
+                        )}
+                      >
+                        {step.label}
+                      </span>
+                      <span className="block truncate text-xs text-text-tertiary">
+                        {step.hint}
+                      </span>
+                    </span>
+                    {!isDone && (
+                      <Link
+                        to={step.actionPath}
+                        className="shrink-0 rounded-lg border border-current/15 px-3 py-1 text-xs font-medium text-midground transition-colors hover:bg-midground/10"
+                      >
+                        {step.actionLabel}
+                      </Link>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
-        >
-          Criação de Funcionários Agênticos
-          <ChevronRight className="h-4 w-4" />
-        </Link>
-      </div>
+
+          <div className="mt-4 border-t border-current/10 pt-4">
+            <Link
+              to="/criar"
+              className={cn(
+                "inline-flex items-center gap-2 rounded-lg border border-midground/30 bg-midground/10",
+                "px-4 py-2 text-sm font-medium text-midground",
+                "transition-colors hover:bg-midground/20",
+              )}
+            >
+              Criação de Funcionários Agênticos
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </>
+      )}
     </section>
   );
 }

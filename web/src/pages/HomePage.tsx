@@ -1,16 +1,12 @@
 import { type ComponentType, type ReactNode } from "react";
 import { Link } from "react-router-dom";
-import {
-  History,
-  MessageSquare,
-  Sparkles,
-} from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 
 /**
- * Página inicial: checklist de primeiros passos + atalhos principais.
- * No modo Dev mostra também atalhos para as áreas avançadas.
+ * Página inicial: checklist de primeiros passos (minimizável) + atalho
+ * para criar o funcionário agêntico.
  */
 export default function HomePage() {
   return (
@@ -19,30 +15,13 @@ export default function HomePage() {
 
       <section aria-label="Ações rápidas" className="flex flex-col gap-4">
         <ShortcutCard
-          icon={MessageSquare}
-          title="Conversar com o agente"
-          description="Comece sua primeira (ou próxima) conversa."
-          to="/chat"
-          cta="Abrir Chat"
+          icon={Sparkles}
+          title="Criar funcionário agêntico"
+          description="Personalize o perfil e as habilidades do seu funcionário agêntico."
+          to="/criar"
+          cta="Começar"
           featured
         />
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <ShortcutCard
-            icon={History}
-            title="Minhas Sessões"
-            description="Veja o histórico de conversas."
-            to="/sessions"
-            cta="Ver tudo"
-          />
-          <ShortcutCard
-            icon={Sparkles}
-            title="Criar funcionário agêntico"
-            description="Personalize o perfil e as habilidades do seu assistente."
-            to="/criar"
-            cta="Começar"
-          />
-        </div>
       </section>
     </div>
   );
@@ -98,4 +77,3 @@ function ShortcutCard({
     </Link>
   );
 }
-

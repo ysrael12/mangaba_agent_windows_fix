@@ -6,7 +6,6 @@ import {
   type AgentDashboardData,
 } from "@/components/dashboard/MinimalDashboardLayout";
 import { api } from "@/lib/api";
-import { brandModel } from "@/lib/modelBrand";
 
 const CHANNEL_META: Record<string, { label: string; emoji: string }> = {
   telegram: { label: "Telegram", emoji: "✈" },
@@ -17,7 +16,7 @@ const CHANNEL_META: Record<string, { label: string; emoji: string }> = {
 };
 
 async function loadDashboardData(agentId: string): Promise<AgentDashboardData> {
-  const [health, modelInfo, soul, ragFiles, skills, toolsets, mcp, channelsStatus] =
+  const [health, modelInfo, soul, ragFiles, skills, toolsets, mcp, channelsStatus, identity] =
     await Promise.all([
       api.getHealth().catch(() => null),
       api.getModelInfo().catch(() => null),
@@ -27,6 +26,7 @@ async function loadDashboardData(agentId: string): Promise<AgentDashboardData> {
       api.getToolsets().catch(() => []),
       api.listMcpServers().catch(() => ({ servers: [] })),
       api.getChannelsStatus().catch(() => ({ channels: [] })),
+      api.getAgentIdentity().catch(() => ({ display_name: "" })),
     ]);
 
   const soulFirstLine = soul.content.trim().split("\n")[0] || "Nenhuma soul definida ainda.";
@@ -42,10 +42,10 @@ async function loadDashboardData(agentId: string): Promise<AgentDashboardData> {
   ];
 
   return {
-    agentId,
+    agentId: identity.display_name?.trim() || agentId,
     online: !!health?.gateway,
     model: {
-      label: modelInfo ? brandModel(modelInfo.model) : "Não configurado",
+      label: modelInfo?.model || "Não configurado",
       provider: modelInfo?.provider ?? "",
     },
     soulPreview: soulFirstLine,

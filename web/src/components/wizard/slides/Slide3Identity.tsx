@@ -73,12 +73,12 @@ export function Slide3Identity() {
             updateDraft({ identity: { ...draft.identity, agent_name: e.target.value } })
           }
           onBlur={(e) => saveName(e.target.value)}
-          placeholder="Ex.: Assistente Comercial"
+          placeholder="Ex.: Funcionário Comercial"
         />
         {saving && <span className="text-xs text-text-tertiary">Salvando…</span>}
       </div>
 
-      <div className="grid flex-1 gap-1.5">
+      <div className="flex flex-1 flex-col gap-1.5">
         <Label htmlFor="agent-soul">Função — personalidade e diretrizes</Label>
         <textarea
           id="agent-soul"
@@ -88,7 +88,7 @@ export function Slide3Identity() {
           }
           onBlur={(e) => saveSoul(e.target.value)}
           rows={10}
-          placeholder="Você é um assistente cordial e objetivo, especializado em…"
+          placeholder="Você é um funcionário agêntico cordial e objetivo, especializado em…"
           className="min-h-[200px] flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </div>

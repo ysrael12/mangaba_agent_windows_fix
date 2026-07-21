@@ -468,6 +468,8 @@ def build_api_kwargs(agent, api_messages: list) -> dict:
             anthropic_max_output=_ant_max,
             supports_reasoning=agent._supports_reasoning_extra_body(),
             qwen_session_metadata=_qwen_meta,
+            temperature=getattr(agent, "temperature", None),
+            top_p=getattr(agent, "top_p", None),
         )
 
     # ── Legacy flag path ────────────────────────────────────────────
@@ -510,6 +512,8 @@ def build_api_kwargs(agent, api_messages: list) -> dict:
         qwen_session_metadata=_qwen_meta,
         fixed_temperature=_fixed_temp,
         omit_temperature=_omit_temp,
+        temperature=getattr(agent, "temperature", None),
+        top_p=getattr(agent, "top_p", None),
         supports_reasoning=agent._supports_reasoning_extra_body(),
         github_reasoning_extra=agent._github_models_reasoning_extra_body() if _is_gh else None,
         lmstudio_reasoning_options=agent._lmstudio_reasoning_options_cached() if _is_lmstudio else None,

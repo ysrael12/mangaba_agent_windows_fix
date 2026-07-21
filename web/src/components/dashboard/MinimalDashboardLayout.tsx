@@ -1,7 +1,11 @@
-import { Brain, Folder, Wrench, Radio, Settings, Copy, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Brain, Folder, Wrench, Radio, Settings, Copy, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@dheiver2/ui/ui/components/button";
+import { Checkbox } from "@dheiver2/ui/ui/components/checkbox";
 import { StatusDot } from "@/components/StatusDot";
+import { AgentChat } from "@/components/AgentChat";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export interface AgentDashboardChannel {
@@ -74,6 +78,65 @@ function BentoCard({
         <p className="line-clamp-2 text-xs text-text-tertiary">{description}</p>
       )}
       {footer && <div className="mt-auto pt-2">{footer}</div>}
+    </div>
+  );
+}
+
+function BehaviorToggles() {
+  const [config, setConfig] = useState<Record<string, unknown>>({});
+  const [saving, setSaving] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.getConfig().then(setConfig).catch(() => {});
+  }, []);
+
+  const toggle = async (key: string, next: boolean) => {
+    setConfig((prev) => ({ ...prev, [key]: next }));
+    setSaving(key);
+    try {
+      await api.saveConfig({ [key]: next });
+    } catch {
+      setConfig((prev) => ({ ...prev, [key]: !next }));
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const toolProgress = Boolean(config.tool_progress);
+  const suggestQuestions = Boolean(config.suggest_questions);
+
+  return (
+    <div className="flex flex-col gap-3 rounded-2xl border border-current/10 bg-background-base p-5">
+      <div className="flex items-center gap-2 text-text-tertiary">
+        <SlidersHorizontal className="h-4 w-4" />
+        <span className="text-xs font-medium uppercase tracking-wider">Comportamento</span>
+      </div>
+      <label className="flex items-center justify-between gap-3 text-sm text-text-primary">
+        <span className="flex flex-col">
+          Mostrar ferramentas usadas
+          <span className="text-xs font-normal text-text-tertiary">
+            Veja quais ferramentas o agente usou em cada resposta
+          </span>
+        </span>
+        <Checkbox
+          checked={toolProgress}
+          onCheckedChange={() => void toggle("tool_progress", !toolProgress)}
+          disabled={saving === "tool_progress"}
+        />
+      </label>
+      <label className="flex items-center justify-between gap-3 text-sm text-text-primary">
+        <span className="flex flex-col">
+          Sugerir perguntas
+          <span className="text-xs font-normal text-text-tertiary">
+            Receba sugestões de perguntas para continuar a conversa
+          </span>
+        </span>
+        <Checkbox
+          checked={suggestQuestions}
+          onCheckedChange={() => void toggle("suggest_questions", !suggestQuestions)}
+          disabled={saving === "suggest_questions"}
+        />
+      </label>
     </div>
   );
 }
@@ -158,6 +221,12 @@ export function MinimalDashboardLayout({ data, onEdit }: Props) {
             )
           }
         />
+      </section>
+
+      <BehaviorToggles />
+
+      <section className="flex h-[560px] flex-col overflow-hidden rounded-2xl border border-current/10 bg-background-base">
+        <AgentChat />
       </section>
     </div>
   );

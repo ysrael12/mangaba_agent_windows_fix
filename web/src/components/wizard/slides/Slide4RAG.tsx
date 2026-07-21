@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FileText, Loader2, Trash2, UploadCloud } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
+import { Switch } from "@dheiver2/ui/ui/components/switch";
 import { api } from "@/lib/api";
 import type { RagFileInfo } from "@/lib/api";
 import { useAgentDraft } from "@/contexts/useAgentDraft";
@@ -21,6 +22,8 @@ export function Slide4RAG() {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [restrictToLocal, setRestrictToLocal] = useState(false);
+  const [restricting, setRestricting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const refresh = useCallback(async () => {
@@ -34,10 +37,23 @@ export function Slide4RAG() {
   }, []);
 
   useEffect(() => {
-    refresh()
+    Promise.all([refresh(), api.getRagStatus()])
+      .then(([, status]) => setRestrictToLocal(Boolean(status.restrict_web_search)))
       .catch((e) => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, [refresh]);
+
+  const toggleRestrictToLocal = async (checked: boolean) => {
+    setRestricting(true);
+    try {
+      await api.restrictRagToLocal(checked);
+      setRestrictToLocal(checked);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setRestricting(false);
+    }
+  };
 
   const uploadFiles = async (fileList: FileList | File[]) => {
     setError(null);
@@ -120,6 +136,22 @@ export function Slide4RAG() {
         </p>
       )}
       {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <div className="flex items-start justify-between gap-4 rounded-xl border border-border/60 px-4 py-3">
+        <div className="flex flex-col gap-0.5">
+          <span className="text-sm font-medium text-text-primary">
+            Restringir à base de conhecimento local
+          </span>
+          <span className="text-xs text-text-tertiary">
+            Quando ativo, o agente responde apenas com os documentos enviados aqui — sem buscar na web.
+          </span>
+        </div>
+        <Switch
+          checked={restrictToLocal}
+          onCheckedChange={toggleRestrictToLocal}
+          disabled={restricting}
+        />
+      </div>
 
       <div className="flex flex-col gap-2">
         {loading ? (

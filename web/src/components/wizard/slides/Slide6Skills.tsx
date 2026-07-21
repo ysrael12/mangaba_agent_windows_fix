@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, Check, Cloud, Loader2, Search, Wrench, X } from "lucide-react";
+import { AlertTriangle, Check, Cloud, Loader2, Search, Sparkles, Wrench, X } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
 import { Spinner } from "@dheiver2/ui/ui/components/spinner";
 import { Badge } from "@dheiver2/ui/ui/components/badge";
@@ -23,6 +23,39 @@ export function Slide6Skills() {
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
   const [forgeError, setForgeError] = useState<string | null>(null);
+
+  // — geração assistida (IA propõe uma skill a partir da identidade do
+  // funcionário agêntico + perfil de quem está criando)
+  const [genPrompt, setGenPrompt] = useState("");
+  const [generating, setGenerating] = useState(false);
+  const [genError, setGenError] = useState<string | null>(null);
+
+  const generate = async () => {
+    setGenError(null);
+    setGenerating(true);
+    try {
+      const r = await api.generateSkill({
+        prompt: genPrompt.trim(),
+        identity: {
+          agent_name: draft.identity.agent_name,
+          soul: draft.identity.soul,
+        },
+        creator_info: {
+          name: draft.creator_info.name,
+          role: draft.creator_info.role,
+          context: draft.creator_info.context,
+        },
+      });
+      setName(r.name);
+      setTool(r.tool);
+      setInstruction(r.instruction);
+      setAction(r.action);
+    } catch (e) {
+      setGenError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const canSave = name.trim().length > 0 && instruction.trim().length > 0 && !saving;
 
@@ -145,6 +178,34 @@ export function Slide6Skills() {
     <div className="grid h-full grid-cols-1 lg:grid-cols-2">
       {/* ── Esquerda: construtor manual ───────────────────────────── */}
       <div className="flex flex-col gap-4 overflow-y-auto border-b border-border/60 p-6 lg:border-b-0 lg:border-r">
+        <div className="flex flex-col gap-2 rounded-xl border border-primary/20 bg-primary/5 p-3">
+          <Label htmlFor="skill-gen-prompt" className="flex items-center gap-1.5 text-primary">
+            <Sparkles className="h-3.5 w-3.5" /> Gerar com IA
+          </Label>
+          <p className="text-xs text-text-tertiary">
+            O modelo propõe uma skill com base no nome/personalidade do funcionário agêntico e no
+            perfil de quem está criando — descreva o que ela deve fazer (opcional) e revise antes
+            de salvar.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              id="skill-gen-prompt"
+              value={genPrompt}
+              onChange={(e) => setGenPrompt(e.target.value)}
+              placeholder="Ex.: algo pra organizar pedidos de clientes"
+              className="text-sm"
+            />
+            <Button
+              onClick={generate}
+              disabled={generating}
+              prefix={generating ? <Spinner /> : <Sparkles className="h-3.5 w-3.5" />}
+            >
+              {generating ? "Gerando…" : "Gerar"}
+            </Button>
+          </div>
+          {genError && <p className="text-sm text-destructive">{genError}</p>}
+        </div>
+
         <div className="grid gap-1.5">
           <Label htmlFor="skill-name">Nome da skill</Label>
           <Input
@@ -165,7 +226,7 @@ export function Slide6Skills() {
           />
         </div>
 
-        <div className="grid flex-1 gap-1.5">
+        <div className="flex flex-1 flex-col gap-1.5">
           <Label htmlFor="skill-instruction">Instrução</Label>
           <textarea
             id="skill-instruction"
@@ -174,16 +235,6 @@ export function Slide6Skills() {
             rows={6}
             placeholder="Quando o usuário perguntar sobre X, faça Y…"
             className="min-h-[120px] flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-          />
-        </div>
-
-        <div className="grid gap-1.5">
-          <Label htmlFor="skill-action">Ação esperada</Label>
-          <Input
-            id="skill-action"
-            value={action}
-            onChange={(e) => setAction(e.target.value)}
-            placeholder="Ex.: Responder com o endereço completo"
           />
         </div>
 

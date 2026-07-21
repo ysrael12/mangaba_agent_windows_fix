@@ -92,7 +92,7 @@ function NewClientForm({ onCreated }: { onCreated: () => void }) {
             className="rounded-md border border-input bg-background px-3 py-2 text-sm tabular-nums focus:outline-none focus:ring-1 focus:ring-ring" />
         </div>
         <textarea value={persona} onChange={(e) => setPersona(e.target.value)} rows={2}
-          placeholder="Persona / instruções (white-label — ex.: 'Você é o assistente da ACME...')"
+          placeholder="Persona / instruções (white-label — ex.: 'Você é o funcionário agêntico da ACME...')"
           className="resize-y rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring" />
         <div className="flex justify-end gap-2">
           <Button outlined size="sm" onClick={() => setOpen(false)} disabled={busy}>Cancelar</Button>

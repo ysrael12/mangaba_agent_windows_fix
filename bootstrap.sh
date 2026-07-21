@@ -7,12 +7,14 @@
 #   ./bootstrap.sh
 #
 # O que ele faz, do zero:
-#   1. Instala pré-requisitos do sistema (Homebrew, git, node, ripgrep,
+#   1. Prepara o Mangaba Home DENTRO do projeto (./.mangaba-home) — migra um
+#      ~/.mangaba existente se houver, ou cria um novo do zero se não houver.
+#   2. Instala pré-requisitos do sistema (Homebrew, git, node, ripgrep,
 #      ffmpeg, @openai/codex) — macOS (brew) ou Linux (apt).
-#   2. Instala o uv (gerenciador Python) e cria o ambiente + o pacote.
-#   3. Verifica se Ollama está rodando e baixa o modelo se faltar (ollama pull).
-#   4. Escreve a config do modelo em ~/.mangaba/config.yaml.
-#   5. Abre o dashboard — configure o modelo via interface web.
+#   3. Instala o uv (gerenciador Python) e cria o ambiente + o pacote.
+#   4. Verifica se Ollama está rodando e baixa o modelo se faltar (ollama pull).
+#   5. Escreve a config do modelo em $MANGABA_HOME/config.yaml.
+#   6. Abre o dashboard — configure o modelo via interface web.
 #
 # Windows nativo (Git Bash/MSYS2): suportado nos passos 2-5 (uv, venv, Ollama
 # via winget, config, canais). O passo 1 não auto-instala git/node/ripgrep/
@@ -82,7 +84,73 @@ open_dashboard() {
 }
 
 # =============================================================================
-step "1/5  Pré-requisitos do sistema"
+step "1/6  Mangaba Home (./.mangaba-home, dentro do projeto)"
+
+# MANGABA_HOME é a raiz de tudo que o Mangaba persiste — config.yaml,
+# auth.json, .env, SOUL.md, sessions/, cron/, skills/, rag/. Por padrão o
+# projeto guarda isso dentro de si mesmo (./.mangaba-home) em vez do
+# tradicional ~/.mangaba, para não depender do diretório de usuário.
+#
+# Setup geral (comportamento cobre os dois casos):
+#   - Já existe ~/.mangaba na máquina (instalação anterior)? Migra tudo para
+#     ./.mangaba-home (o ~/.mangaba original é preservado, não é apagado).
+#   - Não existe nada ainda (máquina nova)? Cria ./.mangaba-home vazio — o
+#     restante do bootstrap (passo 5/6) e o próprio app populam config.yaml/
+#     SOUL.md/etc. no primeiro uso, como sempre fizeram em ~/.mangaba.
+MANGABA_HOME_DIR="$PROJECT_DIR/.mangaba-home"
+LEGACY_HOME_DIR="$HOME/.mangaba"
+MIGRATED_HOME=false
+
+if [ -d "$MANGABA_HOME_DIR" ]; then
+  ok "Mangaba Home já existe em $MANGABA_HOME_DIR — reaproveitando."
+elif [ -d "$LEGACY_HOME_DIR" ]; then
+  echo "  Encontrado Mangaba Home existente em $LEGACY_HOME_DIR — migrando para o projeto..."
+  mkdir -p "$MANGABA_HOME_DIR"
+  if cp -a "$LEGACY_HOME_DIR/." "$MANGABA_HOME_DIR/"; then
+    ok "Migrado $LEGACY_HOME_DIR -> $MANGABA_HOME_DIR (original preservado como backup)."
+    MIGRATED_HOME=true
+  else
+    err "Falha ao migrar $LEGACY_HOME_DIR — seguindo com Mangaba Home vazio em $MANGABA_HOME_DIR."
+  fi
+else
+  echo "  Nenhum Mangaba Home encontrado nesta máquina — criando um novo em $MANGABA_HOME_DIR."
+  mkdir -p "$MANGABA_HOME_DIR"
+  ok "Mangaba Home criado (config.yaml/SOUL.md serão populados no primeiro uso)."
+fi
+
+export MANGABA_HOME="$MANGABA_HOME_DIR"
+
+# Persiste MANGABA_HOME além desta sessão do script, para terminais/serviços
+# futuros (novo shell, gateway instalado como serviço, etc.) apontarem pro
+# mesmo lugar sem precisar re-exportar manualmente.
+if $IS_WINDOWS; then
+  if have setx; then
+    WIN_HOME_PATH="$(cygpath -w "$MANGABA_HOME_DIR" 2>/dev/null || echo "$MANGABA_HOME_DIR")"
+    if setx MANGABA_HOME "$WIN_HOME_PATH" >/dev/null 2>&1; then
+      ok "MANGABA_HOME persistido (setx, variável de usuário do Windows): $WIN_HOME_PATH"
+      warn "Terminais já abertos não veem a mudança — só os novos (o bootstrap segue usando esta sessão)."
+    else
+      warn "Não consegui persistir MANGABA_HOME via setx — exporte manualmente em novas sessões:"
+      warn "  setx MANGABA_HOME \"$WIN_HOME_PATH\""
+    fi
+  else
+    warn "'setx' não encontrado — MANGABA_HOME só vale para esta sessão do bootstrap."
+  fi
+else
+  MANGABA_HOME_LINE="export MANGABA_HOME=\"$MANGABA_HOME_DIR\""
+  for rc in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile"; do
+    [ -f "$rc" ] || continue
+    grep -qF "$MANGABA_HOME_LINE" "$rc" 2>/dev/null && continue
+    # remove uma linha MANGABA_HOME antiga (se apontava pra outro lugar) antes
+    # de acrescentar a nova, pra não deixar duas exportações conflitantes.
+    sed -i.mangababak '/^export MANGABA_HOME=/d' "$rc" 2>/dev/null && rm -f "$rc.mangababak"
+    printf '\n%s\n' "$MANGABA_HOME_LINE" >> "$rc"
+    ok "MANGABA_HOME persistido em $rc"
+  done
+fi
+
+# =============================================================================
+step "2/6  Pré-requisitos do sistema"
 
 # --- ferramentas de compilação (necessárias p/ algumas deps Python) ----------
 if [ "$OS" = "Darwin" ]; then
@@ -162,7 +230,7 @@ if have npm; then
 fi
 
 # =============================================================================
-step "2/5  Ambiente Python (uv) + pacote Mangaba"
+step "3/6  Ambiente Python (uv) + pacote Mangaba"
 
 if ! have uv; then
   warn "uv não encontrado — instalando..."
@@ -207,15 +275,38 @@ uv pip install ddgs pypdf pdfplumber python-docx openpyxl "qrcode[pil]" "mcp==1.
   && ok "Extras instalados (ddgs, pypdf, pdfplumber, docx, xlsx, qrcode/PIX)." \
   || warn "Alguns extras falharam (siga mesmo assim)."
 
+# Se migramos um Mangaba Home existente (passo 1/6), um gateway pode já estar
+# rodando apontado pro ~/.mangaba antigo. Reinicia sob o novo MANGABA_HOME
+# para ele passar a ler/gravar em ./.mangaba-home a partir de agora — sem
+# isso, o gateway continuaria "preso" no diretório antigo até um restart manual.
+# Instalação nova (sem migração) não tem gateway rodando ainda, então não
+# há nada para reiniciar aqui — ele já nasce apontando pro Mangaba Home certo.
+if [ "$MIGRATED_HOME" = "true" ]; then
+  # 'gateway status' só imprime texto (sempre sai com código 0) — usa
+  # find_gateway_pids() diretamente para saber se realmente há um processo
+  # rodando antes de tentar reiniciar algo que não existe.
+  if "$PY_CMD" -c "from mangaba_cli.gateway import find_gateway_pids; import sys; sys.exit(0 if find_gateway_pids() else 1)" 2>/dev/null; then
+    echo "  Gateway em execução detectado — reiniciando sob o novo Mangaba Home..."
+    if "$PY_CMD" -m mangaba_cli.main gateway restart >/dev/null 2>&1; then
+      ok "Gateway reiniciado com MANGABA_HOME=$MANGABA_HOME_DIR."
+    else
+      warn "Não consegui reiniciar o gateway automaticamente."
+      warn "Rode manualmente: MANGABA_HOME=\"$MANGABA_HOME_DIR\" mangaba gateway restart"
+    fi
+  else
+    ok "Nenhum gateway em execução — nada para reiniciar."
+  fi
+fi
+
 # =============================================================================
 if [ "$PROVIDER" = "gateway" ]; then
-  step "3/5  Modelo remoto (gateway) — pulando Ollama local"
+  step "4/6  Modelo remoto (gateway) — pulando Ollama local"
   ok "PROVIDER=gateway — usando $GATEWAY_URL, modelo padrão $GATEWAY_MODEL."
 elif [ "$PROVIDER" = "openai-codex" ]; then
-  step "3/5  ChatGPT (Codex) — pulando Ollama local"
+  step "4/6  ChatGPT (Codex) — pulando Ollama local"
   ok "PROVIDER=openai-codex — usando ChatGPT ($MODEL). Conecte sua conta no dashboard depois (seção 4 do GUIA_DASHBOARD.md)."
 else
-  step "3/5  Verificando Ollama local"
+  step "4/6  Verificando Ollama local"
 
   # Verifica se Ollama está rodando E se o modelo configurado existe. Sem o
   # segundo passo, a instalação nasce apontando para um modelo ausente e toda
@@ -245,9 +336,9 @@ else
 fi
 
 # =============================================================================
-step "4/5  Config do modelo (~/.mangaba/config.yaml)"
+step "5/6  Config do modelo ($MANGABA_HOME/config.yaml)"
 
-CFG_DIR="$HOME/.mangaba"; CFG="$CFG_DIR/config.yaml"
+CFG_DIR="$MANGABA_HOME"; CFG="$CFG_DIR/config.yaml"
 mkdir -p "$CFG_DIR"
 [ -f "$CFG" ] || echo "onboarding:\n  seen:\n    busy_input_prompt: true" > "$CFG"
 
@@ -315,13 +406,13 @@ fi
 if [ "$BOOTSTRAP_NO_CHANNELS" = "true" ]; then
   ok "Instalação base concluída."
   if [ "$OPEN_DASHBOARD" = "true" ]; then
-    step "5/5  Abrindo dashboard"
+    step "6/6  Abrindo dashboard"
     open_dashboard
   fi
   exit 0
 fi
 
-step "5/5  Canais + gateway"
+step "6/6  Canais + gateway"
 echo "  Abrindo o configurador de canais..."
 if [ "$OPEN_DASHBOARD" = "true" ]; then
   # não usa exec aqui: precisamos voltar pro script depois do configurador

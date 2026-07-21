@@ -11,7 +11,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { Reveal } from "@/components/motion";
 import { CommandPalette, type Command } from "@/components/CommandPalette";
-import { Moon as MoonIcon, Sun as SunIcon } from "lucide-react";
+import { Brain, Moon as MoonIcon, Server, Sun as SunIcon } from "lucide-react";
 import {
   Routes,
   Route,
@@ -21,20 +21,15 @@ import {
 } from "react-router-dom";
 import {
   Activity,
-  BookOpen,
   Clock,
-  Code,
-  FileText,
   Folder,
   Home,
-  KanbanSquare,
+  LayoutDashboard,
   Menu,
   MessageSquare,
   Moon,
   Package,
-  Plug,
   Radio,
-  Settings,
   Sparkles,
   Sun,
 } from "lucide-react";
@@ -58,7 +53,6 @@ const DocsPage = lazy(() => import("@/pages/DocsPage"));
 const LogsPage = lazy(() => import("@/pages/LogsPage"));
 const CronPage = lazy(() => import("@/pages/CronPage"));
 const FleetPage = lazy(() => import("@/pages/FleetPage"));
-const KanbanPage = lazy(() => import("@/pages/KanbanPage"));
 const ClientsPage = lazy(() => import("@/pages/ClientsPage"));
 const AgentWizardPage = lazy(() => import("@/pages/AgentWizardPage"));
 const AgentDashboardPage = lazy(() => import("@/pages/AgentDashboardPage"));
@@ -93,7 +87,6 @@ const BUILTIN_ROUTES_CORE: Record<string, ComponentType> = {
   "/cron": CronPage,
   "/skills": SkillsPage,
   "/fleet": FleetPage,
-  "/kanban": KanbanPage,
   "/clients": ClientsPage,
   "/criar": AgentWizardPage,
   "/dashboard/agent/:id": AgentDashboardPage,
@@ -111,21 +104,27 @@ const BUILTIN_NAV_REST: NavItem[] = [
   { path: "/sessions", labelKey: "sessions", label: "Minhas Sessões", icon: MessageSquare, section: "Conversar" },
   { path: "/chat", label: "Chat", icon: MessageSquare, section: "Conversar" },
 
-  { path: "/criar", label: "Criar funcionário agêntico", icon: Sparkles, section: "Agentes" },
-  { path: "/fleet", labelKey: "fleet", label: "Agentes ativos", icon: Radio, section: "Agentes" },
-  { path: "/clients", label: "Conectar serviços", icon: Code, section: "Agentes" },
+  { path: "/dashboard/agent/default", label: "Dashboard", icon: LayoutDashboard, section: "Funcionários Agênticos" },
+  { path: "/criar", label: "Criar funcionário agêntico", icon: Sparkles, section: "Funcionários Agênticos" },
+  { path: "/fleet", labelKey: "fleet", label: "Funcionários agênticos ativos", icon: Radio, section: "Funcionários Agênticos" },
+  /* { path: "/clients", label: "Conectar serviços", icon: Code, section: "Funcionários Agênticos" }, */
 
   { path: "/cron", labelKey: "cron", label: "Agendamentos", icon: Clock, section: "Automatizar" },
-  { path: "/kanban", labelKey: "kanban", label: "Tarefas", icon: KanbanSquare, section: "Automatizar" },
 
-  { path: "/skills", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar" },
-  { path: "/configuracoes", label: "Configurações", icon: Settings, section: "Configurar" },
+
+  /* { path: "/configuracoes", label: "Configurações", icon: Settings, section: "Configurar" }, */
+  /* Aqui deixei só as dimensões definidas no wizard de agentes */
+  { path: "/configuracoes#modelo", label: "Modelo", icon: Brain, section: "Configurar" },
+  { path: "/configuracoes#ferramentas", labelKey: "skills", label: "Habilidades", icon: Package, section: "Configurar" },
   { path: "/configuracoes#rag", label: "Base de conhecimento", icon: Folder, section: "Configurar" },
-  { path: "/configuracoes#mcp", label: "Conexões MCP", icon: Plug, section: "Configurar" },
+  { path: "/configuracoes#mcp", label: "Servidores de contexto", icon: Server, section: "Configurar" },
+  { path: "/configuracoes#canais", label: "Canais", icon: Radio, section: "Configurar" },
 
-  { path: "/logs", labelKey: "logs", label: "Logs", icon: FileText, section: "Acompanhar" },
+
+
+
+
   { path: "/diagnostico", label: "Diagnóstico", icon: Activity, section: "Acompanhar" },
-  { path: "/docs", labelKey: "documentation", label: "Documentação", icon: BookOpen, section: "Aprender" },
 ];
 
 function buildNavItems(
@@ -276,10 +275,11 @@ export default function App() {
     [],
   );
 
-  const sidebarNav = useMemo(
-    () => partitionSidebarNav(builtinNav, manifests),
-    [builtinNav, manifests],
-  );
+  const sidebarNav = useMemo(() => {
+    // Plugins continuam registrados/roteáveis, só não aparecem no menu.
+    const { coreItems } = partitionSidebarNav(builtinNav, manifests);
+    return { coreItems, pluginItems: [] };
+  }, [builtinNav, manifests]);
 
   // Comandos do ⌘K: navegar para cada tela + ações rápidas.
   const commands = useMemo<Command[]>(() => {

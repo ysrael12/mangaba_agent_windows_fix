@@ -215,6 +215,8 @@ class ChatCompletionsTransport(ProviderTransport):
             # Temperature
             fixed_temperature: Any — from _fixed_temperature_for_model()
             omit_temperature: bool
+            temperature: float | None — user-configured default (model.temperature in config.yaml)
+            top_p: float | None — user-configured default (model.top_p in config.yaml)
             # Reasoning
             supports_reasoning: bool
             github_reasoning_extra: dict | None
@@ -398,6 +400,27 @@ class ChatCompletionsTransport(ProviderTransport):
         if extra_body:
             api_kwargs["extra_body"] = extra_body
 
+        # Temperature / top_p — model-specific quirks (fixed_temperature /
+        # omit_temperature, from _fixed_temperature_for_model()) take
+        # precedence over the caller-supplied default. omit_temperature also
+        # gates top_p: Kimi/Moonshot's gateway manages sampling server-side
+        # based on thinking-mode selection, and top_p is part of that same
+        # contract — not just temperature.
+        _omit_temp = params.get("omit_temperature")
+        if _omit_temp:
+            pass  # Don't include temperature (or top_p — see below) at all
+        elif params.get("fixed_temperature") is not None:
+            api_kwargs["temperature"] = params["fixed_temperature"]
+        else:
+            temp = params.get("temperature")
+            if temp is not None:
+                api_kwargs["temperature"] = temp
+
+        if not _omit_temp:
+            top_p = params.get("top_p")
+            if top_p is not None:
+                api_kwargs["top_p"] = top_p
+
         # Request overrides last (service_tier etc.)
         overrides = params.get("request_overrides")
         if overrides:
@@ -432,9 +455,12 @@ class ChatCompletionsTransport(ProviderTransport):
             "messages": sanitized,
         }
 
-        # Temperature
+        # Temperature. OMIT_TEMPERATURE providers (Kimi/Moonshot) manage
+        # sampling server-side based on thinking-mode selection — top_p is
+        # part of that same gateway-managed contract, so it's gated by the
+        # same condition rather than sent unconditionally.
         if profile.fixed_temperature is OMIT_TEMPERATURE:
-            pass  # Don't include temperature at all
+            pass  # Don't include temperature (or top_p — see below) at all
         elif profile.fixed_temperature is not None:
             api_kwargs["temperature"] = profile.fixed_temperature
         else:
@@ -442,6 +468,11 @@ class ChatCompletionsTransport(ProviderTransport):
             temp = params.get("temperature")
             if temp is not None:
                 api_kwargs["temperature"] = temp
+
+        if profile.fixed_temperature is not OMIT_TEMPERATURE:
+            top_p = params.get("top_p")
+            if top_p is not None:
+                api_kwargs["top_p"] = top_p
 
         # Timeout
         timeout = params.get("timeout")

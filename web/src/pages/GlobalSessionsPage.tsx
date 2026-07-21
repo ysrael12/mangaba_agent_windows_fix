@@ -104,7 +104,7 @@ export default function GlobalSessionsPage() {
         <EmptyState
           icon={<Clock className="h-8 w-8" />}
           title={labelNoSessions}
-          description="Quando seus agentes conversarem (Chat, Telegram, Discord…), as sessões de toda a frota aparecem aqui."
+          description="Quando seus funcionários agênticos conversarem (Chat, Telegram, Discord…), as sessões de toda a equipe aparecem aqui."
           actionLabel="Abrir o Chat"
           actionPath="/chat"
         />

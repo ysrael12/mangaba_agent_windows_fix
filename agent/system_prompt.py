@@ -28,6 +28,7 @@ import os
 from typing import Any, Dict, List, Optional
 
 from agent.prompt_builder import (
+    AGENTIC_EMPLOYEE_IDENTITY_GUIDANCE,
     DEFAULT_AGENT_IDENTITY,
     GOOGLE_MODEL_OPERATIONAL_GUIDANCE,
     MANGABA_AGENT_HELP_GUIDANCE,
@@ -94,6 +95,12 @@ def build_system_prompt_parts(agent: Any, system_message: Optional[str] = None) 
     if not _soul_loaded:
         # Fallback to hardcoded identity
         stable_parts.append(DEFAULT_AGENT_IDENTITY)
+
+    # Always injected, on top of either a custom SOUL or the default identity —
+    # a custom SOUL fully replaces DEFAULT_AGENT_IDENTITY above, so without this
+    # line the "funcionário agêntico" framing would only ever apply to
+    # freshly-created, unconfigured agents.
+    stable_parts.append(AGENTIC_EMPLOYEE_IDENTITY_GUIDANCE)
 
     # Pointer to the mangaba-agent skill + docs for user questions about Mangaba itself.
     stable_parts.append(MANGABA_AGENT_HELP_GUIDANCE)

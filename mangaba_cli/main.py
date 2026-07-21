@@ -6437,6 +6437,29 @@ def _web_ui_build_needed(web_dir: Path) -> bool:
     return False
 
 
+def _web_ui_deps_stale(web_dir: Path) -> bool:
+    """Return True if node_modules is missing or older than the lockfile/manifest.
+
+    ``npm ci`` wipes and reinstalls node_modules from scratch every time it
+    runs, which is slow. Skipping it when only source files changed (not
+    dependencies) keeps rebuilds triggered by ``_web_ui_build_needed`` fast.
+    """
+    node_modules = web_dir / "node_modules"
+    if not node_modules.exists():
+        return True
+    bin_dir = node_modules / ".bin"
+    bin_ext = ".cmd" if os.name == "nt" else ""
+    for tool in ("tsc", "vite"):
+        if not (bin_dir / f"{tool}{bin_ext}").exists() and not (bin_dir / tool).exists():
+            return True
+    nm_mtime = node_modules.stat().st_mtime
+    for meta in ("package.json", "package-lock.json", "yarn.lock", "pnpm-lock.yaml"):
+        mp = web_dir / meta
+        if mp.exists() and mp.stat().st_mtime > nm_mtime:
+            return True
+    return False
+
+
 def _run_npm_install_deterministic(
     npm: str,
     cwd: Path,
@@ -6532,16 +6555,17 @@ def _build_web_ui(web_dir: Path, *, fatal: bool = False) -> bool:
             if text:
                 _say(text)
 
-    r1 = _run_npm_install_deterministic(npm, web_dir, extra_args=("--silent",))
-    if r1.returncode != 0:
-        _say(
-            f"  {'✗' if fatal else '⚠'} Web UI npm install failed"
-            + ("" if fatal else " (mangaba web will not be available)")
-        )
-        _relay(r1)
-        if fatal:
-            _say("  Run manually:  cd web && npm install && npm run build")
-        return False
+    if _web_ui_deps_stale(web_dir):
+        r1 = _run_npm_install_deterministic(npm, web_dir, extra_args=("--silent",))
+        if r1.returncode != 0:
+            _say(
+                f"  {'✗' if fatal else '⚠'} Web UI npm install failed"
+                + ("" if fatal else " (mangaba web will not be available)")
+            )
+            _relay(r1)
+            if fatal:
+                _say("  Run manually:  cd web && npm install && npm run build")
+            return False
     # First attempt
     r2 = subprocess.run(
         [npm, "run", "build"],

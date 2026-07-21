@@ -37,7 +37,7 @@ export function Slide2Creator() {
         />
       </div>
 
-      <div className="grid flex-1 gap-1.5">
+      <div className="flex flex-1 flex-col gap-1.5">
         <Label htmlFor="creator-context">Descrição do criador</Label>
         <textarea
           id="creator-context"
@@ -46,7 +46,7 @@ export function Slide2Creator() {
             updateDraft({ creator_info: { ...draft.creator_info, context: e.target.value } })
           }
           rows={5}
-          placeholder="Ex.: Um assistente de vendas que ajuda o time comercial a qualificar leads e sugerir abordagens personalizadas com base no histórico do cliente."
+          placeholder="Ex.: Um funcionário agêntico de vendas que ajuda o time comercial a qualificar leads e sugerir abordagens personalizadas com base no histórico do cliente."
           className="min-h-[120px] flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </div>

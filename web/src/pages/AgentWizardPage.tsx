@@ -1,10 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Bot,
   Loader2,
   MessageSquare,
-  Plus,
   Rocket,
 } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
@@ -17,7 +15,6 @@ const AGENT_ID = "default";
 
 function DeployMenu() {
   const navigate = useNavigate();
-  const { reset } = useAgentDraft();
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
@@ -31,7 +28,7 @@ function DeployMenu() {
             Funcionário criado com sucesso!
           </h1>
           <p className="text-sm text-text-secondary">
-            Seu funcionário agêntico já está pronto. Escolha o que fazer agora.
+            Seu funcionário agêntico já está pronto.
           </p>
         </div>
 
@@ -42,32 +39,9 @@ function DeployMenu() {
             onClick={() =>
               navigate(`/dashboard/agent/${AGENT_ID}`, { replace: true })
             }
-            prefix={<Bot className="h-5 w-5" />}
-          >
-            Ir para o Dashboard do Funcionário
-          </Button>
-
-          <Button
-            size="md"
-            className="w-full justify-start gap-3 px-5 py-6 text-base"
-            onClick={() =>
-              navigate(`/dashboard/agent/${AGENT_ID}`, { replace: true })
-            }
             prefix={<MessageSquare className="h-5 w-5" />}
           >
-            Iniciar uma Conversa
-          </Button>
-
-          <Button
-            size="md"
-            outlined
-            className="w-full justify-start gap-3 px-5 py-6 text-base"
-            onClick={() => {
-              reset();
-            }}
-            prefix={<Plus className="h-5 w-5" />}
-          >
-            Criar Novo Funcionário
+            Interagir com o funcionário agêntico
           </Button>
         </div>
       </div>
@@ -105,6 +79,7 @@ function WizardWithNavigation() {
         soul: draft.identity.soul + creatorSuffix,
         model: draft.model_config.model,
         provider: draft.model_config.provider,
+        display_name: draft.identity.agent_name,
       });
       setDeployed(true);
     } catch (err: unknown) {
@@ -128,7 +103,7 @@ function WizardWithNavigation() {
       {deploying && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-background/80 backdrop-blur-sm">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-text-secondary">Publicando funcionário agêntico…</p>
+          <p className="text-sm text-text-secondary">Criando funcionário agêntico…</p>
         </div>
       )}
       <AgentWizardContainer

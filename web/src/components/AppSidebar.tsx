@@ -1,23 +1,16 @@
 import { Fragment, useMemo, type ComponentType } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import {
-  Download,
   Moon,
-  RotateCw,
   Search,
   Sun,
   X,
 } from "lucide-react";
 import { Button } from "@dheiver2/ui/ui/components/button";
-import { ListItem } from "@dheiver2/ui/ui/components/list-item";
-import { Spinner } from "@dheiver2/ui/ui/components/spinner";
 import { cn } from "@/lib/utils";
 import { SidebarFooter } from "@/components/SidebarFooter";
-import { SidebarStatusStrip } from "@/components/SidebarStatusStrip";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { useSystemActions } from "@/contexts/useSystemActions";
-import type { SystemAction } from "@/contexts/system-actions-context";
 import { useI18n } from "@/i18n";
 import type { Translations } from "@/i18n/types";
 import { PluginSlot } from "@/plugins";
@@ -170,8 +163,6 @@ export function AppSidebar({ mobileOpen, onClose, navItems }: AppSidebarProps) {
         )}
       </nav>
 
-      <SidebarSystemActions onNavigate={onClose} />
-
       <div
         className={cn(
           "flex shrink-0 items-center justify-between gap-2",
@@ -244,109 +235,5 @@ function SidebarNavLink({ closeMobile, item, t }: SidebarNavLinkProps) {
         )}
       </NavLink>
     </li>
-  );
-}
-
-interface SystemActionItem {
-  action: SystemAction;
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  runningLabel: string;
-  spin: boolean;
-}
-
-function SidebarSystemActions({ onNavigate }: { onNavigate: () => void }) {
-  const { t } = useI18n();
-  const navigate = useNavigate();
-  const { activeAction, isBusy, isRunning, pendingAction, runAction } =
-    useSystemActions();
-
-  const items: SystemActionItem[] = [
-    {
-      action: "restart",
-      icon: RotateCw,
-      label: t.status.restartGateway,
-      runningLabel: t.status.restartingGateway,
-      spin: true,
-    },
-    {
-      action: "update",
-      icon: Download,
-      label: t.status.updateMangaba,
-      runningLabel: t.status.updatingMangaba,
-      spin: false,
-    },
-  ];
-
-  const handleClick = (action: SystemAction) => {
-    if (isBusy) return;
-    void runAction(action);
-    navigate("/sessions");
-    onNavigate();
-  };
-
-  return (
-    <div
-      className={cn(
-        "shrink-0 flex flex-col",
-        "border-t border-current/10",
-        "py-3 px-3",
-      )}
-    >
-      <span
-        className={cn(
-          "block pb-2 text-xs font-semibold uppercase tracking-[0.24em] text-text-tertiary",
-        )}
-      >
-        {t.app.system}
-      </span>
-
-      <SidebarStatusStrip />
-
-      <ul className="flex flex-col gap-2 pt-2">
-        {items.map(({ action, icon: Icon, label, runningLabel, spin }) => {
-          const isPending = pendingAction === action;
-          const isActionRunning =
-            activeAction === action && isRunning && !isPending;
-          const busy = isPending || isActionRunning;
-          const displayLabel = isActionRunning ? runningLabel : label;
-          const disabled = isBusy && !busy;
-
-          return (
-            <li key={action}>
-              <ListItem
-                onClick={() => handleClick(action)}
-                disabled={disabled}
-                aria-busy={busy}
-                active={busy}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
-                  "transition-colors duration-150",
-                  busy
-                    ? "bg-primary/10 text-primary"
-                    : "text-text-secondary hover:text-midground hover:bg-midground/5",
-                  "disabled:text-text-disabled",
-                )}
-              >
-                {isPending ? (
-                  <Spinner className="shrink-0 text-[0.875rem]" />
-                ) : isActionRunning && spin ? (
-                  <Spinner className="shrink-0 text-[0.875rem]" />
-                ) : (
-                  <Icon
-                    className={cn(
-                      "h-4 w-4 shrink-0",
-                      isActionRunning && !spin && "animate-pulse",
-                    )}
-                  />
-                )}
-
-                <span className="truncate">{displayLabel}</span>
-              </ListItem>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
   );
 }

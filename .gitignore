@@ -79,3 +79,7 @@ docs/superpowers/*
 
 #Graphfy
 graphify-out/
+
+# Local MANGABA_HOME copy — contains auth.json/API keys/session transcripts.
+# Never commit this.
+.mangaba-home/

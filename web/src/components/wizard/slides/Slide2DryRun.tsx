@@ -115,7 +115,7 @@ export function Slide2DryRun() {
 
     const hasCreator = draft.creator_info.name || draft.creator_info.role || draft.creator_info.context;
     const system = hasCreator
-      ? `Você é um assistente de IA genérico em fase de teste. Você não tem especialização própria — você apenas reflete as capacidades do modelo que está sendo testado.\n\nContexto sobre o usuário:\nNome: ${draft.creator_info.name}\nProfissão: ${draft.creator_info.role}\n\nO que ele está construindo: ${draft.creator_info.context}\n\nAjude ${draft.creator_info.name || "o usuário"} a testar e validar as escolhas do modelo para este novo agente.`
+      ? `Você é um funcionário agêntico de IA genérico em fase de teste. Você não tem especialização própria — você apenas reflete as capacidades do modelo que está sendo testado.\n\nContexto sobre o usuário:\nNome: ${draft.creator_info.name}\nProfissão: ${draft.creator_info.role}\n\nO que ele está construindo: ${draft.creator_info.context}\n\nAjude ${draft.creator_info.name || "o usuário"} a testar e validar as escolhas do modelo para este novo funcionário agêntico.`
       : undefined;
 
     const payload = JSON.stringify({
@@ -157,9 +157,9 @@ export function Slide2DryRun() {
         {messages.length === 0 && !sending && (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
             <Bot className="h-10 w-10 text-text-tertiary" />
-            <p className="text-base font-medium text-text-primary">Teste rápido do modelo</p>
+            <p className="text-base font-medium text-text-primary">Converse com o cérebro do funcionário agêntico</p>
             <p className="max-w-sm text-sm text-text-tertiary">
-              Envie uma mensagem para conversar com o modelo puro e validar as escolhas
+              Envie uma mensagem para conversar com o cérebro puro e validar as escolhas
               antes de finalizar a configuração.
             </p>
           </div>
