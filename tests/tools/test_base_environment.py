@@ -4,9 +4,14 @@ Tests _wrap_command(), _extract_cwd_from_output(), _embed_stdin_heredoc(),
 init_session() failure handling, and the CWD marker contract.
 """
 
+import subprocess
+import sys
 import uuid
 from unittest.mock import MagicMock
 
+import pytest
+
+import tools.environments.base as base_mod
 from tools.environments.base import BaseEnvironment, _cwd_marker
 
 
@@ -184,6 +189,42 @@ class TestInitSessionFailure:
 
         assert len(calls) == 1
         assert calls[0]["login"] is True
+
+
+class TestOutputCaptureCap:
+    """The foreground drain must bound how much output it buffers in RAM."""
+
+    def test_high_volume_output_is_capped(self, monkeypatch):
+        monkeypatch.setattr(base_mod, "_MAX_CAPTURE_CHARS", 2000)
+        env = _TestableEnv()
+
+        # Real subprocess that prints ~500k chars then exits.
+        proc = subprocess.Popen(
+            [sys.executable, "-c", "import sys; sys.stdout.write('x' * 500000)"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        result = env._wait_for_process(proc, timeout=15)
+
+        # Buffered output is bounded near the cap, not the full 500k.
+        assert len(result["output"]) < 2000 + 500  # cap + truncation notice
+        assert "truncated" in result["output"]
+        assert result["returncode"] == 0
+
+    def test_small_output_not_truncated(self, monkeypatch):
+        monkeypatch.setattr(base_mod, "_MAX_CAPTURE_CHARS", 2000)
+        env = _TestableEnv()
+
+        proc = subprocess.Popen(
+            [sys.executable, "-c", "import sys; sys.stdout.write('hello world')"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
+        result = env._wait_for_process(proc, timeout=15)
+
+        assert "hello world" in result["output"]
+        assert "truncated" not in result["output"]
+        assert result["returncode"] == 0
 
 
 class TestCwdMarker:

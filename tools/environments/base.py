@@ -38,6 +38,20 @@ if _DEBUG_INTERRUPT:
     # agent.log regardless of quiet-mode.  Scoped to the opt-in case only.
     logger.setLevel(logging.INFO)
 
+# Hard cap on how much foreground command output we buffer in RAM while
+# draining a process's stdout. The drain loop used to append every chunk to an
+# unbounded list until the process exited or timed out, so a model running a
+# command that spews output (``yes``, ``cat /dev/zero | base64``, ``find /``, a
+# runaway print loop) could accumulate gigabytes in memory over the command's
+# timeout window and freeze the host. Once the cap is hit we keep reading the
+# pipe (so the process doesn't block on a full pipe and hang) but stop storing
+# the extra output and flag it as truncated. Override via
+# MANGABA_MAX_TERMINAL_CAPTURE_MB.
+try:
+    _MAX_CAPTURE_CHARS = max(1, int(os.getenv("MANGABA_MAX_TERMINAL_CAPTURE_MB", "20"))) * 1024 * 1024
+except (ValueError, TypeError):
+    _MAX_CAPTURE_CHARS = 20 * 1024 * 1024
+
 # Thread-local activity callback.  The agent sets this before a tool call so
 # long-running _wait_for_process loops can report liveness to the gateway.
 _activity_callback_local = threading.local()
@@ -497,6 +511,26 @@ class BaseEnvironment(ABC):
         ``sleep 300``-survives-30-min bug Physikal and I both hit.
         """
         output_chunks: list[str] = []
+        _capture_state = {"total": 0, "truncated": False}
+
+        def _capture(text: str) -> None:
+            """Append decoded output up to _MAX_CAPTURE_CHARS, then discard.
+
+            Keeps the running total bounded so a high-volume command cannot
+            grow ``output_chunks`` without limit. The caller keeps draining the
+            pipe after truncation so the process isn't blocked on a full pipe.
+            """
+            if not text or _capture_state["truncated"]:
+                return
+            remaining = _MAX_CAPTURE_CHARS - _capture_state["total"]
+            if len(text) <= remaining:
+                output_chunks.append(text)
+                _capture_state["total"] += len(text)
+            else:
+                if remaining > 0:
+                    output_chunks.append(text[:remaining])
+                    _capture_state["total"] += remaining
+                _capture_state["truncated"] = True
 
         # Non-blocking drain via select().
         #
@@ -535,14 +569,14 @@ class BaseEnvironment(ABC):
                         chunk = os.read(fd, 4096)
                         if not chunk:
                             break
-                        output_chunks.append(decoder.decode(chunk))
+                        _capture(decoder.decode(chunk))
                 except (ValueError, OSError):
                     pass
                 finally:
                     try:
                         tail = decoder.decode(b"", final=True)
                         if tail:
-                            output_chunks.append(tail)
+                            _capture(tail)
                     except Exception:
                         pass
                 return
@@ -560,7 +594,7 @@ class BaseEnvironment(ABC):
                             break
                         if not chunk:
                             break  # true EOF — all writers closed
-                        output_chunks.append(decoder.decode(chunk))
+                        _capture(decoder.decode(chunk))
                         idle_after_exit = 0
                     elif proc.poll() is not None:
                         # bash is gone and the pipe was idle for ~100ms.  Give
@@ -576,7 +610,7 @@ class BaseEnvironment(ABC):
                 try:
                     tail = decoder.decode(b"", final=True)
                     if tail:
-                        output_chunks.append(tail)
+                        _capture(tail)
                 except Exception:
                     pass
 
@@ -715,7 +749,14 @@ class BaseEnvironment(ABC):
                 proc.returncode,
             )
 
-        return {"output": "".join(output_chunks), "returncode": proc.returncode}
+        output = "".join(output_chunks)
+        if _capture_state["truncated"]:
+            output += (
+                f"\n\n[output truncated: exceeded {_MAX_CAPTURE_CHARS} character "
+                "in-memory capture limit; the command still ran to completion. "
+                "Redirect large output to a file and read it in chunks.]"
+            )
+        return {"output": output, "returncode": proc.returncode}
 
     def _kill_process(self, proc: ProcessHandle):
         """Terminate a process. Subclasses may override for process-group kill."""
