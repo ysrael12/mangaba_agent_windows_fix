@@ -29,7 +29,7 @@ except ImportError:
     except ImportError:
         msvcrt = None
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
 
 # Add parent directory to path for imports BEFORE repo-level imports.
 # Without this, standalone invocations (e.g. after `mangaba update` reloads
@@ -130,6 +130,13 @@ from cron.jobs import get_due_jobs, mark_job_run, save_job_output, advance_next_
 # response with this marker to suppress delivery.  Output is still saved
 # locally for audit.
 SILENT_MARKER = "[SILENT]"
+
+# Safe default cap on cron jobs run in parallel per tick when nothing is
+# configured. Each job is a full AIAgent, so a burst of overdue jobs (e.g. on
+# wake-from-sleep) must not spawn dozens of heavy agents at once. Users can set
+# cron.max_parallel_jobs (or MANGABA_CRON_MAX_PARALLEL) to a higher number, or
+# 0 for explicit unbounded.
+_DEFAULT_CRON_MAX_PARALLEL = 4
 
 # Backward-compatible module override used by tests and emergency monkeypatches.
 _mangaba_home: Path | None = None
@@ -1834,25 +1841,42 @@ def tick(verbose: bool = True, adapters=None, loop=None) -> int:
         for job in due_jobs:
             advance_next_run(job["id"])
 
-        # Resolve max parallel workers: env var > config.yaml > unbounded.
+        # Resolve max parallel workers: env var > config.yaml > bounded default.
+        # Each due job spawns a full AIAgent (which can itself spawn browser /
+        # terminal / subagent processes), so unbounded parallelism here can
+        # exhaust a machine — e.g. when a laptop wakes from sleep and every
+        # overdue job becomes due in the same tick. Semantics:
+        #   positive N  -> at most N jobs in parallel
+        #   0           -> explicit opt-in to unbounded (min(32, cpu+4) threads)
+        #   unset/null  -> bounded default (_DEFAULT_CRON_MAX_PARALLEL)
         # Set MANGABA_CRON_MAX_PARALLEL=1 to restore old serial behaviour.
-        _max_workers: Optional[int] = None
+        _UNSET = object()
+        _resolved: Any = _UNSET
         try:
             _env_par = os.getenv("MANGABA_CRON_MAX_PARALLEL", "").strip()
             if _env_par:
-                _max_workers = int(_env_par) or None
+                _resolved = int(_env_par)
         except (ValueError, TypeError):
-            logger.warning("Invalid MANGABA_CRON_MAX_PARALLEL value; defaulting to unbounded")
-        if _max_workers is None:
+            logger.warning("Invalid MANGABA_CRON_MAX_PARALLEL value; using bounded default")
+        if _resolved is _UNSET:
             try:
                 _ucfg = load_config() or {}
                 _cfg_par = (
                     _ucfg.get("cron", {}) if isinstance(_ucfg, dict) else {}
                 ).get("max_parallel_jobs")
                 if _cfg_par is not None:
-                    _max_workers = int(_cfg_par) or None
+                    _resolved = int(_cfg_par)
             except Exception:
                 pass
+
+        if _resolved is _UNSET:
+            # Nothing configured anywhere -> safe bounded default.
+            _max_workers: Optional[int] = _DEFAULT_CRON_MAX_PARALLEL
+        elif _resolved <= 0:
+            # Explicit 0 (or negative) -> caller opted into unbounded.
+            _max_workers = None
+        else:
+            _max_workers = _resolved
 
         if verbose:
             logger.info(

@@ -2355,6 +2355,61 @@ class TestParallelTick:
         start_s2 = [t for action, jid, t in call_times if action == "start" and jid == "s2"][0]
         assert start_s2 >= end_s1, "Jobs ran concurrently despite max_parallel=1"
 
+    def _run_tick_capturing_max_workers(self, monkeypatch, jobs):
+        """Run one tick and capture the max_workers passed to the tick pool."""
+        import concurrent.futures as _cf
+
+        captured = {}
+        real_executor = _cf.ThreadPoolExecutor
+
+        def _spy_executor(*args, **kwargs):
+            captured["max_workers"] = kwargs.get("max_workers", args[0] if args else None)
+            return real_executor(*args, **kwargs)
+
+        with patch("cron.scheduler.get_due_jobs", return_value=jobs), \
+             patch("cron.scheduler.advance_next_run"), \
+             patch("cron.scheduler.run_job", return_value=(True, "o", "r", None)), \
+             patch("cron.scheduler.save_job_output", return_value="/tmp/out.md"), \
+             patch("cron.scheduler._deliver_result", return_value=None), \
+             patch("cron.scheduler.mark_job_run"), \
+             patch("concurrent.futures.ThreadPoolExecutor", side_effect=_spy_executor):
+            from cron.scheduler import tick
+            tick(verbose=False)
+        return captured.get("max_workers", "no-pool")
+
+    def test_unset_config_uses_bounded_default(self, monkeypatch):
+        """No env var and no config value -> bounded default, never unbounded."""
+        from cron.scheduler import _DEFAULT_CRON_MAX_PARALLEL
+
+        monkeypatch.delenv("MANGABA_CRON_MAX_PARALLEL", raising=False)
+        monkeypatch.setattr("cron.scheduler.load_config", lambda: {"cron": {}})
+        jobs = [{"id": f"j{i}", "name": f"j{i}", "deliver": "local"} for i in range(3)]
+
+        max_workers = self._run_tick_capturing_max_workers(monkeypatch, jobs)
+        assert max_workers == _DEFAULT_CRON_MAX_PARALLEL
+
+    def test_null_config_uses_bounded_default_not_unbounded(self, monkeypatch):
+        """Legacy configs with explicit null must NOT mean unbounded anymore."""
+        from cron.scheduler import _DEFAULT_CRON_MAX_PARALLEL
+
+        monkeypatch.delenv("MANGABA_CRON_MAX_PARALLEL", raising=False)
+        monkeypatch.setattr(
+            "cron.scheduler.load_config",
+            lambda: {"cron": {"max_parallel_jobs": None}},
+        )
+        jobs = [{"id": f"j{i}", "name": f"j{i}", "deliver": "local"} for i in range(3)]
+
+        max_workers = self._run_tick_capturing_max_workers(monkeypatch, jobs)
+        assert max_workers == _DEFAULT_CRON_MAX_PARALLEL
+
+    def test_explicit_zero_opts_into_unbounded(self, monkeypatch):
+        """max_parallel_jobs=0 is the explicit unbounded opt-in (max_workers=None)."""
+        monkeypatch.setenv("MANGABA_CRON_MAX_PARALLEL", "0")
+        jobs = [{"id": f"j{i}", "name": f"j{i}", "deliver": "local"} for i in range(3)]
+
+        max_workers = self._run_tick_capturing_max_workers(monkeypatch, jobs)
+        assert max_workers is None
+
 
 class TestDeliverResultTimeoutCancelsFuture:
     """When future.result(timeout=60) raises TimeoutError in the live

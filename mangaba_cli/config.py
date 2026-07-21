@@ -1508,11 +1508,14 @@ DEFAULT_CONFIG = {
         # Wrap delivered cron responses with a header (task name) and footer
         # ("The agent cannot see this message").  Set to false for clean output.
         "wrap_response": True,
-        # Maximum number of due jobs to run in parallel per tick.
-        # null/0 = unbounded (limited only by thread count).
-        # 1 = serial (pre-v0.9 behaviour).
+        # Maximum number of due jobs to run in parallel per tick. Each job is a
+        # full AIAgent, so this is capped by default to avoid exhausting the
+        # machine when many jobs come due at once (e.g. wake-from-sleep).
+        # positive N = at most N in parallel; 1 = serial (pre-v0.9 behaviour);
+        # 0 = explicit unbounded (limited only by thread count);
+        # null/absent = safe bounded default (see _DEFAULT_CRON_MAX_PARALLEL).
         # Also overridable via MANGABA_CRON_MAX_PARALLEL env var.
-        "max_parallel_jobs": None,
+        "max_parallel_jobs": 4,
     },
 
     # Kanban multi-agent coordination — controls the dispatcher loop that
