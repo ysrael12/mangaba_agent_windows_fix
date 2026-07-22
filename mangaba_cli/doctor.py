@@ -1223,8 +1223,12 @@ def run_doctor(args):
             check_info("Vercel persistence: ephemeral filesystem")
 
     # Node.js + agent-browser (for browser automation tools)
-    if _safe_which("node"):
-        check_ok("Node.js")
+    from mangaba_agent.frozen import find_node_executable
+
+    _node_path = find_node_executable()
+    if _node_path:
+        _node_source = "system PATH" if _safe_which("node") else "bundled runtime"
+        check_ok("Node.js", f"({_node_source}: {_node_path})")
         # Check if agent-browser is installed
         agent_browser_path = PROJECT_ROOT / "node_modules" / "agent-browser"
         agent_browser_ok = False

@@ -1,0 +1,1 @@
+import{j as s,t as n}from"./index-BYgZ8E4I.js";function e({active:o,title:a,className:r}){return s.jsx("span",{className:n("inline-block h-2.5 w-2.5 shrink-0 rounded-full",o?"bg-success":"bg-muted-foreground/40",r),title:a??(o?"ativo":"parado"),"aria-label":a??(o?"ativo":"parado"),role:"img"})}export{e as S};

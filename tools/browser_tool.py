@@ -1817,7 +1817,8 @@ def _find_agent_browser() -> str:
     # WinError 193 "%1 is not a valid Win32 application". We must resolve to the
     # `.cmd` shim instead. `shutil.which` consults PATHEXT, so we delegate to it
     # with an explicit path so POSIX hosts still pick the extensionless shim.
-    repo_root = Path(__file__).parent.parent
+    from mangaba_agent.frozen import get_bundle_dir
+    repo_root = get_bundle_dir()
     local_bin_dir = repo_root / "node_modules" / ".bin"
     if local_bin_dir.is_dir():
         local_which = shutil.which("agent-browser", path=str(local_bin_dir))

@@ -43,10 +43,11 @@ def _get_bundled_dir() -> Path:
     """Locate the bundled skills/ directory.
 
     Checks MANGABA_BUNDLED_SKILLS env var first (set by Nix wrapper),
-    then a wheel-installed data dir, then falls back to the relative
-    path from this source file.
+    then a wheel-installed data dir, then falls back to the bundle-relative
+    path (repo <root>/skills from source, PyInstaller bundle root when frozen).
     """
-    return get_bundled_skills_dir(Path(__file__).parent.parent / "skills")
+    from mangaba_agent.frozen import resource_path
+    return get_bundled_skills_dir(resource_path("skills"))
 
 
 def _read_manifest() -> Dict[str, str]:

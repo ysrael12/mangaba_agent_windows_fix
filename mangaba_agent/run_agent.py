@@ -91,7 +91,8 @@ from mangaba_cli.timeouts import (
 )
 
 _mangaba_home = get_mangaba_home()
-_project_env = Path(__file__).parent / '.env'
+from mangaba_agent.frozen import resource_path
+_project_env = resource_path("mangaba_agent/.env")
 _loaded_env_paths = load_mangaba_dotenv(mangaba_home=_mangaba_home, project_env=_project_env)
 if _loaded_env_paths:
     for _env_path in _loaded_env_paths:
@@ -2414,10 +2415,12 @@ class AIAgent:
 
         Prior bug: getattr(client, "is_closed", False) returned the bound method,
         which is always truthy, causing unnecessary client recreation on every call.
-        """
-        from unittest.mock import Mock
 
-        if isinstance(client, Mock):
+        Detects mocks by module name rather than `isinstance(..., Mock)` so this
+        hot path never imports `unittest`, which the PyInstaller build excludes
+        to cut bundle size.
+        """
+        if type(client).__module__ == "unittest.mock":
             return False
 
         is_closed_attr = getattr(client, "is_closed", None)
@@ -2565,10 +2568,11 @@ class AIAgent:
         return copilot_request_headers(is_agent_turn=True, is_vision=is_vision)
 
     def _create_request_openai_client(self, *, reason: str, api_kwargs: Optional[dict] = None) -> Any:
-        from unittest.mock import Mock
-
         primary_client = self._ensure_primary_openai_client(reason=reason)
-        if isinstance(primary_client, Mock):
+        # Detected by module name rather than `isinstance(..., Mock)` so this
+        # hot path never imports `unittest`, which the PyInstaller build
+        # excludes to cut bundle size.
+        if type(primary_client).__module__ == "unittest.mock":
             return primary_client
         with self._openai_client_lock():
             request_kwargs = dict(self._client_kwargs)

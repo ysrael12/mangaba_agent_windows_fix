@@ -1135,8 +1135,11 @@ def run_conversation(
                     # No display/TTS consumer. Still prefer streaming for
                     # health checking, but skip for Mock clients in tests
                     # (mocks return SimpleNamespace, not stream iterators).
-                    from unittest.mock import Mock
-                    if isinstance(getattr(agent, "client", None), Mock):
+                    # Detected by module name rather than `isinstance(..., Mock)`
+                    # so this hot path never imports `unittest`, which the
+                    # PyInstaller build excludes to cut bundle size.
+                    _client = getattr(agent, "client", None)
+                    if _client is not None and type(_client).__module__ == "unittest.mock":
                         _use_streaming = False
 
                 if _use_streaming:

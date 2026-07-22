@@ -85,21 +85,25 @@ def resolve_mangaba_bin() -> Optional[str]:
       2. ``shutil.which("mangaba")`` on PATH.
       3. ``None`` → caller should fall back to ``python -m mangaba_cli.main``.
 
-    Windows note: ``os.access(path, os.X_OK)`` returns True for ``.py`` and
-    ``.pyc`` files on Windows (the OS treats anything listed in PATHEXT as
-    executable, and Python files are often registered there).  But
-    ``subprocess.run([script.py, ...])`` can't actually execute a .py
-    directly — CreateProcessW needs a real .exe, not a script associated
-    with the Python launcher.  On Windows we therefore skip the argv[0]
-    fast-path when it points at a .py file and fall through to either
-    ``mangaba.exe`` on PATH or the ``sys.executable -m mangaba_cli.main``
-    fallback.
+    Frozen dashboard builds: ``sys.argv[0]`` is the windowed
+    ``mangaba-dashboard.exe`` — spawning it would re-enter
+    ``_detect_dashboard_invocation()`` and cascade.  When the detected
+    executable name contains "dashboard", look for the CLI ``mangaba.exe``
+    in the same directory instead.
     """
     argv0 = sys.argv[0]
     _is_windows = sys.platform == "win32"
 
     def _is_python_script(p: str) -> bool:
         return p.lower().endswith((".py", ".pyc"))
+
+    # Frozen dashboard: swap dashboard exe for CLI exe in same directory.
+    if getattr(sys, "frozen", False) and "dashboard" in os.path.basename(argv0).lower():
+        from pathlib import Path
+        bundle_dir = Path(argv0).resolve().parent
+        cli = bundle_dir / ("mangaba.exe" if _is_windows else "mangaba")
+        if cli.exists():
+            return str(cli)
 
     # Absolute path to an executable (covers nix store, venv wrappers, etc.)
     if os.path.isabs(argv0) and os.path.isfile(argv0) and os.access(argv0, os.X_OK):

@@ -167,6 +167,15 @@ def _apply_profile_config(pdir: Path, client: Dict[str, Any]) -> None:
 
 
 def _mangaba_bin() -> str:
+    # Frozen builds: avoid returning the dashboard exe (would re-enter
+    # _detect_dashboard_invocation and cascade).  Prefer the CLI exe.
+    if getattr(sys, "frozen", False):
+        from pathlib import Path
+        bundle_dir = Path(sys.executable).resolve().parent
+        cli = bundle_dir / ("mangaba.exe" if sys.platform == "win32" else "mangaba")
+        if cli.exists():
+            return str(cli)
+        return sys.executable  # fallback
     return shutil.which("mangaba") or "mangaba"
 
 
@@ -236,13 +245,14 @@ def start(client: Dict[str, Any], wait: float = 35.0) -> Dict[str, Any]:
 
     logf = open(pdir / "logs" / "gateway.out.log", "ab", buffering=0)
     (pdir / "logs").mkdir(parents=True, exist_ok=True)
+    from mangaba_cli._subprocess_compat import windows_detach_popen_kwargs
     subprocess.Popen(
         [_mangaba_bin(), "gateway", "run"],
         env=env,
         stdout=logf,
         stderr=logf,
-        start_new_session=True,
         cwd=str(pdir),
+        **windows_detach_popen_kwargs(),
     )
 
     deadline = time.time() + wait

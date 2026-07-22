@@ -24,6 +24,8 @@ except ModuleNotFoundError:
     # means UTF-8 stdio setup is skipped on Windows; POSIX is unaffected.
     pass
 
+from mangaba_agent.frozen import get_bundle_dir, resource_path
+
 import asyncio
 import dataclasses
 import inspect
@@ -673,7 +675,7 @@ os.environ["_MANGABA_GATEWAY"] = "1"
 _ensure_ssl_certs()
 
 # Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(get_bundle_dir()))
 
 # Resolve Mangaba home directory (respects MANGABA_HOME override)
 from mangaba_agent.mangaba_constants import get_mangaba_home
@@ -685,7 +687,7 @@ _mangaba_home = get_mangaba_home()
 from dotenv import load_dotenv  # backward-compat for tests that monkeypatch this symbol
 from mangaba_cli.env_loader import load_mangaba_dotenv
 _env_path = _mangaba_home / '.env'
-load_mangaba_dotenv(mangaba_home=_mangaba_home, project_env=Path(__file__).resolve().parents[1] / '.env')
+load_mangaba_dotenv(mangaba_home=_mangaba_home, project_env=get_bundle_dir() / '.env')
 
 
 def _reload_runtime_env_preserving_config_authority() -> None:
@@ -698,7 +700,7 @@ def _reload_runtime_env_preserving_config_authority() -> None:
     """
     load_mangaba_dotenv(
         mangaba_home=_mangaba_home,
-        project_env=Path(__file__).resolve().parents[1] / '.env',
+        project_env=get_bundle_dir() / '.env',
     )
 
     config_path = _mangaba_home / 'config.yaml'
@@ -1263,7 +1265,7 @@ def _check_unavailable_skill(command_name: str) -> str | None:
 
         # Check optional skills (shipped with repo but not installed)
         from mangaba_agent.mangaba_constants import get_optional_skills_dir
-        repo_root = Path(__file__).resolve().parent.parent
+        repo_root = get_bundle_dir()
         optional_dir = get_optional_skills_dir(repo_root / "optional-skills")
         if optional_dir.exists():
             for skill_md in optional_dir.rglob("SKILL.md"):
@@ -13238,7 +13240,7 @@ class GatewayRunner:
         adapter = self.adapters.get(source.platform) if getattr(self, "adapters", None) else None
         if adapter is None or not source.chat_id or not hasattr(adapter, "send_image_file"):
             return
-        image_path = Path(__file__).resolve().parent / "assets" / "telegram-botfather-threads-settings.jpg"
+        image_path = resource_path("gateway/assets/telegram-botfather-threads-settings.jpg")
         if not image_path.exists():
             return
         try:
@@ -14749,7 +14751,7 @@ class GatewayRunner:
         if is_managed():
             return f"✗ {format_managed_message('update Mangaba Agent')}"
 
-        project_root = Path(__file__).parent.parent.resolve()
+        project_root = get_bundle_dir()
         git_dir = project_root / '.git'
 
         if not git_dir.exists():

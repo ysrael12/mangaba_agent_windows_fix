@@ -1,0 +1,1 @@
+# Mangaba plugins package

@@ -5310,6 +5310,9 @@ def _module_mangaba_argv() -> list[str]:
     # ``mangaba_cli.main`` is the console-script target declared in
     # pyproject.toml, NOT a top-level ``mangaba`` package — there is no
     # ``mangaba`` package to import.
+    if getattr(sys, "frozen", False):
+        from mangaba_cli.gateway import get_python_path
+        return [get_python_path()]
     return [sys.executable, "-m", "mangaba_cli.main"]
 
 

@@ -234,7 +234,8 @@ def main(argv: list[str] | None = None) -> None:
     logger.info("Starting mangaba-agent ACP adapter")
 
     # Ensure the project root is on sys.path so ``from run_agent import AIAgent`` works
-    project_root = str(Path(__file__).resolve().parent.parent)
+    from mangaba_agent.frozen import get_bundle_dir
+    project_root = str(get_bundle_dir())
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
 

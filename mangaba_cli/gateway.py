@@ -347,6 +347,8 @@ def _scan_gateway_pids(exclude_pids: set[int], all_profiles: bool = False) -> li
             # removed as part of the WMIC deprecation — fall back to
             # PowerShell's Get-CimInstance.  Any OSError here (FileNotFoundError
             # on missing wmic) trips the fallback.
+            from mangaba_cli._subprocess_compat import windows_hide_flags
+
             wmic_path = shutil.which("wmic")
             used_fallback = False
             result = None
@@ -359,6 +361,7 @@ def _scan_gateway_pids(exclude_pids: set[int], all_profiles: bool = False) -> li
                         encoding="utf-8",
                         errors="ignore",
                         timeout=10,
+                        creationflags=windows_hide_flags(),
                     )
                 except (OSError, subprocess.TimeoutExpired):
                     result = None
@@ -384,6 +387,7 @@ def _scan_gateway_pids(exclude_pids: set[int], all_profiles: bool = False) -> li
                         encoding="utf-8",
                         errors="ignore",
                         timeout=15,
+                        creationflags=windows_hide_flags(),
                     )
                 except (OSError, subprocess.TimeoutExpired):
                     return []

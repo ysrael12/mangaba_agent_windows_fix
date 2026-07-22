@@ -75,6 +75,8 @@ export function Slide2DryRun() {
             const next = [...prev];
             if (next.length > 0 && next[next.length - 1].role === "assistant") {
               next[next.length - 1] = { role: "assistant", text: frame.text };
+            } else {
+              next.push({ role: "assistant", text: frame.text });
             }
             return next;
           });

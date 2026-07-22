@@ -1,0 +1,8 @@
+name: mangaba_rag
+description: >-
+  Camada de RAG sobre o conteúdo oficial de mangaba.ia.br. Injeta trechos
+  relevantes do site em cada turno (context-only, sem ferramentas). Índice
+  local TF-IDF, sem dependências pesadas. Reindex via dashboard ou
+  `MangabaRAGProvider.reindex()`.
+type: memory_provider
+context_only: true

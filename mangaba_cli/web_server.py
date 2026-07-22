@@ -5830,11 +5830,18 @@ async def clawhub_status():
 
 @app.get("/api/clawhub/search")
 async def clawhub_search(q: str = "", limit: int = 20):
-    """Busca skills no catálogo do ClawHub."""
+    """Busca skills no catálogo do ClawHub.
+
+    ``ClawHubSource.search`` shells out to blocking ``httpx.get`` calls
+    (and, on a cold cache, paginates through the whole catalog) — running it
+    inline in this ``async def`` handler would stall the event loop, freezing
+    every other concurrent request (including the chat WebSocket) for the
+    duration. Offload it to a thread instead.
+    """
     from tools.skills_hub import ClawHubSource
 
     source = ClawHubSource()
-    results = source.search(q, limit=limit)
+    results = await asyncio.to_thread(source.search, q, limit)
     return {
         "results": [
             {
@@ -6624,6 +6631,17 @@ async def chat_ws(ws: WebSocket) -> None:
                         if final is None:
                             _log.warning("chat_ws: agent turn returned final_response=None for model=%s provider=%s",
                                           built_model, provider)
+                        # "(empty)" is the agent's internal sentinel for "model
+                        # exhausted all retries with no visible content" — not
+                        # real assistant text. gateway/run.py already translates
+                        # it for platform delivery; do the same here so the
+                        # dashboard chat doesn't show the raw sentinel.
+                        if final == "(empty)":
+                            final = (
+                                "⚠️ O modelo não retornou resposta após processar as "
+                                "ferramentas. Isso acontece com alguns modelos — tente de "
+                                "novo ou reformule a pergunta."
+                            )
                         loop.call_soon_threadsafe(queue.put_nowait, {"done": final or ""})
                 except Exception as exc:  # noqa: BLE001
                     _log.warning("chat_ws: agent turn raised for model=%s provider=%s: %s",

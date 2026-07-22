@@ -17,8 +17,10 @@ Behavior contract (important — do not break):
 
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
+from typing import Optional
 
 
 def is_frozen() -> bool:
@@ -57,3 +59,29 @@ def resource_path(relative: str) -> Path:
     ``"mangaba_cli/web_dist"``.
     """
     return get_bundle_dir() / relative
+
+
+def find_node_executable() -> Optional[Path]:
+    """Locate a usable ``node`` binary: system PATH first, then the portable
+    runtime the Windows installer places next to the frozen executable.
+
+    The Inno Setup installer (see ``SPEC_INSTALLER.md``) downloads a portable
+    Node.js build into ``<install_dir>\\runtime\\node\\`` when no compatible
+    ``node`` is found on the system PATH at install time. Source/dev runs and
+    non-Windows frozen builds have no such directory — only checked when
+    ``is_frozen()`` is true, since ``get_executable_dir()`` falls back to
+    ``Path.cwd()`` in source mode, where a ``runtime/node/`` lookup would be
+    meaningless.
+    """
+    system_node = shutil.which("node")
+    if system_node:
+        return Path(system_node)
+
+    if not is_frozen():
+        return None
+
+    exe_name = "node.exe" if sys.platform == "win32" else "node"
+    bundled = get_executable_dir() / "runtime" / "node" / exe_name
+    if bundled.is_file():
+        return bundled
+    return None

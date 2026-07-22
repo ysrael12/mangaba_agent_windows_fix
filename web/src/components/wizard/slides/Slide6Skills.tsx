@@ -298,7 +298,7 @@ export function Slide6Skills() {
                     <Check className="h-3.5 w-3.5 shrink-0 text-success" />
                     <span className="flex-1 truncate font-medium text-text-primary">{s.id}</span>
                     <Badge tone={s.source === "clawhub" ? "secondary" : "outline"}>
-                      {s.source === "clawhub" ? "Catálogo" : "Forjada"}
+                      {s.source === "clawhub" ? "Catálogo" : "Adquirida"}
                     </Badge>
                     <button
                       type="button"

@@ -401,6 +401,9 @@ def _uninstall_profile(profile) -> None:
     #    Use `python -m mangaba_cli.main` so we don't depend on a `mangaba`
     #    wrapper that may be half-removed mid-uninstall.
     mangaba_invocation = [_sys.executable, "-m", "mangaba_cli.main", "--profile", name]
+    if getattr(_sys, "frozen", False):
+        from mangaba_cli.gateway import get_python_path
+        mangaba_invocation = [get_python_path(), "--profile", name]
     for subcmd in ("stop", "uninstall"):
         try:
             subprocess.run(

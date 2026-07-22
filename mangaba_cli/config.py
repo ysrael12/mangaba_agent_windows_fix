@@ -225,7 +225,8 @@ def detect_install_method(project_root: Optional[Path] = None) -> str:
     if is_container():
         return "docker"
     if project_root is None:
-        project_root = Path(__file__).parent.parent.resolve()
+        from mangaba_agent.frozen import get_bundle_dir
+        project_root = get_bundle_dir()
     if (project_root / ".git").is_dir():
         return "git"
     return "pip"
@@ -366,8 +367,9 @@ def get_env_path() -> Path:
     return get_mangaba_home() / ".env"
 
 def get_project_root() -> Path:
-    """Get the project installation directory."""
-    return Path(__file__).parent.parent.resolve()
+    """Get the project installation directory (bundle root when frozen)."""
+    from mangaba_agent.frozen import get_bundle_dir
+    return get_bundle_dir()
 
 def _secure_dir(path):
     """Set directory to owner-only access (0700 by default). No-op on Windows.
@@ -5537,10 +5539,10 @@ def _inject_platform_plugin_env_vars() -> None:
     try:
         import yaml  # type: ignore
 
-        # Resolve the bundled plugins dir from this file's location so the
-        # injector works regardless of CWD.
-        repo_root = Path(__file__).resolve().parents[1]
-        platforms_dir = repo_root / "plugins" / "platforms"
+        # Resolve the bundled plugins dir from the bundle root so the injector
+        # works regardless of CWD (and inside a frozen bundle).
+        from mangaba_agent.frozen import resource_path
+        platforms_dir = resource_path("plugins/platforms")
         if not platforms_dir.is_dir():
             return
         for child in platforms_dir.iterdir():

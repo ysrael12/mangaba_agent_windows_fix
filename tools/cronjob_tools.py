@@ -18,7 +18,8 @@ from mangaba_agent.mangaba_constants import display_mangaba_home
 logger = logging.getLogger(__name__)
 
 # Import from cron module (will be available when properly installed)
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from mangaba_agent.frozen import get_bundle_dir
+sys.path.insert(0, str(get_bundle_dir()))
 
 from cron.jobs import (
     AmbiguousJobReference,

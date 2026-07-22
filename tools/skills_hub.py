@@ -2544,9 +2544,10 @@ class OptionalSkillSource(SkillSource):
 
     def __init__(self):
         from mangaba_agent.mangaba_constants import get_optional_skills_dir
+        from mangaba_agent.frozen import resource_path
 
         self._optional_dir = get_optional_skills_dir(
-            Path(__file__).parent.parent / "optional-skills"
+            resource_path("optional-skills")
         )
 
     def source_id(self) -> str:

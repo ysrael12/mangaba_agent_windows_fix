@@ -106,6 +106,10 @@ pty = [
 ]
 honcho = ["honcho-ai==2.0.1"]
 mcp = ["mcp==1.26.0"]
+# System-tray launcher (mangaba-launcher.exe) — Windows installer only, see
+# SPEC_INSTALLER.md Fase 7. Kept out of `all` so it doesn't bloat the CLI/
+# dashboard/ACP bundles, which don't need a tray icon.
+launcher = ["pystray>=0.19,<1", "Pillow>=10.0,<11"]
 homeassistant = ["aiohttp==3.13.3"]
 sms = ["aiohttp==3.13.3"]
 # Computer use — macOS background desktop control via cua-driver (MCP stdio).

@@ -1256,37 +1256,47 @@ def _ensure_tui_node() -> None:
     if os.environ.get("MANGABA_SKIP_NODE_BOOTSTRAP"):
         return
 
-    helper = PROJECT_ROOT / "scripts" / "lib" / "node-bootstrap.sh"
-    if not helper.is_file():
-        return
-
     mangaba_home = os.environ.get("MANGABA_HOME") or str(Path.home() / ".mangaba")
-    try:
-        # Helper writes logs to stderr; we ask bash to print `command -v node`
-        # on stdout once ensure_node succeeds. Subshell PATH edits don't leak
-        # back into Python, so the stdout capture is the bridge.
-        result = subprocess.run(
-            [
-                "bash",
-                "-c",
-                f'source "{helper}" >&2 && ensure_node >&2 && command -v node',
-            ],
-            env={**os.environ, "MANGABA_HOME": mangaba_home},
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    except (OSError, subprocess.SubprocessError):
-        return
+    resolved = ""
+
+    helper = PROJECT_ROOT / "scripts" / "lib" / "node-bootstrap.sh"
+    if helper.is_file():
+        try:
+            # Helper writes logs to stderr; we ask bash to print `command -v node`
+            # on stdout once ensure_node succeeds. Subshell PATH edits don't leak
+            # back into Python, so the stdout capture is the bridge.
+            result = subprocess.run(
+                [
+                    "bash",
+                    "-c",
+                    f'source "{helper}" >&2 && ensure_node >&2 && command -v node',
+                ],
+                env={**os.environ, "MANGABA_HOME": mangaba_home},
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            resolved = (result.stdout or "").strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
 
     parts = os.environ.get("PATH", "").split(os.pathsep)
     extras: list[Path] = []
 
-    resolved = (result.stdout or "").strip()
     if resolved:
         extras.append(Path(resolved).resolve().parent)
 
     extras.extend([Path(mangaba_home) / "node" / "bin", Path.home() / ".local" / "bin"])
+
+    # Windows has no bash and no node-bootstrap.sh cascade — the only
+    # fallback there is the portable Node runtime the Inno Setup installer
+    # places next to the frozen exe (see SPEC_INSTALLER.md, EnsureNodeRuntime).
+    if not shutil.which("node"):
+        from mangaba_agent.frozen import find_node_executable
+
+        bundled_node = find_node_executable()
+        if bundled_node:
+            extras.append(bundled_node.parent)
 
     for extra in extras:
         s = str(extra)

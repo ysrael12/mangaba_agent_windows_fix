@@ -52,7 +52,8 @@ from agent.retry_utils import jittered_backoff
 from mangaba_cli.env_loader import load_mangaba_dotenv
 
 _mangaba_home = get_mangaba_home()
-_project_env = Path(__file__).parent / ".env"
+from mangaba_agent.frozen import resource_path
+_project_env = resource_path("mangaba_agent/.env")
 load_mangaba_dotenv(mangaba_home=_mangaba_home, project_env=_project_env)
 
 

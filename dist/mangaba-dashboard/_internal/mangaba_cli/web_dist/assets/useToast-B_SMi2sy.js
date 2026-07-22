@@ -1,0 +1,1 @@
+import{b as o}from"./react-D_b7yaPV.js";function r(t=3e3){const[e,s]=o.useState(null),a=o.useCallback((u,l)=>{s({message:u,type:l}),setTimeout(()=>s(null),t)},[t]);return{toast:e,showToast:a}}export{r as u};

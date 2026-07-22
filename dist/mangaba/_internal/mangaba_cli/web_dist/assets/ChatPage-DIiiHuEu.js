@@ -1,0 +1,1 @@
+import{j as t}from"./index-BYgZ8E4I.js";import{A as r}from"./AgentChat-DldYFm-l.js";import"./react-D_b7yaPV.js";import"./motion-dTW3fpa1.js";import"./bot-CoDpco9s.js";import"./send-horizontal-CLClLxXJ.js";function s(){return t.jsx(r,{})}export{s as default};

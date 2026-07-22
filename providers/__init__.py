@@ -44,10 +44,11 @@ _REGISTRY: dict[str, ProviderProfile] = {}
 _ALIASES: dict[str, str] = {}
 _discovered = False
 
-# Repo-root ``plugins/model-providers/`` — populated at discovery time.
-_BUNDLED_PLUGINS_DIR = (
-    Path(__file__).resolve().parent.parent / "plugins" / "model-providers"
-)
+# Bundle-relative ``plugins/model-providers/`` — populated at discovery time.
+# resource_path() resolves to <repo>/plugins/... from source and to the
+# PyInstaller bundle root when frozen.
+from mangaba_agent.frozen import resource_path as _resource_path
+_BUNDLED_PLUGINS_DIR = _resource_path("plugins/model-providers")
 
 
 def register_provider(profile: ProviderProfile) -> None:

@@ -13,7 +13,6 @@ import { useConfirmDelete } from "@/hooks/useConfirmDelete";
 import { useModalBehavior } from "@/hooks/useModalBehavior";
 import { Toast } from "@/components/Toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useI18n } from "@/i18n";
 import { usePageHeader } from "@/contexts/usePageHeader";
@@ -304,37 +303,39 @@ export default function CronPage() {
             </header>
 
             <div className="p-5 grid gap-4">
-              <div className="grid gap-2">
+              <div className="grid gap-1.5">
                 <Label htmlFor="cron-profile">Profile</Label>
-                <Select
+                <select
                   id="cron-profile"
                   value={createProfile}
-                  onValueChange={(v) => setSelectedProfile(v)}
+                  onChange={(e) => setSelectedProfile(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 >
                   {profiles.map((profile) => (
-                    <SelectOption key={profile.name} value={profile.name}>
+                    <option key={profile.name} value={profile.name}>
                       {profileLabel(profile.name)}
-                    </SelectOption>
+                    </option>
                   ))}
-                </Select>
+                </select>
               </div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-1.5">
                 <Label htmlFor="cron-name">{t.cron.nameOptional}</Label>
-                <Input
+                <input
                   id="cron-name"
                   autoFocus
                   placeholder={t.cron.namePlaceholder}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                 />
               </div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-1.5">
                 <Label htmlFor="cron-prompt">{t.cron.prompt}</Label>
                 <textarea
                   id="cron-prompt"
-                  className="flex min-h-[80px] w-full border border-border bg-background/40 px-3 py-2 text-sm font-courier shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground/30 focus-visible:border-foreground/25"
+                  className="min-h-[80px] w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   placeholder={t.cron.promptPlaceholder}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
@@ -342,39 +343,31 @@ export default function CronPage() {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="grid gap-2">
+                <div className="grid gap-1.5">
                   <Label htmlFor="cron-schedule">{t.cron.schedule}</Label>
-                  <Input
+                  <input
                     id="cron-schedule"
                     placeholder={t.cron.schedulePlaceholder}
                     value={schedule}
                     onChange={(e) => setSchedule(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   />
                 </div>
 
-                <div className="grid gap-2">
+                <div className="grid gap-1.5">
                   <Label htmlFor="cron-deliver">{t.cron.deliverTo}</Label>
-                  <Select
+                  <select
                     id="cron-deliver"
                     value={deliver}
-                    onValueChange={(v) => setDeliver(v)}
+                    onChange={(e) => setDeliver(e.target.value)}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
                   >
-                    <SelectOption value="local">
-                      {t.cron.delivery.local}
-                    </SelectOption>
-                    <SelectOption value="telegram">
-                      {t.cron.delivery.telegram}
-                    </SelectOption>
-                    <SelectOption value="discord">
-                      {t.cron.delivery.discord}
-                    </SelectOption>
-                    <SelectOption value="slack">
-                      {t.cron.delivery.slack}
-                    </SelectOption>
-                    <SelectOption value="email">
-                      {t.cron.delivery.email}
-                    </SelectOption>
-                  </Select>
+                    <option value="local">{t.cron.delivery.local}</option>
+                    <option value="telegram">{t.cron.delivery.telegram}</option>
+                    <option value="discord">{t.cron.delivery.discord}</option>
+                    <option value="slack">{t.cron.delivery.slack}</option>
+                    <option value="email">{t.cron.delivery.email}</option>
+                  </select>
                 </div>
               </div>
 

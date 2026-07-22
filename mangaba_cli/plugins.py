@@ -62,7 +62,8 @@ def get_bundled_plugins_dir() -> Path:
     env_override = os.getenv("MANGABA_BUNDLED_PLUGINS")
     if env_override:
         return Path(env_override)
-    return Path(__file__).resolve().parent.parent / "plugins"
+    from mangaba_agent.frozen import resource_path
+    return resource_path("plugins")
 
 try:
     import yaml

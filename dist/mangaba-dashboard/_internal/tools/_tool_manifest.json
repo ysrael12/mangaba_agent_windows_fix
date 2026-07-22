@@ -1,0 +1,126 @@
+{
+  "browser_cdp_tool": {
+    "has_register": true,
+    "module": "tools.browser_cdp_tool"
+  },
+  "browser_dialog_tool": {
+    "has_register": true,
+    "module": "tools.browser_dialog_tool"
+  },
+  "browser_tool": {
+    "has_register": true,
+    "module": "tools.browser_tool"
+  },
+  "clarify_tool": {
+    "has_register": true,
+    "module": "tools.clarify_tool"
+  },
+  "code_execution_tool": {
+    "has_register": true,
+    "module": "tools.code_execution_tool"
+  },
+  "computer_use_tool": {
+    "has_register": true,
+    "module": "tools.computer_use_tool"
+  },
+  "cronjob_tools": {
+    "has_register": true,
+    "module": "tools.cronjob_tools"
+  },
+  "delegate_tool": {
+    "has_register": true,
+    "module": "tools.delegate_tool"
+  },
+  "discord_tool": {
+    "has_register": true,
+    "module": "tools.discord_tool"
+  },
+  "feishu_doc_tool": {
+    "has_register": true,
+    "module": "tools.feishu_doc_tool"
+  },
+  "feishu_drive_tool": {
+    "has_register": true,
+    "module": "tools.feishu_drive_tool"
+  },
+  "file_tools": {
+    "has_register": true,
+    "module": "tools.file_tools"
+  },
+  "homeassistant_tool": {
+    "has_register": true,
+    "module": "tools.homeassistant_tool"
+  },
+  "image_generation_tool": {
+    "has_register": true,
+    "module": "tools.image_generation_tool"
+  },
+  "kanban_tools": {
+    "has_register": true,
+    "module": "tools.kanban_tools"
+  },
+  "memory_tool": {
+    "has_register": true,
+    "module": "tools.memory_tool"
+  },
+  "mixture_of_agents_tool": {
+    "has_register": true,
+    "module": "tools.mixture_of_agents_tool"
+  },
+  "process_registry": {
+    "has_register": true,
+    "module": "tools.process_registry"
+  },
+  "send_message_tool": {
+    "has_register": true,
+    "module": "tools.send_message_tool"
+  },
+  "session_search_tool": {
+    "has_register": true,
+    "module": "tools.session_search_tool"
+  },
+  "skill_manager_tool": {
+    "has_register": true,
+    "module": "tools.skill_manager_tool"
+  },
+  "skills_hub_tool": {
+    "has_register": true,
+    "module": "tools.skills_hub_tool"
+  },
+  "skills_tool": {
+    "has_register": true,
+    "module": "tools.skills_tool"
+  },
+  "terminal_tool": {
+    "has_register": true,
+    "module": "tools.terminal_tool"
+  },
+  "todo_tool": {
+    "has_register": true,
+    "module": "tools.todo_tool"
+  },
+  "tts_tool": {
+    "has_register": true,
+    "module": "tools.tts_tool"
+  },
+  "video_generation_tool": {
+    "has_register": true,
+    "module": "tools.video_generation_tool"
+  },
+  "vision_tools": {
+    "has_register": true,
+    "module": "tools.vision_tools"
+  },
+  "web_tools": {
+    "has_register": true,
+    "module": "tools.web_tools"
+  },
+  "x_search_tool": {
+    "has_register": true,
+    "module": "tools.x_search_tool"
+  },
+  "yuanbao_tools": {
+    "has_register": true,
+    "module": "tools.yuanbao_tools"
+  }
+}

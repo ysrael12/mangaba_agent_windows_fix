@@ -534,6 +534,8 @@ def _pip_install(
     Returns the ``subprocess.CompletedProcess`` from whichever tier succeeded
     (or the last failure for the caller to inspect).
     """
+    from mangaba_cli._subprocess_compat import windows_hide_flags
+
     venv_root = Path(sys.executable).parent.parent
     uv_env = {**os.environ, "VIRTUAL_ENV": str(venv_root)}
 
@@ -544,6 +546,7 @@ def _pip_install(
                 [uv_bin, "pip", "install", *args],
                 capture_output=capture_output, text=True, timeout=timeout,
                 env=uv_env,
+                creationflags=windows_hide_flags(),
             )
             if result.returncode == 0:
                 return result
@@ -558,6 +561,7 @@ def _pip_install(
         probe = subprocess.run(
             pip_cmd + ["--version"],
             capture_output=True, text=True, timeout=15,
+            creationflags=windows_hide_flags(),
         )
         if probe.returncode != 0:
             raise FileNotFoundError("pip not in venv")
@@ -566,6 +570,7 @@ def _pip_install(
             subprocess.run(
                 [sys.executable, "-m", "ensurepip", "--upgrade", "--default-pip"],
                 capture_output=True, text=True, timeout=120, check=True,
+                creationflags=windows_hide_flags(),
             )
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
             # Synthesize a result so callers see a clean failure path.
@@ -577,6 +582,7 @@ def _pip_install(
     return subprocess.run(
         pip_cmd + ["install", *args],
         capture_output=capture_output, text=True, timeout=timeout,
+        creationflags=windows_hide_flags(),
     )
 
 
