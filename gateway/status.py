@@ -80,12 +80,15 @@ def terminate_pid(pid: int, *, force: bool = False) -> None:
     because os.kill(..., SIGTERM) is not equivalent to a tree-killing hard stop.
     """
     if force and _IS_WINDOWS:
+        from mangaba_cli._subprocess_compat import windows_hide_flags
+
         try:
             result = subprocess.run(
                 ["taskkill", "/PID", str(pid), "/T", "/F"],
                 capture_output=True,
                 text=True,
                 timeout=10,
+                creationflags=windows_hide_flags(),
             )
         except FileNotFoundError:
             os.kill(pid, signal.SIGTERM)
@@ -174,6 +177,7 @@ def _looks_like_gateway_process(pid: int) -> bool:
         "mangaba_cli.main gateway",
         "mangaba_cli/main.py gateway",
         "mangaba gateway",
+        "mangaba.exe gateway",
         "mangaba-gateway",
         "gateway/run.py",
     )
@@ -195,6 +199,10 @@ def _record_looks_like_gateway(record: dict[str, Any]) -> bool:
         "mangaba_cli.main gateway",
         "mangaba_cli/main.py gateway",
         "mangaba gateway",
+        # Frozen Windows CLI exe: argv[0] is ".../mangaba.exe", so the
+        # cmdline reads "mangaba.exe gateway run --replace" — the ".exe"
+        # breaks the "mangaba gateway" substring match above.
+        "mangaba.exe gateway",
         "gateway/run.py",
     )
     return any(pattern in cmdline for pattern in patterns)

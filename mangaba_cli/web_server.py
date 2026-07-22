@@ -29,7 +29,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
-PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+from mangaba_agent.frozen import get_bundle_dir, resource_path
+PROJECT_ROOT = get_bundle_dir()
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -76,7 +77,7 @@ except ImportError:
             f"Install with: {sys.executable} -m pip install 'fastapi' 'uvicorn[standard]'"
         )
 
-WEB_DIST = Path(os.environ["MANGABA_WEB_DIST"]) if "MANGABA_WEB_DIST" in os.environ else Path(__file__).parent / "web_dist"
+WEB_DIST = Path(os.environ["MANGABA_WEB_DIST"]) if "MANGABA_WEB_DIST" in os.environ else resource_path("mangaba_cli/web_dist")
 _log = logging.getLogger(__name__)
 
 app = FastAPI(title="Mangaba Agent", version=__version__)
@@ -925,7 +926,22 @@ def _spawn_mangaba_action(subcommand: List[str], name: str) -> subprocess.Popen:
         f"\n=== {name} started {time.strftime('%Y-%m-%d %H:%M:%S')} ===\n".encode()
     )
 
-    cmd = [sys.executable, "-m", "mangaba_cli.main", *subcommand]
+    if getattr(sys, "frozen", False):
+        from mangaba_cli.gateway import get_python_path
+        python_path = get_python_path()
+        # get_python_path() may resolve to a real Python interpreter (e.g.
+        # VIRTUAL_ENV leaked into this frozen process's environment) or to
+        # the frozen CLI exe (mangaba.exe), which is a complete entry point
+        # and doesn't take "-m module" — only prepend it for a real
+        # interpreter, detected by executable name rather than by whether
+        # *this* process is frozen (it always is, here).
+        stem = Path(python_path).stem.lower()
+        if stem == "python" or stem.startswith("python3"):
+            cmd = [python_path, "-m", "mangaba_cli.main", *subcommand]
+        else:
+            cmd = [python_path, *subcommand]
+    else:
+        cmd = [sys.executable, "-m", "mangaba_cli.main", *subcommand]
 
     popen_kwargs: Dict[str, Any] = {
         "cwd": str(PROJECT_ROOT),
@@ -934,13 +950,8 @@ def _spawn_mangaba_action(subcommand: List[str], name: str) -> subprocess.Popen:
         "stderr": subprocess.STDOUT,
         "env": {**os.environ, "MANGABA_NONINTERACTIVE": "1"},
     }
-    if sys.platform == "win32":
-        popen_kwargs["creationflags"] = (
-            subprocess.CREATE_NEW_PROCESS_GROUP  # type: ignore[attr-defined]
-            | getattr(subprocess, "DETACHED_PROCESS", 0)
-        )
-    else:
-        popen_kwargs["start_new_session"] = True
+    from mangaba_cli._subprocess_compat import windows_detach_popen_kwargs
+    popen_kwargs.update(windows_detach_popen_kwargs())
 
     proc = subprocess.Popen(cmd, **popen_kwargs)
     _ACTION_PROCS[name] = proc
@@ -1878,10 +1889,8 @@ def reset_memory(body: MemoryReset):
 def _load_rag_module():
     """Carrega o módulo do provider de RAG (mangaba_rag) de forma isolada."""
     import importlib.util
-    from pathlib import Path
 
-    root = Path(__file__).resolve().parent.parent
-    init = root / "plugins" / "memory" / "mangaba_rag" / "__init__.py"
+    init = resource_path("plugins/memory/mangaba_rag/__init__.py")
     spec = importlib.util.spec_from_file_location("mangaba_rag_dash", str(init))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)

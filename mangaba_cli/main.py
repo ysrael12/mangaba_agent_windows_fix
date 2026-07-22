@@ -166,8 +166,13 @@ def _require_tty(command_name: str) -> None:
         sys.exit(1)
 
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+# Add project root to path. Inlined frozen check (rather than importing
+# mangaba_agent.frozen) because this runs before the sys.path insert that makes
+# mangaba_agent importable in the ``python mangaba_cli/main.py`` case.
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    PROJECT_ROOT = Path(sys._MEIPASS)
+else:
+    PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 sys.path.insert(0, str(PROJECT_ROOT))
 
 
@@ -1293,7 +1298,8 @@ def _ensure_tui_node() -> None:
 def _find_bundled_tui(mangaba_cli_dir: Path | None = None) -> Path | None:
     """Find a pre-built TUI entry.js bundled in the wheel."""
     if mangaba_cli_dir is None:
-        mangaba_cli_dir = Path(__file__).parent
+        from mangaba_agent.frozen import resource_path
+        mangaba_cli_dir = resource_path("mangaba_cli")
     bundled = mangaba_cli_dir / "tui_dist" / "entry.js"
     return bundled if bundled.is_file() else None
 
@@ -1930,7 +1936,8 @@ def cmd_whatsapp(args):
             print("  ⚠ No allowlist — the agent will respond to ALL incoming messages")
 
     # ── Step 4: Install bridge dependencies ──────────────────────────────
-    project_root = Path(__file__).resolve().parents[1]
+    from mangaba_agent.frozen import get_bundle_dir
+    project_root = get_bundle_dir()
     bridge_dir = project_root / "scripts" / "whatsapp-bridge"
     bridge_script = bridge_dir / "bridge.js"
 
@@ -6637,6 +6644,11 @@ def _find_stale_dashboard_pids() -> list[int]:
         "mangaba dashboard",
         "mangaba_cli.main dashboard",
         "mangaba_cli/main.py dashboard",
+        # Frozen ``mangaba-dashboard.exe`` launcher: it never goes through the
+        # "mangaba dashboard" subcommand, so its own cmdline is just the exe
+        # path. Without this pattern every launch fails to detect siblings
+        # already running and piles up a new server process each time.
+        "mangaba-dashboard",
     ]
     self_pid = os.getpid()
     dashboard_pids: list[int] = []
@@ -6650,6 +6662,8 @@ def _find_stale_dashboard_pids() -> list[int]:
             # here is errors="ignore": it prevents a reader-thread
             # UnicodeDecodeError from leaving result.stdout=None and turning
             # the later .split() into an AttributeError (#17049).
+            from mangaba_cli._subprocess_compat import windows_hide_flags
+
             result = subprocess.run(
                 ["wmic", "process", "get", "ProcessId,CommandLine", "/FORMAT:LIST"],
                 capture_output=True,
@@ -6657,6 +6671,7 @@ def _find_stale_dashboard_pids() -> list[int]:
                 timeout=10,
                 encoding="utf-8",
                 errors="ignore",
+                creationflags=windows_hide_flags(),
             )
             if result.returncode != 0 or result.stdout is None:
                 return []
@@ -6868,6 +6883,8 @@ def _kill_stale_dashboard_processes(
     failed: list[tuple[int, str]] = []
 
     if sys.platform == "win32":
+        from mangaba_cli._subprocess_compat import windows_hide_flags
+
         for pid in pids:
             try:
                 result = subprocess.run(
@@ -6875,6 +6892,7 @@ def _kill_stale_dashboard_processes(
                     capture_output=True,
                     text=True,
                     timeout=10,
+                    creationflags=windows_hide_flags(),
                 )
                 if result.returncode == 0:
                     killed.append(pid)
@@ -11019,8 +11037,104 @@ def _try_termux_fast_tui_launch() -> bool:
     return True
 
 
+def _detect_dashboard_invocation() -> bool:
+    """Auto-launch the dashboard when the executable name contains 'dashboard'.
+
+    The build scripts create ``mangaba-dashboard.exe`` as a renamed copy of
+    ``mangaba.exe``. This function detects that by inspecting
+    ``sys.executable`` basename and, when matched, launches the web UI
+    server + opens the browser instead of entering the interactive CLI.
+
+    Returns True when the dashboard was launched (caller should ``return``
+    from ``main()``), False to continue with normal CLI arg parsing.
+    """
+    try:
+        exe_name = os.path.basename(sys.executable).lower()
+    except Exception:
+        return False
+
+    if "dashboard" not in exe_name:
+        return False
+
+    # ── Ensure MANGABA_HOME is resolved ────────────────────────────
+    from mangaba_constants import get_mangaba_home
+    get_mangaba_home()
+
+    # ── Set MANGABA_WEB_DIST for frozen bundles ────────────────────
+    if "MANGABA_WEB_DIST" not in os.environ:
+        try:
+            from mangaba_agent.frozen import get_bundle_dir
+            web_dist = get_bundle_dir() / "mangaba_cli" / "web_dist"
+            if web_dist.is_dir():
+                os.environ["MANGABA_WEB_DIST"] = str(web_dist)
+        except Exception:
+            pass
+
+    # ── Check if dashboard is already running ──────────────────────
+    try:
+        from mangaba_cli.main import _report_dashboard_status
+        running = _report_dashboard_status()
+        if running > 0:
+            import webbrowser
+            port = int(os.environ.get("MANGABA_DASHBOARD_PORT", "9119"))
+            webbrowser.open(f"http://127.0.0.1:{port}")
+            return True
+    except Exception:
+        pass
+
+    # ── Auto-start gateway ─────────────────────────────────────────
+    try:
+        from mangaba_cli.main import (
+            _autostart_gateway_if_needed,
+            _reconcile_client_agents_async,
+        )
+        _autostart_gateway_if_needed()
+        _reconcile_client_agents_async()
+    except Exception:
+        pass
+
+    # ── Start dashboard server (blocks) ────────────────────────────
+    from mangaba_cli.web_server import start_server
+
+    port = int(os.environ.get("MANGABA_DASHBOARD_PORT", "9119"))
+    host = os.environ.get("MANGABA_DASHBOARD_HOST", "127.0.0.1")
+
+    print(f"Starting Mangaba Dashboard on http://{host}:{port}")
+    print("Press Ctrl+C to stop.")
+
+    start_server(
+        host=host,
+        port=port,
+        open_browser=True,
+        allow_public=False,
+        embedded_chat=True,
+    )
+    return True
+
+
 def main():
     """Main entry point for mangaba CLI."""
+    # Windowed (console=False) PyInstaller builds set stdout/stderr to None.
+    # Redirect them to a log file so print() / logging don't crash.
+    if sys.stdout is None or sys.stderr is None:
+        try:
+            from mangaba_constants import get_mangaba_home
+            _log_dir = get_mangaba_home() / "logs"
+            _log_dir.mkdir(parents=True, exist_ok=True)
+            _log_path = _log_dir / "dashboard.log"
+            _log_fh = open(_log_path, "a", encoding="utf-8", errors="replace")
+            if sys.stdout is None:
+                sys.stdout = _log_fh
+            if sys.stderr is None:
+                sys.stderr = _log_fh
+        except Exception:
+            import os as _os
+            _devnull = open(_os.devnull, "w", encoding="utf-8")
+            if sys.stdout is None:
+                sys.stdout = _devnull
+            if sys.stderr is None:
+                sys.stderr = _devnull
+
     # Force UTF-8 stdio on Windows before anything prints.  No-op elsewhere.
     try:
         from mangaba_cli.stdio import configure_windows_stdio
@@ -11035,6 +11149,14 @@ def main():
         _cleanup_quarantined_exes()
     except Exception:
         pass
+
+    # ── Dashboard auto-launch (Windows double-click) ────────────────
+    # When the executable is named ``mangaba-dashboard.exe`` (or any name
+    # containing "dashboard"), skip the CLI and launch the web UI directly.
+    # The build scripts create this as a renamed copy of mangaba.exe so
+    # users get a zero-friction double-click experience.
+    if _detect_dashboard_invocation():
+        return
 
     if _try_termux_fast_tui_launch():
         return

@@ -21,6 +21,8 @@ from rich.table import Table
 from prompt_toolkit import print_formatted_text as _pt_print
 from prompt_toolkit.formatted_text import ANSI as _PT_ANSI
 
+from mangaba_cli._subprocess_compat import windows_hide_flags
+
 logger = logging.getLogger(__name__)
 
 
@@ -140,6 +142,7 @@ def _check_via_rev(local_rev: str) -> Optional[int]:
         result = subprocess.run(
             ["git", "ls-remote", _UPSTREAM_REPO_URL, "refs/heads/main"],
             capture_output=True, text=True, timeout=10,
+            creationflags=windows_hide_flags(),
         )
     except Exception:
         return None
@@ -158,6 +161,7 @@ def _check_via_local_git(repo_dir: Path) -> Optional[int]:
             ["git", "fetch", "origin", "--quiet"],
             capture_output=True, timeout=10,
             cwd=str(repo_dir),
+            creationflags=windows_hide_flags(),
         )
     except Exception:
         pass  # Offline or timeout — use stale refs, that's fine
@@ -167,6 +171,7 @@ def _check_via_local_git(repo_dir: Path) -> Optional[int]:
             ["git", "rev-list", "--count", "HEAD..origin/main"],
             capture_output=True, text=True, timeout=5,
             cwd=str(repo_dir),
+            creationflags=windows_hide_flags(),
         )
         if result.returncode == 0:
             return int(result.stdout.strip())
@@ -249,9 +254,11 @@ def check_for_updates() -> Optional[int]:
         behind = _check_via_rev(embedded_rev)
     else:
         # Prefer the running code's location over the profile-scoped path.
-        # $MANGABA_HOME/mangaba-agent/ may be a stale copy from --clone-all;
-        # Path(__file__) always resolves to the actual installed checkout.
-        repo_dir = Path(__file__).parent.parent.resolve()
+        # $MANGABA_HOME/mangaba-agent/ may be a stale copy from --clone-all.
+        # In a frozen bundle there's no .git here, so this falls through to the
+        # PyPI update check below.
+        from mangaba_agent.frozen import get_bundle_dir
+        repo_dir = get_bundle_dir()
         if not (repo_dir / ".git").exists():
             repo_dir = mangaba_home / "mangaba-agent"
         if not (repo_dir / ".git").exists():
@@ -274,7 +281,8 @@ def _resolve_repo_dir() -> Optional[Path]:
     because ``$MANGABA_HOME/mangaba-agent/`` may be a stale copy carried
     over by ``--clone-all``.
     """
-    repo_dir = Path(__file__).parent.parent.resolve()
+    from mangaba_agent.frozen import get_bundle_dir
+    repo_dir = get_bundle_dir()
     if not (repo_dir / ".git").exists():
         mangaba_home = get_mangaba_home()
         repo_dir = mangaba_home / "mangaba-agent"
@@ -290,6 +298,7 @@ def _git_short_hash(repo_dir: Path, rev: str) -> Optional[str]:
             text=True,
             timeout=5,
             cwd=str(repo_dir),
+            creationflags=windows_hide_flags(),
         )
     except Exception:
         return None
@@ -318,6 +327,7 @@ def get_git_banner_state(repo_dir: Optional[Path] = None) -> Optional[dict]:
             text=True,
             timeout=5,
             cwd=str(repo_dir),
+            creationflags=windows_hide_flags(),
         )
         if result.returncode == 0:
             ahead = int((result.stdout or "0").strip() or "0")
@@ -354,6 +364,7 @@ def get_latest_release_tag(repo_dir: Optional[Path] = None) -> Optional[tuple]:
             text=True,
             timeout=3,
             cwd=str(repo_dir),
+            creationflags=windows_hide_flags(),
         )
     except Exception:
         _latest_release_cache = ()

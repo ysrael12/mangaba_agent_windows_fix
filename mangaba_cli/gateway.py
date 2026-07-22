@@ -15,7 +15,9 @@ import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).parent.parent.resolve()
+from mangaba_agent.frozen import get_bundle_dir
+
+PROJECT_ROOT = get_bundle_dir()
 
 from gateway.status import terminate_pid
 from gateway.restart import (
@@ -305,6 +307,14 @@ def _scan_gateway_pids(exclude_pids: set[int], all_profiles: bool = False) -> li
         "mangaba_cli/main.py --profile",
         "mangaba_cli/main.py -p",
         "mangaba gateway",
+        # Frozen Windows CLI exe: argv[0] is ".../mangaba.exe", so the
+        # cmdline reads "mangaba.exe gateway run --replace" — the ".exe"
+        # breaks the "mangaba gateway"/"mangaba --profile" substring
+        # matches above. See gateway/status.py::_record_looks_like_gateway
+        # for the same fix applied to the PID-record identity check.
+        "mangaba.exe gateway",
+        "mangaba.exe --profile",
+        "mangaba.exe -p",
         "gateway/run.py",
     ]
     current_home = str(get_mangaba_home().resolve())
@@ -562,7 +572,22 @@ def find_profile_gateway_processes(
 
 
 def _gateway_run_args_for_profile(profile: str) -> list[str]:
-    args = [get_python_path(), "-m", "mangaba_cli.main"]
+    python_path = get_python_path()
+    # get_python_path() can return either a real Python interpreter (venv,
+    # or a system python found via VIRTUAL_ENV/sys.prefix — this can happen
+    # even from a frozen process if VIRTUAL_ENV leaked into its environment)
+    # or the frozen CLI exe (mangaba.exe) when running from a frozen
+    # dashboard build. Only a real interpreter understands "-m
+    # mangaba_cli.main" — the frozen exe IS the entry point already and
+    # would choke on "-m" as an unrecognized argument. Detect which one we
+    # got by name rather than trusting sys.frozen of the *calling* process,
+    # since that's true for the dashboard exe regardless of what
+    # get_python_path() resolved.
+    stem = Path(python_path).stem.lower()
+    if stem == "python" or stem.startswith("python3"):
+        args = [python_path, "-m", "mangaba_cli.main"]
+    else:
+        args = [python_path]
     if profile != "default":
         args.extend(["--profile", profile])
     args.extend(["gateway", "run", "--replace"])
@@ -1995,7 +2020,28 @@ def get_python_path() -> str:
             venv_python = venv / "bin" / "python"
         if venv_python.exists():
             return str(venv_python)
-    return sys.executable
+    exe = sys.executable
+    # Frozen dashboard builds: sys.executable is mangaba-dashboard.exe
+    # (windowed, console=False). Spawning it as "gateway run" would re-enter
+    # _detect_dashboard_invocation() and cascade.  Use the CLI mangaba.exe
+    # instead. Where that lives relative to the dashboard exe depends on how
+    # the bundle was assembled — try every layout we know about:
+    #   - same dir            (single merged onedir bundle)
+    #   - <dir>/cli/          (Inno Setup installer layout, see SPEC_INSTALLER.md)
+    #   - <dir>/../mangaba/   (raw multi-COLLECT PyInstaller dist/ output,
+    #                          used during local dev builds — each exe gets
+    #                          its own onedir COLLECT as a sibling folder)
+    if getattr(sys, "frozen", False) and "dashboard" in os.path.basename(exe).lower():
+        cli_name = "mangaba.exe" if sys.platform == "win32" else "mangaba"
+        bundle_dir = Path(exe).resolve().parent
+        for candidate in (
+            bundle_dir / cli_name,
+            bundle_dir / "cli" / cli_name,
+            bundle_dir.parent / "mangaba" / cli_name,
+        ):
+            if candidate.exists():
+                return str(candidate)
+    return exe
 
 
 # =============================================================================
