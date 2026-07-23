@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mangaba-agent"
-version = "0.14.0"
+version = "0.14.1"
 description = "Infraestrutura de IA para tornar empresas agênticas — transforma processos em agentes que executam, em qualquer canal e modelo (local ou nuvem). Self-host, privado e seguro por padrão."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -109,7 +109,7 @@ mcp = ["mcp==1.26.0"]
 # System-tray launcher (mangaba-launcher.exe) — Windows installer only, see
 # SPEC_INSTALLER.md Fase 7. Kept out of `all` so it doesn't bloat the CLI/
 # dashboard/ACP bundles, which don't need a tray icon.
-launcher = ["pystray>=0.19,<1", "Pillow>=10.0,<11"]
+launcher = ["pystray>=0.19,<1", "Pillow>=10.0,<11", "customtkinter>=5.2,<6", "darkdetect>=0.8,<1"]
 homeassistant = ["aiohttp==3.13.3"]
 sms = ["aiohttp==3.13.3"]
 # Computer use — macOS background desktop control via cua-driver (MCP stdio).
