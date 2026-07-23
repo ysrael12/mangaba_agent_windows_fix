@@ -154,6 +154,13 @@ _SENSITIVE_PATH_PREFIXES = (
 )
 _SENSITIVE_EXACT_PATHS = {"/var/run/docker.sock", "/run/docker.sock"}
 
+# Mangaba config/persona files — agent should not auto-edit these
+_MANGABA_PROTECTED_FILES = frozenset({
+    "SOUL.md",          # Agent identity/persona
+    "config.yaml",      # Configuration
+    ".env",             # Environment variables
+})
+
 
 def _check_sensitive_path(filepath: str, task_id: str = "default") -> str | None:
     """Return an error message if the path targets a sensitive system location."""
@@ -162,6 +169,23 @@ def _check_sensitive_path(filepath: str, task_id: str = "default") -> str | None
     except (OSError, ValueError):
         resolved = filepath
     normalized = os.path.normpath(os.path.expanduser(filepath))
+
+    # Check mangaba protected files (SOUL.md, config.yaml, .env in ~/.mangaba/)
+    from mangaba_agent.mangaba_constants import get_mangaba_home
+    try:
+        mangaba_home = str(get_mangaba_home())
+        filename = Path(normalized).name
+        if filename in _MANGABA_PROTECTED_FILES:
+            file_path = Path(mangaba_home) / filename
+            if Path(resolved).resolve() == file_path.resolve():
+                return (
+                    f"Refusing to auto-edit protected Mangaba config file: {filepath}\n"
+                    "SOUL.md, config.yaml, and .env are user-configured — "
+                    "edit them manually or through the web UI, not via agent tools."
+                )
+    except Exception:
+        pass
+
     _err = (
         f"Refusing to write to sensitive system path: {filepath}\n"
         "Use the terminal tool with sudo if you need to modify system files."
