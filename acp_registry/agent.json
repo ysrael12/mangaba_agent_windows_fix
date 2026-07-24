@@ -1,16 +1,20 @@
 {
   "id": "mangaba-agent",
   "name": "Mangaba Agent",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "Self-improving open-source AI agent by Dheiver Santos with ACP editor integration, persistent memory, skills, and rich tool support.",
   "repository": "https://github.com/dheiver2/mangaba-agent",
   "website": "https://dheiver2.github.io/mangaba-agent/docs/user-guide/features/acp",
-  "authors": ["Dheiver Santos"],
+  "authors": [
+    "Dheiver Santos"
+  ],
   "license": "MIT",
   "distribution": {
     "uvx": {
-      "package": "mangaba-agent[acp]==0.14.0",
-      "args": ["mangaba-acp"]
+      "package": "mangaba-agent[acp]==0.14.1",
+      "args": [
+        "mangaba-acp"
+      ]
     }
   }
 }

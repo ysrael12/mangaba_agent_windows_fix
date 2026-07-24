@@ -88,6 +88,50 @@ class DashboardProcessManager:
         except Exception:
             return False
 
+    def stop_gateway(self, timeout: float = 5.0) -> bool:
+        """Stop the background gateway process (``mangaba gateway run``).
+
+        The dashboard auto-starts the gateway as a *detached* subprocess
+        (``_autostart_gateway_if_needed`` in ``mangaba_cli/main.py``) — it is
+        not a child of this launcher's dashboard process, so ``stop()``
+        terminating the dashboard leaves the gateway running as an orphan.
+        Call this alongside ``stop()`` when the user fully exits the
+        launcher, so no background ``mangaba.exe`` process is left behind.
+        Returns True if a gateway process was found and stopped (or none
+        was running), False if it was found but could not be stopped.
+        """
+        try:
+            from gateway.status import get_running_pid, terminate_pid, _pid_exists
+        except ImportError:
+            return True
+
+        pid = get_running_pid()
+        if pid is None:
+            return True
+
+        try:
+            terminate_pid(pid, force=False)
+        except ProcessLookupError:
+            return True
+        except PermissionError:
+            return False
+        except OSError:
+            return False
+
+        import time
+
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if not _pid_exists(pid):
+                return True
+            time.sleep(0.2)
+
+        try:
+            terminate_pid(pid, force=True)
+        except (ProcessLookupError, PermissionError, OSError):
+            pass
+        return not _pid_exists(pid)
+
     def pid(self) -> Optional[int]:
         if self.is_running:
             assert self._process is not None

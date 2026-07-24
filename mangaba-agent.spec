@@ -520,6 +520,25 @@ hiddenimports = [
     "dotenv",
     "ruamel",
     "ruamel.yaml",
+
+    # ── Speech-to-text (faster-whisper) ──────────────────────────────────
+    # Bundled directly rather than left to tools/lazy_deps.py's runtime
+    # pip-install path: that path shells out to `sys.executable -m pip`,
+    # which is the frozen .exe itself in a PyInstaller build (no real
+    # python.exe / pip module available to invoke), so the lazy-install
+    # can never succeed once frozen. Bundling here is the only way STT
+    # works out of the box in mangaba.exe / mangaba-dashboard.exe.
+    # Adds real size (numpy + onnxruntime + ctranslate2 + PyAV) but the
+    # voice feature would otherwise be silently broken for every user of
+    # the packaged installer, not just an edge case.
+    "faster_whisper",
+    "ctranslate2",
+    "av",
+    "tokenizers",
+    "huggingface_hub",
+    "onnxruntime",
+    "sounddevice",
+    "numpy",
 ]
 
 # ---------------------------------------------------------------------------
@@ -528,7 +547,8 @@ hiddenimports = [
 excludes = [
     "tkinter",
     "matplotlib",
-    "numpy",
+    # numpy is NOT excluded -- faster-whisper (bundled above for STT) needs
+    # it at import time.
     "pandas",
     "scipy",
     "PIL",
@@ -574,7 +594,10 @@ exe = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    # UPX packing is a strong AV false-positive trigger for PyInstaller
+    # binaries (SPEC_INSTALLER.md Fase 5) — off on all targets; costs
+    # ~5-10MB per exe, worth it for fewer "Trojan:Win32/..." flags.
+    upx=False,
     console=True,
 )
 
@@ -584,7 +607,7 @@ coll = COLLECT(
     a.zipfiles,
     a.datas,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     name="mangaba",
 )
@@ -601,7 +624,7 @@ exe_acp = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     console=True,
 )
 
@@ -611,7 +634,7 @@ coll_acp = COLLECT(
     a.zipfiles,
     a.datas,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     name="mangaba-acp",
 )
@@ -631,8 +654,9 @@ exe_dashboard = EXE(
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     console=False,
+    icon=str(ROOT / "installer" / "assets" / "icon.ico"),
 )
 
 coll_dashboard = COLLECT(
@@ -641,8 +665,81 @@ coll_dashboard = COLLECT(
     a.zipfiles,
     a.datas,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     name="mangaba-dashboard",
 )
+
+# ---------------------------------------------------------------------------
+# Executable: mangaba-launcher (system tray — Windows installer only)
+# ---------------------------------------------------------------------------
+# Windows-only for now: pystray's Linux backend (AppIndicator3/GTK) needs
+# system libs (libappindicator3-dev) not present on CI runners or verified
+# in this build environment, and macOS's rumps/AppKit backend is likewise
+# untested here. Gating avoids silently breaking the Linux/macOS legs of
+# the existing build matrix over an unverified new target — see
+# SPEC_INSTALLER.md's cross-platform section for the (separate, deferred)
+# Linux/macOS packaging work.
+if sys.platform == "win32":
+    # Separate Analysis from the shared `a` above: pystray/Pillow are only
+    # needed here, and pulling them into the shared PYZ would bloat the CLI/
+    # ACP/dashboard bundles that don't use a tray icon. See SPEC_INSTALLER.md
+    # Fase 7. `pystray`/`Pillow` must be installed (optional extra "launcher")
+    # for this Analysis to resolve — absent locally, PyInstaller silently
+    # fails to bundle the module rather than erroring the build (same failure
+    # mode documented for the `croniter`/messaging deps gap earlier).
+    a_launcher = Analysis(
+        [str(ROOT / "mangaba_cli" / "launcher" / "__main__.py")],
+        pathex=[str(ROOT)],
+        binaries=[],
+        datas=[
+            (
+                str(ROOT / "mangaba_cli" / "launcher" / "resources"),
+                "mangaba_cli/launcher/resources",
+            ),
+        ],
+        hiddenimports=["pystray", "PIL", "PIL.Image", "customtkinter", "darkdetect"],
+        hookspath=[],
+        hooksconfig={},
+        runtime_hooks=[],
+        # NOT the shared `excludes` above — that list excludes "PIL" (correct
+        # for the CLI/ACP/dashboard bundles, which don't need it), which
+        # would silently win over the hiddenimports here and ship a launcher
+        # with no Pillow, crashing on the first `import pystray` (pystray
+        # itself depends on PIL for icon rendering).
+        excludes=["matplotlib", "numpy", "pandas", "scipy", "cv2",
+                  "torch", "tensorflow", "notebook", "IPython", "pytest",
+                  "unittest"],
+        win_no_prefer_redirects=False,
+        win_private_assemblies=False,
+        cipher=block_cipher,
+        noarchive=False,
+    )
+
+    pyz_launcher = PYZ(a_launcher.pure, a_launcher.zipped_data, cipher=block_cipher)
+
+    exe_launcher = EXE(
+        pyz_launcher,
+        a_launcher.scripts,
+        [],
+        exclude_binaries=True,
+        name="mangaba-launcher",
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=False,
+        console=False,
+        icon=str(ROOT / "installer" / "assets" / "icon.ico"),
+    )
+
+    coll_launcher = COLLECT(
+        exe_launcher,
+        a_launcher.binaries,
+        a_launcher.zipfiles,
+        a_launcher.datas,
+        strip=False,
+        upx=False,
+        upx_exclude=[],
+        name="mangaba-launcher",
+    )
 

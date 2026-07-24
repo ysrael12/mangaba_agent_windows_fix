@@ -50,6 +50,7 @@ def create_tray(manager: DashboardProcessManager) -> pystray.Icon:
 
     def on_exit(icon: pystray.Icon, item) -> None:
         manager.stop()
+        manager.stop_gateway()
         icon.stop()
 
     menu = pystray.Menu(

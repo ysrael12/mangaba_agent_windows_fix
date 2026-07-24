@@ -41,9 +41,34 @@ jobs:
           cache: npm
 
       - name: Install Python dependencies
+        # `pip install pyinstaller` alone was building exes with the actual
+        # project deps (croniter, prompt_toolkit, tenacity, PyJWT, the
+        # messaging backends, etc.) silently missing — PyInstaller's
+        # hiddenimports list in mangaba-agent.spec only bundles what's
+        # actually importable in the build environment; it doesn't install
+        # anything itself. `.[all]` doesn't include the `messaging` extra
+        # (by design — see pyproject.toml), so it's installed explicitly.
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
+          pip install -e ".[all]"
+          pip install "python-telegram-bot[webhooks]==22.6" "discord.py[voice]==2.7.1" aiohttp==3.13.3 brotlicffi==1.2.0.1 slack-bolt==1.27.0 slack-sdk==3.40.1 qrcode==7.4.2
+          # `voice` (faster-whisper/ctranslate2/onnxruntime/numpy) is also
+          # excluded from `[all]` -- it's meant to be lazy-installed via
+          # tools/lazy_deps.py, but that path shells out to
+          # `sys.executable -m pip`, which doesn't work once frozen. The
+          # frozen build bundles it directly (see mangaba-agent.spec
+          # hiddenimports), so it must be present in the build venv here.
+          pip install "faster-whisper==1.2.1" "sounddevice==0.5.5" "numpy==2.4.3"
+
+      - name: Install launcher dependencies (Windows only)
+        # mangaba-agent.spec only builds the mangaba-launcher target on
+        # win32 (pystray's Linux/macOS backends aren't verified here — see
+        # SPEC_INSTALLER.md cross-platform section) — installing pystray on
+        # every OS would be dead weight, and on Linux risks a build failure
+        # from missing libappindicator3-dev.
+        if: runner.os == 'Windows'
+        run: pip install "pystray>=0.19,<1" "Pillow>=10.0,<11"
 
       - name: Generate tool manifest
         run: python scripts/gen_tool_manifest.py
@@ -73,7 +98,15 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Compress-Archive -Path dist\mangaba -DestinationPath dist\${{ matrix.artifact }}.zip
+          # Includes mangaba-dashboard/mangaba-acp/mangaba-launcher (when
+          # present) alongside mangaba/ — the `installer` job downloads this
+          # same artifact and needs all four for installer/mangaba-dashboard.iss's
+          # [Files] section, not just the CLI.
+          $paths = @("dist\mangaba")
+          foreach ($name in @("mangaba-dashboard", "mangaba-acp", "mangaba-launcher")) {
+              if (Test-Path "dist\$name") { $paths += "dist\$name" }
+          }
+          Compress-Archive -Path $paths -DestinationPath dist\${{ matrix.artifact }}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -81,8 +114,49 @@ jobs:
           name: ${{ matrix.artifact }}
           path: dist/${{ matrix.artifact }}.*
 
-  release:
+  installer:
     needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Windows build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mangaba-win-x64
+          path: dist-artifact
+
+      - name: Extract build
+        shell: pwsh
+        run: |
+          # The "Package (Windows)" step in the build job zips mangaba/,
+          # mangaba-dashboard/, mangaba-acp/, and mangaba-launcher/ as
+          # separate top-level archive entries — extracting to dist\
+          # recreates all four side by side, matching what
+          # installer/mangaba-dashboard.iss's [Files] section expects.
+          Expand-Archive -Path dist-artifact\mangaba-win-x64.zip -DestinationPath dist
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y
+
+      - name: Install Inno Download Plugin
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/DomGries/InnoDownloadPlugin/releases/latest/download/idp.zip" -OutFile idp.zip
+          Expand-Archive idp.zip -DestinationPath "installer\Components"
+
+      - name: Build installer
+        shell: pwsh
+        run: .\installer\build_installer.ps1 -Version "${{ github.ref_name }}"
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MangabaDashboardSetup-x64
+          path: dist-installer\*.exe
+
+  release:
+    needs: [build, installer]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:

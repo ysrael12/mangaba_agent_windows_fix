@@ -132,37 +132,6 @@ function Resolve-NpmCmd {
     return $npmExe
 }
 
-function Find-SystemBrowser {
-    $candidates = @(
-        "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe",
-        "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe",
-        "${env:LOCALAPPDATA}\Google\Chrome\Application\chrome.exe",
-        "${env:ProgramFiles}\Microsoft\Edge\Application\msedge.exe",
-        "${env:ProgramFiles(x86)}\Microsoft\Edge\Application\msedge.exe",
-        "${env:ProgramFiles}\Chromium\Application\chrome.exe",
-        "${env:LOCALAPPDATA}\Chromium\Application\chrome.exe"
-    )
-    foreach ($p in $candidates) {
-        if (Test-Path $p) { return $p }
-    }
-    return $null
-}
-
-function Write-BrowserEnv {
-    param([string]$BrowserPath)
-    if (-not (Test-Path $MangabaHome)) {
-        New-Item -ItemType Directory -Force -Path $MangabaHome | Out-Null
-    }
-    $envFile = Join-Path $MangabaHome ".env"
-    if (-not (Test-Path $envFile)) {
-        Set-Content -Path $envFile -Value "AGENT_BROWSER_EXECUTABLE_PATH=$BrowserPath" -Encoding UTF8
-        return
-    }
-    $content = Get-Content $envFile -Raw -ErrorAction SilentlyContinue
-    if ($content -and $content -match "AGENT_BROWSER_EXECUTABLE_PATH=") { return }
-    Add-Content -Path $envFile -Value "AGENT_BROWSER_EXECUTABLE_PATH=$BrowserPath" -Encoding UTF8
-}
-
 function Install-AgentBrowser {
     param([switch]$SkipChromium)
     $npm = Resolve-NpmCmd
@@ -191,28 +160,32 @@ function Install-AgentBrowser {
     Remove-Item $npmLog -Force -ErrorAction SilentlyContinue
 
     if (-not $SkipChromium) {
-        $sysBrowser = Find-SystemBrowser
-        if ($sysBrowser) {
-            Write-BrowserEnv -BrowserPath $sysBrowser
-            Write-Info "System browser detected -- skipping Chromium download"
-        } else {
-            $abExe = Join-Path $prefixDir "agent-browser.cmd"
-            if (Test-Path $abExe) {
-                Write-Info "Installing Chromium via agent-browser install..."
-                $abLog = [System.IO.Path]::GetTempFileName()
-                $prevEAP = $ErrorActionPreference
-                $ErrorActionPreference = "Continue"
-                & $abExe install 2>&1 | Tee-Object -FilePath $abLog | Out-Null
-                $abExit = $LASTEXITCODE
-                $ErrorActionPreference = $prevEAP
-                if ($abExit -ne 0) {
-                    $abDetail = Get-Content $abLog -Raw -ErrorAction SilentlyContinue
-                    Write-Warn "Chromium install failed (exit $abExit): $abDetail"
-                }
-                Remove-Item $abLog -Force -ErrorAction SilentlyContinue
-            } else {
-                Write-Warn "agent-browser.cmd not found at $abExe"
+        # Always install a dedicated, isolated Chromium via agent-browser --
+        # NEVER point automation at the user's own system Chrome/Edge
+        # (AGENT_BROWSER_EXECUTABLE_PATH). Driving the user's real,
+        # daily-use browser profile for headless automation risks visible
+        # tabs/windows surfacing in their normal browsing session whenever
+        # the agent navigates (e.g. a skill taking a dashboard screenshot),
+        # since real desktop browser installs don't reliably stay hidden the
+        # way a dedicated Playwright-managed Chromium does. Costs a one-time
+        # ~150-300MB download but guarantees automation never touches the
+        # user's live browser session.
+        $abExe = Join-Path $prefixDir "agent-browser.cmd"
+        if (Test-Path $abExe) {
+            Write-Info "Installing isolated Chromium via agent-browser install..."
+            $abLog = [System.IO.Path]::GetTempFileName()
+            $prevEAP = $ErrorActionPreference
+            $ErrorActionPreference = "Continue"
+            & $abExe install 2>&1 | Tee-Object -FilePath $abLog | Out-Null
+            $abExit = $LASTEXITCODE
+            $ErrorActionPreference = $prevEAP
+            if ($abExit -ne 0) {
+                $abDetail = Get-Content $abLog -Raw -ErrorAction SilentlyContinue
+                Write-Warn "Chromium install failed (exit $abExit): $abDetail"
             }
+            Remove-Item $abLog -Force -ErrorAction SilentlyContinue
+        } else {
+            Write-Warn "agent-browser.cmd not found at $abExe"
         }
     }
     Write-Success "Agent-browser ready"

@@ -64,7 +64,6 @@ NODE_VERSION="22"
 #   data still at /root/.mangaba (MANGABA_HOME).  Matches Claude Code / Codex CLI
 #   and keeps Docker bind-mounted /root/ volumes lean.
 ROOT_FHS_LAYOUT=false
-DETECTED_BROWSER_EXECUTABLE=""
 
 # Options
 USE_VENV=true
@@ -1440,7 +1439,6 @@ copy_config_templates() {
     # 0600 ensures only the file owner can read/write, matching standard
     # practice for credential files (.netrc, .aws/credentials, .ssh/config).
     chmod 600 "$MANGABA_HOME/.env"
-    configure_browser_env_from_system_browser
 
     # Create config.yaml at ~/.mangaba/config.yaml (top level, easy to find)
     if [ ! -f "$MANGABA_HOME/config.yaml" ]; then
@@ -1489,43 +1487,6 @@ SOUL_EOF
     fi
 }
 
-find_system_browser() {
-    # Prefer a user-specified browser path, then common Linux/macOS Chrome and
-    # Chromium command names.  Arch-family distributions commonly ship plain
-    # `chromium`, while Debian-family systems often use `chromium-browser`.
-    if [ -n "${AGENT_BROWSER_EXECUTABLE_PATH:-}" ]; then
-        if [ -x "$AGENT_BROWSER_EXECUTABLE_PATH" ]; then
-            echo "$AGENT_BROWSER_EXECUTABLE_PATH"
-            return 0
-        fi
-        if command -v "$AGENT_BROWSER_EXECUTABLE_PATH" >/dev/null 2>&1; then
-            command -v "$AGENT_BROWSER_EXECUTABLE_PATH"
-            return 0
-        fi
-    fi
-
-    local candidate
-    for candidate in google-chrome google-chrome-stable chromium chromium-browser chrome; do
-        if command -v "$candidate" >/dev/null 2>&1; then
-            command -v "$candidate"
-            return 0
-        fi
-    done
-
-    if [ "$(uname)" = "Darwin" ]; then
-        for app in \
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-            "/Applications/Chromium.app/Contents/MacOS/Chromium"; do
-            if [ -x "$app" ]; then
-                echo "$app"
-                return 0
-            fi
-        done
-    fi
-
-    return 1
-}
-
 run_browser_install_with_timeout() {
     local timeout_seconds="$1"
     shift
@@ -1535,36 +1496,6 @@ run_browser_install_with_timeout() {
     else
         "$@"
     fi
-}
-
-configure_browser_env_from_system_browser() {
-    local env_file="$MANGABA_HOME/.env"
-    local browser_path="${DETECTED_BROWSER_EXECUTABLE:-}"
-
-    if [ -z "$browser_path" ]; then
-        browser_path="$(find_system_browser 2>/dev/null || true)"
-    fi
-
-    if [ -z "$browser_path" ]; then
-        return 0
-    fi
-
-    mkdir -p "$MANGABA_HOME"
-    if [ ! -f "$env_file" ]; then
-        touch "$env_file"
-    fi
-
-    if grep -q '^AGENT_BROWSER_EXECUTABLE_PATH=' "$env_file" 2>/dev/null; then
-        log_info "AGENT_BROWSER_EXECUTABLE_PATH already configured"
-        return 0
-    fi
-
-    {
-        echo ""
-        echo "# Mangaba Agent browser tools — use the system Chrome/Chromium binary."
-        echo "AGENT_BROWSER_EXECUTABLE_PATH=$browser_path"
-    } >> "$env_file"
-    log_success "Configured browser tools to use $browser_path"
 }
 
 install_node_deps() {
@@ -1600,12 +1531,14 @@ install_node_deps() {
             log_info "  sudo npx playwright install-deps chromium"
         else
         log_info "Installing browser engine (Playwright Chromium)..."
-        DETECTED_BROWSER_EXECUTABLE="$(find_system_browser 2>/dev/null || true)"
-        if [ -n "$DETECTED_BROWSER_EXECUTABLE" ]; then
-            log_success "Found system Chrome/Chromium at $DETECTED_BROWSER_EXECUTABLE"
-            log_info "Skipping Playwright browser download; Mangaba will use the system browser."
-        else
-            case "$DISTRO" in
+        # Always install a dedicated, isolated Chromium -- NEVER point
+        # automation at the user's own system Chrome/Chromium
+        # (AGENT_BROWSER_EXECUTABLE_PATH). Driving the user's real,
+        # daily-use browser profile for headless automation risks visible
+        # tabs/windows surfacing in their normal browsing session whenever
+        # the agent navigates. Costs a one-time download but guarantees
+        # automation never touches the user's live browser session.
+        case "$DISTRO" in
                 ubuntu|debian|raspbian|pop|linuxmint|elementary|zorin|kali|parrot)
                     # Use --with-deps only when sudo is available non-interactively
                     # (root, or a user with passwordless sudo). Non-sudo users
@@ -1674,7 +1607,6 @@ install_node_deps() {
                     cd "$INSTALL_DIR" && run_browser_install_with_timeout 600 npx playwright install chromium 2>/dev/null || true
                     ;;
             esac
-        fi
         fi
         log_success "Browser engine setup complete"
     fi
@@ -1937,15 +1869,17 @@ ensure_browser() {
     rm -f "$log_file"
     export PATH="$MANGABA_HOME/node/bin:$PATH"
 
-    local sys_browser
-    sys_browser="$(find_system_browser 2>/dev/null || true)"
-    if [ -n "$sys_browser" ]; then
-        configure_browser_env_from_system_browser "$sys_browser"
-        log_info "System browser detected -- skipping Chromium download"
-        return 0
-    fi
-
-    log_info "Installing Chromium via agent-browser install..."
+    # Always install a dedicated, isolated Chromium via agent-browser --
+    # NEVER point automation at the user's own system Chrome/Chromium
+    # (AGENT_BROWSER_EXECUTABLE_PATH). Driving the user's real, daily-use
+    # browser profile for headless automation risks visible tabs/windows
+    # surfacing in their normal browsing session whenever the agent
+    # navigates (e.g. a skill taking a dashboard screenshot), since real
+    # desktop browser installs don't reliably stay hidden the way a
+    # dedicated Playwright-managed Chromium does. Costs a one-time
+    # ~150-300MB download but guarantees automation never touches the
+    # user's live browser session.
+    log_info "Installing isolated Chromium via agent-browser install..."
     local ab_bin="$MANGABA_HOME/node/bin/agent-browser"
     if [ -x "$ab_bin" ]; then
         "$ab_bin" install 2>/dev/null || {

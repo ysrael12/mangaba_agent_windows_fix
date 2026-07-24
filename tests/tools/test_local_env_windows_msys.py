@@ -28,6 +28,7 @@ from tools.environments.local import (
     LocalEnvironment,
     _msys_to_windows_path,
     _resolve_safe_cwd,
+    _windows_to_msys_path,
 )
 
 
@@ -70,6 +71,94 @@ class TestMsysToWindowsPath:
     def test_empty_string(self, monkeypatch):
         monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
         assert _msys_to_windows_path("") == ""
+
+
+# ---------------------------------------------------------------------------
+# _windows_to_msys_path — inverse translation, used when embedding a `cd`
+# target into the bash script sent to Git Bash.
+#
+# Background: self.cwd is stored in native Windows form (C:\Users\x) for
+# os.path.isdir / subprocess.Popen(cwd=...). But bash's `cd` builtin treats
+# backslashes as escape characters, not separators — feeding it a raw
+# Windows path silently mangles it (trailing segments get dropped) instead
+# of failing loudly, which surfaced as:
+#   /bin/bash: line 2: cd: C:\Users\smart: No such file or directory
+# even though the directory (and its subdirectories) genuinely exist.
+# ---------------------------------------------------------------------------
+
+class TestWindowsToMsysPath:
+    def test_noop_on_non_windows(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", False)
+        assert _windows_to_msys_path(r"C:\Users\smart") == r"C:\Users\smart"
+
+    def test_translates_drive_path(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        assert _windows_to_msys_path(r"C:\Users\smart\Desktop") == "/c/Users/smart/Desktop"
+        assert _windows_to_msys_path(r"D:\Projects\foo bar") == "/d/Projects/foo bar"
+
+    def test_translates_forward_slash_windows_path(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        assert _windows_to_msys_path("C:/Users/smart") == "/c/Users/smart"
+
+    def test_translates_bare_drive_root(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        assert _windows_to_msys_path("C:\\") == "/c"
+        assert _windows_to_msys_path("C:/") == "/c"
+
+    def test_idempotent_on_already_msys_path(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        assert _windows_to_msys_path("/c/Users/smart") == "/c/Users/smart"
+
+    def test_does_not_translate_non_drive_path(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        assert _windows_to_msys_path("relative/path") == "relative/path"
+
+    def test_empty_string(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        assert _windows_to_msys_path("") == ""
+
+    def test_roundtrip_with_msys_to_windows_path(self, monkeypatch):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        original = "/c/Users/smart/Desktop"
+        windows_form = _msys_to_windows_path(original)
+        assert _windows_to_msys_path(windows_form) == original
+
+
+# ---------------------------------------------------------------------------
+# LocalEnvironment._quote_cwd_for_cd — the actual bug: this is what
+# _wrap_command calls to build the `cd` line embedded in the bash script.
+# ---------------------------------------------------------------------------
+
+class TestQuoteCwdForCdWindows:
+    def _make_env(self, cwd: str) -> LocalEnvironment:
+        with patch.object(
+            LocalEnvironment, "init_session", autospec=True, return_value=None
+        ):
+            return LocalEnvironment(cwd=cwd, timeout=10)
+
+    def test_translates_native_windows_path_before_quoting(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        env = self._make_env(str(tmp_path))
+        quoted = env._quote_cwd_for_cd(r"C:\Users\smart\Desktop")
+        # Must be the MSYS form, quoted — never the raw backslash path,
+        # which is what bash's `cd` builtin mangles.
+        assert quoted == "/c/Users/smart/Desktop"
+        assert "\\" not in quoted
+
+    def test_noop_translation_on_non_windows(self, monkeypatch, tmp_path):
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", False)
+        env = self._make_env(str(tmp_path))
+        quoted = env._quote_cwd_for_cd("/home/smart/Desktop")
+        assert quoted == "/home/smart/Desktop"
+
+    def test_preserves_tilde_expansion(self, monkeypatch, tmp_path):
+        """The base class special-cases bare `~` / `~/...` for shell
+        expansion — the Windows-path translation must not interfere with
+        that, since `~` is never a drive-letter path."""
+        monkeypatch.setattr(local_mod, "_IS_WINDOWS", True)
+        env = self._make_env(str(tmp_path))
+        assert env._quote_cwd_for_cd("~") == "~"
+        assert env._quote_cwd_for_cd("~/") == "$HOME"
 
 
 # ---------------------------------------------------------------------------

@@ -31,6 +31,15 @@ if (Get-Command pyinstaller -ErrorAction SilentlyContinue) {
 } else {
     pip install pyinstaller
 }
+# `voice` (faster-whisper/ctranslate2/onnxruntime/numpy) is intentionally
+# excluded from the pip/uv `[all]` extra -- it's meant to be lazy-installed
+# at runtime via tools/lazy_deps.py. That lazy-install path shells out to
+# `sys.executable -m pip`, which doesn't work once frozen (mangaba.exe has
+# no python.exe/pip to invoke). So the frozen build bundles it directly
+# (see mangaba-agent.spec hiddenimports) and needs the exact same specs
+# from pyproject.toml's `voice` extra present in THIS venv before
+# PyInstaller runs, regardless of what extras were synced earlier.
+pip install "faster-whisper==1.2.1" "sounddevice==0.5.5" "numpy==2.4.3"
 Write-Host ""
 
 # ── 3. Build dashboard SPA ──────────────────────────────────────

@@ -12,23 +12,26 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 INSTALL_SH = REPO_ROOT / "scripts" / "install.sh"
 
 
-def test_install_script_skips_playwright_download_when_system_browser_exists() -> None:
-    text = INSTALL_SH.read_text()
+def test_install_script_always_installs_isolated_chromium() -> None:
+    """Automation must never be wired to the user's own system browser.
 
-    assert "find_system_browser()" in text
-    assert "google-chrome google-chrome-stable chromium chromium-browser chrome" in text
-    assert "Skipping Playwright browser download; Mangaba will use the system browser." in text
+    Driving the user's real, daily-use Chrome/Chromium profile for headless
+    automation risks visible tabs surfacing in their normal browsing session
+    whenever the agent navigates. The installer must always download a
+    dedicated, isolated Chromium via Playwright/agent-browser instead of
+    detecting and reusing a system browser.
+    """
+    text = INSTALL_SH.read_text(encoding="utf-8")
 
-
-def test_install_script_persists_system_browser_for_agent_browser() -> None:
-    text = INSTALL_SH.read_text()
-
-    assert "configure_browser_env_from_system_browser()" in text
-    assert "AGENT_BROWSER_EXECUTABLE_PATH=$browser_path" in text
+    assert "find_system_browser()" not in text
+    assert "configure_browser_env_from_system_browser()" not in text
+    assert "AGENT_BROWSER_EXECUTABLE_PATH=$browser_path" not in text
+    assert "Skipping Playwright browser download; Mangaba will use the system browser." not in text
+    assert "DETECTED_BROWSER_EXECUTABLE" not in text
 
 
 def test_playwright_installs_are_timeout_guarded() -> None:
-    text = INSTALL_SH.read_text()
+    text = INSTALL_SH.read_text(encoding="utf-8")
 
     assert "run_browser_install_with_timeout()" in text
     assert "run_browser_install_with_timeout 600 npx playwright install chromium" in text
@@ -41,7 +44,7 @@ def test_playwright_installs_are_timeout_guarded() -> None:
 
 def test_install_script_supports_skip_browser_flag() -> None:
     """--skip-browser (and --no-playwright alias) skips the Playwright install."""
-    text = INSTALL_SH.read_text()
+    text = INSTALL_SH.read_text(encoding="utf-8")
 
     assert "--skip-browser|--no-playwright)" in text
     assert "SKIP_BROWSER=true" in text
@@ -51,7 +54,7 @@ def test_install_script_supports_skip_browser_flag() -> None:
 
 def test_install_script_skips_with_deps_when_no_sudo() -> None:
     """Non-sudo users on apt distros must not block on an interactive sudo prompt."""
-    text = INSTALL_SH.read_text()
+    text = INSTALL_SH.read_text(encoding="utf-8")
 
     # The apt branch must gate --with-deps behind a sudo capability check
     # (root or non-interactive sudo), otherwise the installer hangs for

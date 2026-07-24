@@ -39,6 +39,30 @@ def _msys_to_windows_path(cwd: str) -> str:
     return f"{drive}:{tail or chr(92)}"  # chr(92) = backslash, avoid raw-string escape
 
 
+def _windows_to_msys_path(cwd: str) -> str:
+    """Translate a native Windows path (``C:\\Users\\x``) to Git Bash / MSYS
+    form (``/c/Users/x``) so it can be embedded in a ``cd`` command sent to
+    ``bash.exe``.
+
+    Inverse of :func:`_msys_to_windows_path`. No-ops on non-Windows hosts or
+    for paths that aren't drive-letter absolute paths. Bash's ``cd`` builtin
+    treats backslashes as escape characters, not path separators — feeding
+    it a raw ``C:\\Users\\smart\\Desktop`` mangles the path (backslash-escaped
+    fragments get silently dropped) instead of failing loudly, so this
+    conversion is required, not just cosmetic (see issue: write_file/terminal
+    failing with "cd: C:\\Users\\smart: No such file or directory" on Windows
+    even though the directory exists).
+    """
+    if not _IS_WINDOWS or not cwd:
+        return cwd
+    m = re.match(r'^([a-zA-Z]):[\\/](.*)$', cwd)
+    if not m:
+        return cwd
+    drive = m.group(1).lower()
+    tail = m.group(2).replace('\\', '/')
+    return f"/{drive}/{tail}" if tail else f"/{drive}"
+
+
 def _resolve_safe_cwd(cwd: str) -> str:
     """Return ``cwd`` if it exists as a directory, else the nearest existing
     ancestor.  Falls back to ``tempfile.gettempdir()`` only if walking up the
@@ -427,6 +451,24 @@ class LocalEnvironment(BaseEnvironment):
             cwd = os.path.expanduser(cwd)
         super().__init__(cwd=cwd or os.getcwd(), timeout=timeout, env=env)
         self.init_session()
+
+    def _quote_cwd_for_cd(self, cwd: str) -> str:
+        """Translate ``self.cwd`` (stored in native Windows form, e.g.
+        ``C:\\Users\\x``) to Git Bash / MSYS form before quoting, so the
+        ``cd`` builtin embedded in the generated bash script can actually
+        resolve it.
+
+        Without this, ``cd`` receives a raw backslash path — bash's ``cd``
+        treats backslashes as escape characters rather than separators, so
+        the path gets silently mangled (e.g. ``C:\\Users\\smart\\Desktop``
+        arrives at ``cd`` as ``C:\\Users\\smart`` with the trailing segment
+        dropped) and every command/file operation targeting a subdirectory
+        fails with a "No such file or directory" that makes the directory
+        look missing even though it exists.
+        """
+        if _IS_WINDOWS:
+            cwd = _windows_to_msys_path(cwd)
+        return super()._quote_cwd_for_cd(cwd)
 
     def get_temp_dir(self) -> str:
         """Return a shell-safe writable temp dir for local execution.
